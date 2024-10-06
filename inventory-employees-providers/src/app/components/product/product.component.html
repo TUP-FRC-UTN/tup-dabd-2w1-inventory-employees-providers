@@ -21,6 +21,7 @@
     .custom-form label {
       color: #333333; /* Labels */
       font-weight: bold;
+      width: 100%;
     }
     .custom-form .form-control,
     .custom-form .form-select {
@@ -60,8 +61,11 @@
           </div>
           <div class="col-6">
             <div class="input-group mb-3">
-              <select class="form-select" id="">
+              <select class="form-select" id="categories">
                 <option value="0" selected disabled>Categoría</option>
+                @for (c of categories; track $index) {
+                  <option value="{{ c.categoryId }}">{{ c.categoryName }}</option>
+                }
               </select>
               <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
             </div>
@@ -93,6 +97,9 @@
             <div class="input-group mb-3">
               <select class="form-select" id="">
                 <option value="0" selected disabled>Proveedor</option>
+                @for (p of providers; track $index) {
+                  <option value="{{ p.id }}">{{ p.name }}</option>
+                }
               </select>
               <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
             </div>
