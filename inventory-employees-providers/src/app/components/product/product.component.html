@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #D3D3D3;
+    }
+    .custom-form {
+      background-color: #FFFFFF; /* Fondo principal del formulario */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .custom-form legend {
+      color: #000000; /* Título */
+      font-weight: bold;
+    }
+    .custom-form label {
+      color: #333333; /* Labels */
+      font-weight: bold;
+    }
+    .custom-form .form-control,
+    .custom-form .form-select {
+      background-color: #F8F9FA; /* Fondo de inputs */
+      color: #333333; /* Texto de inputs */
+      border-color: #CED4DA; /* Borde de inputs */
+    }
+    .custom-form .btn-outline-secondary {
+      background-color: #198754; /* Fondo de botones outline */
+      color: white; /* Texto de botones */
+      border-color: #198754;
+    }
+    .custom-form .btn-secondary {
+      background-color: #6C757D; /* Botón secundario */
+      color: white; /* Texto botón secundario */
+      border: none;
+    }
+    .custom-form .btn-primary {
+      background-color: #198754; /* Botón primario */
+      color: white; /* Texto botón primario */
+      border: none;
+    }
+  </style>
+  <title>Formulario de Registro de Producto</title>
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row form">
+      <form class="custom-form">
+        <div class="mt-4 text-center">
+          <legend class="mb-4">Registro de nuevo Producto</legend>
+        </div>
+        <div class="mb-3 row">
+          <label for="inputName" class="col-form-label">Nombre</label>
+          <div class="col-6">
+            <input type="text" class="form-control" id="inputName">
+          </div>
+          <div class="col-6">
+            <div class="input-group mb-3">
+              <select class="form-select" id="">
+                <option value="0" selected disabled>Categoría</option>
+              </select>
+              <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="form-floating mb-3">
+            <textarea class="form-control" placeholder=" del producto, ubicación habitual,..." id="floatingTextarea" style="height: 150px"></textarea>
+            <label for="floatingTextarea">Descripción</label>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label for="inputPrice" class="col-form-label col-6">Precio Unitario</label>
+          <div class="input-group col-6">
+            <span class="input-group-text">$</span>
+            <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <div class="col-6">
+            <select class="form-select" id="" style="width: 90%;">
+              <option value="0" selected disabled>Estado</option>
+              <option value="1">En uso</option>
+              <option value="2">Disponible</option>
+              <option value="3">En mantenimiento</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <div class="input-group mb-3">
+              <select class="form-select" id="">
+                <option value="0" selected disabled>Proveedor</option>
+              </select>
+              <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="exampleCheck1">
+          <label class="form-check-label" for="exampleCheck1">Reutilizable</label>
+        </div>
+        <div class="mb-3 row">
+          <div class="col-6">
+            <label for="inputStock" class="col-form-label col-6">Stock Inicial</label>
+            <input type="number" class="form-control" id="inputStock">
+          </div>
+          <div class="col-6">
+            <label for="inputMinStock" class="col-form-label col-6">Cantidad Mín. para aviso por falta de Stock</label>
+            <input type="number" class="form-control" id="inputMinStock">
+          </div>
+        </div>
+        <div class="mb-3 mt-4 row">
+          <div class="col-6 text-center">
+            <button type="submit" style="width: 40%;" class="btn btn-secondary">Volver</button>
+          </div>
+          <div class="col-6 text-center">
+            <button type="reset" class="btn btn-primary" style="width: 40%;">Registrar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
