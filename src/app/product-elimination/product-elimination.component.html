@@ -1,0 +1,33 @@
+<div class="container">
+  <h2 class="text-center my-4">Ítems de Productos</h2>
+  
+  <div class="card mb-4">
+    <div class="card-body">
+      <!-- La tabla de productos existente -->
+      <app-product-table (selectedProductsChange)="updateSelectedProducts($event)"></app-product-table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="justification" class="form-label">Justificativo:</label>
+          <textarea 
+            class="form-control" 
+            id="justification" 
+            name="justification" 
+            [(ngModel)]="justification" 
+            rows="3"
+            required>
+          </textarea>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-secondary" (click)="goBack()">Volver</button>
+          <button type="submit" class="btn btn-danger" [disabled]="!justification.trim() || selectedProductIds.length === 0">Eliminar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
