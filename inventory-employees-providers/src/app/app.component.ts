@@ -8,7 +8,8 @@ import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ProductComponent, StockAumentoComponent,RouterModule],
+  imports: [RouterOutlet, ProductComponent, StockAumentoComponent
+    ,RouterModule],
   providers: [HttpClient],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',

@@ -1,137 +1,231 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #D3D3D3;
+<style>
+  body {
+    background-color: #D3D3D3;
+  }
+
+  .custom-form {
+    background-color: #FFFFFF; /* Fondo principal del formulario */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .custom-form legend {
+    color: #000000; /* Título */
+    font-weight: bold;
+    display: inline-block;
+  }
+
+  .custom-form label {
+    color: #333333; /* Labels */
+    font-weight: bold;
+    width: 90%;
+  }
+
+  .custom-form .form-control,
+  .custom-form .form-select {
+    background-color: #F8F9FA; /* Fondo de inputs */
+    color: #333333; /* Texto de inputs */
+    border-color: #CED4DA; /* Borde de inputs */
+  }
+
+  .custom-form .btn-outline-secondary {
+    background-color: #198754; /* Fondo de botones outline */
+    color: white; /* Texto de botones */
+    border-color: #198754;
+  }
+
+  .custom-form .btn-secondary {
+    background-color: #6C757D; /* Botón secundario */
+    color: white; /* Texto botón secundario */
+    border: none;
+  }
+
+  .custom-form .btn-primary {
+    background-color: #198754; /* Botón primario */
+    color: white; /* Texto botón primario */
+    border: none;
+  }
+
+  .info-button {
+    float: right;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+  }
+  .title-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
     }
-    .custom-form {
-      background-color: #FFFFFF; /* Fondo principal del formulario */
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    .title-section button {
+        margin-left: 15px;
     }
-    .custom-form legend {
-      color: #000000; /* Título */
-      font-weight: bold;
-    }
-    .custom-form label {
-      color: #333333; /* Labels */
-      font-weight: bold;
-      width: 100%;
-    }
-    .custom-form .form-control,
-    .custom-form .form-select {
-      background-color: #F8F9FA; /* Fondo de inputs */
-      color: #333333; /* Texto de inputs */
-      border-color: #CED4DA; /* Borde de inputs */
-    }
-    .custom-form .btn-outline-secondary {
-      background-color: #198754; /* Fondo de botones outline */
-      color: white; /* Texto de botones */
-      border-color: #198754;
-    }
-    .custom-form .btn-secondary {
-      background-color: #6C757D; /* Botón secundario */
-      color: white; /* Texto botón secundario */
-      border: none;
-    }
-    .custom-form .btn-primary {
-      background-color: #198754; /* Botón primario */
-      color: white; /* Texto botón primario */
-      border: none;
-    }
-  </style>
-  <title>Formulario de Registro de Producto</title>
-</head>
-<body>
-  <div class="container mt-5" style="">
-    <div class="row form">
-      <form class="custom-form">
-        <div class="mt-4 text-center">
-          <legend class="mb-4">Registro de nuevo Producto</legend>
-        </div>
-        <div class="mb-3 row">
-          <label for="inputName" class="col-form-label">Nombre</label>
-          <div class="col-6">
-            <input type="text" class="form-control" id="inputName">
-          </div>
-          <div class="col-6">
-            <div class="input-group mb-3">
-              <select class="form-select" id="categories">
-                <option value="0" selected disabled>Categoría</option>
-                @for (c of categories; track $index) {
-                  <option value="{{ c.categoryId }}">{{ c.categoryName }}</option>
-                }
-              </select>
-              <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
-            </div>
-          </div>
-        </div>
-        <div class="mb-3">
-          <div class="form-floating mb-3">
-            <textarea class="form-control" placeholder=" del producto, ubicación habitual,..." id="floatingTextarea" style="height: 150px"></textarea>
-            <label for="floatingTextarea">Descripción</label>
-          </div>
-        </div>
-        <div class="mb-3 row">
-          <label for="inputPrice" class="col-form-label col-6">Precio Unitario</label>
-          <div class="input-group col-6">
-            <span class="input-group-text">$</span>
-            <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
-          </div>
-        </div>
-        <div class="mb-3 row">
-          <div class="col-6">
-            <select class="form-select" id="" style="width: 90%;">
-              <option value="0" selected disabled>Estado</option>
-              <option value="1">En uso</option>
-              <option value="2">Disponible</option>
-              <option value="3">En mantenimiento</option>
-            </select>
-          </div>
-          <div class="col-6">
-            <div class="input-group mb-3">
-              <select class="form-select" id="">
-                <option value="0" selected disabled>Proveedor</option>
-                @for (p of providers; track $index) {
-                  <option value="{{ p.id }}">{{ p.name }}</option>
-                }
-              </select>
-              <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
-            </div>
-          </div>
-        </div>
-        <div class="mb-3 form-check">
-          <input type="checkbox" class="form-check-input" id="exampleCheck1">
-          <label class="form-check-label" for="exampleCheck1">Reutilizable</label>
-        </div>
-        <div class="mb-3 row">
-          <div class="col-6">
-            <label for="inputStock" class="col-form-label col-6">Stock Inicial</label>
-            <input type="number" class="form-control" id="inputStock">
-          </div>
-          <div class="col-6">
-            <label for="inputMinStock" class="col-form-label col-6">Cantidad Mín. para aviso por falta de Stock</label>
-            <input type="number" class="form-control" id="inputMinStock">
-          </div>
-        </div>
-        <div class="mb-3 mt-4 row">
-          <div class="col-6 text-center">
-            <button type="submit" style="width: 40%;" class="btn btn-secondary">Volver</button>
-          </div>
-          <div class="col-6 text-center">
-            <button type="reset" class="btn btn-primary" style="width: 40%;">Registrar</button>
-          </div>
-        </div>
-      </form>
+</style>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Información</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Esta pantalla permite registrar un nuevo producto en el sistema. Para ello, 
+        se deben completar los campos requeridos. 
+
+
+        En nuestro sistema, este producto se digitaliza de forma que puede tener más 
+        de un ítem en stock. De esta forma se le permite al usuario llevar un control 
+        de la cantidad de productos que tiene en stock, así como una forma de reconocer 
+        e identificar cada uno de sus ítems o artículos en particular. 
+        La cantidad de ítems que tendrá un producto se corresponderá con la cantidad/stock inicial que se 
+        le asigne al producto a la hora de registrarlo.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
     </div>
   </div>
+</div>
 
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<title>Formulario de Registro de Producto</title>
+<div class="container mt-5" style="">
+  <div class="row form">
+    <form class="custom-form" #myForm="ngForm" (ngSubmit)="onSubmit(myForm)">
+      <div class="title-section">
+        <legend class="mb-4" >Registro de nuevo Producto</legend>
+        <button class="btn btn-primary info-button" data-bs-toggle="modal" data-bs-target="#exampleModal"
+        style="background-color: rgb(0, 68, 255);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="28" fill="currentColor" class="bi bi-info-circle" viewBox="">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+          </svg>
+        </button>
+      </div>
+      <div class="mb-3 row">
+        <label for="inputName" class="col-form-label">Nombre</label>
+        <div class="col-6">
+          <input type="text" class="form-control" id="name" name="name" 
+           [(ngModel)]="dto.name" #name="ngModel" minlength="3" required>
+           @if(name.invalid && name.touched) {
+              @if(name.errors?.['minlength']) {
+                <div class="text-danger">El nombre del producto debe tener al menos 3 caracteres</div>
+              }@else {
+               <div class="text-danger">Este campo es requerido</div>
+              }
+            }
+        </div>
+        <div class="col-6">
+          <div class="input-group mb-3">
+            <select class="form-select" id="categories" name="category" 
+            [(ngModel)]="dto.category_id" #category="ngModel" required>
+              <option value="0" selected disabled>Categoría</option>
+              @for (c of categories; track $index) {
+                <option value="{{ c.id }}">{{ c.category }}</option>
+              }
+            </select>
+            <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
+          </div>
+          @if(category.value === 0 && category.touched) {
+            <div class="text-danger">Este campo es requerido</div>
+          }
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="form-floating mb-3">
+          <textarea class="form-control" 
+          placeholder="" id="floatingTextarea" style="height: 150px"  
+          [(ngModel)]="dto.description" name="descr" #descr="ngModel" minlength="5" required></textarea>
+          <label for="floatingTextarea">Descripción</label>
+          @if(descr.invalid && descr.touched) {
+            @if(descr.errors?.['minlength']) {
+              <div class="text-danger">La descripción del producto debe tener al menos 5 caracteres</div>
+            }@else {
+              <div class="text-danger">Este campo es requerido</div>
+            }
+          }
+        </div>
+      </div>
+      <div class="mb-4 row">
+        <label for="inputPrice" class="col-form-label">Precio Unitario</label>
+        <div class="input-group col-6">
+          <input type="text" class="form-control" 
+          aria-label="Amount" #unit="ngModel" [(ngModel)]="dto.unit_price"
+          name="unit">
+          <span class="input-group-text">$</span>
+          @if(unit.invalid && unit.touched) {
+            <div class="text-danger">Este campo es requerido</div>
+          }
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <div class="col-6">
+          <select class="form-select"  id="" name="state" #state="ngModel" 
+          [(ngModel)]="dto.state_id" [value]="0">
+            <option value="0" selected disabled>Estado</option>
+            <option value="1">Disponible</option>
+            <option value="2">En uso</option>
+            <option value="3">En mantenimiento</option>
+          </select>
+          @if(state.value === 0 && state.touched) {
+            <div class="text-danger">Este campo es requerido</div>
+          }
+        </div>
+        <div class="col-6">
+          <div class="input-group mb-3">
+            <select class="form-select" id="" name="supplier" 
+            [(ngModel)]="dto.supplier_id" #supplier="ngModel" required>
+              <option value="0" selected disabled>Proveedor</option>
+              @for (p of providers; track $index) {
+                <option value="{{ p.id }}">{{ p.name }}</option>
+              }
+            </select>
+            <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
+          </div>
+          @if(supplier.value === 0 && supplier.touched) {
+            <div class="text-danger">Este campo es requerido</div>
+          }
+        </div>
+      </div>
+      <div class="mb-3 form-check col-4">
+        <input type="checkbox" name="reusable" class="form-check-input" id="exampleCheck1" [(ngModel)]="dto.reusable">
+        <label class="form-check-label" for="exampleCheck1">Reutilizable</label>
+      </div>
+      <div class="mb-3 row">
+        <div class="col-6">
+          <label for="inputStock" class="col-form-label col-6">Stock Inicial</label>
+          <input type="number" name="stock" class="form-control" [(ngModel)]="dto.amount" id="inputStock" #stock="ngModel"  min="1" required>
+          @if(stock.invalid && stock.touched) {
+            @if(stock.errors?.['min']) {
+              <div class="text-danger">La cantidad mínima debe ser mayor a 0</div>
+            }@else {
+              <div class="text-danger">Este campo es requerido</div>
+            }
+          }
+        </div>
+        <div class="col-6">
+          <label for="inputMinStock" class="col-form-label col-6">Cantidad Mín. para aviso por falta de Stock</label>
+          <input #min="ngModel"  min="1" type="number" name="min" [(ngModel)]="dto.min_amount_warning" class="form-control" id="inputMinStock"  required>
+          @if(min.invalid && min.touched) {
+            @if(min.errors?.['min']) {
+              <div class="text-danger">La cantidad mínima debe ser mayor a 0</div>
+            }@else {
+              <div class="text-danger">Este campo es requerido</div>
+            }
+          }
+        </div>
+      </div>
+      <div class="mb-3 mt-4 row">
+        <div class="col-6 text-center">
+          <button type="submit" style="width: 40%;" class="btn btn-secondary">Volver</button>
+        </div>
+        <div class="col-6 text-center">
+          <button [disabled]="!myForm.valid" type="submit" class="btn btn-primary" style="width: 40%;">Registrar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
