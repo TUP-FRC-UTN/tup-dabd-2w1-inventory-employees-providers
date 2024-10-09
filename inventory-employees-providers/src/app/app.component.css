@@ -1,0 +1,9 @@
+.container {
+    border: 2px solid gainsboro; /* Color del borde */
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 20px; /* Espacio interior */
+    max-width: 400px; /* Ancho máximo */
+    margin: 20px auto; /* Centrar el contenedor verticalmente */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra para efecto visual */
+  }
+  
