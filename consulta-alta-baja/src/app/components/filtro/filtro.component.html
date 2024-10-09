@@ -1,0 +1,34 @@
+<!-- filtro.component.html -->
+<form (submit)="onSubmit()" class="p-4 bg-light rounded shadow">
+  <h3 class="mb-4">Filtros de Búsqueda</h3>
+  
+  <div class="form-group mb-3">
+    <label for="desde" class="form-label">Desde:</label>
+    <input type="date" id="desde" [(ngModel)]="desde" name="desde" class="form-control" placeholder="Seleccione una fecha">
+  </div>
+
+  <div class="form-group mb-3">
+    <label for="hasta" class="form-label">Hasta:</label>
+    <input type="date" id="hasta" [(ngModel)]="hasta" name="hasta" class="form-control" placeholder="Seleccione una fecha">
+  </div>
+
+  <div class="form-group mb-3">
+    <label for="producto" class="form-label">Producto:</label>
+    <input
+      type="text"
+      id="producto"
+      [(ngModel)]="producto"
+      name="producto"
+      class="form-control"
+      (input)="onSubmit()"
+      placeholder="Escriba el nombre del producto"
+    />
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger mt-3">{{ error }}</div>
+
+  <div class="d-flex justify-content-between mt-4">
+    <button type="button" (click)="eliminarFiltros()" class="btn btn-secondary">Eliminar Filtros</button>
+    <button type="submit" class="btn btn-primary">Aplicar Filtro</button>
+  </div>
+</form>
