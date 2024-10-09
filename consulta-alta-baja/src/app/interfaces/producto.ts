@@ -1,12 +1,12 @@
 // producto.interface.ts
 export interface Producto {
     id: number;
-    producto: string;
-    tipoMovimiento: string;
-    fecha: Date ;
-    proveedor: string;
-    cantidad: number;
-    justificativo: string;
+    product: string;
+    modificationType: string;
+    date: Date ;
+    supplier: string;
+    amount: number;
+    description: string;
   }
   
   export interface ProductoResponse {

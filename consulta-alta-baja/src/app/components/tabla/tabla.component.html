@@ -8,22 +8,22 @@
   <table class="table table-striped table-hover">
     <thead class="table-light">
       <tr>
-        <th (click)="ordenarPor('producto')" style="cursor: pointer;">Producto</th>
-        <th (click)="ordenarPor('tipoMovimiento')" style="cursor: pointer;">Tipo Movimiento</th>
-        <th (click)="ordenarPor('fecha')" style="cursor: pointer;">Fecha</th>
-        <th (click)="ordenarPor('proveedor')" style="cursor: pointer;">Proveedor</th>
-        <th (click)="ordenarPor('cantidad')" style="cursor: pointer;">Cantidad</th>
-        <th (click)="ordenarPor('justificativo')" style="cursor: pointer;">Justificativo</th>
+        <th (click)="ordenarPor('product')" style="cursor: pointer;">Producto</th>
+        <th (click)="ordenarPor('modificationType')" style="cursor: pointer;">Tipo Movimiento</th>
+        <th (click)="ordenarPor('date')" style="cursor: pointer;">Fecha</th>
+        <th (click)="ordenarPor('supplier')" style="cursor: pointer;">Proveedor</th>
+        <th (click)="ordenarPor('amount')" style="cursor: pointer;">Cantidad</th>
+        <th (click)="ordenarPor('description')" style="cursor: pointer;">Justificativo</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let producto of productosFiltrados">
-        <td>{{ producto.producto }}</td>
-        <td>{{ producto.tipoMovimiento }}</td>
-        <td>{{ producto.fecha | date: 'dd-MM-yyyy' }}</td>
-        <td>{{ producto.proveedor }}</td>
-        <td>{{ producto.cantidad }}</td>
-        <td>{{ producto.justificativo }}</td>
+        <td>{{ producto.product }}</td>
+        <td>{{ producto.modificationType }}</td>
+        <td>{{ producto.date | date: 'dd-MM-yyyy' }}</td>
+        <td>{{ producto.supplier }}</td>
+        <td>{{ producto.amount }}</td>
+        <td>{{ producto.description }}</td>
       </tr>
       <tr *ngIf="productosFiltrados.length === 0">
         <td colspan="6" class="text-center">No se encontraron productos.</td>

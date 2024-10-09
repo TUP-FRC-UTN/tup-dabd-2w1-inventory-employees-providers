@@ -8,7 +8,7 @@ import { Producto } from '../interfaces/producto';
   providedIn: 'root'
 })
 export class ProductoService {
-  private apiUrl = 'https://mocki.io/v1/be34da7e-df7a-4bfe-b7f5-afef612a460e';
+  private apiUrl = 'https://mocki.io/v1/3d5d8476-ac39-4b45-ae81-22e3e4d19a73';
 
   constructor(private http: HttpClient) {}
 
@@ -16,7 +16,7 @@ export class ProductoService {
     return this.http.get<any[]>(this.apiUrl).pipe(
       map(data => data.map(item => ({
         ...item,
-        fecha: this.convertirFecha(item.fecha)  // Convertir a Date usando una función personalizada
+        date: this.convertirFecha(item.date)  // Convertir a Date usando una función personalizada
       })))
     );
   }

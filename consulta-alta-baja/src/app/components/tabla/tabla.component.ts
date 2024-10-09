@@ -28,7 +28,7 @@ export class TablaComponent implements OnInit {
     this.productoService.getProductos().subscribe(
       (data) => {
         this.productos = data; // Almacena los productos
-        this.productosNombres = this.productos.map(p => p.producto); // Crea la lista para el input
+        this.productosNombres = this.productos.map(p => p.product); // Crea la lista para el input
         this.productosFiltrados = [...this.productos]; // Inicialmente, la lista filtrada es igual a la completa
       },
       (error) => {
@@ -43,10 +43,10 @@ export class TablaComponent implements OnInit {
     const fechaHasta = hasta ? new Date(hasta) : null;
 
     this.productosFiltrados = this.productos.filter(productoItem => {
-      const fechaProducto = new Date(productoItem.fecha); // Asegúrate de que fecha sea un objeto Date
+      const fechaProducto = new Date(productoItem.date); // Asegúrate de que fecha sea un objeto Date
       const fechaValida = (!fechaDesde || fechaProducto >= fechaDesde) &&
                           (!fechaHasta || fechaProducto <= fechaHasta);
-      const productoValido = producto ? productoItem.producto.toLowerCase().includes(producto.toLowerCase()) : true; // Filtrar según el input
+      const productoValido = producto ? productoItem.product.toLowerCase().includes(producto.toLowerCase()) : true; // Filtrar según el input
 
       return fechaValida && productoValido;
     });
