@@ -5,11 +5,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { StockAumentoService } from '../../services/stock-aumento.service';
 import { Supplier } from '../../interfaces/suppliers';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-stock-aumento',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule,RouterModule],
   templateUrl: './stock-aumento.component.html',
   styleUrls: ['./stock-aumento.component.css']
 })
