@@ -1,8 +1,14 @@
 <!-- tabla.component.html -->
-<app-filtro 
-  [productos]="productosNombres" 
-  (filtroAplicado)="aplicarFiltro($event)" 
-  (filtrosEliminados)="resetearFiltros()"></app-filtro>
+<button (click)="toggleFiltro()" class="btn btn-secondary mb-3">
+  {{ mostrarFiltro ? 'Ocultar Filtro' : 'Mostrar Filtro' }}
+</button>
+
+<div *ngIf="mostrarFiltro">
+  <app-filtro 
+    [productos]="productosNombres" 
+    (filtroAplicado)="aplicarFiltro($event)" 
+    (filtrosEliminados)="resetearFiltros()"></app-filtro>
+</div>
 
 <div class="table-responsive mt-4">
   <table class="table table-striped table-hover">

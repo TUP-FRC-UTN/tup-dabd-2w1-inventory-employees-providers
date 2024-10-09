@@ -17,6 +17,7 @@ export class TablaComponent implements OnInit {
   productosNombres: string[] = []; // Nombres de productos para el input
   columnaOrden: keyof Producto | null = null;
   ordenAscendente = true;
+  mostrarFiltro: boolean = false; // Variable para controlar la visibilidad del filtro
 
   constructor(private productoService: ProductoService) {}
 
@@ -37,6 +38,10 @@ export class TablaComponent implements OnInit {
     );
   }
 
+  toggleFiltro() {
+    this.mostrarFiltro = !this.mostrarFiltro; // Alterna la visibilidad del filtro
+  }
+
   aplicarFiltro(filtro: { desde: string; hasta: string; producto: string }) {
     const { desde, hasta, producto } = filtro;
     const fechaDesde = desde ? new Date(desde) : null;
@@ -50,12 +55,6 @@ export class TablaComponent implements OnInit {
 
       return fechaValida && productoValido;
     });
-  }
-
-  resetearFiltros() {
-    // Restablecer productos filtrados a la lista original
-    this.productosFiltrados = [...this.productos];
-    // Si necesitas limpiar los campos de entrada del filtro, puedes hacerlo aquí
   }
 
   ordenarPor(columna: keyof Producto) {
@@ -78,5 +77,10 @@ export class TablaComponent implements OnInit {
         return 0;
       }
     });
+  }
+
+  resetearFiltros() {
+    this.productosFiltrados = [...this.productos];
+    this.mostrarFiltro = false; // Oculta el filtro al resetear
   }
 }
