@@ -13,9 +13,13 @@ declare var bootstrap: any; // Asegúrate de que el tipo bootstrap sea accesible
 })
 export class ProductTableComponent implements OnInit, AfterViewInit {
   products: (Product & { selected: boolean })[] = [];
-  filteredProducts: (Product & { selected: boolean })[] = []; // Nueva lista filtrada
-  searchTerm: string = ''; // Término de búsqueda
+  filteredProducts: (Product & { selected: boolean })[] = [];
+  searchTerm: string = '';
   selectAll: boolean = false;
+
+  // Variables para la ordenación
+  currentSortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc'; // Dirección de ordenación por defecto
 
   @Output() selectedProductsChange = new EventEmitter<number[]>(); // Para emitir los IDs seleccionados
 
@@ -26,7 +30,6 @@ export class ProductTableComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Inicializa los tooltips de Bootstrap
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.forEach(function (tooltipTriggerEl: any) {
       new bootstrap.Tooltip(tooltipTriggerEl);
@@ -37,7 +40,7 @@ export class ProductTableComponent implements OnInit, AfterViewInit {
     this.productService.getProducts().subscribe(
       (data: Product[]) => {
         this.products = data.map(product => ({ ...product, selected: false }));
-        this.filteredProducts = this.products; // Inicialmente, muestra todos los productos
+        this.filteredProducts = this.products;
       },
       error => {
         console.error('Error loading products', error);
@@ -45,39 +48,62 @@ export class ProductTableComponent implements OnInit, AfterViewInit {
     );
   }
 
-  // Filtrar productos por el término de búsqueda cuando se ingresan al menos 3 letras
   filterProducts() {
     if (this.searchTerm.length >= 3) {
       const lowerTerm = this.searchTerm.toLowerCase();
       this.filteredProducts = this.products.filter(product => 
         product.name.toLowerCase().includes(lowerTerm) || 
         product.supplier.name.toLowerCase().includes(lowerTerm) ||
-        product.details.description.toLowerCase().includes(lowerTerm) // Agregamos filtro por descripción
+        product.details.description.toLowerCase().includes(lowerTerm)
       );
     } else {
-      this.filteredProducts = this.products; // Mostrar todos los productos si hay menos de 3 letras
+      this.filteredProducts = this.products;
     }
   }
 
-  // Cambia el estado de selección de todos los productos
   toggleSelectAll(event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;
-    this.filteredProducts.forEach(product => product.selected = isChecked); // Solo selecciona los filtrados
+    this.filteredProducts.forEach(product => product.selected = isChecked);
     this.selectAll = isChecked;
-    this.emitSelectedProducts(); // Emitir los seleccionados
+    this.emitSelectedProducts();
   }
 
-  // Actualiza el checkbox de "Seleccionar todos" dependiendo de la selección individual
   updateSelectAll() {
-    this.selectAll = this.filteredProducts.every(product => product.selected); // Solo verifica los filtrados
-    this.emitSelectedProducts(); // Emitir los seleccionados
+    this.selectAll = this.filteredProducts.every(product => product.selected);
+    this.emitSelectedProducts();
   }
 
-  // Función para emitir los IDs seleccionados
   emitSelectedProducts() {
     const selectedIds = this.filteredProducts
       .filter(product => product.selected)
       .map(product => product.id);
-    this.selectedProductsChange.emit(selectedIds); // Emitir los IDs seleccionados
+    this.selectedProductsChange.emit(selectedIds);
+  }
+
+  // Función para ordenar los productos por columna
+  sortBy(column: string) {
+    if (this.currentSortColumn === column) {
+      // Si ya está ordenando por esta columna, alternar la dirección
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Si es una nueva columna, ordenar ascendente primero
+      this.currentSortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    // Función de comparación para la ordenación
+    this.filteredProducts.sort((a, b) => {
+      const aValue = this.getNestedProperty(a, column);
+      const bValue = this.getNestedProperty(b, column);
+
+      if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  // Función auxiliar para obtener propiedades anidadas
+  getNestedProperty(obj: any, propertyPath: string): any {
+    return propertyPath.split('.').reduce((o, p) => o && o[p], obj);
   }
 }

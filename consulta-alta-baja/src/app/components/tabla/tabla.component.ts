@@ -1,4 +1,3 @@
-// tabla.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductoService } from '../../services/producto.service';
@@ -10,6 +9,7 @@ import { FiltroComponent } from '../filtro/filtro.component';
   standalone: true,
   imports: [CommonModule, FiltroComponent],
   templateUrl: './tabla.component.html',
+  styleUrls: ['./tabla.component.css']
 })
 export class TablaComponent implements OnInit {
   productos: Producto[] = []; // Lista completa de productos
@@ -18,6 +18,8 @@ export class TablaComponent implements OnInit {
   columnaOrden: keyof Producto | null = null;
   ordenAscendente = true;
   mostrarFiltro: boolean = false; // Variable para controlar la visibilidad del filtro
+  paginaActual: number = 1; // Página actual
+  itemsPorPagina: number = 10; // Número de elementos por página
 
   constructor(private productoService: ProductoService) {}
 
@@ -55,6 +57,7 @@ export class TablaComponent implements OnInit {
 
       return fechaValida && productoValido;
     });
+    this.paginaActual = 1; // Reiniciar a la primera página al aplicar un filtro
   }
 
   ordenarPor(columna: keyof Producto) {
@@ -82,5 +85,25 @@ export class TablaComponent implements OnInit {
   resetearFiltros() {
     this.productosFiltrados = [...this.productos];
     this.mostrarFiltro = false; // Oculta el filtro al resetear
+    this.paginaActual = 1; // Reiniciar a la primera página
+  }
+
+  // Método para obtener los productos de la página actual
+  paginacionProductos() {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    return this.productosFiltrados.slice(inicio, fin);
+  }
+
+  // Método para calcular el total de páginas
+  totalPaginas() {
+    return Math.ceil(this.productosFiltrados.length / this.itemsPorPagina);
+  }
+
+  // Método para cambiar de página
+  cambiarPagina(nuevaPagina: number) {
+    if (nuevaPagina >= 1 && nuevaPagina <= this.totalPaginas()) {
+      this.paginaActual = nuevaPagina;
+    }
   }
 }
