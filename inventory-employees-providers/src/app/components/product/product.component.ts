@@ -27,7 +27,8 @@ export class ProductComponent {
   categoriesError: boolean = false;
   providersError: boolean = false;
   help: boolean = false;
-
+  createProduct$: Observable<any>= new Observable<any>();
+  success: boolean = false;
 
   constructor(productService: ProductService,providersService: 
     ProvidersService) {
@@ -51,14 +52,24 @@ export class ProductComponent {
   onSubmit(form: NgForm) {
     if (form.valid) {
       console.log(this.dto);
-      form.reset();
+      this.createProduct$ = this.productService.createProduct(this.dto);
+      this.createProduct$.subscribe({
+      next: response => {
+        this.success = true;
+        alert('Producto creado con éxito');
+        form.reset();
+      },error: error => {
+        this.success = true;
+        console.log(error);
+      },complete: () => {
+        console.log('Petición completada');
+      }
+    });  
     }
   }
 
-  onChanges() {
-    console.log(this.dto.name);
-    
-  }
+
+
 
 
 }

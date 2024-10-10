@@ -4,11 +4,11 @@ export class CreateProductDTO {
     reusable: boolean|undefined;
     min_amount_warning: number|undefined;
     amount: number|undefined;
-    supplier_id: number=0;
+    supplier_id: number|undefined;
     description: string|undefined;
     unit_price: number|undefined;
-    category_id: number=0;
-    state_id:number=0;
+    category_id: number|undefined;
+    state_id:number|undefined;
 
     /*constructor(name: string, reusable: boolean, min_amount_warning: number, 
         amount: number, supplier_id: number, description: string, unit_price:
