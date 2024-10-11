@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { delay, Observable } from 'rxjs';
 import { ProductCategory } from '../interfaces/product-category';
 import { CreateProductDTO } from '../interfaces/create-product-dto';
+import { ProductXDetailDTO } from '../interfaces/product-xdetail-dto';
 //import { Product } from '../interfaces/product';
 @Injectable({
   providedIn: 'root'
@@ -16,13 +17,18 @@ export class ProductService {
 
   getAllCategories():Observable<ProductCategory[]> {
     return this.client1.get<ProductCategory[]>
-    (`http://localhost:8080/Category/getAll`);
+    (`http://localhost:8080/category/getAll`);
   }
 
-  createProduct(dto: CreateProductDTO): Observable<any> {
+  createProduct(dto: CreateProductDTO): Observable<ProductXDetailDTO> {
     const json = JSON.stringify(dto);
     console.log(json);
-    return this.client1.post<CreateProductDTO>('http://localhost:8080/product/product', json);
+    return this.client1.post<ProductXDetailDTO>('http://localhost:8080/product/product', json, {
+      headers: {
+        'Content-Type': 'application/json'  
+      }
+    });
+    
   }
 /*
   getProducts(): Observable<Product[]> {

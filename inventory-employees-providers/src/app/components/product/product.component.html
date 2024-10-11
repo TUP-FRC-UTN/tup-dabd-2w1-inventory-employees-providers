@@ -1,51 +1,71 @@
 <style>
-  body {
+    body {
     background-color: #D3D3D3;
   }
 
   .custom-form {
-    background-color: #FFFFFF; /* Fondo principal del formulario */
+    background-color: #F8F9FA;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
   .custom-form legend {
-    color: #000000; /* Título */
+    color: #212529;
     font-weight: bold;
     display: inline-block;
   }
 
   .custom-form label {
-    color: #333333; /* Labels */
+    color: #495057;
     font-weight: bold;
-    width: 90%;
   }
+
 
   .custom-form .form-control,
   .custom-form .form-select {
-    background-color: #F8F9FA; /* Fondo de inputs */
-    color: #333333; /* Texto de inputs */
-    border-color: #CED4DA; /* Borde de inputs */
+    color: #495057;
+    border-color: #CED4DA;
   }
 
   .custom-form .btn-outline-secondary {
-    background-color: #198754; /* Fondo de botones outline */
-    color: white; /* Texto de botones */
-    border-color: #198754;
+    color: white;
+    border-color: #6C757D;
   }
 
   .custom-form .btn-secondary {
-    background-color: #6C757D; /* Botón secundario */
-    color: white; /* Texto botón secundario */
+    background-color: #495057;
+    color: white;
     border: none;
   }
 
   .custom-form .btn-primary {
-    background-color: #198754; /* Botón primario */
-    color: white; /* Texto botón primario */
+    color: white;
     border: none;
   }
+
+  .form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .form-group label {
+    width: 20%; /* Ajusta el ancho según tus necesidades */
+    text-align: left; /* Alinea el texto del label a la izquierda */
+  }
+
+  .form-group input{
+    flex: 1; /* Ajusta el ancho según tus necesidades */
+  }
+
+  .btn-outline-secondary {
+    background-color: #6C757D;
+    color: white;
+    border: none;
+  }
+
+  
 
   .info-button {
     float: right;
@@ -53,16 +73,34 @@
     width: 40px;
     height: 40px;
   }
+
   .title-section {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .title-section button {
-        margin-left: 15px;
-    }
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .title-section button {
+    margin-left: 15px;
+  }
+
+  .text-danger {
+    color: #DC3545;
+    font-size: small;
+  }
+
+  .error-container {
+    min-height: 20px;
+  }
+
+  .modal.show {
+  display: block;
+  background-color: rgba(0, 0, 0, 0.5);  /* Fondo semi-transparente */
+}
+
 </style>
+
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -73,8 +111,6 @@
       <div class="modal-body">
         Esta pantalla permite registrar un nuevo producto en el sistema. Para ello, 
         se deben completar los campos requeridos. 
-
-
         En nuestro sistema, este producto se digitaliza de forma que puede tener más 
         de un ítem en stock. De esta forma se le permite al usuario llevar un control 
         de la cantidad de productos que tiene en stock, así como una forma de reconocer 
@@ -89,121 +125,226 @@
   </div>
 </div>
 
+
+
+  @if(abrirModal){
+    @if(success){
+      <!-- Modal -->
+      <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: block;">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+              <h5 class="modal-title" id="exampleModalLabel">Operación Exitosa</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="closeModal()"></button>
+            </div>
+            <div class="modal-body text-center">
+              <div class="my-3">
+              </div>
+              <p>La operación se completó con éxito.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="closeModal()">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }@else {
+      @if(createProduct$|async) {
+        <div #modal class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" style="border-radius: 4.3rem;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Cargando...</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      }@else {
+        <!-- Modal -->
+      <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: block;">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title" id="exampleModalLabel">Operación Fallida</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="closeModal()"></button>
+            </div>
+            <div class="modal-body text-center">
+              <div class="my-3">
+              </div>
+              <p>Hubo un error al completar la operación. Intente nuevamente.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+              <button type="button" class="btn-secondary btn " data-bs-dismiss="modal" (click)="closeModal()">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+    }
+  }
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Información</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <title>Formulario de Registro de Producto</title>
 <div class="container mt-5" style="">
   <div class="row form">
     <form class="custom-form" #myForm="ngForm" (ngSubmit)="onSubmit(myForm)">
       <div class="title-section">
-        <legend class="mb-4" >Registro de nuevo Producto</legend>
+        <legend class="mb-4">Registro de nuevo Producto</legend>
         <button class="btn btn-primary info-button" data-bs-toggle="modal" data-bs-target="#exampleModal"
-        style="background-color: rgb(0, 68, 255);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="28" fill="currentColor" class="bi bi-info-circle" viewBox="">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+          style="background-color: rgb(0, 68, 255);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="28" fill="currentColor" class="bi bi-info-circle"
+            viewBox="">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+            <path
+              d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
           </svg>
         </button>
       </div>
       <div class="mb-3 row">
         <div class="col-6">
-        <label for="inputName" class="col-form-label">Nombre</label>
-          <input type="text" class="form-control" id="name" name="name" 
-           [(ngModel)]="dto.name" #name="ngModel" minlength="3" required>
-           @if(name.invalid && name.touched) {
+          <div class="form-group">
+            <label for="inputName" class="col-form-label">Nombre</label>
+            <input type="text" class="form-control" id="name" name="name" [(ngModel)]="dto.name" #name="ngModel"
+              minlength="3" required>
+          </div>
+          <div class="error-container">
+            @if(name.invalid && name.touched) {
               @if(name.errors?.['minlength']) {
-                <div class="text-danger">El nombre del producto debe tener al menos 3 caracteres</div>
-              }@else {
-               <div class="text-danger">Este campo es requerido</div>
+              <div class="text-danger">El nombre del producto debe tener al menos 3 caracteres</div>
+              } @else {
+              <div class="text-danger">Este campo es requerido</div>
               }
             }
+          </div>
         </div>
         <div class="col-6">
-          <label for="categories" class="col-form-label">Categoría</label>
-          <div class="input-group">
-            <select class="form-select" id="categories" name="category" 
-            [(ngModel)]="dto.category_id" #category="ngModel" required>
-              @for (c of categories; track $index) {
-                <option value="{{ c.id }}">{{ c.category }}</option>
+          <div class="input-group form-group">
+            <label for="categories" class="col-form-label">Categoría</label>
+            <select class="form-select" id="categories" style="border-radius: 0.25rem;"
+            name="category" [(ngModel)]="dto.category_id" #category="ngModel"
+              required>
+              @if(categories$|async) {
+                @for (c of categories; track $index) {
+                  <option value="{{ c.id }}">{{ c.category }}</option>
+                }
+              }@else {
+                @if(requestInProgress){
+                    <option class="loading" 
+                    value="0" selected disabled>Cargando categorías...</option>
+                }@else {
+                  @if(categoriesError){
+                   <option class="text-danger" disabled>Error al cargar categorías</option>
+                  }@else {
+                    <option class="text-danger" selected disabled>No hay categorías disponibles</option>
+                  }
+                }
               }
             </select>
             <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
           </div>
-          @if(category.invalid && category.touched) {
+          <div class="error-container">
+            @if(category.invalid && category.touched) {
             <div class="text-danger">Este campo es requerido</div>
-          }
+            }
+          </div>
         </div>
       </div>
       <div class="mb-3">
-        <div class="form-floating mb-3">
+        <div class="form-floating mb-3 ">
           <textarea class="form-control" 
           placeholder="" id="floatingTextarea" style="height: 150px"  
           [(ngModel)]="dto.description" name="descr" #descr="ngModel" minlength="5" required></textarea>
           <label for="floatingTextarea">Descripción</label>
-          @if(descr.invalid && descr.touched) {
-            @if(descr.errors?.['minlength']) {
-              <div class="text-danger">La descripción del producto debe tener al menos 5 caracteres</div>
-            }@else {
-              <div class="text-danger">Este campo es requerido</div>
+          <div class="error-container">
+            @if(descr.invalid && descr.touched) {
+              @if(descr.errors?.['minlength']) {
+                <div class="text-danger">La descripción del producto debe tener al menos 5 caracteres</div>
+              }@else {
+                <div class="text-danger">Este campo es requerido</div>
+              }
             }
-          }
+          </div>
         </div>
       </div>
-      <div class="mb-4 row">
-        <label for="inputPrice" class="col-form-label">Precio Unitario</label>
-        <div class="input-group col-6">
+      <div class="mb-5">
+        <div class="input-group form-group">
+          <label for="inputPrice" class="col-form-label">Precio Unitario</label>
           <input type="number" class="form-control" 
           aria-label="Amount" #unit="ngModel" [(ngModel)]="dto.unit_price"
           name="unit">
           <span class="input-group-text">$</span>
-          @if(unit.invalid && unit.touched) {
-            <div class="text-danger">Este campo es requerido</div>
-          }
         </div>
       </div>
-      <div class="mb-3 row">
+      <div class="mb-2 row">
         <div class="col-6">
-          <label for="state" class="col-form-label">Estado</label>
+          <div class="form-group">
+            <label for="state" class="col-form-label">Estado</label>
           <select (click)="myForm.invalid" class="form-select"  id="" name="state" #state="ngModel" 
           [(ngModel)]="dto.state_id" [value]="0" required>
             <option value="1">Disponible</option>
             <option value="2">En uso</option>
             <option value="3">En mantenimiento</option>
           </select>
-          @if(state.invalid && state.touched) {
-            <div class="text-danger">Este campo es requerido</div>
-          }
+          </div>
+          <div class="error-container">
+            @if(state.invalid && state.touched) {
+              <div class="text-danger">Este campo es requerido</div>
+            }
+          </div>
         </div>
         <div class="col-6">
+          <div class="input-group mb-3 form-group">
           <label for="supplier" class="col-form-label">Proveedor</label>
-          <div class="input-group mb-3">
-            <select class="form-select" id="supplier" name="supplier" 
+            <select class="form-select" id="supplier" name="supplier" style="border-radius: 0.25rem;"
             [(ngModel)]="dto.supplier_id" #supplier="ngModel">
-              @for (p of providers; track $index) {
-                <option value="{{ p.id }}">{{ p.name }}</option>
+              @if(providers$|async) {
+                @for (p of providers; track $index) {
+                  <option value="{{ p.id }}">{{ p.name }}</option>
+                }
+              }@else {
+                @if(providersError){
+                  <option class="text-danger" selected disabled>Error al cargar proveedores</option>
+                }@else {
+                  <option class="loading" value="0" selected disabled>Cargando proveedores...</option>
+                }
               }
             </select>
             <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
           </div>
         </div>
       </div>
-      <div class="mb-3 form-check col-4">
+      <div class="mb-4 form-check col-4 ml-2">
         <input type="checkbox" name="reusable" class="form-check-input" id="exampleCheck1" [(ngModel)]="dto.reusable">
         <label class="form-check-label" for="exampleCheck1">Reutilizable</label>
       </div>
       <div class="mb-3 row">
         <div class="col-6">
+        <div class="form-group n">
           <label for="inputStock" class="col-form-label col-6">Stock Inicial</label>
-          <input type="number" name="stock" class="form-control" [(ngModel)]="dto.amount" id="inputStock" #stock="ngModel"  min="1" required>
-          @if(stock.invalid && stock.touched) {
-            @if(stock.errors?.['min']) {
-              <div class="text-danger">La cantidad mínima debe ser mayor a 0</div>
-            }@else {
-              <div class="text-danger">Este campo es requerido</div>
-            }
-          }
+          <input type="number" name="stock" class="form-control" style="width:80%;"
+          [(ngModel)]="dto.amount" id="inputStock" #stock="ngModel"  min="1" required>
         </div>
-        <div class="col-6">
-          <label for="inputMinStock" class="col-form-label col-6">Cantidad Mín. para aviso por falta de Stock</label>
+        </div>
+        <div class="col-6 form-group n" style="flex: 0 0 50%;text-align: left;">
+          <label for="inputMinStock" class="col-form-label col-6">Cantidad mín. para aviso por falta de Stock</label>
           <input #min="ngModel"  min="1" type="number" name="min" [(ngModel)]="dto.min_amount_warning" class="form-control" id="inputMinStock">
+        </div>
+        <div class="error-container">
         </div>
       </div>
       <div class="mb-3 mt-4 row">
