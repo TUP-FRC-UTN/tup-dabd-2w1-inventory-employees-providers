@@ -12,6 +12,7 @@ import { CreateProductDTO } from '../../interfaces/create-product-dto';
 import { ProductXDetailDTO } from '../../interfaces/product-xdetail-dto';
 import { Router } from '@angular/router';
 import { Routes } from '@angular/router';
+import e from 'express';
 @Component({
   selector: 'app-product',
   standalone: true,
@@ -30,10 +31,12 @@ export class ProductComponent {
   categoriesError: boolean = false;
   providersError: boolean = false;
   help: boolean = false;
-  createProduct$: Observable<ProductXDetailDTO>= new Observable<ProductXDetailDTO>();
+  createProduct$: Observable<any>= new Observable<any>();
   success: boolean | undefined;
   requestInProgress: boolean = false;
   abrirModal: boolean = false;
+  successMessage: string|undefined;
+  errorMessage: string|undefined;
 
   constructor(productService: ProductService,providersService: 
     ProvidersService) {
@@ -53,6 +56,7 @@ export class ProductComponent {
         this.requestInProgress = false;
       },
       error: error => {
+        console.error(error);
         this.categoriesError = true;
         this.requestInProgress = false;
         console.error('Error al obtener las categorías de productos');
@@ -67,34 +71,50 @@ export class ProductComponent {
       },
       error: error => this.providersError = true
     })
-    this.dto.category_id = 0;
-    this.dto.supplier_id = 0;
   }
 
   onSubmit(form: NgForm) {
     if (form.valid) {
-      if(this.dto.supplier_id == null || this.dto.supplier_id == 0) {
+      if (this.dto.supplier_id == null || this.dto.supplier_id === 0) {
         this.dto.supplier_id = undefined;
       }
-      console.log(this.dto);
-      this.createProduct$ = this.productService.createProduct(this.dto);
+      this.abrirModal = true;
+      this.createProduct$ = this.productService.createProduct(this.dto, 1);
       console.log(this.createProduct$);
       this.createProduct$.subscribe({
-      next: response => {
-        this.success = true;
-        console.log(response);
-        form.reset();
-      },error: error => {
-        this.success = false;
-        console.log(error);
-      },complete: () => {
-        this.abrirModal = true;
-        console.log('Petición completada');
-      }
-    });  
-    
+        next: response => {
+          this.success = true;
+          this.successMessage = response.message;
+          console.log("PASO: ", response);
+          form.reset();
+        },
+        error: error => {
+          if(error.error.message === '400 Ya existe un producto con ese nombre') {
+            this.errorMessage = 'Ya existe un producto con ese nombre';
+          }else if( error.error.message === '400 No existe el proveedor ingresado') {
+            this.errorMessage = 'No existe el proveedor ingresado';
+          }else if( error.error.message === '400 No existe la categoria ingresada') {
+            this.errorMessage = 'La categoría ingresada no existe';
+          }else if( error.error.message === '400 Estado invalido') {
+            this.errorMessage = 'El estado del producto ingresado es inválido';
+          }else if( error.error.message === '500 Error al crear el producto') {
+            this.errorMessage = 'Ha ocurrido un error al crear el producto.';
+          }else{
+            this.errorMessage = 'Ha ocurrido un error al crear el producto.';
+          }
+          console.error(error);
+          this.success = false;
+          form.reset();
+        },
+        complete: () => {
+          console.log('Petición completada');
+        }
+      });
     }
   }
+
+  
+  
 
   closeModal() {
     this.abrirModal = false;

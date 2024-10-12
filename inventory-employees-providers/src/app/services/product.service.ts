@@ -4,12 +4,14 @@ import { delay, Observable } from 'rxjs';
 import { ProductCategory } from '../interfaces/product-category';
 import { CreateProductDTO } from '../interfaces/create-product-dto';
 import { ProductXDetailDTO } from '../interfaces/product-xdetail-dto';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
+
 //import { Product } from '../interfaces/product';
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'https://mocki.io/v1/c140fe64-4b7f-458d-acb3-939f10cd9199'; // Reemplaza con la URL real de tu API
+  private apiUrl = 'http://localhost:8080/product';
 
 
   constructor(private client1: HttpClient) {
@@ -20,16 +22,17 @@ export class ProductService {
     (`http://localhost:8080/category/getAll`);
   }
 
-  createProduct(dto: CreateProductDTO): Observable<ProductXDetailDTO> {
+  createProduct(dto: CreateProductDTO, idUser: number): Observable<any> {
+    const url = `${this.apiUrl}/product`;
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const params = new HttpParams().set('idUser', idUser.toString());
     const json = JSON.stringify(dto);
+
     console.log(json);
-    return this.client1.post<ProductXDetailDTO>('http://localhost:8080/product/product', json, {
-      headers: {
-        'Content-Type': 'application/json'  
-      }
-    });
-    
+
+    return this.client1.post<any>(url, json, { headers, params });
   }
+
 /*
   getProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl);

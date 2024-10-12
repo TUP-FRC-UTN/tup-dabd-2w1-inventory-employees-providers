@@ -125,63 +125,74 @@
   </div>
 </div>
 
-
-
-  @if(abrirModal){
-    @if(success){
-      <!-- Modal -->
-      <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: block;">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-              <h5 class="modal-title" id="exampleModalLabel">Operación Exitosa</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="closeModal()"></button>
-            </div>
-            <div class="modal-body text-center">
-              <div class="my-3">
-              </div>
-              <p>La operación se completó con éxito.</p>
-            </div>
-            <div class="modal-footer justify-content-center">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="closeModal()">Cerrar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    }@else {
-      @if(createProduct$|async) {
-        <div #modal class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog" style="border-radius: 4.3rem;">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Cargando...</h5>
+    @if(abrirModal){
+        @if (success) {
+          <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"  style="display: block;">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                  <h5 class="modal-title" id="exampleModalLabel">Operación Exitosa</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="closeModal()"></button>
+                </div>
+                <div class="modal-body text-center">
+                  <div class="my-3">
+                  </div>
+                  <p>La operación se completó con éxito.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="closeModal()">Cerrar</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      }@else {
-        <!-- Modal -->
-      <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: block;">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-              <h5 class="modal-title" id="exampleModalLabel">Operación Fallida</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="closeModal()"></button>
-            </div>
-            <div class="modal-body text-center">
-              <div class="my-3">
+        }@else {
+          @if (success==false) {
+            <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"  style="display: block;">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">Operación Fallida</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="closeModal()"></button>
+                  </div>
+                  <div class="modal-body text-center">
+                    <div class="my-3">
+                    </div>
+                    <p>{{ errorMessage }}</p>
+                  </div>
+                  <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn-secondary btn " data-bs-dismiss="modal" (click)="closeModal()">Cerrar</button>
+                  </div>
+                </div>
               </div>
-              <p>Hubo un error al completar la operación. Intente nuevamente.</p>
             </div>
-            <div class="modal-footer justify-content-center">
-              <button type="button" class="btn-secondary btn " data-bs-dismiss="modal" (click)="closeModal()">Cerrar</button>
+          }@else {
+            <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" style="display: block;">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Cargando...</h5>
+                  </div>
+                  <div class="modal-body text-center">
+                    <div class="my-3">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                      </div>
+                    </div>
+                    <p>Por favor, espere un momento...</p>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
+          }
+          
+        }
       }
-    }
-  }
+
+          
+      
+
+
+
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -236,7 +247,7 @@
           <div class="input-group form-group">
             <label for="categories" class="col-form-label">Categoría</label>
             <select class="form-select" id="categories" style="border-radius: 0.25rem;"
-            name="category" [(ngModel)]="dto.category_id" #category="ngModel"
+            name="category" [(ngModel)]="dto.category_id" #category="ngModel" min="1"
               required>
               @if(categories$|async) {
                 @for (c of categories; track $index) {
@@ -260,7 +271,7 @@
           </div>
           <div class="error-container">
             @if(category.invalid && category.touched) {
-            <div class="text-danger">Este campo es requerido</div>
+              <div class="text-danger">Este campo es requerido</div>
             }
           </div>
         </div>
@@ -312,7 +323,7 @@
           <div class="input-group mb-3 form-group">
           <label for="supplier" class="col-form-label">Proveedor</label>
             <select class="form-select" id="supplier" name="supplier" style="border-radius: 0.25rem;"
-            [(ngModel)]="dto.supplier_id" #supplier="ngModel">
+            [(ngModel)]="dto.supplier_id" #supplier="ngModel" min="1" required>
               @if(providers$|async) {
                 @for (p of providers; track $index) {
                   <option value="{{ p.id }}">{{ p.name }}</option>
@@ -327,6 +338,11 @@
             </select>
             <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
           </div>
+          <div class="error-container">
+            @if(supplier.invalid && supplier.touched) {
+              <div class="text-danger">Este campo es requerido</div>
+            }
+          </div>
         </div>
       </div>
       <div class="mb-4 form-check col-4 ml-2">
@@ -339,6 +355,15 @@
           <label for="inputStock" class="col-form-label col-6">Stock Inicial</label>
           <input type="number" name="stock" class="form-control" style="width:80%;"
           [(ngModel)]="dto.amount" id="inputStock" #stock="ngModel"  min="1" required>
+        </div>
+        <div class="error-container">
+          @if(stock.invalid && stock.touched) {
+            @if (stock.errors?.['min']) {
+              <div class="text-danger">La cantidad de stock debe ser mayor a 0</div>
+            }@else {
+              <div class="text-danger">Este campo es requerido</div>
+            }
+          }
         </div>
         </div>
         <div class="col-6 form-group n" style="flex: 0 0 50%;text-align: left;">
