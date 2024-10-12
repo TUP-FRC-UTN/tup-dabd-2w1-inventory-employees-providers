@@ -1,6 +1,6 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { delay, Observable } from 'rxjs';
+import { catchError, delay, Observable, of, throwError } from 'rxjs';
 import { ProductCategory } from '../interfaces/product-category';
 import { DtoProducto } from '../interfaces/dto-producto';
 @Injectable({
@@ -8,7 +8,7 @@ import { DtoProducto } from '../interfaces/dto-producto';
 })
  export class ProductService {
    private baseUrl: string = 'http://localhost:8080/products';
-   private productUrl : string = 'http://localhost:8080/product/getDto';
+   private productUrl : string = 'http://localhost:8080/product/get';
    
    constructor(private client1: HttpClient) {
    }
@@ -18,13 +18,13 @@ import { DtoProducto } from '../interfaces/dto-producto';
      (`${this.baseUrl}/categories`).pipe(delay(2000));
    }
 
-   getDtoProducts(category?: number, state?: string,
+   getDtoProducts(category?: number, reusable?: boolean,
     minAmount?: number, maxAmount?: number, name?: string
    ):Observable<DtoProducto[]> {
     let params = new HttpParams();
     
     if (category !== undefined && category !== 0) { params = params.set('category', category) }; 
-    if (state !== undefined && state !== '') { params = params.set('state', state) };
+    if (reusable !== undefined) { params = params.set('reusable', reusable) };
     if (minAmount !== undefined && minAmount !== 0 && minAmount !== null) { params = params.set('minAmount', minAmount.toString()) }
     if (maxAmount !== undefined && maxAmount !== 0 && maxAmount !== null) { params = params.set('maxAmount', maxAmount.toString()) }
     if (name !== undefined && name !== '') { params = params.set('name', name) }

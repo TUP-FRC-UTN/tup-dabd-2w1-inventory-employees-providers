@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { debounceTime, Observable, Subject } from 'rxjs';
 import { ProductCategory } from '../../interfaces/product-category';
 import { CategoriaService } from '../../services/categoria.service';
 import { EstadoService } from '../../services/estado.service';
@@ -30,7 +30,7 @@ export class InventarioComponent implements OnInit {
   productos: DtoProducto[] = [];
 
   categoria: number = 0;
-  estado: string = '';
+  reusable?: boolean;
   cantMinima: number = 0;
   cantMaxima: number = 0;
   nombre: string = '';
@@ -38,6 +38,7 @@ export class InventarioComponent implements OnInit {
   valido: boolean = true;
   mensajeValidacion: string = "";
 
+  private cargarProductosSubject = new Subject<void>();
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -50,7 +51,7 @@ export class InventarioComponent implements OnInit {
     this.dataEstados = this.estadoService.getEstados();
     this.dataEstados.subscribe( estados => this.estados = estados);
   }
-  
+
   cargarProductos(){
     this.valido = this.verificar();
     
@@ -58,13 +59,13 @@ export class InventarioComponent implements OnInit {
       return;
     }
     else{
-      this.dataProductos = this.productoService.getDtoProducts(this.categoria,this.estado,this.cantMinima,this.cantMaxima,this.nombre);
+      this.dataProductos = this.productoService.getDtoProducts(this.categoria,this.reusable,this.cantMinima,this.cantMaxima,this.nombre);
       this.dataProductos.subscribe(productos => this.productos = productos);
     }
   }
 
   consultarDetalles(id: number){
-    alert("Id: "+ id + " - Estado: " + this.estado)
+    alert("Id: "+ id)
   }
 
   verificar(){
