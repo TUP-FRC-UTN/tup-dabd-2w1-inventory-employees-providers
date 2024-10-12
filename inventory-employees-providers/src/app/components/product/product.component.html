@@ -64,7 +64,7 @@
               <select class="form-select" id="categories">
                 <option value="0" selected disabled>Categoría</option>
                 @for (c of categories; track $index) {
-                  <option value="{{ c.categoryId }}">{{ c.categoryName }}</option>
+                  <option value="{{ c.id }}">{{ c.category }}</option>
                 }
               </select>
               <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
