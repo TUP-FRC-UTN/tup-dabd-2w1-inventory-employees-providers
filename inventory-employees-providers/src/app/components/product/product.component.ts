@@ -7,14 +7,15 @@ import { ProductCategory } from '../../interfaces/product-category';
 import { HttpClient } from '@angular/common/http';
 import { ProvidersService } from '../../services/providers.service';
 import { Provider } from '../../interfaces/provider';
-import { RouterModule } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router';
 import { CreateProductDTO } from '../../interfaces/create-product-dto';
 import { ProductXDetailDTO } from '../../interfaces/product-xdetail-dto';
-
+import { Router } from '@angular/router';
+import { Routes } from '@angular/router';
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [FormsModule,CommonModule,RouterModule],
+  imports: [FormsModule,CommonModule,RouterModule,RouterOutlet],
   templateUrl: './product.component.html',
   styleUrl: './product.component.css'
 })

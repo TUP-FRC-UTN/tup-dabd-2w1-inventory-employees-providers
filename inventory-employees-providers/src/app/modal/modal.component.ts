@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { NgbActiveModal } from '';
 
 @Component({
   selector: 'app-modal',
   standalone: true,
-  imports: [],
+  imports: [Input],
   templateUrl: './modal.component.html',
   styleUrl: './modal.component.css',
   template: `
@@ -21,5 +22,10 @@ import { Component } from '@angular/core';
 
 })
 export class ModalComponent {
+  @Input() titulo!: string;
+  @Input() mensaje!: string;
 
+  constructor(public activeModal: NgbActiveModal) {
+
+  }
 }
