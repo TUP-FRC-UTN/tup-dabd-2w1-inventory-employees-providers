@@ -1,0 +1,53 @@
+<div class="container">
+  <!-- Título centralizado -->
+  <h2 class="text-center my-4">Ítems de Productos</h2>
+  
+  <!-- Tarjeta para la tabla de productos -->
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="card-body">
+      <h5 class="card-title mb-4"><i class="bi bi-box-seam me-2"></i>Listado de Productos</h5>
+      <!-- La tabla de productos existente -->
+      <app-product-table (selectedProductsChange)="updateSelectedProducts($event)"></app-product-table>
+    </div>
+  </div>
+
+  <!-- Tarjeta para el formulario de justificativo -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h5 class="card-title mb-4"><i class="bi bi-file-earmark-text me-2"></i>Justificativo de Eliminación</h5>
+      
+      <!-- Formulario de eliminación -->
+      <form (ngSubmit)="onSubmit()">
+        <!-- Campo de justificativo con contador de caracteres -->
+        <div class="mb-3">
+          <label for="justification" class="form-label">Justificativo:</label>
+          <textarea 
+            class="form-control" 
+            id="justification" 
+            name="justification" 
+            [(ngModel)]="justification" 
+            rows="3"
+            maxlength="500"
+            required>
+          </textarea>
+          <div class="form-text text-end">
+            {{ 500 - justification.length }} caracteres restantes
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="d-flex justify-content-between">
+          <!-- Botón Volver con icono -->
+          <button type="button" class="btn btn-secondary" (click)="goBack()">
+            <i class="bi bi-arrow-left-circle me-2"></i>Volver
+          </button>
+          
+          <!-- Botón Eliminar con icono y deshabilitado condicionalmente -->
+          <button type="submit" class="btn btn-danger" [disabled]="!justification.trim() || selectedProductIds.length === 0">
+            <i class="bi bi-trash me-2"></i>Eliminar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
