@@ -120,4 +120,9 @@ export class TablaComponent implements OnInit {
           window.URL.revokeObjectURL(url);
         });
       }
+
+      // Genera el Excel
+      generateExcel(): void {
+        window.open(this.productoService.apiUrlExcel, '_blank');
+}
 }

@@ -1,5 +1,8 @@
 <!-- tabla.component.html -->
 
+
+
+
 <!-- Sección: Botones de mostrar/ocultar filtro y generar PDF -->
 <div class="d-flex justify-content-between align-items-center mb-3">
   <!-- Botón para mostrar u ocultar el filtro de productos -->
@@ -8,10 +11,19 @@
     {{ mostrarFiltro ? ' Ocultar Filtro' : ' Mostrar Filtro' }}
   </button>
   
+  <!-- Botón Generar PDF y Excel -->
+<div class="d-flex mb-3 align-items-center">
   <!-- Botón Generar PDF -->
   <button class="btn btn-primary ms-auto" (click)="generatePDF()">
     Generar PDF
   </button>
+
+    <!-- Botón Generar Excel -->
+    <button class="btn btn-success ms-2" (click)="generateExcel()">
+      Generar Excel
+    </button>
+  </div>
+
 </div>
 
 <!-- Sección: Filtro de productos -->
