@@ -4,13 +4,12 @@ import { Producto } from '../../interfaces/producto';
 import { FiltroComponent } from '../filtro/filtro.component';
 import { ProductService } from '../../services/product.service';
 
-
 @Component({
   selector: 'app-tabla',
   standalone: true,
   imports: [CommonModule, FiltroComponent],
   templateUrl: './tabla.component.html',
-  styleUrls: ['./tabla.component.css']
+  styleUrls: ['./tabla.component.css'],
 })
 export class TablaComponent implements OnInit {
   productos: Producto[] = []; // Lista completa de productos
@@ -32,7 +31,7 @@ export class TablaComponent implements OnInit {
     this.productoService.getProductos().subscribe(
       (data) => {
         this.productos = data; // Almacena los productos
-        this.productosNombres = this.productos.map(p => p.product); // Crea la lista para el input
+        this.productosNombres = this.productos.map((p) => p.product); // Crea la lista para el input
         this.productosFiltrados = [...this.productos]; // Inicialmente, la lista filtrada es igual a la completa
       },
       (error) => {
@@ -45,20 +44,29 @@ export class TablaComponent implements OnInit {
     this.mostrarFiltro = !this.mostrarFiltro; // Alterna la visibilidad del filtro
   }
 
-  aplicarFiltro(filtro: { desde: string; hasta: string; producto: string }) {
-    const { desde, hasta, producto } = filtro;
+  aplicarFiltro(filtro: { desde: string; hasta: string; busqueda: string }) {
+    const { desde, hasta, busqueda } = filtro;
     const fechaDesde = desde ? new Date(desde) : null;
     const fechaHasta = hasta ? new Date(hasta) : null;
 
-    this.productosFiltrados = this.productos.filter(productoItem => {
-      const fechaProducto = new Date(productoItem.date); // Asegúrate de que fecha sea un objeto Date
-      const fechaValida = (!fechaDesde || fechaProducto >= fechaDesde) &&
-                          (!fechaHasta || fechaProducto <= fechaHasta);
-      const productoValido = producto ? productoItem.product.toLowerCase().includes(producto.toLowerCase()) : true; // Filtrar según el input
+    this.productosFiltrados = this.productos.filter((productoItem) => {
+      const fechaProducto = new Date(productoItem.date);
+      const fechaValida =
+        (!fechaDesde || fechaProducto >= fechaDesde) &&
+        (!fechaHasta || fechaProducto <= fechaHasta);
 
-      return fechaValida && productoValido;
+      const busquedaMinuscula = busqueda.toLowerCase();
+      const busquedaValida = busqueda
+        ? productoItem.product.toLowerCase().includes(busquedaMinuscula) ||
+          productoItem.modificationType.toLowerCase().includes(busquedaMinuscula) ||
+          productoItem.supplier.toLowerCase().includes(busquedaMinuscula) ||
+          productoItem.amount.toString().includes(busquedaMinuscula) ||
+          productoItem.description.toLowerCase().includes(busquedaMinuscula)
+        : true;
+
+      return fechaValida && busquedaValida;
     });
-    this.paginaActual = 1; // Reiniciar a la primera página al aplicar un filtro
+    this.paginaActual = 1;
   }
 
   ordenarPor(columna: keyof Producto) {
@@ -108,21 +116,27 @@ export class TablaComponent implements OnInit {
     }
   }
 
-      // Genera el PDF
-      generatePDF(): void {
-        this.productoService.getPdf().subscribe((pdfArrayBuffer) => {
-          const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(pdfBlob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'detalle_productos.pdf';
-          a.click();
-          window.URL.revokeObjectURL(url);
-        });
-      }
+  // Genera el PDF
+  generatePDF(): void {
+    this.productoService.getPdf().subscribe((pdfArrayBuffer) => {
+      const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'detalle_productos.pdf';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
 
-      // Genera el Excel
-      generateExcel(): void {
-        window.open(this.productoService.apiUrlExcel, '_blank');
-}
+  // Genera el Excel
+  generateExcel(): void {
+    //window.open(this.productoService.apiUrlExcel, '_blank');
+    const enlace = document.createElement('a');
+    enlace.href = this.productoService.apiUrlExcel; // URL del archivo
+    enlace.download = ''; // Esto sugiere al navegador que debe descargar el archivo
+    document.body.appendChild(enlace); // Necesario para algunos navegadores
+    enlace.click(); // Simula el clic en el enlace
+    document.body.removeChild(enlace); // Limpieza
+  }
 }
