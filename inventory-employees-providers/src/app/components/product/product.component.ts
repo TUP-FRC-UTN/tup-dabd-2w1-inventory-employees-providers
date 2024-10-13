@@ -1,22 +1,18 @@
-import { Component, ElementRef, NgModule } from '@angular/core';
+import { Component, NgModule } from '@angular/core';
 import { ProductService } from '../../services/product.service';
-import { delay, Observable } from 'rxjs';
-import { FormGroup, FormsModule, NgForm } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ProductCategory } from '../../interfaces/product-category';
 import { HttpClient } from '@angular/common/http';
 import { ProvidersService } from '../../services/providers.service';
 import { Provider } from '../../interfaces/provider';
-import { RouterModule, RouterOutlet } from '@angular/router';
-import { CreateProductDTO } from '../../interfaces/create-product-dto';
-import { ProductXDetailDTO } from '../../interfaces/product-xdetail-dto';
-import { Router } from '@angular/router';
-import { Routes } from '@angular/router';
-import e from 'express';
+import { RouterModule } from '@angular/router';
+import { CreateProductDtoClass } from '../../interfaces/create-product-dto-class';
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [FormsModule,CommonModule,RouterModule,RouterOutlet],
+  imports: [FormsModule,CommonModule,RouterModule],
   templateUrl: './product.component.html',
   styleUrl: './product.component.css'
 })
@@ -27,7 +23,7 @@ export class ProductComponent {
   categories$: Observable<ProductCategory[]>= new Observable<ProductCategory[]>();
   providers: Provider[] = [];
   providers$: Observable<Provider[]>= new Observable<Provider[]>();
-  dto: CreateProductDTO = new CreateProductDTO();
+  dto: CreateProductDtoClass = new CreateProductDtoClass();
   categoriesError: boolean = false;
   providersError: boolean = false;
   help: boolean = false;
@@ -38,8 +34,8 @@ export class ProductComponent {
   successMessage: string|undefined;
   errorMessage: string|undefined;
 
-  constructor(productService: ProductService,providersService: 
-    ProvidersService) {
+
+  constructor(productService: ProductService,providersService: ProvidersService) {
     this.productService = productService;
     this.providerService = providersService;
     this.success = false;
@@ -113,16 +109,7 @@ export class ProductComponent {
     }
   }
 
-  
-  
-
   closeModal() {
     this.abrirModal = false;
   }
-
-
-
-
-
-
 }

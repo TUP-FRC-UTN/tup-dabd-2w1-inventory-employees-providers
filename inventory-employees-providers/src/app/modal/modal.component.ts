@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { NgbActiveModal } from '';
+//import { NgbActiveModal } from '';
 
 @Component({
   selector: 'app-modal',
   standalone: true,
-  imports: [Input],
+  imports: [],
   templateUrl: './modal.component.html',
   styleUrl: './modal.component.css',
   template: `
@@ -19,13 +19,12 @@ import { NgbActiveModal } from '';
     <button type="button" class="btn btn-primary" (click)="activeModal.close('Close click')">Cerrar</button>
   </div>
 `
-
 })
 export class ModalComponent {
   @Input() titulo!: string;
   @Input() mensaje!: string;
 
-  constructor(public activeModal: NgbActiveModal) {
+  // constructor(public activeModal: NgbActiveModal) {
 
-  }
+  // }
 }

@@ -8,5 +8,5 @@ import { Component } from '@angular/core';
   styleUrl: './modal-select.component.css'
 })
 export class ModalSelectComponent {
-
+  // No se para que queres este componente Tomi pero bueno te lo dejo
 }
