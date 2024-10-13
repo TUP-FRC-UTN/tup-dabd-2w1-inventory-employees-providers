@@ -9,10 +9,13 @@ import { ProvidersService } from '../../services/providers.service';
 import { Provider } from '../../interfaces/provider';
 import { RouterModule } from '@angular/router';
 import { CreateProductDtoClass } from '../../interfaces/create-product-dto-class';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ModalSelectComponent } from '../modal-select/modal-select.component';
+import { CategoriaService } from '../../services/categoria.service';
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [FormsModule,CommonModule,RouterModule],
+  imports: [FormsModule,CommonModule,RouterModule,MatDialogModule],
   templateUrl: './product.component.html',
   styleUrl: './product.component.css'
 })
@@ -35,29 +38,16 @@ export class ProductComponent {
   errorMessage: string|undefined;
 
 
-  constructor(productService: ProductService,providersService: ProvidersService) {
+  constructor(productService: ProductService,providersService: ProvidersService,private dialog: MatDialog,private categoryService:CategoriaService) {
     this.productService = productService;
     this.providerService = providersService;
     this.success = false;
   }
 
   ngOnInit() {
-    this.categories$ = this.productService.getAllCategories();
-    this.requestInProgress = true;
-    this.categories$.subscribe({
-      next: categories => {
-        this.categories = categories;
-        console.log(categories);
-        this.categoriesError = false;
-        this.requestInProgress = false;
-      },
-      error: error => {
-        console.error(error);
-        this.categoriesError = true;
-        this.requestInProgress = false;
-        console.error('Error al obtener las categorías de productos');
-      },
-    });
+
+    this.loadCategories();
+
     this.providers$ = this.providerService.getProviders();
     this.providers$.subscribe({
       next: providers =>{
@@ -112,7 +102,43 @@ export class ProductComponent {
     }
   }
 
+
+  loadCategories(){
+    this.categories$ = this.categoryService.getCategorias();
+    this.requestInProgress = true;
+    this.categories$.subscribe({
+      next: categories => {
+        this.categories = categories;
+        console.log(categories);
+        this.categoriesError = false;
+        this.requestInProgress = false;
+      },
+      error: error => {
+        console.error(error);
+        this.categoriesError = true;
+        this.requestInProgress = false;
+        console.error('Error al obtener las categorías de productos');
+      },
+    });
+  }
+
   closeModal() {
     this.abrirModal = false;
+  }
+
+
+  openModal(): void {
+    const dialogRef = this.dialog.open(ModalSelectComponent, {
+      width: '400px'
+    });
+  
+    dialogRef.componentInstance.categoryAdded.subscribe(() => {
+      this.loadCategories(); 
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('El modal se cerró', result);
+      
+    });
   }
 }

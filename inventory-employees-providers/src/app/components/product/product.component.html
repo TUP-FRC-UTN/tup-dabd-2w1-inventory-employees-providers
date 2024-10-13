@@ -267,7 +267,7 @@ background-color: rgba(0, 0, 0, 0.5);  /* Fondo semi-transparente */
             }
           </select>
           <button routerLink="modal-select" routerLinkActive="router-link-active"
-          class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
+          class="btn btn-outline-secondary" type="button" id="button-addon2" (click)="openModal()">+</button>
         </div>
         <div class="error-container">
           @if(category.invalid && category.touched) {
