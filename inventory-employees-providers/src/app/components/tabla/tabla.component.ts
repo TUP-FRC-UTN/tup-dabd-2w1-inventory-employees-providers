@@ -4,6 +4,7 @@ import { Producto } from '../../interfaces/producto';
 import { FiltroComponent } from '../filtro/filtro.component';
 import { ProductService } from '../../services/product.service';
 
+
 @Component({
   selector: 'app-tabla',
   standalone: true,
@@ -106,4 +107,17 @@ export class TablaComponent implements OnInit {
       this.paginaActual = nuevaPagina;
     }
   }
+
+      // Genera el PDF
+      generatePDF(): void {
+        this.productoService.getPdf().subscribe((pdfArrayBuffer) => {
+          const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(pdfBlob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'detalle_productos.pdf';
+          a.click();
+          window.URL.revokeObjectURL(url);
+        });
+      }
 }

@@ -9,10 +9,12 @@ import { CreateProductDtoClass } from '../interfaces/create-product-dto-class';
   providedIn: 'root'
 })
  export class ProductService {
+
    private apiUrl: string = 'http://localhost:8080/product'; // Tomas C
    private productUrl : string = 'http://localhost:8080/product/get'; // Agus
    private historialAmountUrl = 'http://localhost:8080/amountModification/getAllModifications'; // Enzo
-   
+   private apiUrlPDF = 'http://localhost:8080/amountModification/getAllModificationsPdf';
+
    constructor(private http: HttpClient) {
    }
 
@@ -61,5 +63,11 @@ import { CreateProductDtoClass } from '../interfaces/create-product-dto-class';
     console.log(json);
 
     return this.http.post<any>(url, json, { headers, params });
+  }
+
+  getPdf(): Observable<ArrayBuffer> {
+    return this.http.get(this.apiUrlPDF, {
+      responseType: 'arraybuffer'
+    });
   }
 }

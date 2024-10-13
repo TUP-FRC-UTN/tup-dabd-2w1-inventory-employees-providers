@@ -1,9 +1,15 @@
 <!-- filtro.component.html -->
-<form (submit)="onSubmit()" class="p-4 bg-light rounded shadow">
+
+<!-- Formulario de Filtros de Búsqueda -->
+<form class="p-4 bg-light rounded shadow">
+  
+  <!-- Título del formulario -->
   <h3 class="mb-4 text-center">Filtros de Búsqueda</h3>
 
+  <!-- Sección: Filtros de fecha (Desde y Hasta) -->
   <div class="row mb-3">
     <div class="col">
+      <!-- Campo de filtro "Desde" con validación del valor máximo basado en "Hasta" -->
       <label for="desde" class="form-label">Desde:</label>
       <input 
         type="date" 
@@ -11,10 +17,12 @@
         [(ngModel)]="desde" 
         name="desde" 
         class="form-control" 
-        placeholder="Seleccione una fecha" 
+        (change)="onInputChange()" 
+        [max]="hasta" 
       />
     </div>
     <div class="col">
+      <!-- Campo de filtro "Hasta" con validación del valor mínimo basado en "Desde" -->
       <label for="hasta" class="form-label">Hasta:</label>
       <input 
         type="date" 
@@ -22,11 +30,13 @@
         [(ngModel)]="hasta" 
         name="hasta" 
         class="form-control" 
-        placeholder="Seleccione una fecha" 
+        (change)="onInputChange()" 
+        [min]="desde" 
       />
     </div>
   </div>
 
+  <!-- Sección: Filtro por nombre de producto -->
   <div class="form-group mb-3">
     <label for="producto" class="form-label">Producto:</label>
     <input
@@ -35,19 +45,19 @@
       [(ngModel)]="producto"
       name="producto"
       class="form-control"
-      (input)="onSubmit()"
+      (input)="onInputChange()" 
       placeholder="Escriba el nombre del producto"
     />
   </div>
 
+  <!-- Sección: Mensaje de error -->
   <div *ngIf="error" class="alert alert-danger mt-3 text-center">{{ error }}</div>
 
+  <!-- Sección: Botón para eliminar los filtros -->
   <div class="d-flex justify-content-between mt-4">
     <button type="button" (click)="eliminarFiltros()" class="btn btn-outline-secondary d-flex align-items-center">
       <i class="bi bi-x-circle me-2"></i> Eliminar Filtros
     </button>
-    <button type="submit" class="btn btn-primary d-flex align-items-center">
-      <i class="bi bi-check-circle me-2"></i> Aplicar Filtro
-    </button>
   </div>
+
 </form>
