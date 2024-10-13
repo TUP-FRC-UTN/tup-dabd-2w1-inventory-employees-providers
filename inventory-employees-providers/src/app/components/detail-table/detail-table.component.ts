@@ -212,4 +212,25 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.calculateTotalPages();
     this.updatePaginatedDetails();
   }
+
+  // Método para generar el archivo Excel
+  generateExcel(): void {
+    window.open(this.detailService.urlExcel, '_blank');
+  }
+/*
+  // Genera el PDF
+  generatePDF(): void {
+    this.detailService.getPdf().subscribe((pdfArrayBuffer) => {
+      const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'detalle_productos.pdf';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+*/
+
+
 }
