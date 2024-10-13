@@ -25,7 +25,8 @@ table{
 .tituloLista{
     border: 1px solid black;
     border-radius: 5px;
-    background-color: gainsboro;
+    background-color: black;
+    color: white;
 }
 
 .volver{

@@ -10,7 +10,11 @@ export class ProvidersService {
 
   constructor(private client:HttpClient) { }
 
+  // getProviders():Observable<any[]>{
+  //   return this.client.get<any[]>(this.baseUrl).pipe(delay(2000));
+  // }
+
   getProviders():Observable<any[]>{
-    return this.client.get<any[]>(this.baseUrl).pipe(delay(2000));
+    return this.client.get<any[]>(this.baseUrl);
   }
 }

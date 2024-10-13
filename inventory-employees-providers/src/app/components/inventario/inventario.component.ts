@@ -1,13 +1,15 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { debounceTime, Observable, Subject } from 'rxjs';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { debounceTime, Observable, Subscription } from 'rxjs';
 import { ProductCategory } from '../../interfaces/product-category';
 import { CategoriaService } from '../../services/categoria.service';
 import { EstadoService } from '../../services/estado.service';
 import { ProductService } from '../../services/product.service';
 import { DtoProducto } from '../../interfaces/dto-producto';
 import { FormsModule } from '@angular/forms';
-import { console } from 'node:inspector';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { DetailServiceService } from '../../services/detail-service.service';
+import { StockAumentoService } from '../../services/stock-aumento.service';
 
 @Component({
   selector: 'app-inventario',
@@ -16,14 +18,21 @@ import { CommonModule } from '@angular/common';
   templateUrl: './inventario.component.html',
   styleUrl: './inventario.component.css'
 })
-export class InventarioComponent implements OnInit {
+export class InventarioComponent implements OnInit, OnDestroy {
   private categoriaService = inject(CategoriaService)
   private estadoService = inject(EstadoService)
   private productoService = inject(ProductService)
+  private detalleProductoService = inject(DetailServiceService)
+  private stockAumentoService = inject(StockAumentoService)
+  private router = inject(Router)
 
   dataCategorias: Observable<ProductCategory[]> = new Observable<ProductCategory[]>();
   dataEstados: Observable<String[]> = new Observable<String[]>();
   dataProductos: Observable<DtoProducto[]> = new Observable<DtoProducto[]>(); 
+
+  private categoriasSubscription: Subscription | undefined;  // Almacena la suscripción a categorias
+  private estadosSubscription: Subscription | undefined;  // Almacena la suscripción a estados
+  private productosSubscription: Subscription | undefined; // Almacena la suscripción a productos
 
   categorias: ProductCategory[] = [];
   estados: String[] = [];
@@ -38,7 +47,7 @@ export class InventarioComponent implements OnInit {
   valido: boolean = true;
   mensajeValidacion: string = "";
 
-  private cargarProductosSubject = new Subject<void>();
+
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -47,9 +56,9 @@ export class InventarioComponent implements OnInit {
   
   cargarDatos(){
     this.dataCategorias = this.categoriaService.getCategorias();
-    this.dataCategorias.subscribe(categories => this.categorias = categories);
+    this.categoriasSubscription = this.dataCategorias.subscribe(categories => this.categorias = categories);
     this.dataEstados = this.estadoService.getEstados();
-    this.dataEstados.subscribe( estados => this.estados = estados);
+    this.estadosSubscription = this.dataEstados.subscribe( estados => this.estados = estados);
   }
 
   cargarProductos(){
@@ -60,13 +69,24 @@ export class InventarioComponent implements OnInit {
     }
     else{
       this.dataProductos = this.productoService.getDtoProducts(this.categoria,this.reusable,this.cantMinima,this.cantMaxima,this.nombre);
-      this.dataProductos.subscribe(productos => this.productos = productos);
+      this.productosSubscription = this.dataProductos.subscribe(productos => this.productos = productos);
     }
   }
 
-  consultarDetalles(id: number){
-    alert("Id: "+ id)
+  irDetalles(id: number){
+    this.detalleProductoService.setId(id);
+    this.router.navigate(["detalle-inventario"])
   }
+
+  irAgregarDetalles(id: number){
+    this.stockAumentoService.setId(id);
+    this.router.navigate(["stock-aumento"])
+  }
+
+  irAgregarProducto(){
+    this.router.navigate(["registro-productos"])
+  }
+
 
   verificar(){
     if (this.cantMinima > this.cantMaxima) {
@@ -80,4 +100,9 @@ export class InventarioComponent implements OnInit {
     return true;
   }
 
+  ngOnDestroy(): void {
+    if (this.categoriasSubscription) { this.categoriasSubscription.unsubscribe() }
+    if (this.estadosSubscription) { this.estadosSubscription.unsubscribe() }
+    if (this.productosSubscription) { this.productosSubscription.unsubscribe() }
+  }
 }

@@ -16,9 +16,11 @@ import { RouterModule } from '@angular/router';
 })
 export class StockAumentoComponent implements OnInit {
   stockForm!: FormGroup;
-  suppliers: Supplier[] = []; // Array para almacenar los proveedores
+  suppliers: Supplier[] = [];
+  productName: string = ''; // Para almacenar y mostrar el nombre del producto
   message: string = '';
   error: boolean = false;
+  productId: number = 0; // ID del producto que definirás directamente en el código
 
   constructor(
     private formBuilder: FormBuilder,
@@ -26,20 +28,24 @@ export class StockAumentoComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.productId = this.stockService.getId();
     this.initializeForm();
-    this.loadSuppliers(); // Cargar proveedores al iniciar
+    this.loadSuppliers();  // Cargar proveedores al iniciar
+    this.loadProductById(this.productId); // Cargar el producto por su ID que defines en el código
   }
 
   initializeForm() {
     this.stockForm = this.formBuilder.group({
-      productId: ['', Validators.required],
+      productId: [this.productId, Validators.required],  // El ID del producto se establece aquí
       supplierId: ['', Validators.required],
       quantity: ['', [Validators.required, Validators.min(1)]],
-      description: ['', Validators.required]
+      description: ['', Validators.required],
+      justification: ['', Validators.required]
     });
   }
 
-  loadSuppliers() { // Método para cargar proveedores
+  // Método para cargar proveedores
+  loadSuppliers() {
     this.stockService.getSuppliers().subscribe(
       (data: Supplier[]) => {
         this.suppliers = data;
@@ -50,31 +56,46 @@ export class StockAumentoComponent implements OnInit {
     );
   }
 
+  // Método para cargar el producto por su ID
+  loadProductById(productId: number) {
+    this.stockService.getProducts().subscribe(
+      (products: any[]) => {
+        const selectedProduct = products.find(p => p.id === productId); // Buscar el producto por ID
+        if (selectedProduct) {
+          this.productName = selectedProduct.name;  // Asignar el nombre del producto correctamente
+        } else {
+          console.error('Producto no encontrado');
+        }
+      },
+      error => {
+        console.error('Error al cargar productos', error);
+      }
+    );
+  }
+  
   onSubmit() {
     if (this.stockForm.valid) {
-        this.stockService.modifyStock(this.stockForm.value).subscribe(
-            response => {
-                this.message = response; // Ahora 'response' es un string
-                this.error = false; // Resetear el estado de error
-                this.stockForm.reset(); // Limpiar el formulario
+      this.stockService.modifyStock(this.stockForm.value).subscribe(
+        response => {
+          this.message = response;
+          this.error = false;
+          this.stockForm.reset();
+          this.initializeForm();
 
-                // Hacer que el mensaje desaparezca después de 5 segundos
-                setTimeout(() => {
-                    this.message = ''; // Oculta el mensaje después de 5 segundos
-                }, 5000);
-            },
-            error => {
-                this.message = `Error al modificar el stock: ${error.status} - ${error.message}`;
-                this.error = true; // Marcar el estado de error
-                console.error('Error al modificar el stock', error);
+          setTimeout(() => {
+            this.message = '';
+          }, 5000);
+        },
+        error => {
+          this.message = `Error al modificar el stock: ${error.status} - ${error.message}`;
+          this.error = true;
 
-                // Hacer que el mensaje desaparezca después de 5 segundos
-                setTimeout(() => {
-                    this.message = ''; // Oculta el mensaje después de 5 segundos
-                }, 5000);
-            }
-        );
+          setTimeout(() => {
+            this.message = '';
+          }, 5000);
+        }
+      );
     }
-}
+  }
 
 }

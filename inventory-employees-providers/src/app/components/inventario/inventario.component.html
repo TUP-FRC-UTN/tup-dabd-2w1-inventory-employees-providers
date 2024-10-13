@@ -83,8 +83,10 @@
             <div class="group col-9 tituloLista">
                 <h4>Lista de productos</h4>
             </div>
-            <div class="col">
-                <button class="btn btn-primary">Agregar</button>
+            <div class="col-2">
+                <div class="row">
+                    <button class="btn btn-primary" (click)="irAgregarProducto()">Agregar</button>
+                </div>
             </div>
         </div>
         
@@ -117,8 +119,8 @@
                                             <span class="visually-hidden">Toggle Dropdown</span>
                                         </button>
                                         <ul class="dropdown-menu">
-                                            <li><button class="dropdown-item btn botonDetalleConsultar" (click)="consultarDetalles(producto.id)">Consultar</button></li>
-                                            <li><button class="dropdown-item btn botonDetalleCrear">Agregar</button></li>
+                                            <li><button class="dropdown-item btn botonDetalleConsultar" (click)="irDetalles(producto.id)">Consultar</button></li>
+                                            <li><button class="dropdown-item btn botonDetalleCrear" (click)="irAgregarDetalles(producto.id)">Agregar</button></li>
                                         </ul>
                                     </div>
                                 </td>
