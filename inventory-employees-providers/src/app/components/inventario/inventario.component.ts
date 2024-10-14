@@ -73,6 +73,29 @@ export class InventarioComponent implements OnInit, OnDestroy {
     }
   }
 
+  generarPdf(): void {
+    this.productoService.getProductosPdf().subscribe((pdfArrayBuffer) => {
+      const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'productos_inventario.pdf';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  generarExcel() : void{
+    //window.open(this.detailService.urlExcel, '_blank');
+
+    const enlace = document.createElement('a');
+    enlace.href = this.productoService.productExcelPdf; // URL del archivo
+    enlace.download = ''; // Esto sugiere al navegador que debe descargar el archivo
+    document.body.appendChild(enlace); // Necesario para algunos navegadores
+    enlace.click(); // Simula el clic en el enlace
+    document.body.removeChild(enlace); // Limpieza
+  }
+
   irDetalles(id: number){
     this.detalleProductoService.setId(id);
     this.router.navigate(["detalle-inventario"])

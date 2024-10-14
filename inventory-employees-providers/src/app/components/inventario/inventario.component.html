@@ -1,6 +1,13 @@
 <form class="form" action="">
     <div class="container"> 
-        <h2 class="titulo">Inventario</h2>
+        <div class="row">
+            <div class="col">
+                <h2 class="titulo">Inventario</h2>
+            </div>
+            <div class="col-1">
+                <button class="btn btn-info">Info</button>
+            </div>
+        </div>
         
         <!-- SELECTS -->
         <div class="row fila">
@@ -83,11 +90,18 @@
             <div class="group col-9 tituloLista">
                 <h4>Lista de productos</h4>
             </div>
-            <div class="col-2">
+
+            <div class="col-1">
                 <div class="row">
-                    <button class="btn btn-primary" (click)="irAgregarProducto()">Agregar</button>
+                    <button class="btn btn-primary" (click)="generarPdf()">Generar PDF</button>
                 </div>
             </div>
+            <div class="col-1">
+                <div class="row">
+                    <button class="btn btn-success" (click)="generarExcel()">Generar Excel</button>
+                </div>
+            </div>
+            
         </div>
         
         <div>
@@ -142,6 +156,12 @@
             <div class="col-2">
                 <div class="row">
                     <button class="btn btn-secondary">Volver</button>
+                </div>
+            </div>
+            <div class="col"></div>
+            <div class="col-2">
+                <div class="row">
+                    <button class="btn btn-primary" (click)="irAgregarProducto()">Agregar</button>
                 </div>
             </div>
         </div>

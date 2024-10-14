@@ -15,6 +15,8 @@ import { CreateProductDtoClass } from '../interfaces/create-product-dto-class';
    private historialAmountUrl = 'http://localhost:8080/amountModification/getAllModifications'; // Enzo
    private apiUrlPDF = 'http://localhost:8080/amountModification/getAllModificationsPdf';
    apiUrlExcel = 'http://localhost:8080/amountModification/getAllModificationsExcel';
+   private productUrlPdf = 'http://localhost:8080/product/getPdf';  // Agus
+   productExcelPdf = 'http://localhost:8080/product/getExcel';  // Agus
 
    constructor(private http: HttpClient) {
    }
@@ -38,6 +40,12 @@ import { CreateProductDtoClass } from '../interfaces/create-product-dto-class';
     if (name !== undefined && name !== '') { params = params.set('name', name) }
 
     return this.http.get<DtoProducto[]>(this.productUrl, { params }).pipe(delay(1));
+  }
+
+  getProductosPdf(): Observable<ArrayBuffer> {
+    return this.http.get(this.productUrlPdf, {
+      responseType: 'arraybuffer'
+    });
   }
 
   // ENZO
