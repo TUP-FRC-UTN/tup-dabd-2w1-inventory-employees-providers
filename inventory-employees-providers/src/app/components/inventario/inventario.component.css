@@ -66,6 +66,6 @@ table{
     color: #ffffff;
 }
 
-.text-center{
-    margin-right: 10px;
+table{
+    max-height: 626px;
 }

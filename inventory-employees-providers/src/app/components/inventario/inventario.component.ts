@@ -96,6 +96,10 @@ export class InventarioComponent implements OnInit, OnDestroy {
     document.body.removeChild(enlace); // Limpieza
   }
 
+  irMenu(){
+    this.router.navigate(['']);
+  }
+
   irDetalles(id: number){
     this.detalleProductoService.setId(id);
     this.router.navigate(["detalle-inventario"])
