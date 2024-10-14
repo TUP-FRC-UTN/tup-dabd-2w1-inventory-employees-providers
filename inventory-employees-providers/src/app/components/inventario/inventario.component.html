@@ -49,7 +49,7 @@
             <div class="col-1 select">
                 <label for="Categorias">Categoria</label>
             </div>
-            <div class="col-3">
+            <div class="col-4">
                 <div class="row">
                     <select name="Categorias" id="Categorias" 
                         [(ngModel)]="categoria" #Categorias="ngModel" (ngModelChange)="cargarProductos()">
@@ -141,7 +141,7 @@
                                     @if (producto.reusable) { SI }
                                     @else { NO }
                                 </td>
-                                <td>{{producto.amountDetails}}</td>
+                                <td class="text-center">{{producto.amountDetails}}</td>
                                 <td>
                                     <div class="btn-group dropend">
                                         <button type="button" class="btn">...</button>
