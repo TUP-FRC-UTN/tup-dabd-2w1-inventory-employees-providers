@@ -14,6 +14,7 @@ import { CreateProductDtoClass } from '../interfaces/create-product-dto-class';
    private productUrl : string = 'http://localhost:8080/product/get'; // Agus
    private historialAmountUrl = 'http://localhost:8080/amountModification/getAllModifications'; // Enzo
    private apiUrlPDF = 'http://localhost:8080/amountModification/getAllModificationsPdf';
+   apiUrlExcel = 'http://localhost:8080/amountModification/getAllModificationsExcel';
 
    constructor(private http: HttpClient) {
    }
@@ -36,7 +37,7 @@ import { CreateProductDtoClass } from '../interfaces/create-product-dto-class';
     if (maxAmount !== undefined && maxAmount !== 0 && maxAmount !== null) { params = params.set('maxAmount', maxAmount.toString()) }
     if (name !== undefined && name !== '') { params = params.set('name', name) }
 
-    return this.http.get<DtoProducto[]>(this.productUrl, { params }).pipe(delay(2000));
+    return this.http.get<DtoProducto[]>(this.productUrl, { params }).pipe(delay(1));
   }
 
   // ENZO

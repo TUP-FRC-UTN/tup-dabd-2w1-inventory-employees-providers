@@ -23,6 +23,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   currentPage: number = 1; // Página actual
   itemsPerPage: number = 10; // Elementos por página
   totalPages: number = 0; // Total de páginas
+  minSearchLength: number = 3; // Número mínimo de caracteres para la búsqueda
   currentSortColumn: keyof Details = 'description'; // Columna inicial para la ordenación
   sortDirection: 'asc' | 'desc' = 'asc'; // Dirección inicial de ordenación
   private subscriptions: Subscription = new Subscription(); // Inicializar Subscription
@@ -41,12 +42,14 @@ export class DetailTableComponent implements OnInit, OnDestroy {
 
   // Carga los detalles desde el servicio
   loadDetails(): void {
-    const detailSubscription = this.detailService.getDetails().subscribe((data: Details[]) => {
-      this.details = data; // Asigna los detalles recibidos
-      this.filteredDetails = data; // Inicializa la lista filtrada
-      this.calculateTotalPages(); // Calcular total de páginas después de cargar detalles
-      this.updatePaginatedDetails(); // Inicializar los detalles de la página
-    });
+    const detailSubscription = this.detailService
+      .getDetails()
+      .subscribe((data: Details[]) => {
+        this.details = data; // Asigna los detalles recibidos
+        this.filteredDetails = data; // Inicializa la lista filtrada
+        this.calculateTotalPages(); // Calcular total de páginas después de cargar detalles
+        this.updatePaginatedDetails(); // Inicializar los detalles de la página
+      });
     this.subscriptions.add(detailSubscription); // Añadir la suscripción
   }
 
@@ -65,7 +68,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
 
   // Aplica el filtro basado en el término de búsqueda
   applyFilter(): void {
-    if (this.filterTerm.length >= 1) {
+    if (this.filterTerm.length >= this.minSearchLength) {
       const term = this.filterTerm.toLowerCase();
       this.filteredDetails = this.details.filter((detail) => {
         return (
@@ -93,7 +96,9 @@ export class DetailTableComponent implements OnInit, OnDestroy {
 
   // Calcula el total de páginas basándose en el número de detalles filtrados
   calculateTotalPages(): void {
-    this.totalPages = Math.ceil(this.filteredDetails.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(
+      this.filteredDetails.length / this.itemsPerPage
+    );
   }
 
   // Navegación entre páginas
@@ -133,24 +138,28 @@ export class DetailTableComponent implements OnInit, OnDestroy {
       ids: this.selectedIds,
     };
 
-    const deleteSubscription = this.detailService.postDecrement(postDecrement).subscribe({
-      next: (response) => {
-        if (response === 'OPERACION EXITOSA') {
-          alert('Los elementos seleccionados han sido eliminados exitosamente.');
-          this.loadDetails(); // Recarga los detalles después de la eliminación
+    const deleteSubscription = this.detailService
+      .postDecrement(postDecrement)
+      .subscribe({
+        next: (response) => {
+          if (response === 'OPERACION EXITOSA') {
+            alert(
+              'Los elementos seleccionados han sido eliminados exitosamente.'
+            );
+            this.loadDetails(); // Recarga los detalles después de la eliminación
+            this.justificativo = ''; // Reinicia el justificativo
+            this.selectedIds = []; // Limpia la selección
+          } else {
+            alert('Ocurrió un problema con la operación.');
+          }
+        },
+        error: (error) => {
+          //alert('Ocurrió un error al intentar eliminar los elementos seleccionados.');
+          this.loadDetails(); // Recarga los detalles en caso de error
           this.justificativo = ''; // Reinicia el justificativo
           this.selectedIds = []; // Limpia la selección
-        } else {
-          alert('Ocurrió un problema con la operación.');
-        }
-      },
-      error: (error) => {
-        //alert('Ocurrió un error al intentar eliminar los elementos seleccionados.');
-        this.loadDetails(); // Recarga los detalles en caso de error
-        this.justificativo = ''; // Reinicia el justificativo
-        this.selectedIds = []; // Limpia la selección
-      },
-    });
+        },
+      });
 
     this.subscriptions.add(deleteSubscription); // Añadir la suscripción
   }
@@ -214,10 +223,20 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   }
 
   // Método para generar el archivo Excel
+  
   generateExcel(): void {
-    window.open(this.detailService.urlExcel, '_blank');
+    //window.open(this.detailService.urlExcel, '_blank');
+
+    const enlace = document.createElement('a');
+    enlace.href = this.detailService.urlExcel; // URL del archivo
+    enlace.download = ''; // Esto sugiere al navegador que debe descargar el archivo
+    document.body.appendChild(enlace); // Necesario para algunos navegadores
+    enlace.click(); // Simula el clic en el enlace
+    document.body.removeChild(enlace); // Limpieza
   }
-/*
+  
+
+  /*
   // Genera el PDF
   generatePDF(): void {
     this.detailService.getPdf().subscribe((pdfArrayBuffer) => {
@@ -231,6 +250,4 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     });
   }
 */
-
-
 }

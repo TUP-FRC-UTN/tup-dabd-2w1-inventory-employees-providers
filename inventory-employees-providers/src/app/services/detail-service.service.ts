@@ -51,12 +51,12 @@ export class DetailServiceService {
     });
   }
 
-  /*
-  getExcel(): Observable<ArrayBuffer> {
+  
+  getExcel(): Observable<Blob> {
     return this.http.get(`${this.BASE_URL}/detailProductState/getActiveExcel`, {
       params: new HttpParams().set('productId', this.id.toString()),
-      responseType: 'arraybuffer'
+      responseType: 'blob'
     });
   }
-  */
+  
 }

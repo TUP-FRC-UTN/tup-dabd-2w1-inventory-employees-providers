@@ -25,6 +25,25 @@
     </div>
   </div>
 
+  <!-- Modal de Confirmación de Eliminación -->
+  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmación de Eliminación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          ¿Está seguro que desea eliminar los productos seleccionados?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" (click)="deleteSelected()" data-bs-dismiss="modal">Eliminar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Sección: Campo de Filtro -->
   <div class="mb-4">
     <label for="filter" class="form-label">Filtrar</label>
@@ -57,19 +76,13 @@
       </label>
     </div>
 
-    <!-- Botón Generar PDF -->
-<!-- Botón Generar PDF y Excel -->
-<div class="d-flex mb-3 align-items-center">
-  <!-- Botón Generar PDF -->
-  <button class="btn btn-primary ms-auto" (click)="generatePDF()">
-    Generar PDF
-  </button>
-  
-  <!-- Botón Generar Excel -->
-  <button class="btn btn-success ms-2" (click)="generateExcel()">
-    Generar Excel
-  </button>
-</div>
+    <!-- Botón Generar PDF y Excel -->
+    <button class="btn btn-primary ms-auto" (click)="generatePDF()">
+      Generar PDF
+    </button>
+    <button class="btn btn-success ms-2" (click)="generateExcel()">
+      Generar Excel
+    </button>
   </div>
 
   <!-- Sección: Tabla de Detalles de Productos -->
@@ -138,7 +151,8 @@
   <div class="text-end">
     <button
       class="btn btn-danger"
-      (click)="deleteSelected()"
+      data-bs-toggle="modal"
+      data-bs-target="#confirmDeleteModal"
       [disabled]="selectedIds.length === 0 || justificativo.trim() === ''"
     >
       Eliminar Seleccionados
