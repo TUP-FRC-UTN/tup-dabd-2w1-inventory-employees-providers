@@ -3,4 +3,5 @@ export interface StockAumento {
   supplierId: number;
   quantity: number;
   description: string;
+  unit_price: number;
 }

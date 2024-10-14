@@ -20,7 +20,7 @@ export class StockAumentoService {
   modifyStock(stockData: StockAumento): Observable<string> {
     return this.http.post(this.apiUrl, stockData, { responseType: 'text' });
   }
-
+  
   // Método para obtener proveedores // TOMAS
   getSuppliers(): Observable<Supplier[]> { // Nuevo método para obtener proveedores
     return this.http.get<Supplier[]>(this.suppliersUrl);

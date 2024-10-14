@@ -6,6 +6,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { StockAumentoService } from '../../services/stock-aumento.service';
 import { Supplier } from '../../interfaces/suppliers';
 import { RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-stock-aumento',
@@ -24,7 +25,8 @@ export class StockAumentoComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private stockService: StockAumentoService
+    private stockService: StockAumentoService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -36,11 +38,12 @@ export class StockAumentoComponent implements OnInit {
 
   initializeForm() {
     this.stockForm = this.formBuilder.group({
-      productId: [this.productId, Validators.required],  // El ID del producto se establece aquí
+      productId: [this.productId, Validators.required],
       supplierId: ['', Validators.required],
       quantity: ['', [Validators.required, Validators.min(1)]],
       description: ['', Validators.required],
-      justification: ['', Validators.required]
+      justification: ['', Validators.required],
+      unit_price: ['', [Validators.required, Validators.min(1)]] 
     });
   }
 
@@ -97,5 +100,9 @@ export class StockAumentoComponent implements OnInit {
       );
     }
   }
+
+  goBack() {
+    window.history.back();
+  }  
 
 }
