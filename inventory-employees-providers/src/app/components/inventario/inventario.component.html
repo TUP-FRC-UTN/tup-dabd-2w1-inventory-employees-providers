@@ -70,10 +70,10 @@
             <div class="col-3">
                 <div class="row">
                     <input type="number" name="CantMinima" id="CantMinima"
-                    [(ngModel)]="cantMinima" #CantMinima="ngModel" [ngClass]="{'is-valid': valido, 'is-invalid': !valido}" 
+                    [(ngModel)]="cantMinima" #CantMinima="ngModel" [ngClass]="{'is-valid': validoMin, 'is-invalid': !validoMin}" 
                     min="0" (ngModelChange)="cargarProductos()">
                 </div>
-                <div *ngIf="!valido" class="invalid-feedback"> {{mensajeValidacion}} </div>
+                <div *ngIf="!validoMin" class="invalid-feedback"> {{mensajeValidacionMin}} </div>
                 
             </div>
             <div class="col-1"></div>
@@ -83,8 +83,9 @@
             <div class="col-3">
                 <div class="row">
                     <input type="number" name="CantMaxima" id="CantMaxima"
-                    [(ngModel)]="cantMaxima" #CantMaxima="ngModel" min="0" 
-                    (ngModelChange)="cargarProductos()">
+                    [(ngModel)]="cantMaxima" #CantMaxima="ngModel" [ngClass]="{'is-valid': validoMax, 'is-invalid': !validoMax}"
+                    min="0" (ngModelChange)="cargarProductos()">
+                    <div *ngIf="!validoMax" class="invalid-feedback"> {{mensajeValidacionMax}} </div>
                 </div>  
             </div>
         </div>

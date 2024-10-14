@@ -44,9 +44,10 @@ export class InventarioComponent implements OnInit, OnDestroy {
   cantMaxima: number = 0;
   nombre: string = '';
 
-  valido: boolean = true;
-  mensajeValidacion: string = "";
-
+  validoMin: boolean = true;
+  validoMax: boolean = true;
+  mensajeValidacionMin: string = "";
+  mensajeValidacionMax: string = "";
 
 
   ngOnInit(): void {
@@ -62,9 +63,10 @@ export class InventarioComponent implements OnInit, OnDestroy {
   }
 
   cargarProductos(){
-    this.valido = this.verificar();
-    
-    if(!this.valido){
+    this.validoMin = this.verificarMin();
+    this.validoMax = this.verificarMax();
+
+    if(!this.validoMin || !this.validoMax){
       return;
     }
     else{
@@ -115,17 +117,33 @@ export class InventarioComponent implements OnInit, OnDestroy {
   }
 
 
-  verificar(){
+  verificarMin(){
+    if ( this.cantMinima < 0) { 
+      this.mensajeValidacionMin = "No puedes poner un numero menor a cero" 
+      return false
+    }
     if (this.cantMinima > this.cantMaxima) {
       if (this.cantMaxima !== 0 && this.cantMaxima !== null) {
-        this.mensajeValidacion = "La cantidad minima no puede ser mayor a la cantidad maxima"
+        this.mensajeValidacionMin = "La cantidad minima no puede ser mayor a la cantidad maxima"
         return false;
       }
     }
         
-    this.mensajeValidacion = "";
+    this.mensajeValidacionMin = "";
     return true;
   }
+
+  verificarMax(){
+    if (this.cantMaxima < 0){ 
+      this.mensajeValidacionMax = "No puedes poner un numero menor a cero"
+      return false
+    }
+
+    this.mensajeValidacionMax = "";
+    return true;
+  }
+
+
 
   ngOnDestroy(): void {
     if (this.categoriasSubscription) { this.categoriasSubscription.unsubscribe() }
