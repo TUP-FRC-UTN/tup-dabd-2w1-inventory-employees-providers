@@ -141,4 +141,8 @@ export class ProductComponent {
       
     });
   }
+
+  goBack() {
+    window.history.back();
+  }  
 }
