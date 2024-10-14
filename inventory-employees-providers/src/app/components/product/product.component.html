@@ -298,8 +298,13 @@ background-color: rgba(0, 0, 0, 0.5);  /* Fondo semi-transparente */
         <label for="inputPrice" class="col-form-label">Precio Unitario</label>
         <input type="number" class="form-control" 
         aria-label="Amount" #unit="ngModel" [(ngModel)]="dto.unit_price"
-        name="unit">
+        name="unit" min="0">
         <span class="input-group-text">$</span>
+      </div>
+      <div class="error-container">
+        @if(unit.invalid && unit.touched) {
+          <div class="text-danger">El precio unitario debe ser igual o mayor a 0</div>
+        }
       </div>
     </div>
     <div class="mb-2 row">
@@ -375,7 +380,7 @@ background-color: rgba(0, 0, 0, 0.5);  /* Fondo semi-transparente */
     </div>
     <div class="mb-3 mt-4 row">
       <div class="col-6 text-center">
-        <button type="submit" style="width: 40%;" class="btn btn-secondary">Volver</button>
+        <button type="submit" style="width: 40%;" class="btn btn-secondary" (click)="goBack()">Volver</button>
       </div>
       <div class="col-6 text-center">
         <button [disabled]="!myForm.valid" type="submit" class="btn btn-primary" style="width: 40%;">Registrar</button>
