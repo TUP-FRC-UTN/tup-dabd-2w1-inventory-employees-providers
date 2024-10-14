@@ -31,9 +31,4 @@ export const routes: Routes = [
         component: TablaComponent,
         title: 'Historial de modificacion de stock'
     },
-    {
-        path: 'menu',     // ENZO
-        component: AppComponent,
-        title: 'Menu Principal'
-    }
 ];

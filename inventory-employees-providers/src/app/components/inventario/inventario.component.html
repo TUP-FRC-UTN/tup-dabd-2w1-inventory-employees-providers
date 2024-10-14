@@ -94,7 +94,7 @@
             <div class="col-1">
                 <label for="Nombre">Nombre</label>
             </div>
-            <div class="col-10">
+            <div class="col-4">
                 <div class="row">
                     <input type="text" id="Nombre" name="Nombre"
                     [(ngModel)]="nombre" #Nombre="ngModel" (ngModelChange)="cargarProductos()">
@@ -104,10 +104,9 @@
         
         <!-- POST PRODUCTO  -->
         <div class="row">
-            <div class="group col-9 tituloLista">
+            <div class="group col-10 tituloLista">
                 <h4>Lista de productos</h4>
             </div>
-
             <div class="col-1">
                 <div class="row">
                     <button class="btn btn-primary" (click)="generarPdf()">Generar PDF</button>

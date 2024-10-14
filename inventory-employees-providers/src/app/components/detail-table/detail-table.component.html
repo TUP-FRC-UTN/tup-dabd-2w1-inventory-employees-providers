@@ -148,14 +148,17 @@
   </div>
 
   <!-- Sección: Botón para Eliminar Seleccionados -->
-  <div class="text-end">
-    <button
-      class="btn btn-danger"
-      data-bs-toggle="modal"
-      data-bs-target="#confirmDeleteModal"
-      [disabled]="selectedIds.length === 0 || justificativo.trim() === ''"
-    >
-      Eliminar Seleccionados
-    </button>
+    <div class="d-flex justify-content-between">
+
+      <button class="btn btn-secondary" (click)="volverInventario()">Volver</button>  
+      
+      <button
+        class="btn btn-danger"
+        data-bs-toggle="modal"
+        data-bs-target="#confirmDeleteModal"
+        [disabled]="selectedIds.length === 0 || justificativo.trim() === ''"
+      >
+        Eliminar Seleccionados
+      </button>
+    </div>
   </div>
-</div>

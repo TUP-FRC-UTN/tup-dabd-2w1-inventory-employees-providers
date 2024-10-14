@@ -1,9 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Details, PostDecrement } from '../../interfaces/details';
 import { DetailServiceService } from '../../services/detail-service.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-detail-table',
@@ -27,6 +28,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   currentSortColumn: keyof Details = 'description'; // Columna inicial para la ordenación
   sortDirection: 'asc' | 'desc' = 'asc'; // Dirección inicial de ordenación
   private subscriptions: Subscription = new Subscription(); // Inicializar Subscription
+  private router = inject(Router);  // Router para moverse entre componentes
 
   constructor(private detailService: DetailServiceService) {}
 
@@ -233,6 +235,11 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     document.body.appendChild(enlace); // Necesario para algunos navegadores
     enlace.click(); // Simula el clic en el enlace
     document.body.removeChild(enlace); // Limpieza
+  }
+
+  // Metodo para ir al front de inventario
+  volverInventario(){
+    this.router.navigate(["inventario"])
   }
   
 
