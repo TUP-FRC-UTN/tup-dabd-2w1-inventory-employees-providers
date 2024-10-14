@@ -5,7 +5,28 @@
                 <h2 class="titulo">Inventario</h2>
             </div>
             <div class="col-1">
-                <button class="btn btn-info">Info</button>
+                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#infoModal">Info</button>
+            </div>
+        </div>
+
+        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="infoModalLabel">Información</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                        <div class="modal-body">
+                            En el inventario puedes ver la informacion de todos los productos cargados 
+                            en el sistema y filtrarlo segun su categorias, si son reusables o no, la cantidad minima y/o maxima
+                            de detalles que debe tener y una palabra clave que contenga el nombre del producto.
+                            Tambien tienes la funcion de agregar productos nuevos, consultar los detalles de cada producto y agregar
+                            nuevos de los mismos.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        </div>
+                </div>
             </div>
         </div>
         
@@ -35,11 +56,6 @@
                         <option value="" selected></option>
                         @for (c of categorias; track $index) { <option [value]="c.id">{{c.category}}</option> }
                     </select>
-                </div>
-            </div>
-            <div class="col-1">
-                <div class="row">
-                    <button class="btn btn-primary">Agregar</button>
                 </div>
             </div>
         </div>
