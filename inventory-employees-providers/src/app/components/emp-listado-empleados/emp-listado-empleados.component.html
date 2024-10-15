@@ -1,0 +1,35 @@
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Lista de Empleados</h2>
+    
+    <table id="empleadosTable" class="table table-striped table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>Apellido y Nombre</th>
+                <th>Documento</th>
+                <th>Posición</th>
+                <th>Salario</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let empleado of Empleados">
+                <td>{{ empleado.fullName }}</td>
+                <td>{{ empleado.document }}</td>
+                <td>{{ empleado.position }}</td>
+                <td class="text-end">{{ empleado.salary | currency:'USD':'symbol' }}</td>
+                <td>
+                    <label class="visually-hidden" for="acciones-{{ empleado.id }}">Seleccionar acción para {{ empleado.fullName }}</label>
+                    <select
+                        id="acciones-{{ empleado.id }}"
+                        class="form-select form-select-sm"
+                        (change)="accionSeleccionada(empleado.id, $event)"
+                    >
+                        <option value="" disabled selected>Seleccionar acción</option>
+                        <option value="editar">Editar</option>
+                        <option value="eliminar">Eliminar</option>
+                    </select>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

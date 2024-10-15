@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 import { InventarioComponent } from './components/inventario/inventario.component';
 import { DetailTableComponent } from './components/detail-table/detail-table.component';
 import { TablaComponent } from './components/tabla/tabla.component';
+import { EmpListadoEmpleadosComponent } from './components/emp-listado-empleados/emp-listado-empleados.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -30,5 +31,10 @@ export const routes: Routes = [
         path: 'historial-modificaciones-stock',     // ENZO
         component: TablaComponent,
         title: 'Historial de modificacion de stock'
+    },
+    {
+        path: 'listado-empleados',     // ENZO
+        component: EmpListadoEmpleadosComponent,
+        title: 'Listado de empleados'
     },
 ];
