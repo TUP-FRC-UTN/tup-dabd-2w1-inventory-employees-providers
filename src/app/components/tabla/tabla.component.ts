@@ -29,6 +29,7 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
   filteredProductos: Producto[] = []; // Array para almacenar productos filtrados
   
   exportButtonsEnabled: boolean = true; // Controla la habilitación de los botones
+  private stockMap: Map<string, number> = new Map();
 
   constructor(private productService: ProductService,private excelPdfService: GenerateExcelPdfService) {}
 
@@ -74,7 +75,32 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
   
 
   ngOnInit(): void {
+    this.setInitialDates();
     this.loadProductos(); // Carga los productos al inicializar el componente
+  }
+
+  setInitialDates(): void {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
+
+    startDateInput.value = this.formatDateForInput(thirtyDaysAgo);
+    endDateInput.value = this.formatDateForInput(today);
+
+    // Establecer los límites de las fechas
+    endDateInput.max = this.formatDateForInput(today);
+    startDateInput.max = endDateInput.value;
+    endDateInput.min = startDateInput.value;
+
+    // Trigger the filter
+    this.filterByDate();
+  }
+
+  formatDateForInput(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 
   ngAfterViewInit(): void {
@@ -85,20 +111,41 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
   loadProductos(): void {
     this.productService.getProductos().subscribe({
       next: (productos) => {
-        // Formatear las fechas de los productos
-        this.productos = productos.map(producto => ({
-          ...producto,
-          date: this.formatDate(producto.date) // Formatear la fecha
-        }));
-        this.filteredProductos = [...this.productos]; // Copiar productos a la lista filtrada
+        this.productos = this.calculateRunningStock(productos);
+        this.filteredProductos = [...this.productos];
         if (this.table) {
-          this.table.destroy(); // Destruye la instancia existente de DataTable
+          this.table.destroy();
         }
-        this.initializeDataTable(); // Inicializa DataTable con los nuevos datos
+        this.initializeDataTable();
       },
       error: (err) => {
         console.error('Error al cargar productos:', err);
       }
+    });
+  }
+
+  calculateRunningStock(productos: Producto[]): Producto[] {
+    const stockMap = new Map<string, number>();
+    
+    return productos.map(producto => {
+      const currentStock = stockMap.get(producto.product) || 0;
+      let newStock: number;
+      
+      if (producto.modificationType === 'Aumento') {
+        newStock = currentStock + producto.amount;
+      } else if (producto.modificationType === 'Disminución') {
+        newStock = currentStock - producto.amount;
+      } else {
+        newStock = currentStock; // En caso de otro tipo de movimiento
+      }
+      
+      stockMap.set(producto.product, newStock);
+      
+      return {
+        ...producto,
+        date: this.formatDate(producto.date),
+        stockAfterModification: newStock
+      };
     });
   }
 
@@ -121,7 +168,8 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
         { data: 'modificationType', title: 'Tipo Movimiento' }, // Columna de tipo de movimiento
         { data: 'supplier', title: 'Proveedor' }, // Columna de proveedor
         { data: 'amount', title: 'Cantidad' }, // Columna de cantidad
-        { data: 'description', title: 'Justificativo' } // Columna de justificativo
+        { data: 'description', title: 'Justificativo' }, // Columna de justificativo
+        { data: 'stockAfterModification', title: 'Stock Después' }
       ],
       pageLength: 10, // Número de registros por página
       lengthChange: false, // Deshabilita el selector de cantidad de registros
@@ -143,8 +191,9 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
     const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
     const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
 
-    const startDate = new Date(startDateInput.value);
-    const endDate = new Date(endDateInput.value);
+
+    const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+    const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
 
     // Validar que las fechas sean válidas
     if (startDate && endDate && startDate > endDate) {
@@ -155,10 +204,9 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.filteredProductos = this.productos.filter(producto => {
-      const productDate = new Date(this.formatDateyyyyMMdd(producto.date)) // Formatear la fecha);
-      //const productDate = new Date(producto.date); // No es necesario formatear la fecha
-      return (!startDateInput.value || productDate >= startDate) &&
-             (!endDateInput.value || productDate <= endDate);
+      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
+      return (!startDate || productDate >= startDate) &&
+             (!endDate || productDate <= endDate);
     });
 
     // Actualizar el DataTable
