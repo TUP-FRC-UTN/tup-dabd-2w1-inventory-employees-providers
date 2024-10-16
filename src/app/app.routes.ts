@@ -4,17 +4,18 @@ import { DetailTableComponent } from './components/detail-table/detail-table.com
 import { InventarioComponent } from './components/inventario/inventario.component';
 import { StockAumentoComponent } from './components/stock-aumento/stock-aumento.component';
 import { TablaComponent } from './components/tabla/tabla.component';
+import { ProductComponent } from './components/product/product.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
         component: StockAumentoComponent,
         title: 'Aumento de stock'
-    },/*
+    },
     {
         path: 'registro-productos', // TOMAS
         component: ProductComponent,
         title: 'Registro de productos'
-    },*/
+    },
     {
         path: 'inventario',     // AGUSTIN
         component: InventarioComponent,
