@@ -7,8 +7,8 @@ import 'datatables.net-bs5';
 import $ from 'jquery';
 import * as XLSX from 'xlsx';
 import { GenerateExcelPdfService } from '../../services/generate-excel-pdf.service';
-import { ToastrService } from 'ngx-toastr';
-import { DataTablesModule } from 'angular-datatables';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 @Component({
   selector: 'app-tabla',
@@ -235,24 +235,115 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Método que genera el PDF
   exportToPdf(): void {
-    // Seleccionar el elemento de la tabla por su ID
-    const table = document.getElementById('historialTable') as HTMLTableElement;
-    if (table) {
-      this.excelPdfService.exportTableToPdf(table, 'reporte_productos'); // Llamada al servicio para generar el PDF
-    } else {
-      console.error('Tabla no encontrada');
+    if (!this.filteredProductos.length) {
+      console.error('No hay datos para exportar');
+      return;
     }
+
+    // Crear nuevo documento PDF
+    const doc = new jsPDF();
+
+    // Usar los datos ya procesados de filteredProductos
+    const tableData = this.filteredProductos.map(producto => [
+      producto.date, // Ya está formateado por calculateRunningStock
+      producto.product,
+      producto.modificationType,
+      producto.supplier,
+      producto.amount.toString(),
+      producto.description,
+      producto.stockAfterModification // Usamos el stock calculado
+    ]);
+
+    const headers = [
+      'Fecha',
+      'Producto',
+      'Tipo Movimiento',
+      'Proveedor',
+      'Cantidad',
+      'Justificativo',
+      'Stock Después'
+    ];
+
+    // Generar la tabla en el PDF
+    (doc as any).autoTable({
+      head: [headers],
+      body: tableData,
+      theme: 'grid',
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+        overflow: 'linebreak',
+        halign: 'center'
+      },
+      headStyles: {
+        fillColor: [66, 139, 202],
+        textColor: 255,
+        halign: 'center'
+      },
+      columnStyles: {
+        0: { cellWidth: 20 }, // Fecha
+        1: { cellWidth: 25 }, // Producto
+        2: { cellWidth: 25 }, // Tipo Movimiento
+        3: { cellWidth: 25 }, // Proveedor
+        4: { cellWidth: 15, halign: 'right' }, // Cantidad
+        5: { cellWidth: 50 }, // Justificativo
+        6: { cellWidth: 20, halign: 'right' }  // Stock Después
+      },
+      margin: { top: 10 },
+      didDrawPage: function(data: any) {
+        // Agregar número de página
+        //const str = 'Página ' + doc.internal.getNumberOfPages();
+        doc.setFontSize(8);
+        const pageSize = doc.internal.pageSize;
+        const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+        //doc.text(str, data.settings.margin.left, pageHeight - 10);
+      }
+    });
+
+    // Guardar el PDF
+    doc.save('reporte_productos.pdf');
   }
 
   exportToExcel(): void {
-    // Seleccionar el elemento de la tabla por su ID
-    const table = document.getElementById('historialTable') as HTMLTableElement;
-    if (table) {
-      this.excelPdfService.exportTableToExcel(table, 'reporte_productos'); // Llamada al servicio para generar el Excel
-    } else {
-      console.error('Tabla no encontrada');
+    if (!this.filteredProductos.length) {
+        console.error('No hay datos para exportar');
+        return;
     }
-  }
+
+    // Usar los datos ya procesados de filteredProductos
+    const data = this.filteredProductos.map(producto => ({
+        Fecha: producto.date, // Ya está formateado por calculateRunningStock
+        Producto: producto.product,
+        'Tipo Movimiento': producto.modificationType,
+        Proveedor: producto.supplier,
+        Cantidad: producto.amount,
+        Justificativo: producto.description,
+        'Stock Después': producto.stockAfterModification // Usamos el stock calculado
+    }));
+
+    // Crear una nueva hoja de trabajo
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+
+    // Configurar el ancho de las columnas
+    const columnsWidth = [
+        { wch: 12 }, // Fecha
+        { wch: 20 }, // Producto
+        { wch: 20 }, // Tipo Movimiento
+        { wch: 20 }, // Proveedor
+        { wch: 15 }, // Cantidad
+        { wch: 30 }, // Justificativo
+        { wch: 15 }, // Stock Después
+    ];
+    worksheet['!cols'] = columnsWidth;
+
+    // Crear un nuevo libro de trabajo y agregar la hoja
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Historial');
+
+    // Guardar el archivo
+    XLSX.writeFile(workbook, 'reporte_productos.xlsx');
+}
+
 
   ngOnDestroy(): void {
     if (this.table) {
