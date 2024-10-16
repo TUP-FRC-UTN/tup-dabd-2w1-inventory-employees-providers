@@ -7,6 +7,7 @@ import 'datatables.net'; // Importación de DataTables
 import 'datatables.net-dt'; // Estilos para DataTables
 import { EmpListadoEmpleados } from '../../models/emp-listado-empleados'; // Modelo de empleado
 import { Router } from '@angular/router';
+import { Row } from 'jspdf-autotable';
 
 @Component({
   selector: 'app-emp-listado-empleados',
@@ -71,13 +72,13 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
           }
         },
         {
-          data: null,
+          data: null, // Columna de acciones
           title: 'Acciones',
           render: (data: any) => {
             // Renderiza un dropdown para seleccionar acciones (editar/eliminar)
             return `
               <div class="btn-group dropend">
-                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">...</button>
+                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Seleccionar</button>
                   <ul class="dropdown-menu">
                     <li>
                       <button class="dropdown-item btn btn-secondary" 
