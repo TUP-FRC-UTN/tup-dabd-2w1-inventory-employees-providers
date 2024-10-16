@@ -1,5 +1,12 @@
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Lista de Empleados</h2>
+    <h2 class="text-left mb-4">Lista de Empleados</h2>
+
+    <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Informacion' }" 
+    (click)="ventana = 'Informacion'">Informacion</button>
+    <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Asistencias' }" 
+    (click)="ventana = 'Asistencias'">Asistencias</button>
+    <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Desempeño' }" 
+    (click)="ventana = 'Desempeño'">Desempeño</button>
     
     <table id="empleadosTable" class="table table-striped table-bordered">
         <thead class="thead-light">
@@ -15,4 +22,52 @@
             <!-- Las filas serán renderizadas por DataTables desde el TypeScript -->
         </tbody>
     </table>
+
+    <div class="opciones">
+        @if (ventana == "Informacion") {
+            <div class="row">
+                <div class="col-1">
+                    <div class="row">
+                        <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
+                    </div>
+                </div>
+                <div class="col"></div>
+                <div class="col-2">
+                    <div class="row">
+                        <button class="btn btn-danger">Eliminar</button>
+                    </div>
+                </div>
+            </div> 
+        }
+        @if (ventana == "Asistencias") {
+            <div class="row">
+                <div class="col-1">
+                    <div class="row">
+                        <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (ventana == "Desempeño") {
+            <div class="row">
+                <div class="col-1">
+                    <div class="row">
+                        <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
+                    </div>
+                </div>
+                <div class="col"></div>
+                <div class="col-2">
+                    <div class="row">
+                        <button class="btn btn-primary">Modificar desempeño</button>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="row">
+                        <button class="btn btn-primary">Registrar observacion</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
 </div>
