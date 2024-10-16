@@ -9,11 +9,12 @@ import { FiltroComponent } from './components/filtro/filtro.component';
 import { ModalSelectComponent } from './components/modal-select/modal-select.component';
 import { StockAumentoComponent } from './components/stock-aumento/stock-aumento.component';
 import { TablaComponent } from './components/tabla/tabla.component';
+import { FormLlamadoAtencionComponent } from './components/form-llamado-atencion/form-llamado-atencion.component';
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, RouterModule, EmpListadoEmpleadosComponent, BotonVolverComponent, DetailTableComponent, FiltroComponent,
-    ModalSelectComponent, StockAumentoComponent, TablaComponent
+    ModalSelectComponent, StockAumentoComponent, TablaComponent, FormLlamadoAtencionComponent
   ],
   providers: [],
 

@@ -1,0 +1,50 @@
+<div class="container">
+    <h1>Registro de llamado de atención de empleados</h1>
+    
+    <form [formGroup]="wakeUpCallForm" (ngSubmit)="onSubmit()" class="wake-up-call-form">
+      <div class="form-group">
+        <label for="fecha">Fecha</label>
+        <input id="fecha" formControlName="fecha" type="date" class="form-control">
+      </div>
+      
+      <div class="form-group">
+        <label>Empleados</label>
+        <div class="employee-list" formArrayName="empleados">
+          <div *ngFor="let employee of employees; let i = index" class="employee-item">
+            <label>
+              <input type="checkbox" [formControlName]="i">
+              {{ employee.fullName }} - {{ employee.position }}
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Desempeño</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" formControlName="desempeno" value="LEVE">
+            <span>Leve</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" formControlName="desempeno" value="MODERADO">
+            <span>Moderado</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" formControlName="desempeno" value="SEVERO">
+            <span>Severo</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="observaciones">Observaciones</label>
+        <textarea id="observaciones" formControlName="observaciones" class="form-control" rows="4"></textarea>
+      </div>
+      
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary">Confirmar</button>
+        <button type="button" (click)="wakeUpCallForm.reset()" class="btn btn-secondary">Volver</button>
+      </div>
+    </form>
+  </div>

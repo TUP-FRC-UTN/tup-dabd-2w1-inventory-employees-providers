@@ -4,6 +4,7 @@ import { DetailTableComponent } from './components/detail-table/detail-table.com
 import { InventarioComponent } from './components/inventario/inventario.component';
 import { StockAumentoComponent } from './components/stock-aumento/stock-aumento.component';
 import { TablaComponent } from './components/tabla/tabla.component';
+import { FormLlamadoAtencionComponent } from './components/form-llamado-atencion/form-llamado-atencion.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -29,6 +30,11 @@ export const routes: Routes = [
         path: 'historial-modificaciones-stock',     // ENZO
         component: TablaComponent,
         title: 'Historial de modificacion de stock'
+    },
+    {
+        path: 'wake-up-call',     // Nueva ruta para el componente de desempeño
+        component:FormLlamadoAtencionComponent,
+        title: 'Desempeño'
     },
     {
         path: 'listado-empleados',     // ENZO
