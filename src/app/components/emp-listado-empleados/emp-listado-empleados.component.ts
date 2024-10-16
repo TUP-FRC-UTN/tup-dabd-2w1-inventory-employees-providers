@@ -82,11 +82,10 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
           }
         }
       ],
-      pageLength: 10, // Cantidad de registros por página
-      lengthMenu: [10, 25, 50, 100], // Opciones de paginación
+      pageLength: 10, // Fijamos la cantidad de registros por página en 10
+      lengthChange: false, // Deshabilita el selector de cantidad de registros
       language: {
         search: "Buscar:", // Traducción del texto de búsqueda
-        lengthMenu: "Mostrar _MENU_ registros", // Traducción del selector de cantidad de registros
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros", // Texto de información
         paginate: {
           first: "Primero",
