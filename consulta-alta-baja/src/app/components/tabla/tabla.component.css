@@ -1,65 +1,39 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
 .table {
-  border-radius: 0.5rem;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-.table-light {
-  background-color: #f8f9fa;
-}
-
-.table th {
-  background-color: #007bff; /* Consistente con el tema de los botones */
-  color: white; /* Color del texto en el encabezado */
-  font-weight: bold;
-}
-
-.table th:hover {
-  background-color: #0056b3; /* Color al pasar el mouse por el encabezado */
-}
-
-.table tbody tr {
-  transition: background-color 0.3s;
+.table thead th {
+  background-color: #28a745;
+  color: white;
+  border: none;
 }
 
 .table tbody tr:hover {
-  background-color: #e2e6ea; /* Color de fondo al pasar el mouse por las filas */
+  background-color: #f8f9fa;
 }
 
-.page-link {
-  color: #007bff; /* Color de los enlaces de paginación */
+.table td, .table th {
+  border: none;
+  border-bottom: 1px solid #dee2e6;
 }
 
-.page-link:hover {
-  color: #0056b3; /* Color al pasar el mouse sobre los enlaces de paginación */
-  text-decoration: underline;
+.pagination .page-link {
+  color: #28a745;
+  border-color: #28a745;
 }
 
-.page-item.active .page-link {
-  background-color: #007bff; /* Color de la página activa */
-  color: white; /* Color del texto de la página activa */
+.pagination .page-item.active .page-link {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
 }
 
-.page-item.disabled .page-link {
-  color: #6c757d; /* Color para los enlaces deshabilitados */
-  pointer-events: none; /* Desactivar clics en enlaces deshabilitados */
-}
-
-.filtro-toggle {
-  background-color: #007bff; /* Color del botón de filtro */
-  color: white; /* Color del texto del botón de filtro */
-  border: none; /* Sin borde */
-}
-
-.filtro-toggle:hover {
-  background-color: #0056b3; /* Color al pasar el mouse sobre el botón de filtro */
-}
-
-.text-center {
-  color: #6c757d; /* Color del texto centrado */
-  font-style: italic; /* Estilo itálico */
-}
-
-.pagination {
-  margin-top: 20px; /* Espacio en la parte superior de la paginación */
+.pagination .page-item.disabled .page-link {
+  color: #6c757d;
+  border-color: #dee2e6;
 }

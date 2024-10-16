@@ -106,4 +106,15 @@ export class TablaComponent implements OnInit {
       this.paginaActual = nuevaPagina;
     }
   }
+
+  traducirMovimiento(tipoMovimiento: string): string {
+    switch (tipoMovimiento) {
+      case 'INCREASE':
+        return 'Aumento';
+      case 'DECREMENT':
+        return 'Disminución';
+      default:
+        return tipoMovimiento; // Por si acaso hay otros valores inesperados
+    }
+  }
 }

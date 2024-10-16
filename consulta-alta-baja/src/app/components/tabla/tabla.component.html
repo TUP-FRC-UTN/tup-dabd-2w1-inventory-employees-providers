@@ -45,7 +45,7 @@
     <tbody>
       <tr *ngFor="let producto of paginacionProductos()">
         <td>{{ producto.product }}</td>
-        <td>{{ producto.modificationType }}</td>
+        <td>{{ traducirMovimiento(producto.modificationType) }}</td>
         <td>{{ producto.date | date: 'dd-MM-yyyy' }}</td>
         <td>{{ producto.supplier }}</td>
         <td>{{ producto.amount }}</td>

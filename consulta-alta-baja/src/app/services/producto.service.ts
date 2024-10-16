@@ -8,7 +8,8 @@ import { Producto } from '../interfaces/producto';
   providedIn: 'root'
 })
 export class ProductoService {
-  private apiUrl = 'https://mocki.io/v1/3d5d8476-ac39-4b45-ae81-22e3e4d19a73';
+  //private apiUrl = 'https://mocki.io/v1/3d5d8476-ac39-4b45-ae81-22e3e4d19a73';
+  private apiUrl = 'http://localhost:8080/AmountModification/getAllModifications';
 
   constructor(private http: HttpClient) {}
 
@@ -16,13 +17,13 @@ export class ProductoService {
     return this.http.get<any[]>(this.apiUrl).pipe(
       map(data => data.map(item => ({
         ...item,
-        date: this.convertirFecha(item.date)  // Convertir a Date usando una función personalizada
+        date: this.convertirFecha(item.date) 
       })))
     );
   }
 
   private convertirFecha(fechaStr: string): Date {
-    const [dia, mes, anio] = fechaStr.split('/').map(Number);  // Divide la fecha y convierte a número
-    return new Date(anio, mes - 1, dia);  // Mes es 0-indexed en JavaScript
+    const [dia, mes, anio] = fechaStr.split('/').map(Number); 
+    return new Date(anio, mes - 1, dia); 
   }
 }
