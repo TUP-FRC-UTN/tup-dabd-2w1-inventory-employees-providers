@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { PostDecrement } from '../interfaces/details';
+import { PostDecrement } from '../models/details';
 
 @Injectable({
   providedIn: 'root'

@@ -1,10 +1,10 @@
 import { HttpClient,  HttpHeaders,  HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { delay, map, Observable} from 'rxjs';
-import { ProductCategory } from '../interfaces/product-category';
-import { DtoProducto } from '../interfaces/dto-producto';
-import { Producto } from '../interfaces/producto';
-import { CreateProductDtoClass } from '../interfaces/create-product-dto-class';
+import { CreateProductDtoClass } from '../models/create-product-dto-class';
+import { DtoProducto } from '../models/dto-producto';
+import { ProductCategory } from '../models/product-category';
+import { Producto } from '../models/producto';
 @Injectable({
   providedIn: 'root'
 })
