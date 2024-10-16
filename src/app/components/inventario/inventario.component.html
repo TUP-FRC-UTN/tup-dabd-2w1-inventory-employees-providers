@@ -166,19 +166,31 @@
                     <input type="text" id="Nombre" name="Nombre" class="form-control" [(ngModel)]="nombre" #Nombre="ngModel" (ngModelChange)="cargarProductos()">
                 </div>
                 <div class="col-6" style="text-align: end;">
-                    <button class="btn btn-primary">Limpiar filtros</button>
+                    <button class="btn btn-primary" (click)="cleanFilters()">Limpiar filtros</button>
                 </div>
             </div>
         </div>
 
         <div class="container row mb-3">
-            <div class="">
+            <div class="row">
+                <div class="col-10"><label for="
+                    ">Estado de productos</label>
+                </div>
+               
+            <!--  <div class="col-2" style="text-align: end;">
+                    <button class="btn" routerLink="" style="width: 40px;"
+                    routerLinkActive="router-link-active"
+                    class="btn btn-outline-secondary" type="button" id="button-addon2">
+                    + </button>
+                </div>-->
                 <table class="table" style="font-size: small;">
+                 
                     <thead>
                         <th scope="col">Categoría</th>
+                        <th scope="col">Disponibles</th>
                         <th scope="col">En uso</th>
                         <th scope="col">En mantenimiento</th>
-                        <th scope="col">En préstamo</th>
+                        <th></th>
                     </thead>
                     <tbody>
                         @for (c of categorias; track $index) { 
@@ -189,6 +201,13 @@
                                 <td>
                                     12
                                 </td>
+                                <td>
+                                    3
+                                </td>
+                                <td>
+
+                                </td>
+                               
                             </tr>
                         }
                     </tbody>

@@ -110,7 +110,8 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
                   Acciones
                 </a>
                 <ul class="dropdown-menu">
-                  <li><button class="dropdown-item btn botonDetalleCrear" data-id="${row.id}">Agregar</button></li>
+                  <li><button class="dropdown-item btn botonDetalleCrear"
+                  data-id="${row.id}">Agregar</button></li>
                   <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Consultar</button></li>
                 </ul>
               </div>
@@ -148,6 +149,15 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.table) {
       this.table.clear().rows.add(this.productos).draw();
     }
+  }
+
+  cleanFilters(): void {
+    this.categoria = 0;
+    this.reusable = undefined;
+    this.cantMinima = 0;
+    this.cantMaxima = 0;
+    this.nombre = '';
+    this.cargarProductos();
   }
 
 
