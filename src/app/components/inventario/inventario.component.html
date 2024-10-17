@@ -133,8 +133,8 @@
                     <label for="Categorias" class="form-label">Categoria</label>
                 </div>
                 <div class="col-5">
-                    <select name="Categorias" id="Categorias" class="form-select" [(ngModel)]="categoria" #Categorias="ngModel" (ngModelChange)="cargarProductos()">
-                        <option value="" selected></option>
+                    <select name="Categorias" id="Categorias" class="form-select" [(ngModel)]="categoria" #Categorias="ngModel" (ngModelChange)="aplicarFiltros()">
+                        <option value="0" selected></option>
                         @for (c of categorias; track $index) { <option [value]="c.id">{{c.category}}</option> }
                     </select>
                 </div>
@@ -145,14 +145,14 @@
                     <label for="CantMinima" class="form-label">Cant. minima</label>
                 </div>
                 <div class="col-5">
-                    <input type="number" name="CantMinima" id="CantMinima" class="form-control" [(ngModel)]="cantMinima" #CantMinima="ngModel" min="0" (ngModelChange)="cargarProductos()">
+                    <input type="number" name="CantMinima" id="CantMinima" class="form-control" [(ngModel)]="cantMinima" #CantMinima="ngModel" min="0" (ngModelChange)="aplicarFiltros()">
                     <div *ngIf="!validoMin" class="invalid-feedback"> {{mensajeValidacionMin}} </div>
                 </div>
                 <div class="col-1">
                     <label for="CantMaxima" class="form-label">Cant. máxima</label>
                 </div>
                 <div class="col-5">
-                    <input type="number" name="CantMaxima" id="CantMaxima" class="form-control" [(ngModel)]="cantMaxima" #CantMaxima="ngModel"  min="0" (ngModelChange)="cargarProductos()">
+                    <input type="number" name="CantMaxima" id="CantMaxima" class="form-control" [(ngModel)]="cantMaxima" #CantMaxima="ngModel"  min="0" (ngModelChange)="aplicarFiltros()">
                     <div *ngIf="!validoMax" class="invalid-feedback"> {{mensajeValidacionMax}} </div>
                 </div>
             </div>
@@ -163,7 +163,7 @@
                     <label for="Nombre" class="form-label">Nombre</label>
                 </div>
                 <div class="col-5">
-                    <input type="text" id="Nombre" name="Nombre" class="form-control" [(ngModel)]="nombre" #Nombre="ngModel" (ngModelChange)="cargarProductos()">
+                    <input type="text" id="Nombre" name="Nombre" class="form-control" [(ngModel)]="nombre" #Nombre="ngModel" (ngModelChange)="aplicarFiltros()">
                 </div>
                 <div class="col-6" style="text-align: end;">
                     <button class="btn btn-primary" (click)="cleanFilters()">Limpiar filtros</button>

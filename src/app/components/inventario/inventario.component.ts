@@ -16,6 +16,7 @@ import 'datatables.net';
 import 'datatables.net-dt';
 import 'datatables.net-bs5';
 import { ProductXDetailDto } from '../../models/product-xdetail-dto';
+import DataTable from 'datatables.net-dt';
 
 @Component({
   selector: 'app-inventario',
@@ -38,13 +39,17 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   productos$:Observable<ProductXDetailDto[]> = new Observable<ProductXDetailDto[]>();
-  productosALL: ProductXDetailDto[] = [];
-  productosFiltered: ProductXDetailDto[] = [];
+  productosALL: any[] = [];
+  productosFiltered: any[] = [];
 
+
+  categoriasSubscription: Subscription | undefined;
+  estadosSubscription: Subscription | undefined;
+  productosSubscription: Subscription | undefined;
 
   categorias: ProductCategory[] = [];
   estados: String[] = [];
-  productos: DtoProducto[] = [];
+  productos: ProductXDetailDto[] = [];
 
   categoria: number = 0;
   reusable?: boolean;
@@ -61,19 +66,21 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit(): void {
     this.cargarDatos();
-    //se cambio cargarProductos() por cargarProductos1()
-    this.cargarProductos1();
+    this.cargarProductos();
+  }
+
+  ngAfterViewInit(): void {
     this.initializeDataTable();
   }
 
-  cargarProductos1(){
+  cargarProductos(){
     this.productos$ = this.productoService.getAllProducts();
     this.productos$.subscribe({
       next: (productos) => {
         this.productosALL = productos;
         this.productosFiltered = productos;
-        console.log(this.productosALL);
-        this.cargarProductos();
+        console.log('PRODUCTOS', this.productosALL);
+        this.aplicarFiltros();
       },
       error: (error) => {
         console.error(error);
@@ -83,15 +90,13 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
   }
-
-  ngAfterViewInit(): void {
-  }
   
   cargarDatos(){
     this.categorias$ = this.categoriaService.getCategorias();
     this.categorias$.subscribe({
       next: (categorias) => {
         this.categorias = categorias;
+        console.log('CATEGORIAS'+this.categorias);
       },
       error: (error) => {
         console.error(error);
@@ -104,6 +109,7 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     this.estados$.subscribe({
       next: (estados) => {
         this.estados = estados;
+        console.log('ESTADOS'+this.estados);
       },
       error: (error) => {
         console.error(error);
@@ -113,40 +119,22 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
   }
+  
+  aplicarFiltros(): void {
+    this.productosFiltered = this.productosALL.filter(producto => {
+      const categoriaCumple = this.categoria === 0 || producto.category.categoryId === this.categoria;
+      const reusableCumple = this.reusable === undefined || producto.reusable === this.reusable;
+      const cantMinimaCumple = this.cantMinima === 0 || producto.detailProducts.length >= this.cantMinima;
+      const cantMaximaCumple = this.cantMaxima === 0 || producto.detailProducts.length <= this.cantMaxima;
+      const nombreCumple = this.nombre === '' || producto.name.toLowerCase().includes(this.nombre.toLowerCase());
 
-  cargarProductos(){
-    console.log("Cargar productos");
-    /*this.validoMin = this.verificarMin();
-    this.validoMax = this.verificarMax();
+      return categoriaCumple && reusableCumple && cantMinimaCumple && cantMaximaCumple && nombreCumple;
+    });
+    console.log('PRODUCTOS FILTRADOS', this.productosFiltered);
 
-    if(!this.validoMin || !this.validoMax){
-      return;
-    }
-    else{*/
-      this.productosFiltered = this.productosALL;
-      /*this.dataProductos = this.productoService.getDtoProducts(this.categoria, this.reusable, this.cantMinima, this.cantMaxima, this.nombre);
-      this.productosSubscription = this.dataProductos.subscribe(productos => {
-        this.productos = productos;
-        this.updateDataTable();
-      });*/
-      for(let i = 0; i < this.productosALL.length; i++){
-        if(this.categoria !== 0 && this.productosALL[i].category_id !== this.categoria){
-          this.productosFiltered = this.productosFiltered.filter(producto => producto.id !== this.productosALL[i].id);
-        }
-        if(this.reusable !== undefined && this.productosALL[i].reusable !== this.reusable){
-          this.productosFiltered = this.productosFiltered.filter(producto => producto.id == this.productosALL[i].id);
-        }
-        if(this.cantMaxima !== 0 && this.productosALL[i].minQuantityWarning > this.cantMaxima){
-          this.productosFiltered = this.productosFiltered.filter(producto => producto.id == this.productosALL[i].id);
-        }
-        if(this.nombre !== '' && !this.productosALL[i].name.toLowerCase().includes(this.nombre.toLowerCase())){
-          this.productosFiltered = this.productosFiltered.filter(producto => producto.id == this.productosALL[i].id);
-        }
-      }
-      console.log(this.productosFiltered);
-      this.updateDataTable();
-    //}
+    this.updateDataTable();
   }
+
 
   initializeDataTable(): void {
     this.table = $('#productsList').DataTable({
@@ -255,7 +243,7 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     this.cantMinima = 0;
     this.cantMaxima = 0;
     this.nombre = '';
-    this.cargarProductos();
+    this.aplicarFiltros();
   }
 
 
