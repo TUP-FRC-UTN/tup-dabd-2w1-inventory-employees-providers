@@ -5,6 +5,7 @@ import { InventarioComponent } from './components/inventario/inventario.componen
 import { StockAumentoComponent } from './components/stock-aumento/stock-aumento.component';
 import { TablaComponent } from './components/tabla/tabla.component';
 import { FormLlamadoAtencionComponent } from './components/form-llamado-atencion/form-llamado-atencion.component';
+import { PerformancelistComponent } from './components/performancelist/performancelist.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -41,4 +42,9 @@ export const routes: Routes = [
         component: EmpListadoEmpleadosComponent,
         title: 'Listado de empleados'
     },
+    {
+        path: 'listado-desempeño',     // SANTI
+        component: PerformancelistComponent,
+        title: 'Listado desempeño'
+    }
 ];
