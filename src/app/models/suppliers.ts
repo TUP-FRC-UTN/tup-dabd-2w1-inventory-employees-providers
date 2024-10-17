@@ -4,7 +4,9 @@ export interface Supplier {
     healthInsurance: number;
     authorized: boolean;
     address: string;
-    supplierTypeId: number | null;
+    supplierType: string;
     description: string | null;
+    email: string;
+    phoneNumber: string
   }
   

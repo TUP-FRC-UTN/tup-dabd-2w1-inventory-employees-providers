@@ -43,5 +43,9 @@ export const routes: Routes = [
         component:SupplierListComponent,
         title:"proveedores"
     },
-    
+    {
+        path:"create-supplier",
+        component:SuppliersFormComponent,
+        title:"Crear proveedor"
+    },
 ];

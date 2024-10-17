@@ -1,6 +1,6 @@
 <div class="container shadow p-3 my-5 bg-body rounded">
   <h1>Proveedores</h1>
-  <form action="">
+  
     <div class="row">
       <div class="col">
         <div class="mb-3">
@@ -8,15 +8,19 @@
           <input
             type="string"
             class="form-control"
+            [(ngModel)]="name"
           />
         </div>
       </div>
       <div class="col">
 
         <div class="mb-3">
-          <label for="" class="form-label">Servicio</label>
-          <select class="form-select" name="" id="">
-            <option selected>Select one</option>
+          <label for="" class="form-label">Tipo proveedor</label>
+          <select class="form-select" name="" id="" [(ngModel)]="type">
+            <option value="" selected>Todos</option>
+            <option value="OUTSOURCED_SERVICE">Servicio externo</option>
+            <option value="INVENTORY_SUPPLIER">Proveedor de Inventario</option>
+            <option value="OTHER">Otro</option>
           </select>
         </div>
       </div>
@@ -30,6 +34,7 @@
                 id=""
                 aria-describedby="helpId"
                 placeholder=""
+                [(ngModel)]="date"
             />
         </div>
     </div>
@@ -38,7 +43,7 @@
     <div class="row">
         <div class="col">
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="" />
+                <input class="form-check-input" type="checkbox" value="" id="" [(ngModel)]="autorized" />
                 <label class="form-check-label" for=""> Autorizado </label>
             </div>
         </div>
@@ -50,37 +55,37 @@
                 class="btn btn-success w-100"
                 type="button"
                 value="Button"
-
+                (click)="searchSuppliers()"
             />
             
         </div>
         <div class="col"></div>
     </div>
-  </form>
+  
   <div class="row mt-3">
     <div class="col">
-      <table class="table table-striped table-bordered">
+      <table id="suppliersTable" class="table table-striped table-bordered">
         <thead>
           <tr>
             <th scope="col">Razon social</th>
             <th scope="col">Tipo proveedor</th>
             <th scope="col">Direccion</th>
             <th scope="col">Obra Social</th>
-            <th scope="col">descripcion</th>
-            <th scope="col">telefono</th>
+            <th scope="col">Descripcion</th>
+            <th scope="col">Telefono</th>
             <th scope="col">Email</th>
             <th scope="colgroup">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <th scope="row">1</th>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>mdo</td>
-            <td>mdo</td>
-            <td>mdo</td>
-            <td>mdo</td>
+          <tr *ngFor="let supplier of suppliers">
+            <th scope="row">{{ supplier.name }}</th>
+            <td>{{ supplier.supplierType }}</td>
+            <td>{{ supplier.address }}</td>
+            <td>{{ supplier.healthInsurance }}</td>
+            <td>{{ supplier.description }}</td>
+            <td>{{ supplier.phoneNumber }}</td>
+            <td>{{ supplier.email }}</td>
             <td>
               <button type="button" class="btn btn-primary">Modificar</button>
               <button type="button" class="btn btn-danger">Eliminar</button>
@@ -88,7 +93,21 @@
           </tr>
         </tbody>
       </table>
+      
     </div>
   </div>
-  <app-boton-volver></app-boton-volver>
+  <div class="row">
+    <div class="col"><app-boton-volver></app-boton-volver></div>
+    <div class="col">
+      <a
+        name=""
+        id=""
+        class="btn btn-primary"
+        routerLink="/create-supplier"
+        role="button"
+        >Button</a
+      >
+      
+    </div>
+  </div>
 </div>
