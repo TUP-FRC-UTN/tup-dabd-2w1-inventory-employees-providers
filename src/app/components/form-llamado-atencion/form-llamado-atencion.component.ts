@@ -1,14 +1,15 @@
 import { Component, OnInit } from "@angular/core";
-import { FormBuilder, FormGroup,FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup,FormArray, ReactiveFormsModule, Validators, NgModel, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { LlamadoAtencionService } from "../../services/llamado-atencion.service";
 import { EmployeeGetResponseDTO } from "../../models/llamado-atencion";
+import { Router } from '@angular/router';
 import { RequestWakeUpCallDTO, RequestWakeUpCallGroupDTO } from "../../models/llamado-atencion";
 
 @Component({
   selector: 'app-form-llamado-atencion',
   standalone: true,
-  imports: [CommonModule,ReactiveFormsModule],
+  imports: [CommonModule,ReactiveFormsModule, FormsModule],
   templateUrl: './form-llamado-atencion.component.html',
   styleUrl: './form-llamado-atencion.component.css'
 })
@@ -17,14 +18,21 @@ export class FormLlamadoAtencionComponent implements OnInit{
   confirmationMessage: string = '';
   showConfirmation: boolean = false;
   employees: EmployeeGetResponseDTO[] = [];
+  filteredEmployees: EmployeeGetResponseDTO[] = [];
+  searchTerm: string = '';
 
-  constructor(private fb: FormBuilder, private wakeUpCallService: LlamadoAtencionService) {
+  constructor(private router: Router, private fb: FormBuilder, private wakeUpCallService: LlamadoAtencionService) {
     this.wakeUpCallForm = this.fb.group({
       empleados: this.fb.array([], Validators.required),
       fecha: ['', Validators.required],
       desempeno: ['', Validators.required],
-      observaciones: ['', Validators.required]
+      observaciones: ['', Validators.required],
+      searchTerm: ['', [Validators.minLength(3)]]
     });
+  }
+
+  navigateToPerformanceList(): void {
+    this.router.navigate(['/listado-desempeño']);  // Redirige al listado de desempeño
   }
 
   ngOnInit() {
@@ -35,7 +43,8 @@ export class FormLlamadoAtencionComponent implements OnInit{
     this.wakeUpCallService.getAllEmployees().subscribe(
       (employees) => {
         this.employees = employees;
-        this.addCheckboxes();
+        this.filteredEmployees = employees;  // Inicializa la lista filtrada
+        this.addCheckboxes(); // Agrega checkboxes para todos los empleados al inicio
       },
       (error) => {
         console.error('Error al cargar empleados', error);
@@ -46,17 +55,32 @@ export class FormLlamadoAtencionComponent implements OnInit{
   }
 
   private addCheckboxes() {
-    this.employees.forEach(() => this.empleadosFormArray.push(this.fb.control(false)));
+    this.empleadosFormArray.clear(); // Limpiar checkboxes existentes
+    this.filteredEmployees.forEach(() => this.empleadosFormArray.push(this.fb.control(false)));
   }
 
   get empleadosFormArray() {
     return this.wakeUpCallForm.controls['empleados'] as FormArray;
   }
 
+  filterEmployees() {
+    const searchTerm = this.wakeUpCallForm.get('searchTerm')?.value || ''; // Obtener el valor del control
+    if (searchTerm.length >= 3) {
+      this.filteredEmployees = this.employees.filter(employee =>
+        employee.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredEmployees = this.employees;  // Muestra todos los empleados si el término es menor a 3 caracteres
+    }
+    this.empleadosFormArray.clear();  // Limpiar el FormArray
+    this.addCheckboxes();  // Reagregar checkboxes para los empleados filtrados
+  }
+  
+
   onSubmit() {
     if (this.wakeUpCallForm.valid) {
       const formValues = this.wakeUpCallForm.value;
-      const selectedEmployeeIds = this.employees
+      const selectedEmployeeIds = this.filteredEmployees
         .filter((_, i) => formValues.empleados[i])
         .map(e => e.id);
 
@@ -72,19 +96,19 @@ export class FormLlamadoAtencionComponent implements OnInit{
       this.wakeUpCallService.crearWakeUpCallGrupo(request).subscribe(
         response => {
           console.log('WakeUpCall grupal creado', response);
-          this.confirmationMessage = '¡Wake Up Call grupal agregado exitosamente!';
+          this.confirmationMessage = '¡Llamado registrado exitosamente!';  // Mensaje de confirmación
           this.showConfirmation = true;
           this.wakeUpCallForm.reset();
           this.empleadosFormArray.clear();
-          this.addCheckboxes();
-          
+          this.addCheckboxes(); // Restablece los checkboxes
+
           setTimeout(() => {
             this.showConfirmation = false;
           }, 3000);
         },
         error => {
-          console.error('Error al crear WakeUpCall grupal', error);
-          this.confirmationMessage = 'Error al agregar Wake Up Call grupal. Por favor, intente nuevamente.';
+          console.error('Error al registrar', error);
+          this.confirmationMessage = 'Error al registrar el llamado grupal. Por favor, intente nuevamente.';
           this.showConfirmation = true;
         }
       );

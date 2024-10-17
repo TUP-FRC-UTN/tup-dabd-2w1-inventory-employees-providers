@@ -3,6 +3,7 @@ import { CommonModule} from '@angular/common';
 import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
 import { EmployeePerformance } from '../../models/listado-desempeño';
 import { FormsModule, NgModel } from '@angular/forms';
+import { Router } from '@angular/router';
 import $ from 'jquery'; // Importación de jQuery
 import 'datatables.net'; // Importación de DataTables
 import 'datatables.net-dt'; // Estilos para DataTables
@@ -20,8 +21,13 @@ export class PerformancelistComponent implements OnInit, AfterViewInit {
   
   startDate!: string;  
   endDate!: string;    
+  showWakeUpCallForm: boolean = false;
 
-  constructor(private employeePerformanceService: ListadoDesempeñoService) {}
+  constructor(private employeePerformanceService: ListadoDesempeñoService,private router: Router) {}
+
+  navigateToWakeUpCallForm(): void {
+    this.router.navigate(['/wake-up-call']);  // Redirigir a la ruta del formulario
+  }
 
   ngOnInit(): void {
     const today = new Date();

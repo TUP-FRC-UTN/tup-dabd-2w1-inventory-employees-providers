@@ -15,7 +15,7 @@ import { PerformancelistComponent } from './components/performancelist/performan
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, RouterModule, EmpListadoEmpleadosComponent, BotonVolverComponent, DetailTableComponent, FiltroComponent,
-    ModalSelectComponent, StockAumentoComponent, TablaComponent, FormLlamadoAtencionComponent, PerformancelistComponent
+    ModalSelectComponent, StockAumentoComponent, TablaComponent, PerformancelistComponent
   ],
   providers: [],
 

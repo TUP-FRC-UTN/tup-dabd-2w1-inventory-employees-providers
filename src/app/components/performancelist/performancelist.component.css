@@ -39,3 +39,23 @@ table {
     color: #6c757d;
     font-style: italic;
   }
+
+  .nuevo-llamado-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    background-color: #28a745;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+  }
+
+  .inner-container {
+    background-color: #f8f9fa; /* Color de fondo suave */
+    padding: 20px; /* Espaciado interno */
+    border-radius: 5px; /* Bordes redondeados */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+  

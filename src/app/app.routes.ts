@@ -33,8 +33,8 @@ export const routes: Routes = [
         title: 'Historial de modificacion de stock'
     },
     {
-        path: 'wake-up-call',     // Nueva ruta para el componente de desempeño
-        component:FormLlamadoAtencionComponent,
+        path: 'wake-up-call',  // Nueva ruta para el componente de "Llamado de Atención"
+        component: FormLlamadoAtencionComponent,
         title: 'Desempeño'
     },
     {
