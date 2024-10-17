@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { BotonVolverComponent } from "../boton-volver/boton-volver.component";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SuppliersService } from '../../services/suppliers.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-suppliers-form',
   standalone: true,
-  imports: [BotonVolverComponent,ReactiveFormsModule],
+  imports: [BotonVolverComponent,ReactiveFormsModule,RouterModule],
   templateUrl: './suppliers-form.component.html',
   styleUrl: './suppliers-form.component.css'
 })
@@ -33,6 +34,8 @@ export class SuppliersFormComponent {
       const formData = this.proveedorForm.value;
       console.log(formData);
       this.supplierService.createSupplier(formData).subscribe((response) => {
+        this.proveedorForm.reset();
+        alert('Proveedoredor creado exitosamente');
         console.log(response);
       });
     }

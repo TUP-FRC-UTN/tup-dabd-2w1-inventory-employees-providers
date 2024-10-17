@@ -59,7 +59,10 @@
       </div>
     </div>
     <div class="row">
-      <div class="col"><app-boton-volver></app-boton-volver></div>
+      <div class="col">
+        <button type="submit" class="btn btn-secondary" routerLink="/suppliers">Volver</button>
+
+      </div>
       <div class="col text-end">
         <button type="submit" class="btn btn-success" [disabled]="proveedorForm.invalid">Registrar</button>
       </div>
