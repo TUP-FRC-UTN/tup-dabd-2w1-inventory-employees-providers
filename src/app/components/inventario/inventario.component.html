@@ -145,14 +145,14 @@
                     <label for="CantMinima" class="form-label">Cant. minima</label>
                 </div>
                 <div class="col-5">
-                    <input type="number" name="CantMinima" id="CantMinima" class="form-control" [(ngModel)]="cantMinima" #CantMinima="ngModel" [ngClass]="{'is-valid': validoMin, 'is-invalid': !validoMin}" min="0" (ngModelChange)="cargarProductos()">
+                    <input type="number" name="CantMinima" id="CantMinima" class="form-control" [(ngModel)]="cantMinima" #CantMinima="ngModel" min="0" (ngModelChange)="cargarProductos()">
                     <div *ngIf="!validoMin" class="invalid-feedback"> {{mensajeValidacionMin}} </div>
                 </div>
                 <div class="col-1">
                     <label for="CantMaxima" class="form-label">Cant. máxima</label>
                 </div>
                 <div class="col-5">
-                    <input type="number" name="CantMaxima" id="CantMaxima" class="form-control" [(ngModel)]="cantMaxima" #CantMaxima="ngModel" [ngClass]="{'is-valid': validoMax, 'is-invalid': !validoMax}" min="0" (ngModelChange)="cargarProductos()">
+                    <input type="number" name="CantMaxima" id="CantMaxima" class="form-control" [(ngModel)]="cantMaxima" #CantMaxima="ngModel"  min="0" (ngModelChange)="cargarProductos()">
                     <div *ngIf="!validoMax" class="invalid-feedback"> {{mensajeValidacionMax}} </div>
                 </div>
             </div>
@@ -235,8 +235,8 @@
                     </svg>
                 </button>
             </div>
-            <table class="table table-striped" id="productsList">
-            </table>
+                    <table class="table table-striped" id="productsList">
+                    </table>
         </div>
         
         <div class="row volver">        

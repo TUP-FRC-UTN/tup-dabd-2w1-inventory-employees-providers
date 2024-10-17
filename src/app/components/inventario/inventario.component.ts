@@ -15,6 +15,7 @@ import $ from 'jquery';
 import 'datatables.net';
 import 'datatables.net-dt';
 import 'datatables.net-bs5';
+import { ProductXDetailDto } from '../../models/product-xdetail-dto';
 
 @Component({
   selector: 'app-inventario',
@@ -31,13 +32,15 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
   private stockAumentoService = inject(StockAumentoService)
   private router = inject(Router)
 
-  dataCategorias: Observable<ProductCategory[]> = new Observable<ProductCategory[]>();
-  dataEstados: Observable<String[]> = new Observable<String[]>();
-  dataProductos: Observable<DtoProducto[]> = new Observable<DtoProducto[]>(); 
+  categorias$: Observable<ProductCategory[]> = new Observable<ProductCategory[]>();
+  estados$: Observable<String[]> = new Observable<String[]>();
 
-  private categoriasSubscription: Subscription | undefined;
-  private estadosSubscription: Subscription | undefined;
-  private productosSubscription: Subscription | undefined;
+
+
+  productos$:Observable<ProductXDetailDto[]> = new Observable<ProductXDetailDto[]>();
+  productosALL: ProductXDetailDto[] = [];
+  productosFiltered: ProductXDetailDto[] = [];
+
 
   categorias: ProductCategory[] = [];
   estados: String[] = [];
@@ -58,48 +61,135 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit(): void {
     this.cargarDatos();
-    this.cargarProductos();
+    //se cambio cargarProductos() por cargarProductos1()
+    this.cargarProductos1();
+    this.initializeDataTable();
+  }
+
+  cargarProductos1(){
+    this.productos$ = this.productoService.getAllProducts();
+    this.productos$.subscribe({
+      next: (productos) => {
+        this.productosALL = productos;
+        this.productosFiltered = productos;
+        console.log(this.productosALL);
+        this.cargarProductos();
+      },
+      error: (error) => {
+        console.error(error);
+      },
+      complete: () => {
+        console.log('Completado');
+      }
+    });
   }
 
   ngAfterViewInit(): void {
-    this.initializeDataTable();
   }
   
   cargarDatos(){
-    this.dataCategorias = this.categoriaService.getCategorias();
-    this.categoriasSubscription = this.dataCategorias.subscribe(categories => this.categorias = categories);
-    this.dataEstados = this.estadoService.getEstados();
-    this.estadosSubscription = this.dataEstados.subscribe(estados => this.estados = estados);
+    this.categorias$ = this.categoriaService.getCategorias();
+    this.categorias$.subscribe({
+      next: (categorias) => {
+        this.categorias = categorias;
+      },
+      error: (error) => {
+        console.error(error);
+      },
+      complete: () => {
+        console.log('Completado');
+      }
+    });
+    this.estados$ = this.estadoService.getEstados();
+    this.estados$.subscribe({
+      next: (estados) => {
+        this.estados = estados;
+      },
+      error: (error) => {
+        console.error(error);
+      },
+      complete: () => {
+        console.log('Completado');
+      }
+    });
   }
 
   cargarProductos(){
-    this.validoMin = this.verificarMin();
+    console.log("Cargar productos");
+    /*this.validoMin = this.verificarMin();
     this.validoMax = this.verificarMax();
 
     if(!this.validoMin || !this.validoMax){
       return;
     }
-    else{
-      this.dataProductos = this.productoService.getDtoProducts(this.categoria, this.reusable, this.cantMinima, this.cantMaxima, this.nombre);
+    else{*/
+      this.productosFiltered = this.productosALL;
+      /*this.dataProductos = this.productoService.getDtoProducts(this.categoria, this.reusable, this.cantMinima, this.cantMaxima, this.nombre);
       this.productosSubscription = this.dataProductos.subscribe(productos => {
         this.productos = productos;
         this.updateDataTable();
-      });
-    }
+      });*/
+      for(let i = 0; i < this.productosALL.length; i++){
+        if(this.categoria !== 0 && this.productosALL[i].category_id !== this.categoria){
+          this.productosFiltered = this.productosFiltered.filter(producto => producto.id !== this.productosALL[i].id);
+        }
+        if(this.reusable !== undefined && this.productosALL[i].reusable !== this.reusable){
+          this.productosFiltered = this.productosFiltered.filter(producto => producto.id == this.productosALL[i].id);
+        }
+        if(this.cantMaxima !== 0 && this.productosALL[i].minQuantityWarning > this.cantMaxima){
+          this.productosFiltered = this.productosFiltered.filter(producto => producto.id == this.productosALL[i].id);
+        }
+        if(this.nombre !== '' && !this.productosALL[i].name.toLowerCase().includes(this.nombre.toLowerCase())){
+          this.productosFiltered = this.productosFiltered.filter(producto => producto.id == this.productosALL[i].id);
+        }
+      }
+      console.log(this.productosFiltered);
+      this.updateDataTable();
+    //}
   }
 
   initializeDataTable(): void {
     this.table = $('#productsList').DataTable({
-      data: this.productos,
+      data: this.productosFiltered,
       columns: [
         { data: 'name', title: 'Nombre' },
-        { data: 'category', title: 'Categoria' },
+        { data: 'category', title: 'Categoria',
+          render: (data: any) => {
+            return data.categoryName;
+          }
+         },
         { 
           data: 'reusable', 
           title: 'Reusable',
           render: (data: boolean) => data ? 'SI' : 'NO'
         },
-        { data: 'amountDetails', title: 'Cantidad de items' },
+        { data: 'detailProducts', title: 'Cantidad de items',
+          render: (data: any) => {
+            return data.length;
+          }
+         },
+         {
+          data: 'minQuantityWarning', title: 'Cantidad mínima para alerta'
+         },
+         {
+          data:'detailProducts', title: 'Fecha de último ingreso',
+          render: (data: any) => {
+            let lastDate;
+            for (let i = 0; i < data.length; i++) {
+              if (data[i].lastUpdatedDatetime) {
+                lastDate = data[i].lastUpdatedDatetime;
+                if (data[i].lastUpdatedDatetime > lastDate) {
+                  lastDate = data[i].lastUpdatedDatetime;
+                }
+              }
+            }
+            if(lastDate){
+              return this.formatDate(lastDate);
+            }else{
+              return "";
+            }
+          },
+        },
         {
           data: null,
           title: 'Acciones',
@@ -122,6 +212,8 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
       pageLength: 10,
       lengthChange: false,
       searching: false,
+      ordering: true,
+      order:[[5, 'desc']],
       language: {
         search: "",
         info: "",
@@ -145,9 +237,15 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  /* METODO PARA PASAR DE FECHAS "2024-10-17" A FORMATO dd/mm/yyyy*/ 
+  formatDate(inputDate: string): string {
+    const [year, month, day] = inputDate.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
   updateDataTable(): void {
     if (this.table) {
-      this.table.clear().rows.add(this.productos).draw();
+      this.table.clear().rows.add(this.productosFiltered).draw();
     }
   }
 
@@ -207,7 +305,7 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
 
   verificarMin(){
     if ( this.cantMinima < 0) { 
-      this.mensajeValidacionMin = "No puedes poner un numero menor a cero" 
+      this.mensajeValidacionMin = "Nneo puedes por un numero menor a cero" 
       return false
     }
     if (this.cantMinima > this.cantMaxima) {
