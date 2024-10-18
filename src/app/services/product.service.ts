@@ -5,6 +5,7 @@ import { CreateProductDtoClass } from '../models/create-product-dto-class';
 import { DtoProducto } from '../models/dto-producto';
 import { ProductCategory } from '../models/product-category';
 import { Producto } from '../models/producto';
+import { ProductXDetailDto } from '../models/product-xdetail-dto';
 @Injectable({
   providedIn: 'root'
 })
@@ -46,6 +47,10 @@ import { Producto } from '../models/producto';
     return this.http.get(this.productUrlPdf, {
       responseType: 'arraybuffer'
     });
+  }
+
+  getAllProducts(): Observable<ProductXDetailDto[]> {
+    return this.http.get<any[]>(this.apiUrl+'/getAll');
   }
 
   // ENZO

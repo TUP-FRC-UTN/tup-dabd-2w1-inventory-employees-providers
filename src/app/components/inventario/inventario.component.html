@@ -65,12 +65,21 @@
         background-color: #218838;
         border-color: #1e7e34;
     }
-    
+    .error-container {
+        min-height: 200px;
+        font-size: small;
+        color: red;
+        position: absolute;
+    }
     .info-button {
         float: right;
         font-size: 1.5rem;
         width: 40px;
         height: 40px;
+    }
+    .form-group {
+        position: relative;
+        padding-bottom: 20px;
     }
 </style>
 <title>Inventario</title>
@@ -123,19 +132,23 @@
                     <label for="Reusable" class="form-label">Reusable</label>
                 </div>
                 <div class="col-5">
-                    <select name="Reusable" id="Reusable" class="form-select" [(ngModel)]="reusable" #Reusable="ngModel" (ngModelChange)="cargarProductos()">
-                        <option value="" selected></option>
-                        <option [value]="true">Si</option>
-                        <option [value]="false">No</option>
+                    <select name="Reusable" id="Reusable" class="form-select" [(ngModel)]="reusable" #Reusable="ngModel" (ngModelChange)="aplicarFiltros()">
+                        <option value="0"></option>
+                        <option [value]="1">Si</option>
+                        <option [value]="2">No</option>
                     </select>
                 </div>
                 <div class="col-1">
                     <label for="Categorias" class="form-label">Categoria</label>
                 </div>
                 <div class="col-5">
-                    <select name="Categorias" id="Categorias" class="form-select" [(ngModel)]="categoria" #Categorias="ngModel" (ngModelChange)="cargarProductos()">
-                        <option value="" selected></option>
-                        @for (c of categorias; track $index) { <option [value]="c.id">{{c.category}}</option> }
+                    <select name="Categorias" id="Categorias" class="form-select" 
+                    [(ngModel)]="categoria" #Categorias="ngModel" 
+                    (ngModelChange)="aplicarFiltros()">
+                        <option value="0"></option>
+                        @for (c of categorias; track $index) { 
+                            <option [value]="c.id">{{c.category}}</option>
+                        }
                     </select>
                 </div>
             </div>
@@ -145,15 +158,15 @@
                     <label for="CantMinima" class="form-label">Cant. minima</label>
                 </div>
                 <div class="col-5">
-                    <input type="number" name="CantMinima" id="CantMinima" class="form-control" [(ngModel)]="cantMinima" #CantMinima="ngModel" [ngClass]="{'is-valid': validoMin, 'is-invalid': !validoMin}" min="0" (ngModelChange)="cargarProductos()">
-                    <div *ngIf="!validoMin" class="invalid-feedback"> {{mensajeValidacionMin}} </div>
+                    <input type="number" name="CantMinima" id="CantMinima" class="form-control" [(ngModel)]="cantMinima" #CantMinima="ngModel" min="0" (ngModelChange)="aplicarFiltros()">
+                    <div *ngIf="!validoMin" class="error-container mt-1">La cantidad mínima no puede ser mayor a la cantidad máxima</div>
                 </div>
                 <div class="col-1">
                     <label for="CantMaxima" class="form-label">Cant. máxima</label>
                 </div>
                 <div class="col-5">
-                    <input type="number" name="CantMaxima" id="CantMaxima" class="form-control" [(ngModel)]="cantMaxima" #CantMaxima="ngModel" [ngClass]="{'is-valid': validoMax, 'is-invalid': !validoMax}" min="0" (ngModelChange)="cargarProductos()">
-                    <div *ngIf="!validoMax" class="invalid-feedback"> {{mensajeValidacionMax}} </div>
+                    <input type="number" name="CantMaxima" id="CantMaxima" class="form-control" [(ngModel)]="cantMaxima" #CantMaxima="ngModel"  min="0" (ngModelChange)="aplicarFiltros()">
+                    <div *ngIf="!validoMax" class="error-container mt-1">La cantidad máxima no puede ser menor a la cantidad mínima </div>
                 </div>
             </div>
             
@@ -163,31 +176,41 @@
                     <label for="Nombre" class="form-label">Nombre</label>
                 </div>
                 <div class="col-5">
-                    <input type="text" id="Nombre" name="Nombre" class="form-control" [(ngModel)]="nombre" #Nombre="ngModel" (ngModelChange)="cargarProductos()">
+                    <input type="text" id="Nombre" name="Nombre" class="form-control" [(ngModel)]="nombre" #Nombre="ngModel" (ngModelChange)="aplicarFiltros()">
                 </div>
                 <div class="col-6" style="text-align: end;">
-                    <button class="btn btn-primary">Limpiar filtros</button>
+                    <button class="btn btn-primary" (click)="cleanFilters()">Limpiar filtros</button>
                 </div>
             </div>
         </div>
 
         <div class="container row mb-3">
-            <div class="">
+            <div class="row">
+                <div class="col-10"><label for="
+                    ">Estado de productos</label>
+                </div>
                 <table class="table" style="font-size: small;">
                     <thead>
                         <th scope="col">Categoría</th>
+                        <th scope="col">Disponibles</th>
                         <th scope="col">En uso</th>
                         <th scope="col">En mantenimiento</th>
-                        <th scope="col">En préstamo</th>
+                        <th></th>
                     </thead>
                     <tbody>
-                        @for (c of categorias; track $index) { 
+                        @for(c of categorias; track $index) {
                             <tr>
                                 <th scope="row">
-                                {{c.category}}
+                                    {{c.category}}
                                 </th>
                                 <td>
-                                    12
+                                    {{getCountByategoryAndState(c.id, 'Disponible')}}
+                                </td>
+                                <td>
+                                    {{getCountByategoryAndState(c.id, 'Prestado')}}
+                                </td>
+                                <td>
+                                    {{getCountByategoryAndState(c.id, 'Mantenimiento')}}
                                 </td>
                             </tr>
                         }
@@ -216,8 +239,17 @@
                     </svg>
                 </button>
             </div>
-            <table class="table table-striped" id="productsList">
-            </table>
+            @if(productos$|async) {
+                <table class="table table-striped" id="productsList">
+                </table>
+            }@else {
+                @if(requestInProcess){
+                    <div class="text-center">Cargando productos...</div>
+                }@else {
+                    <div class="text-center">No hay productos disponibles</div>
+                }
+            }
+                    
         </div>
         
         <div class="row volver">        
@@ -235,4 +267,5 @@
             </div>
         </div>
     </div>
+
 </form>

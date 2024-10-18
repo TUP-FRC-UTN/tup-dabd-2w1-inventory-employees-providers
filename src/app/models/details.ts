@@ -10,4 +10,4 @@ export interface Details {
 export interface PostDecrement {
     justify: string;
     ids: number[];
-  }
+}
