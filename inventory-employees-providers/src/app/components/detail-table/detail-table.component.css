@@ -1,6 +1,0 @@
-.btn-info {
-    position: absolute; /* Posición absoluta para colocarlo donde quieras */
-    top: 20px; /* Ajusta la posición vertical */
-    right: 20px; /* Ajusta la posición horizontal */
-    z-index: 1000; /* Asegúrate de que esté por encima de otros elementos */
-  }
