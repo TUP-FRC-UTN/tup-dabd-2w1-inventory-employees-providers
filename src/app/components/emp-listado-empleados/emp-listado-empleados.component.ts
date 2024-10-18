@@ -7,6 +7,7 @@ import 'datatables.net'; // Importación de DataTables
 import 'datatables.net-dt'; // Estilos para DataTables
 import { EmpListadoEmpleados } from '../../models/emp-listado-empleados'; // Modelo de empleado
 import { Router } from '@angular/router';
+import { EmpListadoAsistencias } from '../../models/emp-listado-asistencias';
 
 @Component({
   selector: 'app-emp-listado-empleados',
@@ -17,6 +18,7 @@ import { Router } from '@angular/router';
 })
 export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   Empleados: EmpListadoEmpleados[] = [];  // Array que contiene la lista de empleados
+  Asistencias: EmpListadoAsistencias[] = []; // Array que contiene la lista de asistencias
   private table: any; // Referencia para la instancia de DataTable
   ventana: string = "Informacion";  // Texto para referenciar en que tipo de datos de empleados estamos ubicados
   router = inject(Router);  // Variable para realizar routing
