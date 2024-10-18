@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { LlamadoAtencionService } from "../../services/llamado-atencion.service";
 import { EmployeeGetResponseDTO } from "../../models/llamado-atencion";
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from "@angular/common/http";
 import { RequestWakeUpCallDTO, RequestWakeUpCallGroupDTO } from "../../models/llamado-atencion";
 
 @Component({
@@ -16,7 +17,9 @@ import { RequestWakeUpCallDTO, RequestWakeUpCallGroupDTO } from "../../models/ll
 export class FormLlamadoAtencionComponent implements OnInit{
   wakeUpCallForm: FormGroup;
   confirmationMessage: string = '';
+  errorMessage: string = '';
   showConfirmation: boolean = false;
+  showError: boolean = false;
   employees: EmployeeGetResponseDTO[] = [];
   filteredEmployees: EmployeeGetResponseDTO[] = [];
   searchTerm: string = '';
@@ -77,6 +80,7 @@ export class FormLlamadoAtencionComponent implements OnInit{
   }
   
 
+  
   onSubmit() {
     if (this.wakeUpCallForm.valid) {
       const formValues = this.wakeUpCallForm.value;
@@ -96,22 +100,34 @@ export class FormLlamadoAtencionComponent implements OnInit{
       this.wakeUpCallService.crearWakeUpCallGrupo(request).subscribe(
         response => {
           console.log('WakeUpCall grupal creado', response);
-          this.confirmationMessage = '¡Llamado registrado exitosamente!';  // Mensaje de confirmación
-          this.showConfirmation = true;
-          this.wakeUpCallForm.reset();
-          this.empleadosFormArray.clear();
-          this.addCheckboxes(); // Restablece los checkboxes
-
-          setTimeout(() => {
-            this.showConfirmation = false;
-          }, 3000);
+          this.showSuccessMessage('¡Llamado registrado exitosamente!');
+          this.resetForm();
         },
         error => {
           console.error('Error al registrar', error);
-          this.confirmationMessage = 'Error al registrar el llamado grupal. Por favor, intente nuevamente.';
-          this.showConfirmation = true;
+          this.showErrorMessage(error);
         }
       );
     }
+  }
+
+  private showSuccessMessage(message: string) {
+    this.confirmationMessage = message;
+    this.showConfirmation = true;
+    this.showError = false;
+    setTimeout(() => this.showConfirmation = false, 3000);
+  }
+
+  private showErrorMessage(error: string) {
+    this.errorMessage = error;
+    this.showError = true;
+    this.showConfirmation = false;
+    setTimeout(() => this.showError = false, 5000);
+  }
+
+  private resetForm() {
+    this.wakeUpCallForm.reset();
+    this.empleadosFormArray.clear();
+    this.addCheckboxes();
   }
 }

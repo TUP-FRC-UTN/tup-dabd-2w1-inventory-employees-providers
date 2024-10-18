@@ -1,14 +1,14 @@
 <div class="container">
-  <form [formGroup]="wakeUpCallForm" (ngSubmit)="onSubmit()" class="wake-up-call-form">
-      <h1 class="text-center mb-4">Llamados de Atención</h1>
-      
-      <div class="form-group">
-          <label for="fecha">Fecha</label>
-          <input id="fecha" formControlName="fecha" type="date" class="form-control" />
-          <div *ngIf="wakeUpCallForm.get('fecha')?.invalid && (wakeUpCallForm.get('fecha')?.dirty || wakeUpCallForm.get('fecha')?.touched)" class="text-danger">
-            <small *ngIf="wakeUpCallForm.get('fecha')?.errors?.['required']">La fecha es requerida.</small>
-          </div>        
-      </div>
+    <form [formGroup]="wakeUpCallForm" (ngSubmit)="onSubmit()" class="wake-up-call-form">
+        <h1 class="text-center mb-4">Llamados de Atención</h1>
+        
+        <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input id="fecha" formControlName="fecha" type="date" class="form-control" />
+            <div *ngIf="wakeUpCallForm.get('fecha')?.invalid && (wakeUpCallForm.get('fecha')?.dirty || wakeUpCallForm.get('fecha')?.touched)" class="text-danger">
+              <small *ngIf="wakeUpCallForm.get('fecha')?.errors?.['required']">La fecha es requerida.</small>
+            </div>        
+        </div>
 
       <div class="form-group">
         <label>Buscar Empleado</label>
@@ -67,10 +67,14 @@
               <small>Las observaciones son requeridas.</small>
           </div>
       </div>
-
       <div *ngIf="showConfirmation" class="alert alert-success">
-          {{ confirmationMessage }}
-      </div>
+        {{ confirmationMessage }}
+    </div>
+
+    <div *ngIf="showError" class="alert alert-danger">
+        {{ errorMessage }}
+    </div>
+
       
       <div class="button-group">
           <button type="submit" class="btn btn-primary" [disabled]="wakeUpCallForm.invalid">Confirmar</button>

@@ -57,10 +57,12 @@
                         </td>
                         <td>
                             <ng-container *ngIf="ep.performance.length > 0; else noObservations">
-                                {{ ep.performance.length }} <!-- Cantidad de observaciones -->
+                                <ul>
+                                    <li *ngFor="let observation of ep.performance">{{ observation.observationsCount }}</li> <!-- Mostrar las observaciones -->
+                                </ul>
                             </ng-container>
                             <ng-template #noObservations>No hay observaciones</ng-template>
-                        </td>
+                        </td>                        
                     </tr>
                 </tbody>
             </table>
