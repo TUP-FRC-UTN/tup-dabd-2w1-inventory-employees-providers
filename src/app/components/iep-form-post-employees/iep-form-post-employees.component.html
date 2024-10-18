@@ -1,5 +1,5 @@
 <div class="container mt-5 col-md-6">
-    <form #form="ngForm" class="form-container border rounded border shadow p-4">
+    <form #form="ngForm" (ngSubmit)="onSubmit(form)" class="form-container border rounded border shadow p-4">
         <div class="bg-light">
             <h2 class="text-center mb-5 ">FORMULARIO NUEVO EMPLEADO</h2>
             <hr class="my-4">
@@ -173,7 +173,15 @@
             <div class="row">
                 <label for="provincia" class="col-form-label col-md-3">Provincia:</label>
                 <div class="col-md-9">
-                    <input type="text" class="form-control" id="provincia" name="provincia">
+                    <select id="provincia" name="provincia" class="form-control"
+                     [(ngModel)]="provinciaSelect"
+                     (change)="loadLocalidades()" >
+                        <option disabled selected value="opcion1">Seleccionar provincia</option>
+                        @for (p of provincias; track $index) {
+                            <option   [ngValue]="p" >{{p.nombre}}</option>
+
+                        }
+                    </select>
                 </div>
             </div>
         </div>
@@ -181,7 +189,14 @@
             <div class="row">
                 <label for="localidad" class="col-form-label col-md-3">Localidad:</label>
                 <div class="col-md-9">
-                    <input type="text" class="form-control" id="localidad" name="localidad">
+                    <select id="localidad" name="localidad" class="form-control" 
+                    [(ngModel)]="localidadSelect" >
+                        <option disabled selected value="opcion1">Seleccionar localidad</option>
+                        @for (l of provinciaSelect?.ciudades; track $index) {
+
+                            <option  selected value="opcion1">{{l.nombre}}</option>
+                        }
+                    </select>
                 </div>
             </div>
         </div>
@@ -319,7 +334,10 @@
                 <label for="proveedores">Proveedores de Servicio Tercerizado:</label>
                 <select id="proveedores" name="proveedores" class="form-control">
                     <option disabled selected value="opcion1">Seleccionar proveedor</option>
-                    <option value="opcion2">Opción 2</option>
+                  
+                    @for (x of suppliers; track $index) {
+                        <option [ngValue]="x">  {{x.name}} </option>
+                    }
                 </select>
             </div>
             
@@ -372,7 +390,30 @@
             </div>
         </div>
               }
-    </div>
+              <div class="col-md-6 mt-3 ">
+                <div class="row">
+                    <label for="start-time-contract" class="col-form-label col-md-6">Fecha inicio contrato:</label>
+                       <div class="col-md-6">
+                        <input type="date" id="startTimeContract" id="startTimeContract"
+                        class="form-control" 
+                        name="startTimeContract" 
+                        [(ngModel)]="startTimeContract" 
+                        #startTimeContractModel="ngModel" 
+                        required
+                        (ngModelChange)="validateDate()"
+                        [ngClass]="{
+                            'is-invalid': startTimeContractModel.invalid && startTimeContractModel.touched, 
+                            'is-valid': startTimeContractModel.valid && startTimeContractModel.touched
+                        }">
+                        <div *ngIf="startTimeContractModel.invalid && startTimeContractModel.touched" class="invalid-feedback">
+                            Por favor, selecciona una fecha válida.
+                        </div>      
+                       </div>
+                  </div>
+             </div>
+
+     </div>
+       
     </div>
 
 
