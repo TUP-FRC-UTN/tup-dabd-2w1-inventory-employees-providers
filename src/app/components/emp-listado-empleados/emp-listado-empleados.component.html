@@ -19,9 +19,23 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Las filas serán renderizadas por DataTables desde el TypeScript -->
         </tbody>
     </table>
+
+    <!-- Modal personalizado -->
+    <div class="modal-overlay" [class.show]="showModal" (click)="closeModal()">
+        <div class="modal-container" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h5>Detalles del Empleado</h5>
+                <button class="close-button" (click)="closeModal()">×</button>
+            </div>
+            <div class="modal-body" [innerHTML]="modalContent">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
 
     <div class="opciones">
         @if (ventana == "Informacion") {
@@ -69,5 +83,4 @@
             </div>
         }
     </div>
-
 </div>
