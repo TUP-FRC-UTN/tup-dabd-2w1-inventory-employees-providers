@@ -1,128 +1,94 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service'; // Servicio para obtener empleados
+import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { CommonModule } from '@angular/common';
-import $ from 'jquery'; // Importación de jQuery
-import 'datatables.net'; // Importación de DataTables
-import 'datatables.net-dt'; // Estilos para DataTables
-import { EmpListadoEmpleados } from '../../models/emp-listado-empleados'; // Modelo de empleado
+import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
 import { Router } from '@angular/router';
-import { EmpListadoAsistencias } from '../../models/emp-listado-asistencias';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+declare var $: any;
+declare var DataTable: any;
 
 @Component({
   selector: 'app-emp-listado-empleados',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './emp-listado-empleados.component.html',
-  styleUrls: ['./emp-listado-empleados.component.css'], // Corrige 'styleUrl' a 'styleUrls'
+  styleUrls: ['./emp-listado-empleados.component.css'],
 })
 export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
-  Empleados: EmpListadoEmpleados[] = [];  // Array que contiene la lista de empleados
-  Asistencias: EmpListadoAsistencias[] = []; // Array que contiene la lista de asistencias
-  private table: any; // Referencia para la instancia de DataTable
-  ventana: string = "Informacion";  // Texto para referenciar en que tipo de datos de empleados estamos ubicados
-  router = inject(Router);  // Variable para realizar routing
+  Empleados: EmpListadoEmpleados[] = [];
+  private table: any;
+  ventana: string = "Informacion";
+  router = inject(Router);
+  showModal = false;
+  modalContent: SafeHtml = '';
 
-  // Inyección del servicio que obtiene los empleados
-  constructor(private empleadoService: EmpListadoEmpleadosService) {}
+  constructor(
+    private empleadoService: EmpListadoEmpleadosService,
+    private sanitizer: DomSanitizer
+  ) {}
 
-  // Hook de ciclo de vida que se ejecuta cuando el componente es inicializado
   ngOnInit(): void {
-    this.loadEmpleados(); // Carga la lista de empleados
+    this.loadEmpleados();
   }
 
-  // Método que obtiene la lista de empleados desde el servicio
   loadEmpleados(): void {
     this.empleadoService.getEmployees().subscribe({
       next: (empleados) => {
-        this.Empleados = empleados; // Asigna los empleados al array
-        this.initializeDataTable(); // Inicializa DataTable después de cargar los empleados
+        this.Empleados = empleados;
+        this.initializeDataTable();
       },
       error: (err) => {
-        console.error('Error al cargar empleados:', err); // Manejo de errores
+        console.error('Error al cargar empleados:', err);
       },
     });
-
-    // Retrasa la inicialización de DataTable para asegurar que los datos estén cargados
-    setTimeout(() => {
-      this.initializeDataTable();
-    }, 0);
   }
 
-  // Método que inicializa o reinicia el DataTable
   initializeDataTable(): void {
     if (this.table) {
-      this.table.destroy(); // Destruye la instancia existente de DataTable si ya fue inicializada
-      $('#empleadosTable').empty(); // Limpia el contenido de la tabla para evitar conflictos
+      this.table.destroy();
+      $('#empleadosTable').empty();
     }
 
-    // Inicialización de DataTable con la configuración y los datos
     this.table = $('#empleadosTable').DataTable({
-      data: this.Empleados, // Pasar los datos de empleados directamente
+      data: this.Empleados,
       columns: [
-        { data: 'fullName', title: 'Apellido y Nombre' }, // Columna de nombre completo
-        { data: 'document', title: 'Documento' }, // Columna de documento
-        { data: 'position', title: 'Posición' }, // Columna de posición
+        { data: 'fullName', title: 'Apellido y Nombre' },
+        { data: 'document', title: 'Documento' },
+        { data: 'position', title: 'Posición' },
         {
           data: 'salary',
           title: 'Salario',
-          className: 'text-end', // Clase para alinear el salario a la derecha
+          className: 'text-end',
           render: (data: number) => {
-            // Formateo de la columna de salario
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data);
+            return new Intl.NumberFormat('en-US', { 
+              style: 'currency', 
+              currency: 'USD' 
+            }).format(data);
           }
         },
         {
           data: null,
           title: 'Acciones',
           render: (data: any) => {
-            // Renderiza un dropdown para seleccionar acciones (editar/eliminar)
             return `
-              <div class="btn-group dropend">
-                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">...</button>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <button class="dropdown-item btn btn-secondary" 
-                      data-bs-toggle="modal" data-bs-target="#myModal">Consultar
-                      </button>
-                    </li>
-                    <li><button class="dropdown-item btn btn-primary" (click)="">Modificar</button></li>
-                  </ul>
-              </div> 
-              
-               <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h1 class="modal-title fs-5" id="exampleModalLabel">Datos del empleado</h1>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                      Id: ${data.id} 
-                      <hr>
-                      Nombre: ${data.fullName} 
-                      <hr>
-                      Doc: ${data.document} 
-                      <hr>
-                      Posicion: ${data.position} 
-                      <hr>
-                      Salario: ${data.salary} 
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `;
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  Seleccionar
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Consultar</a></li>
+                  <li><a class="dropdown-item modificar-btn" data-empleado-id="${data.id}" href="#">Modificar</a></li>
+                </ul>
+              </div>`;
           }
         }
       ],
-      pageLength: 10, // Fijamos la cantidad de registros por página en 10
-      lengthChange: false, // Deshabilita el selector de cantidad de registros
+      pageLength: 10,
+      lengthChange: false,
       language: {
-        search: "Buscar:", // Traducción del texto de búsqueda
-        info: "Mostrando _START_ a _END_ de _TOTAL_ registros", // Texto de información
+        search: "Buscar:",
+        info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
         paginate: {
           first: "Primero",
           last: "Último",
@@ -131,33 +97,91 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         },
       },
     });
+
+    $('#empleadosTable').on('click', '.consultar-btn', (event: { preventDefault: () => void; currentTarget: any; }) => {
+      event.preventDefault();
+      const empleadoId = $(event.currentTarget).data('empleado-id');
+      this.consultarEmpleado(empleadoId);
+    });
   }
 
-  // Hook de ciclo de vida que se ejecuta cuando el componente es destruido
+  consultarEmpleado(id: number): void {
+    this.empleadoService.getEmployeeById(id).subscribe({
+      next: (empleado) => {
+        const fechaContrato = new Date(empleado.contractStartTime[0], 
+                                     empleado.contractStartTime[1] - 1, 
+                                     empleado.contractStartTime[2])
+                                     .toLocaleDateString();
+                                     
+        const horaInicio = `${empleado.startTime[0]}:${empleado.startTime[1].toString().padStart(2, '0')}`;
+        const horaFin = `${empleado.endTime[0]}:${empleado.endTime[1].toString().padStart(2, '0')}`;
+        
+        const content = `
+          <div class="container">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <h6>Información Personal</h6>
+                <p><strong>Nombre completo:</strong> ${empleado.surname}, ${empleado.name}</p>
+                <p><strong>Documento:</strong> ${empleado.documentType} ${empleado.documenValue}</p>
+                <p><strong>CUIL:</strong> ${empleado.cuil}</p>
+              </div>
+              <div class="col-md-6">
+                <h6>Información Laboral</h6>
+                <p><strong>Cargo:</strong> ${empleado.charge.charge}</p>
+                <p><strong>Fecha de contrato:</strong> ${fechaContrato}</p>
+                <p><strong>Salario:</strong> $${empleado.salary.toLocaleString()}</p>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <h6>Horario</h6>
+                <p><strong>Hora entrada:</strong> ${horaInicio}</p>
+                <p><strong>Hora salida:</strong> ${horaFin}</p>
+              </div>
+              <div class="col-md-6">
+                <h6>Días laborables</h6>
+                <p>
+                  ${empleado.mondayWorkday ? '✓ Lunes<br>' : ''}
+                  ${empleado.tuesdayWorkday ? '✓ Martes<br>' : ''}
+                  ${empleado.wednesdayWorkday ? '✓ Miércoles<br>' : ''}
+                  ${empleado.thursdayWorkday ? '✓ Jueves<br>' : ''}
+                  ${empleado.fridayWorkday ? '✓ Viernes<br>' : ''}
+                  ${empleado.saturdayWorkday ? '✓ Sábado<br>' : ''}
+                  ${empleado.sundayWorkday ? '✓ Domingo' : ''}
+                </p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h6>Información adicional</h6>
+                <p><strong>Obra Social:</strong> ${empleado.healthInsurance ? 'Sí' : 'No'}</p>
+                <p><strong>Estado:</strong> ${empleado.active ? 'Activo' : 'Inactivo'}</p>
+                <p><strong>Licencia:</strong> ${empleado.license ? 'Sí' : 'No'}</p>
+              </div>
+            </div>
+          </div>
+        `;
+  
+        this.modalContent = this.sanitizer.bypassSecurityTrustHtml(content);
+        this.showModal = true;
+      },
+      error: (error) => {
+        console.error('Error al obtener los datos del empleado:', error);
+      }
+    });
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+  }
+
   ngOnDestroy(): void {
     if (this.table) {
-      this.table.destroy(); // Destruye la instancia de DataTable al destruir el componente
+      this.table.destroy();
     }
   }
 
-  // Métodos para acciones (se deben implementar)
-  
-  // Método para editar empleado (implementación pendiente)
-  editarEmpleado(id: any): void {
-    // Implementar la lógica de edición
-  }
-
-  // Método para eliminar empleado (implementación pendiente)
-  eliminarEmpleado(id: any): void {
-    // Implementar la lógica de eliminación
-  }
-
-  // Método que maneja la selección de acción (pendiente de implementación)
-  accionSeleccionada(arg0: number, $event: Event): void {
-    throw new Error('Method not implemented.');
-  }
-
-  irMenu(){
+  irMenu(): void {
     this.router.navigate(['']);
   }
 }
