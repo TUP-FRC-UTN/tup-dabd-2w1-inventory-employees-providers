@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { EmpListadoEmpleados, Employee } from '../models/emp-listado-empleados';
+import { EmpListadoAsistencias } from '../models/emp-listado-asistencias';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +28,12 @@ export class EmpListadoEmpleadosService {
   getEmployeeById(id: number): Observable<Employee> {
     return this.http.get<Employee>(
       `${this.BASE_URL}/employees/employeeById?id=${id}`
+    );
+  }
+
+  getAttendances(): Observable<EmpListadoAsistencias[]> {
+    return this.http.get<EmpListadoAsistencias[]>(
+      `${this.BASE_URL}/attendances/get`
     );
   }
 }

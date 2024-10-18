@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { EmpListadoAsistencias } from '../../models/emp-listado-asistencias';
+import { data } from 'jquery';
 
 declare var $: any;
 declare var DataTable: any;
@@ -17,6 +19,7 @@ declare var DataTable: any;
 })
 export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   Empleados: EmpListadoEmpleados[] = [];
+  Asistencias: EmpListadoAsistencias[] = [];
   private table: any;
   ventana: string = "Informacion";
   router = inject(Router);
@@ -36,10 +39,24 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     this.empleadoService.getEmployees().subscribe({
       next: (empleados) => {
         this.Empleados = empleados;
+        this.ventana = 'Informacion';
         this.initializeDataTable();
       },
       error: (err) => {
         console.error('Error al cargar empleados:', err);
+      },
+    });
+  }
+
+  loadAsistencias(): void {
+    this.empleadoService.getAttendances().subscribe({
+      next: (asistencias) => {
+        this.Asistencias = asistencias;
+        this.ventana = 'Asistencias';
+        this.initializeDataTable();
+      },
+      error: (err) => {
+        console.error('Error al cargar asistencias:', err);
       },
     });
   }
@@ -50,59 +67,86 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       $('#empleadosTable').empty();
     }
 
-    this.table = $('#empleadosTable').DataTable({
-      data: this.Empleados,
-      columns: [
-        { data: 'fullName', title: 'Apellido y Nombre' },
-        { data: 'document', title: 'Documento' },
-        { data: 'position', title: 'Posición' },
-        {
-          data: 'salary',
-          title: 'Salario',
-          className: 'text-end',
-          render: (data: number) => {
-            return new Intl.NumberFormat('en-US', { 
-              style: 'currency', 
-              currency: 'USD' 
-            }).format(data);
+    if (this.ventana == "Informacion"){
+      this.table = $('#empleadosTable').DataTable({
+        data: this.Empleados,
+        columns: [
+          { data: 'fullName', title: 'Apellido y Nombre' },
+          { data: 'document', title: 'Documento' },
+          { data: 'position', title: 'Posición' },
+          {
+            data: 'salary',
+            title: 'Salario',
+            className: 'text-end',
+            render: (data: number) => {
+              return new Intl.NumberFormat('en-US', { 
+                style: 'currency', 
+                currency: 'USD' 
+              }).format(data);
+            }
+          },
+          {
+            data: null,
+            title: 'Acciones',
+            render: (data: any) => {
+              return `
+                <div class="dropdown">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    Seleccionar
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Consultar</a></li>
+                    <li><a class="dropdown-item modificar-btn" data-empleado-id="${data.id}" href="#">Modificar</a></li>
+                  </ul>
+                </div>`;
+            }
           }
+        ],
+        pageLength: 10,
+        lengthChange: false,
+        language: {
+          search: "Buscar:",
+          info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+          paginate: {
+            first: "Primero",
+            last: "Último",
+            next: "Siguiente",
+            previous: "Anterior"
+          },
         },
-        {
-          data: null,
-          title: 'Acciones',
-          render: (data: any) => {
-            return `
-              <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  Seleccionar
-                </button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Consultar</a></li>
-                  <li><a class="dropdown-item modificar-btn" data-empleado-id="${data.id}" href="#">Modificar</a></li>
-                </ul>
-              </div>`;
-          }
-        }
-      ],
-      pageLength: 10,
-      lengthChange: false,
-      language: {
-        search: "Buscar:",
-        info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-        paginate: {
-          first: "Primero",
-          last: "Último",
-          next: "Siguiente",
-          previous: "Anterior"
+      });
+  
+      $('#empleadosTable').on('click', '.consultar-btn', (event: { preventDefault: () => void; currentTarget: any; }) => {
+        event.preventDefault();
+        const empleadoId = $(event.currentTarget).data('empleado-id');
+        this.consultarEmpleado(empleadoId);
+      });
+    }
+    
+    if (this.ventana == "Asistencias"){
+      this.table = $('#empleadosTable').DataTable({
+        data: this.Asistencias,
+        columns: [
+          { data: 'employeeName', title: 'Apellido y nombre' },
+          { data: 'date', title: 'Fecha' },
+          { data: 'state', title: 'Estado' },
+          { data: 'arrivalTime', title: 'Hora de entrada'},
+          { data: 'departureTime', title: 'Hora de salida'}
+        ],
+        pageLength: 10,
+        lengthChange: false,
+        language: {
+          search: "Buscar:",
+          info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+          paginate: {
+            first: "Primero",
+            last: "Último",
+            next: "Siguiente",
+            previous: "Anterior"
+          },
         },
-      },
-    });
-
-    $('#empleadosTable').on('click', '.consultar-btn', (event: { preventDefault: () => void; currentTarget: any; }) => {
-      event.preventDefault();
-      const empleadoId = $(event.currentTarget).data('empleado-id');
-      this.consultarEmpleado(empleadoId);
-    });
+      });
+    }
   }
 
   consultarEmpleado(id: number): void {

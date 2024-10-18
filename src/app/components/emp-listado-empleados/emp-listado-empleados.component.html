@@ -2,9 +2,9 @@
     <h2 class="text-left mb-4">Lista de Empleados</h2>
 
     <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Informacion' }" 
-    (click)="ventana = 'Informacion'">Informacion</button>
+    [disabled]="ventana == 'Informacion'" (click)="loadEmpleados()">Informacion</button>
     <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Asistencias' }" 
-    (click)="ventana = 'Asistencias'">Asistencias</button>
+    [disabled]="ventana == 'Asistencias'" (click)="loadAsistencias()">Asistencias</button>
     <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Desempeño' }" 
     (click)="ventana = 'Desempeño'">Desempeño</button>
     
