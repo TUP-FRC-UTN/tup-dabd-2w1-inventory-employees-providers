@@ -1,0 +1,183 @@
+<form class="form" action="">
+    <div class="container"> 
+        <div class="row">
+            <div class="col">
+                <h2 class="titulo">Inventario</h2>
+            </div>
+            <div class="col-1">
+                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#infoModal">Info</button>
+            </div>
+        </div>
+
+        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="infoModalLabel">Información</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                        <div class="modal-body">
+                            En el inventario, puedes ver la información de todos los productos cargados en el sistema y 
+                            filtrarlos según sus categorías, si son reutilizables o no, la cantidad mínima y/o máxima de 
+                            detalles que deben tener y una palabra clave que contenga el nombre del producto.
+                            <hr> 
+                            También tienes la función de agregar productos nuevos, consultar los detalles de cada producto 
+                            y agregar nuevos productos.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SELECTS -->
+        <div class="row fila">
+            <div class="col-1">
+                <label for="Reusable">Reusable</label>
+            </div>
+            <div class="col-4">
+                <div class="row">
+                    <select name="Reusable" id="Reusable" [(ngModel)]="reusable" #Reusable="ngModel" 
+                    (ngModelChange)="cargarProductos()">
+                        <option value="" selected></option>
+                        <option [value]="true">Si</option>
+                        <option [value]="false">No</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-1"></div>
+            <div class="col-1 select">
+                <label for="Categorias">Categoria</label>
+            </div>
+            <div class="col-4">
+                <div class="row">
+                    <select name="Categorias" id="Categorias" 
+                        [(ngModel)]="categoria" #Categorias="ngModel" (ngModelChange)="cargarProductos()">
+                        <option value="" selected></option>
+                        @for (c of categorias; track $index) { <option [value]="c.id">{{c.category}}</option> }
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        
+        <!-- CANTIDADES -->
+        <div class="row fila">
+            <div class="col-2">
+                <label for="CantMinima">Cant. minima</label>
+            </div>
+            <div class="col-3">
+                <div class="row">
+                    <input type="number" name="CantMinima" id="CantMinima"
+                    [(ngModel)]="cantMinima" #CantMinima="ngModel" [ngClass]="{'is-valid': validoMin, 'is-invalid': !validoMin}" 
+                    min="0" (ngModelChange)="cargarProductos()">
+                </div>
+                <div *ngIf="!validoMin" class="invalid-feedback"> {{mensajeValidacionMin}} </div>
+                
+            </div>
+            <div class="col-1"></div>
+            <div class="col-2">
+                <label for="CantMaxima">Cant. máxima</label>
+            </div>
+            <div class="col-3">
+                <div class="row">
+                    <input type="number" name="CantMaxima" id="CantMaxima"
+                    [(ngModel)]="cantMaxima" #CantMaxima="ngModel" [ngClass]="{'is-valid': validoMax, 'is-invalid': !validoMax}"
+                    min="0" (ngModelChange)="cargarProductos()">
+                    <div *ngIf="!validoMax" class="invalid-feedback"> {{mensajeValidacionMax}} </div>
+                </div>  
+            </div>
+        </div>
+        
+        <!-- NOMBRE -->
+        <div class="row fila">
+            <div class="col-1">
+                <label for="Nombre">Nombre</label>
+            </div>
+            <div class="col-4">
+                <div class="row">
+                    <input type="text" id="Nombre" name="Nombre"
+                    [(ngModel)]="nombre" #Nombre="ngModel" (ngModelChange)="cargarProductos()">
+                </div>
+            </div>
+        </div>
+        
+        <!-- POST PRODUCTO  -->
+        <div class="row">
+            <div class="group col-10 tituloLista">
+                <h4>Lista de productos</h4>
+            </div>
+            <div class="col-1">
+                <div class="row">
+                    <button class="btn btn-primary" (click)="generarPdf()">Generar PDF</button>
+                </div>
+            </div>
+            <div class="col-1">
+                <div class="row">
+                    <button class="btn btn-success" (click)="generarExcel()">Generar Excel</button>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Categoria</th>
+                        <th>Reusable</th>
+                        <th>Cantidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (productos.length !== 0) {
+                        @for (producto of productos; track $index) {
+                            <tr>
+                                <td>{{producto.name}}</td>
+                                <td>{{producto.category}}</td>
+                                <td>
+                                    @if (producto.reusable) { SI }
+                                    @else { NO }
+                                </td>
+                                <td>{{producto.amountDetails}}</td>
+                                <td>
+                                    <div class="btn-group dropend">
+                                        <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">...</button>
+                                        <ul class="dropdown-menu">
+                                            <li><button class="dropdown-item btn botonDetalleConsultar" (click)="irDetalles(producto.id)">Consultar</button></li>
+                                            <li><button class="dropdown-item btn botonDetalleCrear" (click)="irAgregarDetalles(producto.id)">Agregar</button></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    @else {
+                        <tr>
+                            <td id="ResultadoMalo" colspan="5">
+                                <p>No se han encontrado productos con las caracteristicas solicitadas</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="row volver">        
+            <div class="col-2">
+                <div class="row">
+                    <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
+                </div>
+            </div>
+            <div class="col"></div>
+            <div class="col-2">
+                <div class="row">
+                    <button class="btn btn-primary" (click)="irAgregarProducto()">Agregar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
