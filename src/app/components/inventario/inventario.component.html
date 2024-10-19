@@ -239,16 +239,8 @@
                     </svg>
                 </button>
             </div>
-            @if(productos$|async) {
                 <table class="table table-striped" id="productsList">
                 </table>
-            }@else {
-                @if(requestInProcess){
-                    <div class="text-center">Cargando productos...</div>
-                }@else {
-                    <div class="text-center">No hay productos disponibles</div>
-                }
-            }
                     
         </div>
         

@@ -8,7 +8,6 @@ import { RouterModule } from '@angular/router';
 import { CategoriaService } from '../../services/categoria.service';
 import { CreateProductDtoClass } from '../../models/create-product-dto-class';
 import { ProductCategory } from '../../models/product-category';
-// import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
 import { Provider } from '../../models/provider';
 
 @Component({
