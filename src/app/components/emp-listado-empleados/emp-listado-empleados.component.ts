@@ -3,9 +3,10 @@ import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados
 import { CommonModule } from '@angular/common';
 import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
 import { Router } from '@angular/router';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml, Title } from '@angular/platform-browser';
 import { EmpListadoAsistencias } from '../../models/emp-listado-asistencias';
 import { data } from 'jquery';
+import { EmpModificarAsistencia } from '../../models/emp-modificar-asistencia';
 
 declare var $: any;
 declare var DataTable: any;
@@ -20,9 +21,10 @@ declare var DataTable: any;
 export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   Empleados: EmpListadoEmpleados[] = [];
   Asistencias: EmpListadoAsistencias[] = [];
-  private table: any;
-  ventana: string = "Informacion";
-  router = inject(Router);
+  private table: any; // Variable utilizada para cargar los datos en un DataTables
+  ventana: string = "Informacion";  // Campo utilizado para aclarar el tipo de datos a aclarar
+  AsistenciasModificadas: EmpModificarAsistencia[] = [];  // Listado para guardar los Ids de las asistencias a modificar
+  router = inject(Router);  // Variable router para poder moverse entre componentes
   showModal = false;
   modalContent: SafeHtml = '';
 
@@ -129,9 +131,45 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         columns: [
           { data: 'employeeName', title: 'Apellido y nombre' },
           { data: 'date', title: 'Fecha' },
-          { data: 'state', title: 'Estado' },
-          { data: 'arrivalTime', title: 'Hora de entrada'},
-          { data: 'departureTime', title: 'Hora de salida'}
+          { data: 'state', title: 'Estado', className: 'text-end', 
+            render: (data: any) =>{
+              let color;
+              
+              switch (data){
+                case "INDEFINIDO":
+                  color = "text-secondary";
+                  break;
+                case "PRESENTE": 
+                  color= "text-success";
+                  break;
+                case "AUSENTE":
+                  color= "text-danger";
+                  break;
+                case "JUSTIFICADO":
+                  color= "text-primary";
+                  break;
+                case "RETIRADO":
+                  color= "text-warning";
+                  break;     
+              }
+              return `<span class="${color}">${data}</span>`;
+            }
+          },
+          { data: 'arrivalTime', title: 'Hora de entrada', className: 'text-end'},
+          { data: 'departureTime', title: 'Hora de salida', className: 'text-end'},
+          { data: null,
+            title: 'Seleccionar',
+            className: 'text-center',
+            render: (data: any, type: any, row: any, meta: any) => {
+              const isHidden = row.state === "INDEFINIDO" ? 'style="display: none;"' : '';
+              const checkbox = `<input type="checkbox" class="form-check-input selection-checkbox" 
+                                data-id="${row.id}" data-state="${row.state}" ${isHidden} />`;
+              
+              const indicator = row.state === "INDEFINIDO" ? '<span class="text-muted">No seleccionable</span>' : checkbox;
+          
+              return indicator;
+            },
+          }
         ],
         pageLength: 10,
         lengthChange: false,
@@ -146,7 +184,42 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
           },
         },
       });
+  
+      $('#empleadosTable').on('change', '.selection-checkbox', (event: Event) => {
+        const checkbox = event.target as HTMLInputElement;
+        const selectedId = parseInt(checkbox.getAttribute('data-id') || '0', 10);
+        let selectedState = checkbox.getAttribute('data-state')?.toString() || '';
+       
+        if(checkbox.checked){
+          if (!this.AsistenciasModificadas.includes( { id: selectedId, state: selectedState })){ 
+            this.AsistenciasModificadas.push({ id: selectedId, state: selectedState }); 
+          }
+        }
+        else{
+          this.AsistenciasModificadas = this.AsistenciasModificadas.filter(existe => existe.id !== selectedId) 
+        }
+      });
     }
+  }
+
+  modificadas(){
+    this.AsistenciasModificadas.forEach( asistencias => {
+      let NuevoEstado = ""
+      
+      if (asistencias.state === "PRESENTE") {NuevoEstado = "RETIRADO"}
+      if (asistencias.state === "RETIRADO") {NuevoEstado = "PRESENTE"}
+      if (asistencias.state === "AUSENTE") {NuevoEstado = "JUSTIFICADO"}
+      if (asistencias.state === "JUSTIFICADO") {NuevoEstado = "AUSENTE"}
+
+      this.empleadoService.putAttendances(asistencias.id, NuevoEstado).subscribe({
+        next: () => console.log(`Asistencia ${asistencias.id} actualizada a ${NuevoEstado}`),
+        error: () => console.error(`Error actualizando asistencia ${asistencias.id}:`)
+      });
+
+    });
+
+    this.AsistenciasModificadas = [];
+    this.loadAsistencias();
   }
 
   consultarEmpleado(id: number): void {
@@ -229,3 +302,26 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     this.router.navigate(['']);
   }
 }
+
+
+  // METODO DUDOSO A IMPLEMENTAR: Solo permitir modificar asistencias de un solo tipo a la vez
+  
+  // habilitarCheckbox(){
+  //   const checkboxes = $('.selection-checkbox');
+  //     
+  //   checkboxes.each((index: number, element: HTMLInputElement) => {
+  //     const checkboxState = $(element).data('state');
+  //     if (this.modificacionActual !== ""){
+  //       // Aquí puedes establecer la lógica de habilitación/deshabilitación
+  //       if (this.modificacionActual === checkboxState) {
+  //         $(element).prop('disabled', false).css('visibility', 'visible');
+  //       } else {
+  //         $(element).prop('disabled', true).css('visibility', 'visible');
+  //       }
+  //     }
+  //   });
+  // }
+  // 
+  // this.table.on('page.dt', () => {
+  //   this.habilitarCheckbox();
+  // });

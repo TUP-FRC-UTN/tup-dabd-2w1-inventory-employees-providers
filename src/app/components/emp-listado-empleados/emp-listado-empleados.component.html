@@ -7,7 +7,7 @@
     [disabled]="ventana == 'Asistencias'" (click)="loadAsistencias()">Asistencias</button>
     <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Desempeño' }" 
     (click)="ventana = 'Desempeño'">Desempeño</button>
-    
+
     <table id="empleadosTable" class="table table-striped table-bordered">
         <thead class="thead-light">
             <tr>
@@ -60,6 +60,13 @@
                         <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
                     </div>
                 </div>
+                <div class="col-10"></div>
+                <div class="col">
+                    <div class="row">
+                        <button class="btn btn-primary" [disabled]="AsistenciasModificadas.length == 0" 
+                        (click)="modificadas()">Modificar</button>
+                    </div>
+                </div>
             </div>
         }
         @if (ventana == "Desempeño") {
@@ -84,3 +91,5 @@
         }
     </div>
 </div>
+
+
