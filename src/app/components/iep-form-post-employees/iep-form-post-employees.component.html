@@ -103,7 +103,7 @@
          </div>
     </div>
 
-
+<!-- contacto  -->
 <div class="bg-light rounded ps-2 " >
 <p class="text-center">CONTACTO </p>
 <div class="form-group row mb-3 pb-2 ">
@@ -115,7 +115,7 @@
                 [(ngModel)]="telefono"
                 #telefonoModel="ngModel"
                required 
-              pattern="^(0?15)?[1-9]\d{8}$"
+              pattern='^(0?15)?[1-9]\d{8}$'
                [ngClass]="{
                    'is-invalid': telefonoModel.invalid && telefonoModel.touched, 
                    'is-valid': telefonoModel.valid && telefonoModel.touched
@@ -267,7 +267,7 @@
                 <div class="col-md-8">
                     <input type="text" class="form-control" id="dpto" name="dpto"  [(ngModel)]="dpto"
                     #dptoModel="ngModel"
-                    required 
+                     
                     pattern="^[a-zA-Z0-9]+$"
                    [ngClass]="{
                        'is-invalid': dptoModel.invalid && dptoModel.touched, 
@@ -336,7 +336,7 @@
      <!-- Cargo -->
      <div class="bg-light rounded mb-5 pb-2 ps-2 pt-2" >  
      <div class="form-group row mb-3">
-        <div class="col-md-6  ">
+        <div class="col-md-6 mb-3">
             <div class="row">
                 <label for="cargo" class="col-form-label col-md-4">Cargo:</label>
                    <div class="col-md-8">
@@ -355,7 +355,7 @@
          @if (!terciorizedEmployee) {
             <!-- Salario -->
             
-            <div class="col-md-6">
+            <div class="col-md-6 mb-3">
                 <div class="row">
                     
                <label class="col-form-label col-md-3" for="salario">Salario:</label>
@@ -380,7 +380,7 @@
             </div>
         </div>
               }
-              <div class="col-md-6 mt-3 ">
+              <div class="col-md-6 ">
                 <div class="row">
                     <label for="start-time-contract" class="col-form-label col-md-6">Fecha inicio contrato:</label>
                        <div class="col-md-6">
@@ -392,8 +392,8 @@
                         required
                         (ngModelChange)="validateDate()"
                         [ngClass]="{
-                            'is-invalid': startTimeContractModel.invalid && startTimeContractModel.touched, 
-                            'is-valid': startTimeContractModel.valid && startTimeContractModel.touched
+                            'is-invalid': startTimeContractModel.invalid && startTimeContractModel.touched || invalidDate, 
+                            'is-valid': startTimeContractModel.valid && startTimeContractModel.touched && !invalidDate
                         }">
                         <div *ngIf="startTimeContractModel.invalid && startTimeContractModel.touched" class="invalid-feedback">
                             Por favor, selecciona una fecha válida.
@@ -509,6 +509,24 @@
             <button [disabled]="!form.valid" type="submit" class="btn btn-primary">Guardar</button>
            </div>
          </div>
-     
+
+
+        
+      <!-- Modal para mostrar mensajes de éxito o error -->
+      <div class="modal" *ngIf="showModal" (click)="resetForm(form)">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ success ? 'Éxito' : 'Error' }}</h5>
+                <button type="button" class="close" (click)="resetForm(form)">&times;</button>
+            </div>
+            <div class="modal-body">
+                {{ success ? successMessage : errorMessage }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="resetForm(form)">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     </form>
 </div>
