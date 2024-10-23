@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { EmpListadoAsistencias } from '../../models/emp-listado-asistencias';
 import { data } from 'jquery';
+import { Subscription } from 'rxjs';
 
 declare var $: any;
 declare var DataTable: any;
@@ -25,6 +26,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   router = inject(Router);
   showModal = false;
   modalContent: SafeHtml = '';
+  private subscriptions: Subscription[] = [];  // Para almacenar las suscripciones
 
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
@@ -36,7 +38,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   }
 
   loadEmpleados(): void {
-    this.empleadoService.getEmployees().subscribe({
+    const empSubscription = this.empleadoService.getEmployees().subscribe({
       next: (empleados) => {
         this.Empleados = empleados;
         this.ventana = 'Informacion';
@@ -46,10 +48,11 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         console.error('Error al cargar empleados:', err);
       },
     });
+    this.subscriptions.push(empSubscription); // Almacena la suscripción
   }
 
   loadAsistencias(): void {
-    this.empleadoService.getAttendances().subscribe({
+    const asistSubscription = this.empleadoService.getAttendances().subscribe({
       next: (asistencias) => {
         this.Asistencias = asistencias;
         this.ventana = 'Asistencias';
@@ -59,6 +62,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         console.error('Error al cargar asistencias:', err);
       },
     });
+    this.subscriptions.push(asistSubscription); // Almacena la suscripción
   }
 
   initializeDataTable(): void {
@@ -150,7 +154,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   }
 
   consultarEmpleado(id: number): void {
-    this.empleadoService.getEmployeeById(id).subscribe({
+    const empByIdSubscription = this.empleadoService.getEmployeeById(id).subscribe({
       next: (empleado) => {
         const fechaContrato = new Date(empleado.contractStartTime[0], 
                                      empleado.contractStartTime[1] - 1, 
@@ -213,6 +217,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         console.error('Error al obtener los datos del empleado:', error);
       }
     });
+    this.subscriptions.push(empByIdSubscription); // Almacena la suscripción
   }
 
   closeModal(): void {
@@ -220,6 +225,8 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Desuscribe todas las suscripciones cuando el componente se destruye
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
     if (this.table) {
       this.table.destroy();
     }
