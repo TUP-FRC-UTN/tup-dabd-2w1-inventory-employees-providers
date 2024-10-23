@@ -4,6 +4,8 @@ import { DetailTableComponent } from './components/detail-table/detail-table.com
 import { InventarioComponent } from './components/inventario/inventario.component';
 import { StockAumentoComponent } from './components/stock-aumento/stock-aumento.component';
 import { TablaComponent } from './components/tabla/tabla.component';
+import { IepCargoPostComponent } from './components/iep-cargo-post/iep-cargo-post.component';
+import { IepCargoPutComponent } from './components/iep-cargo-put/iep-cargo-put.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -35,4 +37,14 @@ export const routes: Routes = [
         component: EmpListadoEmpleadosComponent,
         title: 'Listado de empleados'
     },
+    {
+        path: 'cargo-nuevo',
+        component: IepCargoPostComponent,
+        title: 'Nuevo Cargo'
+    },
+    {
+        path: 'cargo-modificar',
+        component: IepCargoPutComponent,
+        title: 'Modificar Cargo'
+    }
 ];
