@@ -22,9 +22,14 @@ export class FormLlamadoAtencionComponent implements OnInit{
   showError: boolean = false;
   employees: EmployeeGetResponseDTO[] = [];
   filteredEmployees: EmployeeGetResponseDTO[] = [];
+  dateFilteredEmployees: EmployeeGetResponseDTO[] = []; // Nueva propiedad para almacenar empleados filtrados por fecha
   searchTerm: string = '';
 
-  constructor(private router: Router, private fb: FormBuilder, private wakeUpCallService: LlamadoAtencionService) {
+  constructor(
+    private router: Router, 
+    private fb: FormBuilder, 
+    private wakeUpCallService: LlamadoAtencionService
+  ) {
     this.wakeUpCallForm = this.fb.group({
       empleados: this.fb.array([], Validators.required),
       fecha: ['', Validators.required],
@@ -34,59 +39,99 @@ export class FormLlamadoAtencionComponent implements OnInit{
     });
   }
 
-  navigateToPerformanceList(): void {
-    this.router.navigate(['/listado-desempeño']);  // Redirige al listado de desempeño
-  }
-
   ngOnInit() {
     this.loadEmployees();
+    
+    // Suscribirse a cambios en la fecha
+    this.wakeUpCallForm.get('fecha')?.valueChanges.subscribe(date => {
+      if (date) {
+        this.loadEmployeesForDate(date);
+      } else {
+        this.dateFilteredEmployees = [];
+        this.filteredEmployees = [];
+        this.addCheckboxes();
+      }
+    });
+
+    // Suscribirse a cambios en el término de búsqueda
+    this.wakeUpCallForm.get('searchTerm')?.valueChanges.subscribe(term => {
+      this.filterEmployees();
+    });
   }
 
   loadEmployees() {
     this.wakeUpCallService.getAllEmployees().subscribe(
       (employees) => {
         this.employees = employees;
-        this.filteredEmployees = employees;  // Inicializa la lista filtrada
-        this.addCheckboxes(); // Agrega checkboxes para todos los empleados al inicio
+        const fecha = this.wakeUpCallForm.get('fecha')?.value;
+        if (fecha) {
+          this.loadEmployeesForDate(fecha);
+        } else {
+          this.filteredEmployees = [];
+          this.addCheckboxes();
+        }
       },
       (error) => {
         console.error('Error al cargar empleados', error);
-        this.confirmationMessage = 'Error al cargar la lista de empleados. Por favor, recargue la página.';
-        this.showConfirmation = true;
+        this.showErrorMessage('Error al cargar la lista de empleados');
       }
     );
   }
 
+  loadEmployeesForDate(date: string) {
+    this.wakeUpCallService.getMovements(date).subscribe(
+      (documents) => {
+        this.dateFilteredEmployees = this.employees.filter(employee => 
+          documents.includes(employee.document)
+        );
+        this.filterEmployees(); // Aplicar el filtro de búsqueda sobre los empleados filtrados por fecha
+      },
+      (error) => {
+        console.error('Error al cargar movimientos', error);
+        this.showErrorMessage('Error al cargar los movimientos de empleados');
+      }
+    );
+  }
+
+  filterEmployees() {
+    const searchTerm = this.wakeUpCallForm.get('searchTerm')?.value?.toLowerCase() || '';
+    const employeesToFilter = this.dateFilteredEmployees.length > 0 ? 
+      this.dateFilteredEmployees : 
+      [];
+
+    if (searchTerm.length >= 3) {
+      this.filteredEmployees = employeesToFilter.filter(employee =>
+        employee.fullName.toLowerCase().includes(searchTerm)
+      );
+    } else {
+      this.filteredEmployees = employeesToFilter;
+    }
+    
+    this.addCheckboxes();
+  }
+
   private addCheckboxes() {
-    this.empleadosFormArray.clear(); // Limpiar checkboxes existentes
-    this.filteredEmployees.forEach(() => this.empleadosFormArray.push(this.fb.control(false)));
+    this.empleadosFormArray.clear();
+    this.filteredEmployees.forEach(() => 
+      this.empleadosFormArray.push(this.fb.control(false))
+    );
   }
 
   get empleadosFormArray() {
     return this.wakeUpCallForm.controls['empleados'] as FormArray;
   }
 
-  filterEmployees() {
-    const searchTerm = this.wakeUpCallForm.get('searchTerm')?.value || ''; // Obtener el valor del control
-    if (searchTerm.length >= 3) {
-      this.filteredEmployees = this.employees.filter(employee =>
-        employee.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    } else {
-      this.filteredEmployees = this.employees;  // Muestra todos los empleados si el término es menor a 3 caracteres
-    }
-    this.empleadosFormArray.clear();  // Limpiar el FormArray
-    this.addCheckboxes();  // Reagregar checkboxes para los empleados filtrados
-  }
-  
-
-  
   onSubmit() {
     if (this.wakeUpCallForm.valid) {
       const formValues = this.wakeUpCallForm.value;
       const selectedEmployeeIds = this.filteredEmployees
         .filter((_, i) => formValues.empleados[i])
         .map(e => e.id);
+
+      if (selectedEmployeeIds.length === 0) {
+        this.showErrorMessage('Debe seleccionar al menos un empleado');
+        return;
+      }
 
       const request: RequestWakeUpCallGroupDTO = {
         empleadoIds: selectedEmployeeIds,
@@ -127,7 +172,12 @@ export class FormLlamadoAtencionComponent implements OnInit{
 
   private resetForm() {
     this.wakeUpCallForm.reset();
+    this.dateFilteredEmployees = [];
+    this.filteredEmployees = [];
     this.empleadosFormArray.clear();
-    this.addCheckboxes();
+  }
+
+  navigateToPerformanceList(): void {
+    this.router.navigate(['/listado-desempeño']);
   }
 }

@@ -32,3 +32,11 @@ export interface RequestWakeUpCallDTO {
     position: string;
     salary: number;
   }
+
+  export interface MovementRecord {
+    movementType: string;
+    movementDatetime: string;
+    vehiclesId: number | null;
+    document: string;
+    typeUser: string;
+  }
