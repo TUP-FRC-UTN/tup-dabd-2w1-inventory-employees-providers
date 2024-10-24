@@ -33,11 +33,6 @@ export const routes: Routes = [
         title: 'Historial de modificacion de stock'
     },
     {
-        path: 'wake-up-call',  // Nueva ruta para el componente de "Llamado de Atención"
-        //component: FormLlamadoAtencionComponent,
-        title: 'Desempeño'
-    },
-    {
         path: 'listado-empleados',     // ENZO
         component: EmpListadoEmpleadosComponent,
         title: 'Listado de empleados'
