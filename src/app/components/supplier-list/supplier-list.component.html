@@ -87,8 +87,8 @@
             <td>{{ supplier.phoneNumber }}</td>
             <td>{{ supplier.email }}</td>
             <td>
-              <button type="button" class="btn btn-primary">Modificar</button>
-              <button type="button" class="btn btn-danger">Eliminar</button>
+              <button type="button" class="btn btn-primary" (click)="updateSupplier(supplier.id)" >Modificar</button>
+              <button type="button" class="btn btn-danger"  (click)="deleteSupplier(supplier.id)">Eliminar</button>
             </td>
           </tr>
         </tbody>

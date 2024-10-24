@@ -36,6 +36,21 @@ export class SuppliersService {
     return this.http.get<Supplier[]>(`http://localhost:8080/suppliers`, { params });
   }
 
+
+  getSupplierById(id:number):Observable<any>{
+    return this.http.get<any>('http://localhost:8080/suppliers'+"/"+id)
+  }
+
+
+  updateSupplier(id:number,supplierUpdate:any):Observable<any>{
+    return this.http.put<any>(`http://localhost:8080/suppliers/${id}`,supplierUpdate)
+  }
+
+  deleteSupplier(id: number): Observable<any> {
+    return this.http.put<any>(`http://localhost:8080/suppliers/bajalogica/${id}`, {});
+}
+
+
   constructor(private http: HttpClient) {}
   
 }

@@ -5,6 +5,7 @@ import { SuppliersService } from '../../services/suppliers.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { routes } from '../../app.routes';
 
 @Component({
   selector: 'app-supplier-list',
@@ -97,7 +98,7 @@ searchSuppliers() {
     }
   }
 
-  constructor(private supplierService: SuppliersService) {
+  constructor(private supplierService: SuppliersService,private router:Router) {
     this.supplierService.searchSuppliers(null, null, null,false).subscribe(
       data=>{
         this.suppliers = data;
@@ -106,4 +107,32 @@ searchSuppliers() {
       }
     )
   }
+
+  updateSupplier(id:number){
+
+
+    alert("boton apretado");
+    // const confirm = window.confirm('¿Estas seguro desea modificar?');
+
+    // if(confirm){
+    //   this.router.navigate(['/supplier-update',id]);
+    // }
+    
+  }
+
+  deleteSupplier(id: number): void {
+    const isConfirmed = window.confirm('¿Seguro que desea dar de baja al proveedor seleccionado?');
+    
+    if (isConfirmed) {
+      this.supplierService.deleteSupplier(id).subscribe(
+        response => {
+          alert('¡Proveedor dado de baja correctamente!');
+        },
+        error => {
+          alert('Ocurrió un error al intentar dar de baja al proveedor.');
+        }
+      );
+    }
+  }
+  
 }

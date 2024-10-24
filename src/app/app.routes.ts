@@ -7,6 +7,7 @@ import { TablaComponent } from './components/tabla/tabla.component';
 import { ProductComponent } from './components/product/product.component';
 import { SuppliersFormComponent } from './components/suppliers-form/suppliers-form.component';
 import { SupplierListComponent } from './components/supplier-list/supplier-list.component';
+import { SupplierUpdateComponent } from './components/supplier-update/supplier-update.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -48,4 +49,9 @@ export const routes: Routes = [
         component:SuppliersFormComponent,
         title:"Crear proveedor"
     },
+    {
+        path:"supplier-update",
+        component:SupplierUpdateComponent,
+        title:"Modificar proveedor"
+    }
 ];

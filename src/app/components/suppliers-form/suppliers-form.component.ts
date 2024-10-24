@@ -25,7 +25,8 @@ export class SuppliersFormComponent {
       supplierType: ['OTHER', Validators.required],
       address: ['', Validators.required],
       description: [''],
-      createdUser: [0]  
+      createdUser: [0] ,
+      discontinued:[false] 
     });
   }
 
