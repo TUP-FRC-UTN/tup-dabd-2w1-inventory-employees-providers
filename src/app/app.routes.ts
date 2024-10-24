@@ -6,6 +6,7 @@ import { StockAumentoComponent } from './components/stock-aumento/stock-aumento.
 import { TablaComponent } from './components/tabla/tabla.component';
 import { ProductComponent } from './components/product/product.component';
 import { IepRegisterWarehouseComponent } from './components/iep-register-warehouse/iep-register-warehouse.component';
+import { FormLlamadoAtencionComponent } from './components/form-llamado-atencion/form-llamado-atencion.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -36,6 +37,11 @@ export const routes: Routes = [
         path: 'listado-empleados',     // ENZO
         component: EmpListadoEmpleadosComponent,
         title: 'Listado de empleados'
+    },
+    {
+        path: 'wake-up-call',
+        component: FormLlamadoAtencionComponent,
+        title: 'Llamada de atención'
     },
     {
         path: 'warehouse-movements',

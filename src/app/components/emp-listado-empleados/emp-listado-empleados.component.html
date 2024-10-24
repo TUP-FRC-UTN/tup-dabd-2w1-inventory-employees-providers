@@ -1,12 +1,32 @@
 <div class="container mt-5">
     <h2 class="text-left mb-4">Lista de Empleados</h2>
 
-    <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Informacion' }" 
-    [disabled]="ventana == 'Informacion'" (click)="loadEmpleados()">Informacion</button>
-    <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Asistencias' }" 
-    [disabled]="ventana == 'Asistencias'" (click)="loadAsistencias()">Asistencias</button>
-    <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Desempeño' }" 
-    (click)="ventana = 'Desempeño'">Desempeño</button>
+    <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Informacion' }"
+        [disabled]="ventana == 'Informacion'" (click)="loadEmpleados()">Informacion</button>
+    <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Asistencias' }"
+        [disabled]="ventana == 'Asistencias'" (click)="loadAsistencias()">Asistencias</button>
+    <button class="btn" [ngClass]="{'btn-secondary': ventana == 'Desempeño' }"
+        [disabled]="ventana == 'Desempeño'" (click)="loadDesempeno()">Desempeño</button>
+
+    @if (ventana == "Desempeño") {
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="startDate">Fecha Inicio:</label>
+                <input id="startDate" type="date" [(ngModel)]="startDate" class="form-control" />
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="endDate">Fecha Fin:</label>
+                <input id="endDate" type="date" [(ngModel)]="endDate" class="form-control" />
+            </div>
+        </div>
+        <div class="col-12 text-end mt-2">
+            <button (click)="onFilterByDate()" class="btn btn-primary">Filtrar por Fechas</button>
+        </div>
+    </div>
+    }
     
     <table id="empleadosTable" class="table table-striped table-bordered">
         <thead class="thead-light">
@@ -39,48 +59,43 @@
 
     <div class="opciones">
         @if (ventana == "Informacion") {
-            <div class="row">
-                <div class="col-1">
-                    <div class="row">
-                        <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
-                    </div>
+        <div class="row">
+            <div class="col-1">
+                <div class="row">
+                    <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
                 </div>
-                <div class="col"></div>
-                <div class="col-2">
-                    <div class="row">
-                        <button class="btn btn-danger">Eliminar</button>
-                    </div>
+            </div>
+            <div class="col"></div>
+            <div class="col-2">
+                <div class="row">
+                    <button class="btn btn-danger">Eliminar</button>
                 </div>
-            </div> 
+            </div>
+        </div>
         }
         @if (ventana == "Asistencias") {
-            <div class="row">
-                <div class="col-1">
-                    <div class="row">
-                        <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
-                    </div>
+        <div class="row">
+            <div class="col-1">
+                <div class="row">
+                    <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
                 </div>
             </div>
+        </div>
         }
         @if (ventana == "Desempeño") {
-            <div class="row">
-                <div class="col-1">
-                    <div class="row">
-                        <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
-                    </div>
-                </div>
-                <div class="col"></div>
-                <div class="col-2">
-                    <div class="row">
-                        <button class="btn btn-primary">Modificar desempeño</button>
-                    </div>
-                </div>
-                <div class="col-2">
-                    <div class="row">
-                        <button class="btn btn-primary">Registrar observacion</button>
-                    </div>
+        <div class="row">
+            <div class="col-1">
+                <div class="row">
+                    <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
                 </div>
             </div>
+            <div class="col"></div>
+            <div class="col-2">
+                <div class="row">
+                    <button class="btn btn-primary" (click)="navigateToWakeUpCallForm()">Registrar observacion</button>
+                </div>
+            </div>
+        </div>
         }
     </div>
 </div>

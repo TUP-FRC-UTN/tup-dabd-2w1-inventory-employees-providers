@@ -178,6 +178,6 @@ export class FormLlamadoAtencionComponent implements OnInit{
   }
 
   navigateToPerformanceList(): void {
-    this.router.navigate(['/listado-desempeño']);
+    this.router.navigate(['/listado-empleados']);
   }
 }
