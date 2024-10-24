@@ -1,0 +1,95 @@
+<div class="container mt-4">
+    <!-- Tabla de cargos -->
+    <div class="card">
+      <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Listado de Cargos</h2>
+        <button class="btn btn-light" (click)="abrirModalNuevo()">
+          Nuevo Cargo
+        </button>
+      </div>
+      <div class="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Cargo</th>
+              <th>Descripción</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let cargo of cargos">
+              <td>{{cargo.charge}}</td>
+              <td>{{cargo.description}}</td>
+              <td>
+                <button class="btn btn-primary btn-sm me-2" (click)="abrirModalEditar(cargo)">
+                  Editar
+                </button>
+                <button class="btn btn-danger btn-sm" (click)="eliminarCargo(cargo.id)">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <!-- Modal para Nuevo/Editar Cargo -->
+    <div class="modal fade" id="cargoModal" tabindex="-1" aria-labelledby="cargoModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cargoModalLabel">
+              {{modoEdicion ? 'Modificar Cargo' : 'Nuevo Cargo'}}
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="cargoForm" (ngSubmit)="onSubmit()">
+              <div class="mb-3">
+                <label for="charge" class="form-label">Cargo</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="charge" 
+                       formControlName="charge" 
+                       placeholder="Ingrese el cargo">
+                <div *ngIf="cargoForm.get('charge')?.invalid && (cargoForm.get('charge')?.dirty || cargoForm.get('charge')?.touched)" 
+                     class="text-danger">
+                  <small *ngIf="cargoForm.get('charge')?.errors?.['required']">
+                    El cargo es requerido.
+                  </small>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="description" class="form-label">Descripción</label>
+                <textarea class="form-control" 
+                          id="description" 
+                          formControlName="description" 
+                          rows="3" 
+                          placeholder="Ingrese la descripción del cargo"></textarea>
+                <div *ngIf="cargoForm.get('description')?.invalid && (cargoForm.get('description')?.dirty || cargoForm.get('description')?.touched)" 
+                     class="text-danger">
+                  <small *ngIf="cargoForm.get('description')?.errors?.['required']">
+                    La descripción es requerida.
+                  </small>
+                  <small *ngIf="cargoForm.get('description')?.errors?.['maxlength']">
+                    La descripción no puede exceder los 500 caracteres.
+                  </small>
+                </div>
+              </div>
+              <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-danger" (click)="onCancel()">
+                  Cancelar
+                </button>
+                <button type="submit" 
+                        class="btn btn-primary" 
+                        [disabled]="cargoForm.invalid">
+                  {{modoEdicion ? 'Actualizar' : 'Crear'}}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

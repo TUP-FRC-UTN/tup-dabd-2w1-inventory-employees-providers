@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { IepCargoPutComponent } from './iep-cargo-put.component';
+import { IepCargosComponent } from './iep-cargos.component';
 
-describe('IepCargoPutComponent', () => {
-  let component: IepCargoPutComponent;
-  let fixture: ComponentFixture<IepCargoPutComponent>;
+describe('IepCargosComponent', () => {
+  let component: IepCargosComponent;
+  let fixture: ComponentFixture<IepCargosComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IepCargoPutComponent]
+      imports: [IepCargosComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(IepCargoPutComponent);
+    fixture = TestBed.createComponent(IepCargosComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

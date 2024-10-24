@@ -28,4 +28,8 @@ export class ChargeService {
   getAllCargos(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}`);
   }
+
+  deleteCargo(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
 }
