@@ -5,6 +5,8 @@ import { InventarioComponent } from './components/inventario/inventario.componen
 import { StockAumentoComponent } from './components/stock-aumento/stock-aumento.component';
 import { TablaComponent } from './components/tabla/tabla.component';
 import { ProductComponent } from './components/product/product.component';
+import { IepRegisterWarehouseComponent } from './components/iep-register-warehouse/iep-register-warehouse.component';
+import { FormLlamadoAtencionComponent } from './components/form-llamado-atencion/form-llamado-atencion.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -36,4 +38,14 @@ export const routes: Routes = [
         component: EmpListadoEmpleadosComponent,
         title: 'Listado de empleados'
     },
+    {
+        path: 'wake-up-call',
+        component: FormLlamadoAtencionComponent,
+        title: 'Llamada de atención'
+    },
+    {
+        path: 'warehouse-movements',
+        component: IepRegisterWarehouseComponent,
+        title: 'Movimientos de inventario'
+    }
 ];

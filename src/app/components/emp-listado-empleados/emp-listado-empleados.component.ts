@@ -1,12 +1,15 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { CommonModule } from '@angular/common';
-import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
 import { Router } from '@angular/router';
-import { DomSanitizer, SafeHtml, Title } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+
+import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
+import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
+import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
 import { EmpListadoAsistencias } from '../../models/emp-listado-asistencias';
-import { data } from 'jquery';
-import { EmpModificarAsistencia } from '../../models/emp-modificar-asistencia';
+import { EmployeePerformance } from '../../models/listado-desempeño';
 
 declare var $: any;
 declare var DataTable: any;
@@ -14,53 +17,87 @@ declare var DataTable: any;
 @Component({
   selector: 'app-emp-listado-empleados',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './emp-listado-empleados.component.html',
   styleUrls: ['./emp-listado-empleados.component.css'],
 })
 export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   Empleados: EmpListadoEmpleados[] = [];
   Asistencias: EmpListadoAsistencias[] = [];
-  private table: any; // Variable utilizada para cargar los datos en un DataTables
-  ventana: string = "Informacion";  // Campo utilizado para aclarar el tipo de datos a aclarar
-  AsistenciasModificadas: EmpModificarAsistencia[] = [];  // Listado para guardar los Ids de las asistencias a modificar
-  router = inject(Router);  // Variable router para poder moverse entre componentes
+  employeePerformances: EmployeePerformance[] = [];
+  private table: any;
+  ventana: string = "Informacion";
+  router = inject(Router);
   showModal = false;
   modalContent: SafeHtml = '';
+  startDate!: string;
+  endDate!: string;
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
+    private employeePerformanceService: ListadoDesempeñoService,
     private sanitizer: DomSanitizer
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadEmpleados();
+    this.initializeDates();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    if (this.table) {
+      this.table.destroy();
+    }
+  }
+
+  initializeDates(): void {
+    const today = new Date();
+    const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+    this.startDate = this.formatDate(firstDayOfLastMonth);
+    this.endDate = this.formatDate(lastDayOfLastMonth);
   }
 
   loadEmpleados(): void {
-    this.empleadoService.getEmployees().subscribe({
+    const empSubscription = this.empleadoService.getEmployees().subscribe({
       next: (empleados) => {
         this.Empleados = empleados;
         this.ventana = 'Informacion';
         this.initializeDataTable();
       },
-      error: (err) => {
-        console.error('Error al cargar empleados:', err);
-      },
+      error: (err) => console.error('Error al cargar empleados:', err),
     });
+    this.subscriptions.push(empSubscription);
   }
 
   loadAsistencias(): void {
-    this.empleadoService.getAttendances().subscribe({
+    const asistSubscription = this.empleadoService.getAttendances().subscribe({
       next: (asistencias) => {
         this.Asistencias = asistencias;
         this.ventana = 'Asistencias';
         this.initializeDataTable();
       },
-      error: (err) => {
-        console.error('Error al cargar asistencias:', err);
-      },
+      error: (err) => console.error('Error al cargar asistencias:', err),
     });
+    this.subscriptions.push(asistSubscription);
+  }
+
+  loadDesempeno(): void {
+    const start = new Date(this.startDate);
+    const end = new Date(this.endDate);
+    const desempenoSubscription = this.employeePerformanceService
+      .getEmployeesPerformanceByDateRange(start, end)
+      .subscribe({
+        next: (performances) => {
+          this.employeePerformances = performances;
+          this.ventana = 'Desempeño';
+          this.initializeDataTable();
+        },
+        error: (err) => console.error('Error al cargar desempeño:', err),
+      });
+    this.subscriptions.push(desempenoSubscription);
   }
 
   initializeDataTable(): void {
@@ -69,170 +106,163 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       $('#empleadosTable').empty();
     }
 
-    if (this.ventana == "Informacion"){
-      this.table = $('#empleadosTable').DataTable({
-        data: this.Empleados,
-        columns: [
-          { data: 'fullName', title: 'Apellido y Nombre' },
-          { data: 'document', title: 'Documento' },
-          { data: 'position', title: 'Posición' },
-          {
-            data: 'salary',
-            title: 'Salario',
-            className: 'text-end',
-            render: (data: number) => {
-              return new Intl.NumberFormat('en-US', { 
-                style: 'currency', 
-                currency: 'USD' 
-              }).format(data);
-            }
-          },
-          {
-            data: null,
-            title: 'Acciones',
-            render: (data: any) => {
-              return `
-                <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    Seleccionar
-                  </button>
-                  <ul class="dropdown-menu">
-                    <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Consultar</a></li>
-                    <li><a class="dropdown-item modificar-btn" data-empleado-id="${data.id}" href="#">Modificar</a></li>
-                  </ul>
-                </div>`;
-            }
-          }
-        ],
-        pageLength: 10,
-        lengthChange: false,
-        language: {
-          search: "Buscar:",
-          info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-          paginate: {
-            first: "Primero",
-            last: "Último",
-            next: "Siguiente",
-            previous: "Anterior"
-          },
+    const commonConfig = {
+      pageLength: 10,
+      lengthChange: false,
+      language: {
+        search: "Buscar:",
+        info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+        paginate: {
+          first: "Primero",
+          last: "Último",
+          next: "Siguiente",
+          previous: "Anterior"
         },
-      });
-  
-      $('#empleadosTable').on('click', '.consultar-btn', (event: { preventDefault: () => void; currentTarget: any; }) => {
-        event.preventDefault();
-        const empleadoId = $(event.currentTarget).data('empleado-id');
-        this.consultarEmpleado(empleadoId);
-      });
-    }
-    
-    if (this.ventana == "Asistencias"){
-      this.table = $('#empleadosTable').DataTable({
-        data: this.Asistencias,
-        columns: [
-          { data: 'employeeName', title: 'Apellido y nombre' },
-          { data: 'date', title: 'Fecha' },
-          { data: 'state', title: 'Estado', className: 'text-end', 
-            render: (data: any) =>{
-              let color;
-              
-              switch (data){
-                case "INDEFINIDO":
-                  color = "text-secondary";
-                  break;
-                case "PRESENTE": 
-                  color= "text-success";
-                  break;
-                case "AUSENTE":
-                  color= "text-danger";
-                  break;
-                case "JUSTIFICADO":
-                  color= "text-primary";
-                  break;
-                case "RETIRADO":
-                  color= "text-warning";
-                  break;     
-              }
-              return `<span class="${color}">${data}</span>`;
-            }
-          },
-          { data: 'arrivalTime', title: 'Hora de entrada', className: 'text-end'},
-          { data: 'departureTime', title: 'Hora de salida', className: 'text-end'},
-          { data: null,
-            title: 'Seleccionar',
-            className: 'text-center',
-            render: (data: any, type: any, row: any, meta: any) => {
-              const isHidden = row.state === "INDEFINIDO" ? 'style="display: none;"' : '';
-              const checkbox = `<input type="checkbox" class="form-check-input selection-checkbox" 
-                                data-id="${row.id}" data-state="${row.state}" ${isHidden} />`;
-              
-              const indicator = row.state === "INDEFINIDO" ? '<span class="text-muted">No seleccionable</span>' : checkbox;
-          
-              return indicator;
-            },
-          }
-        ],
-        pageLength: 10,
-        lengthChange: false,
-        language: {
-          search: "Buscar:",
-          info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-          paginate: {
-            first: "Primero",
-            last: "Último",
-            next: "Siguiente",
-            previous: "Anterior"
-          },
-        },
-      });
-  
-      $('#empleadosTable').on('change', '.selection-checkbox', (event: Event) => {
-        const checkbox = event.target as HTMLInputElement;
-        const selectedId = parseInt(checkbox.getAttribute('data-id') || '0', 10);
-        let selectedState = checkbox.getAttribute('data-state')?.toString() || '';
-       
-        if(checkbox.checked){
-          if (!this.AsistenciasModificadas.includes( { id: selectedId, state: selectedState })){ 
-            this.AsistenciasModificadas.push({ id: selectedId, state: selectedState }); 
-          }
-        }
-        else{
-          this.AsistenciasModificadas = this.AsistenciasModificadas.filter(existe => existe.id !== selectedId) 
-        }
-      });
+        zeroRecords: "No se encontraron registros",
+        emptyTable: "No hay datos disponibles",
+      }
+    };
+
+    switch (this.ventana) {
+      case 'Informacion':
+        this.initializeInformacionTable(commonConfig);
+        break;
+      case 'Asistencias':
+        this.initializeAsistenciasTable(commonConfig);
+        break;
+      case 'Desempeño':
+        this.initializeDesempenoTable(commonConfig);
+        break;
     }
   }
 
-  modificadas(){
-    this.AsistenciasModificadas.forEach( asistencias => {
-      let NuevoEstado = ""
-      
-      if (asistencias.state === "PRESENTE") {NuevoEstado = "RETIRADO"}
-      if (asistencias.state === "RETIRADO") {NuevoEstado = "PRESENTE"}
-      if (asistencias.state === "AUSENTE") {NuevoEstado = "JUSTIFICADO"}
-      if (asistencias.state === "JUSTIFICADO") {NuevoEstado = "AUSENTE"}
-
-      this.empleadoService.putAttendances(asistencias.id, NuevoEstado).subscribe({
-        next: () => console.log(`Asistencia ${asistencias.id} actualizada a ${NuevoEstado}`),
-        error: () => console.error(`Error actualizando asistencia ${asistencias.id}:`)
-      });
-
+  private initializeInformacionTable(commonConfig: any): void {
+    this.table = $('#empleadosTable').DataTable({
+      ...commonConfig,
+      layout: {
+        topStart: 'search',
+        topEnd: null
+      },
+      data: this.Empleados,
+      columns: [
+        { data: 'fullName', title: 'Apellido y Nombre' },
+        { data: 'document', title: 'Documento' },
+        { data: 'position', title: 'Posición' },
+        {
+          data: 'salary',
+          title: 'Salario',
+          className: 'text-end',
+          render: (data: number) => {
+            return new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'USD'
+            }).format(data);
+          }
+        },
+        {
+          data: null,
+          title: 'Acciones',
+          render: (data: any) => {
+            return `
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  Acciones
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
+                  <li><a class="dropdown-item modificar-btn" data-empleado-id="${data.id}" href="#">Modificar</a></li>
+                </ul>
+              </div>`;
+          }
+        }
+      ]
     });
 
-    this.AsistenciasModificadas = [];
-    this.loadAsistencias();
+    $('#empleadosTable').on('click', '.consultar-btn', (event: any) => {
+      event.preventDefault();
+      const empleadoId = $(event.currentTarget).data('empleado-id');
+      this.consultarEmpleado(empleadoId);
+    });
+  }
+
+  private initializeAsistenciasTable(commonConfig: any): void {
+    this.table = $('#empleadosTable').DataTable({
+      layout: {
+        topStart: 'search',
+        topEnd: null
+      },
+      ...commonConfig,
+      data: this.Asistencias,
+      columns: [
+        { data: 'employeeName', title: 'Apellido y nombre' },
+        { data: 'date', title: 'Fecha' },
+        { data: 'state', title: 'Estado' },
+        { data: 'arrivalTime', title: 'Hora de entrada' },
+        { data: 'departureTime', title: 'Hora de salida' }
+      ]
+    });
+  }
+
+  private initializeDesempenoTable(commonConfig: any): void {
+    this.table = $('#empleadosTable').DataTable({
+      layout: {
+        topStart: 'search',
+        topEnd: null
+      },
+      ...commonConfig,
+      data: this.employeePerformances,
+      columns: [
+        {
+          data: 'performance',
+          title: 'Fecha Inicio',
+          render: (data: any[]) => {
+            return data.length > 0 ? new Date(data[0].startDate).toLocaleDateString() : 'No hay fechas';
+          }
+        },
+        {
+          data: 'performance',
+          title: 'Fecha Fin',
+          render: (data: any[]) => {
+            return data.length > 0 ? new Date(data[0].endDate).toLocaleDateString() : 'No hay fechas';
+          }
+        },
+        { data: 'employee.fullName', title: 'Nombre' },
+        { data: 'employee.position', title: 'Cargo' },
+        {
+          data: 'performance',
+          title: 'Desempeño',
+          render: (data: any[]) => {
+            return data.length > 0 ? data[0].performanceType : 'No hay datos';
+          }
+        },
+        {
+          data: 'performance',
+          title: 'Observaciones',
+          render: (data: any[]) => {
+            const filteredData = data.filter(item => {
+              const itemDate = new Date(item.startDate);
+              const startDate = new Date(this.startDate);
+              const endDate = new Date(this.endDate);
+              return itemDate >= startDate && itemDate <= endDate;
+            });
+            return filteredData.length > 0 ? filteredData.length : 'No hay observaciones';
+          }
+        }
+      ]
+    });
   }
 
   consultarEmpleado(id: number): void {
-    this.empleadoService.getEmployeeById(id).subscribe({
+    const empByIdSubscription = this.empleadoService.getEmployeeById(id).subscribe({
       next: (empleado) => {
-        const fechaContrato = new Date(empleado.contractStartTime[0], 
-                                     empleado.contractStartTime[1] - 1, 
-                                     empleado.contractStartTime[2])
-                                     .toLocaleDateString();
-                                     
+        const fechaContrato = new Date(empleado.contractStartTime[0],
+          empleado.contractStartTime[1] - 1,
+          empleado.contractStartTime[2])
+          .toLocaleDateString();
+
         const horaInicio = `${empleado.startTime[0]}:${empleado.startTime[1].toString().padStart(2, '0')}`;
         const horaFin = `${empleado.endTime[0]}:${empleado.endTime[1].toString().padStart(2, '0')}`;
-        
+
         const content = `
           <div class="container">
             <div class="row mb-3">
@@ -278,7 +308,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
             </div>
           </div>
         `;
-  
+
         this.modalContent = this.sanitizer.bypassSecurityTrustHtml(content);
         this.showModal = true;
       },
@@ -286,42 +316,84 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         console.error('Error al obtener los datos del empleado:', error);
       }
     });
+    this.subscriptions.push(empByIdSubscription);
+  }
+
+  onStartDateChange(): void {
+    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
+
+    // Establecer límites de fechas
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0];
+    endDateInput.max = formattedToday;
+
+    if (startDateInput.value) {
+      endDateInput.min = startDateInput.value;
+    } else {
+      endDateInput.min = '';
+    }
+
+    this.filterByDate();
+  }
+
+  onEndDateChange(): void {
+    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
+
+    if (endDateInput.value) {
+      startDateInput.max = endDateInput.value;
+    } else {
+      startDateInput.max = '';
+    }
+
+    this.filterByDate();
+  }
+
+  filterByDate(): void {
+    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
+
+    const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+    const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+
+    if (startDate && endDate && startDate > endDate) {
+      alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
+      startDateInput.value = '';
+      endDateInput.value = '';
+      return;
+    }
+
+    // Si estamos en la ventana de Desempeño y tenemos ambas fechas, actualizamos la tabla
+    if (this.ventana === 'Desempeño' && startDate && endDate) {
+      this.startDate = startDateInput.value;
+      this.endDate = endDateInput.value;
+      this.loadDesempeno();
+    }
+  }
+
+  onFilterByDate(): void {
+    if (this.ventana === 'Desempeño') {
+      this.loadDesempeno();
+    }
+  }
+
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   closeModal(): void {
     this.showModal = false;
   }
 
-  ngOnDestroy(): void {
-    if (this.table) {
-      this.table.destroy();
-    }
-  }
-
   irMenu(): void {
     this.router.navigate(['']);
   }
+
+  navigateToWakeUpCallForm(): void {
+    this.router.navigate(['/wake-up-call']);
+  }
 }
-
-
-  // METODO DUDOSO A IMPLEMENTAR: Solo permitir modificar asistencias de un solo tipo a la vez
-  
-  // habilitarCheckbox(){
-  //   const checkboxes = $('.selection-checkbox');
-  //     
-  //   checkboxes.each((index: number, element: HTMLInputElement) => {
-  //     const checkboxState = $(element).data('state');
-  //     if (this.modificacionActual !== ""){
-  //       // Aquí puedes establecer la lógica de habilitación/deshabilitación
-  //       if (this.modificacionActual === checkboxState) {
-  //         $(element).prop('disabled', false).css('visibility', 'visible');
-  //       } else {
-  //         $(element).prop('disabled', true).css('visibility', 'visible');
-  //       }
-  //     }
-  //   });
-  // }
-  // 
-  // this.table.on('page.dt', () => {
-  //   this.habilitarCheckbox();
-  // });

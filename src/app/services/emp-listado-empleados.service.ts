@@ -21,7 +21,7 @@ export class EmpListadoEmpleadosService {
   // Método para obtener los empleados.
   getEmployees(): Observable<EmpListadoEmpleados[]> {
     return this.http.get<EmpListadoEmpleados[]>(
-      `${this.BASE_URL}/employees/allEmployees`
+      `${this.BASE_URL}/employees/allActiveEmployees`
     );
   }
 

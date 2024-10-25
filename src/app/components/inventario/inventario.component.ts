@@ -10,6 +10,7 @@ import { DetailServiceService } from '../../services/detail-service.service';
 import { StockAumentoService } from '../../services/stock-aumento.service';
 import { DtoProducto } from '../../models/dto-producto';
 import { ProductCategory } from '../../models/product-category';
+import * as XLSX from 'xlsx';
 
 import $ from 'jquery';
 import 'datatables.net';
@@ -18,11 +19,13 @@ import 'datatables.net-bs5';
 import { ProductXDetailDto } from '../../models/product-xdetail-dto';
 import DataTable from 'datatables.net-dt';
 import { Details } from '../../models/details';
+import { ProductComponent } from "../product/product.component";
+import jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-inventario',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, ProductComponent],
   templateUrl: './inventario.component.html',
   styleUrl: './inventario.component.css'
 })
@@ -33,6 +36,7 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
   private detalleProductoService = inject(DetailServiceService)
   private stockAumentoService = inject(StockAumentoService)
   private router = inject(Router)
+  modalVisible: boolean = false;
 
   categorias$: Observable<ProductCategory[]> = new Observable<ProductCategory[]>();
   estados$: Observable<String[]> = new Observable<String[]>();
@@ -78,6 +82,14 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
   mensajeValidacionMax: string = "";
 
   valAmount:boolean = false;
+
+  abrirModal() {
+    this.modalVisible = true; // Muestra el modal
+  }
+
+  cerrarModal() {
+    this.modalVisible = false; // Oculta el modal
+  }
 
   ngOnInit(): void {
     this.initializeDataTable();
@@ -201,7 +213,8 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
       data: this.productosFiltered,
       columns: [
         {
-          data:'detailProducts', title: 'Fecha de último ingreso',
+          data: 'detailProducts',
+          title: 'Último ingreso',  // Título más corto
           render: (data: any) => {
             let lastDate;
             for (let i = 0; i < data.length; i++) {
@@ -212,37 +225,36 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
                 }
               }
             }
-            if(lastDate){
-              return this.formatDate(lastDate);
-            }else{
-              return "";
-            }
+            return lastDate ? this.formatDate(lastDate) : "";
           },
-
         },
-        { data: 'name', title: 'Nombre' },
-        { data: 'category', title: 'Categoria',
+        { data: 'name', title: 'Nombre' },  // Mantiene el título corto
+        {
+          data: 'category',
+          title: 'Categoría',
           render: (data: any) => {
             return data.categoryName;
           }
-         },
+        },
         { 
           data: 'reusable', 
-          title: 'Reusable',
+          title: 'Reutilizable', 
           render: (data: boolean) => data ? 'SI' : 'NO'
         },
-        { data: 'detailProducts', title: 'Cantidad de items',
+        { 
+          data: 'detailProducts', 
+          title: 'Cantidad', 
           render: (data: any) => {
             return data.length;
           }
-         },
-         {
-          data: 'minQuantityWarning', title: 'Cantidad mínima para alerta'
-         },
-         
+        },
+        { 
+          data: 'minQuantityWarning', 
+          title: 'Min. Alerta' 
+        },
         {
           data: null,
-          title: 'Acciones',
+          title: 'Acciones',  
           render: (data: any, type: any, row: any) => {
             return `
               <div class="dropdown">
@@ -250,9 +262,8 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
                   Acciones
                 </a>
                 <ul class="dropdown-menu">
-                  <li><button class="dropdown-item btn botonDetalleCrear"
-                  data-id="${row.id}">Agregar</button></li>
-                  <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Consultar</button></li>
+                  <li><button class="dropdown-item btn botonDetalleCrear" data-id="${row.id}">Agregar</button></li>
+                  <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
                 </ul>
               </div>
             `;
@@ -263,12 +274,13 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
       lengthChange: false,
       searching: false,
       ordering: true,
-      order:[[0, 'desc']],
+      order: [[0, 'desc']],
       autoWidth: false,  // Desactivar el ajuste automático de ancho
       
       language: {
         search: "",
         info: "",
+        emptyTable: 'No se encontraron registros', // Mensaje personalizado si no hay datos   
         paginate: {
           first: "Primero",
           last: "Último",
@@ -281,25 +293,22 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
           this.nombre = $(event.currentTarget).val() as string;
           if (this.table.search() !== this.nombre) {
             this.table.search(this.nombre).draw();
-        }
-        });  
+          }
+        });
       }
     });
-
-    
-
+  
     $('#productsList').on('click', '.botonDetalleCrear', (event) => {
       const id = $(event.currentTarget).data('id');
       this.irAgregarDetalles(id);
     });
-
+  
     $('#productsList').on('click', '.botonDetalleConsultar', (event) => {
       const id = $(event.currentTarget).data('id');
       this.irDetalles(id);
     });
-
-  
   }
+  
 
   /* METODO PARA PASAR DE FECHAS "2024-10-17" A FORMATO dd/mm/yyyy*/ 
   formatDate(inputDate: string): string {
@@ -322,30 +331,65 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     this.aplicarFiltros();
   }
 
-
-
-
+  
   generarPdf(): void {
-    this.productoService.getProductosPdf().subscribe((pdfArrayBuffer) => {
-      const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'productos_inventario.pdf';
-      a.click();
-      window.URL.revokeObjectURL(url);
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Lista de Productos', 10, 10);
+  
+    // Reordenamos los datos según el orden de columnas en la tabla HTML
+    const dataToExport = this.productosFiltered.map((producto) => [
+      producto.detailProducts ? this.getLastIngreso(producto.detailProducts) : "",  // Último ingreso
+      producto.name,                                                               // Nombre
+      producto.category ? producto.category.categoryName : "",                     // Categoría
+      producto.reusable ? "SI" : "NO",                                             // Reutilizable
+      producto.detailProducts ? producto.detailProducts.length : 0,                // Cantidad
+      producto.minQuantityWarning || "",                                           // Min. Alerta
+    ]);
+  
+    // Orden de encabezados de columnas según la tabla HTML
+    (doc as any).autoTable({
+      head: [['Último ingreso', 'Nombre', 'Categoría', 'Reutilizable', 'Cantidad', 'Min. Alerta']],
+      body: dataToExport,
+      startY: 20,
     });
+  
+    // Guardar archivo PDF
+    doc.save('Lista_Productos.pdf');
   }
+  
+  // Método auxiliar para obtener la última fecha de ingreso
+  getLastIngreso(detailProducts: any[]): string {
+    let lastDate = "";
+    for (let i = 0; i < detailProducts.length; i++) {
+      if (detailProducts[i].lastUpdatedDatetime) {
+        if (!lastDate || detailProducts[i].lastUpdatedDatetime > lastDate) {
+          lastDate = detailProducts[i].lastUpdatedDatetime;
+        }
+      }
+    }
+    return lastDate ? this.formatDate(lastDate) : "";
+  }
+  
 
-  generarExcel() : void{
-    //window.open(this.detailService.urlExcel, '_blank');
-
-    const enlace = document.createElement('a');
-    enlace.href = this.productoService.productExcelPdf; // URL del archivo
-    enlace.download = ''; // Esto sugiere al navegador que debe descargar el archivo
-    document.body.appendChild(enlace); // Necesario para algunos navegadores
-    enlace.click(); // Simula el clic en el enlace
-    document.body.removeChild(enlace); // Limpieza
+  generarExcel(): void {
+    // Reordenamos los datos según el orden de columnas en la tabla HTML
+    const dataToExport = this.productosFiltered.map((producto) => ({
+      'Último ingreso': producto.detailProducts ? this.getLastIngreso(producto.detailProducts) : "",
+      'Nombre': producto.name,
+      'Categoría': producto.category ? producto.category.categoryName : "",
+      'Reutilizable': producto.reusable ? "SI" : "NO",
+      'Cantidad': producto.detailProducts ? producto.detailProducts.length : 0,
+      'Min. Alerta': producto.minQuantityWarning || "",
+    }));
+  
+    // Crear hoja y libro de Excel
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Productos');
+  
+    // Guardar archivo Excel
+    XLSX.writeFile(workbook, 'Lista_Productos.xlsx');
   }
 
   irMenu(){
@@ -363,7 +407,8 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   irAgregarProducto(){
-    this.router.navigate(["registro-productos"])
+    this.modalVisible = true; // Muestra el modal
+    //this.router.navigate(["registro-productos"])
   }
 
 
