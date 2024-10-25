@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,6 +7,8 @@ import { EmpPostEmployeeService } from '../../services/emp-post-employee.service
 import { Provincia } from '../../models/emp-provincia';
 import { Charge } from '../../models/emp-post-employee-dto';
 import { EmpPutEmployees } from '../../models/emp-put-employees';
+
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-emp-put-employees',
@@ -63,11 +65,16 @@ export class EmpPutEmployeesComponent implements OnInit {
 
   private employeeId: number = 0;
 
+  @ViewChild('confirmModal') confirmModal?: ElementRef;
+  @ViewChild('errorModal') errorModal?: ElementRef;
+  modalMessage: string = '';
+  modalTitle: string = '';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private empleadoService: EmpListadoEmpleadosService,
-    private postEmployeeService: EmpPostEmployeeService
+    private postEmployeeService: EmpPostEmployeeService,
   ) {}
 
   ngOnInit(): void {
@@ -189,6 +196,17 @@ export class EmpPutEmployeesComponent implements OnInit {
     }
     return time;
   }
+  showModal(type: 'confirm' | 'error', message: string): void {
+    this.modalMessage = message;
+    this.modalTitle = type === 'confirm' ? 'Confirmación' : 'Error';
+    
+    const modalElement = type === 'confirm' ? 
+      this.confirmModal?.nativeElement : 
+      this.errorModal?.nativeElement;
+    
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+  }
 
   onSubmit(form: any): void {
     if (form.valid) {
@@ -229,17 +247,25 @@ export class EmpPutEmployeesComponent implements OnInit {
 
       this.postEmployeeService.updateEmployee(employeeData).subscribe({
         next: (response) => {
-          console.log('Empleado actualizado exitosamente', response);
-          this.router.navigate(['/empleados/listado']);
+          this.showModal('confirm', 'Empleado actualizado exitosamente');
+          // Esperar a que el usuario cierre el modal antes de navegar
+          const modalElement = this.confirmModal?.nativeElement;
+          modalElement.addEventListener('hidden.bs.modal', () => {
+            this.router.navigate(['/empleados/listado']);
+          });
         },
+
         error: (error) => {
           console.error('Error al actualizar el empleado:', error);
+          this.showModal('error', 'Error al actualizar el empleado. Por favor, intente nuevamente.');
         }
       });
     }
   }
 
+  
   cancelar(): void {
     this.router.navigate(['/empleados/listado']);
   }
+ 
 }
