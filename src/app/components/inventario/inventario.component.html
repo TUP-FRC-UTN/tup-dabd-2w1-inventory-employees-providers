@@ -154,18 +154,44 @@
             </div>
             <!-- Contenido del modal -->
             <div class="modal-body">
-              En el inventario, puedes ver la información de todos los productos
-              ...
+              Esta página de inventario te permite realizar las siguientes acciones:
+
+              <ul>
+                <li><strong>Visualizar el inventario completo:</strong> Observa el listado de todos los productos
+                  almacenados en el inventario, incluyendo detalles como su disponibilidad, estado y categoría.</li>
+
+                <li><strong>Filtrar productos:</strong> Usa los filtros para afinar la búsqueda según:
+                  <ul>
+                    <li>Si el producto es <em>Reusable</em> (Sí o No).</li>
+                    <li>La <em>Categoría</em> del producto.</li>
+                    <li><em>Cantidad mínima</em> y <em>máxima</em>, para definir el rango de cantidades.</li>
+                    <li><em>Nombre</em> del producto.</li>
+                  </ul>
+                  Además, puedes limpiar los filtros seleccionados con el botón de "Limpiar filtros".
+                </li>
+
+                <li><strong>Estado de productos por categoría:</strong> Visualiza un resumen del estado actual de los
+                  productos (disponibles, en uso o en mantenimiento) por categoría, en la tabla de estado de productos.
+                </li>
+
+                <li><strong>Exportar datos:</strong> Genera y descarga informes en formato PDF o Excel para el listado
+                  de productos.</li>
+
+                <li><strong>Añadir nuevos productos:</strong> Usa el botón "Nuevo" para abrir el formulario de agregar
+                  producto y registrar un nuevo artículo en el inventario.</li>
+
+                <li><strong>Volver al menú principal:</strong> Usa el botón "Volver" para regresar a la página de inicio
+                  o menú principal.</li>
+              </ul>
             </div>
             <!-- Pie del modal con botón para cerrar -->
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                Cerrar
-              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
           </div>
         </div>
       </div>
+
 
       <!-- Filtros de búsqueda: Reusable, Categoría, Cantidad, Nombre -->
       <div class="row m-3" style="width: 100%">
@@ -301,7 +327,8 @@
 </body>
 
 <!-- Modal para agregar un nuevo producto -->
-<div *ngIf="modalVisible" class="modal fade show" tabindex="-1" aria-labelledby="nuevoProductoModalLabel" aria-hidden="true" style="display: block;">
+<div *ngIf="modalVisible" class="modal fade show" tabindex="-1" aria-labelledby="nuevoProductoModalLabel"
+  aria-hidden="true" style="display: block;">
   <div class="modal-dialog modal-lg" style="max-width: 75%;">
     <div class="modal-content">
       <div class="modal-header">
@@ -322,4 +349,3 @@
 </div>
 
 <div *ngIf="modalVisible" class="modal-backdrop fade show"></div>
-

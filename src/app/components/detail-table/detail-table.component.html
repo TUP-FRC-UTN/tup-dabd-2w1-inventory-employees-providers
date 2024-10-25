@@ -1,6 +1,6 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-start">Listado y Eliminación de Productos</h2>
+    <h2 class="text-start">Gestión de Productos</h2>
     <button class="btn btn-primary info-button d-flex justify-content-center align-items-center" data-bs-toggle="modal"
       data-bs-target="#infoModal" style="background-color: rgb(0, 68, 255); 
            width: 40px; 
@@ -17,39 +17,48 @@
     </button>
   </div>
 
-<!-- Modal de Información -->
-<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="infoModalLabel">
-          Información sobre la Página
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>
-          En esta página, puedes gestionar el listado de productos disponibles en el sistema. A continuación, se detallan las funciones que puedes realizar:
-        </p>
-        <ul>
-          <li><strong>Filtrar productos:</strong> Utiliza las opciones de filtrado para encontrar productos específicos en la lista.</li>
-          <li><strong>Seleccionar productos:</strong> Marca los productos que deseas eliminar utilizando las casillas de verificación situadas a la derecha de cada fila.</li>
-          <li><strong>Justificativo de eliminación:</strong> Antes de confirmar la eliminación de productos, deberás proporcionar un justificativo en el campo correspondiente.</li>
-          <li><strong>Navegación entre páginas:</strong> Utiliza los botones de navegación para desplazarte por las diferentes páginas de productos si hay una gran cantidad de ellos.</li>
-          <li><strong>Exportar datos:</strong> Puedes exportar la lista de productos a formatos PDF y Excel utilizando los botones correspondientes en la parte superior de la lista.</li>
-        </ul>
-        <p>
-          Asegúrate de proporcionar un justificativo antes de confirmar la eliminación de productos seleccionados. Esta acción no se puede deshacer.
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Cerrar
-        </button>
+  <!-- Modal de Información -->
+  <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="infoModalLabel">
+            Información sobre la Página
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>
+            En esta página, puedes gestionar el listado de productos disponibles en el sistema. A continuación, se
+            detallan las funciones que puedes realizar:
+          </p>
+          <ul>
+            <li><strong>Filtrar productos:</strong> Utiliza las opciones de filtrado para buscar productos específicos
+              en la lista. Puedes filtrar por diferentes criterios, como el nombre del proveedor, el estado y el rango
+              de precios.</li>
+            <li><strong>Seleccionar productos:</strong> Marca los productos que deseas eliminar utilizando las casillas
+              de verificación situadas a la derecha de cada fila.</li>
+            <li><strong>Justificativo de eliminación:</strong> Antes de confirmar la eliminación de productos, deberás
+              proporcionar un justificativo en el campo correspondiente.</li>
+            <li><strong>Navegación entre páginas:</strong> Utiliza los botones de navegación para desplazarte por las
+              diferentes páginas de productos si hay una gran cantidad de ellos.</li>
+            <li><strong>Exportar datos:</strong> Puedes exportar la lista de productos a formatos PDF y Excel utilizando
+              los botones correspondientes en la parte superior de la lista.</li>
+          </ul>
+          <p>
+            Asegúrate de proporcionar un justificativo antes de confirmar la eliminación de productos seleccionados.
+            Esta acción no se puede deshacer.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cerrar
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
 
 
   <!-- Modal de Confirmación de Eliminación con Justificativo -->
@@ -84,17 +93,17 @@
     </div>
   </div>
 
-<!-- Sección: Botones de Exportación -->
-<div class="d-flex mb-3 justify-content-end align-items-center">
-  <input type="checkbox" id="selectAll" (change)="toggleSelectAll($event)" class="form-check-input me-2" />
-  <label for="selectAll" class="me-3">Seleccionar Todo</label>
-  <button class="btn btn-danger me-2" (click)="generatePDF()">
-    <i class="bi bi-file-earmark-pdf"></i>
-  </button>
-  <button class="btn btn-success" (click)="generateExcel()">
-    <i class="bi bi-file-earmark-excel"></i>
-  </button>
-</div>
+  <!-- Sección: Botones de Exportación -->
+  <div class="d-flex mb-3 justify-content-end align-items-center">
+    <input type="checkbox" id="selectAll" (change)="toggleSelectAll($event)" class="form-check-input me-2" />
+    <label for="selectAll" class="me-3">Seleccionar Todo</label>
+    <button class="btn btn-danger me-2" (click)="generatePDF()">
+      <i class="bi bi-file-earmark-pdf"></i>
+    </button>
+    <button class="btn btn-success" (click)="generateExcel()">
+      <i class="bi bi-file-earmark-excel"></i>
+    </button>
+  </div>
 
 
 
@@ -125,8 +134,8 @@
   </div>
 
   <!-- Sección: Botones de Acción -->
-  <div class="d-flex justify-content-between">
-    <button class="btn btn-secondary" (click)="volverInventario()">
+  <div class="d-flex justify-content-end">
+    <button class="btn btn-secondary me-2" (click)="volverInventario()">
       Volver
     </button>
 
@@ -134,3 +143,6 @@
       [disabled]="selectedIds.length === 0">
       Eliminar seleccionados
     </button>
+  </div>
+
+</div>

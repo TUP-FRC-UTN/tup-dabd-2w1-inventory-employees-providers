@@ -1,15 +1,15 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { CommonModule } from '@angular/common';
-import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { EmpListadoAsistencias } from '../../models/emp-listado-asistencias';
-import { EmployeePerformance } from '../../models/listado-desempeño';
-import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
-import { data } from 'jquery';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+
+import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
+import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
+import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
+import { EmpListadoAsistencias } from '../../models/emp-listado-asistencias';
+import { EmployeePerformance } from '../../models/listado-desempeño';
 
 declare var $: any;
 declare var DataTable: any;
@@ -38,11 +38,18 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     private empleadoService: EmpListadoEmpleadosService,
     private employeePerformanceService: ListadoDesempeñoService,
     private sanitizer: DomSanitizer
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadEmpleados();
     this.initializeDates();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    if (this.table) {
+      this.table.destroy();
+    }
   }
 
   initializeDates(): void {
@@ -132,6 +139,10 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   private initializeInformacionTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
       ...commonConfig,
+      layout: {
+        topStart: 'search',
+        topEnd: null
+      },
       data: this.Empleados,
       columns: [
         { data: 'fullName', title: 'Apellido y Nombre' },
@@ -142,9 +153,9 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
           title: 'Salario',
           className: 'text-end',
           render: (data: number) => {
-            return new Intl.NumberFormat('en-US', { 
-              style: 'currency', 
-              currency: 'USD' 
+            return new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'USD'
             }).format(data);
           }
         },
@@ -155,10 +166,10 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
             return `
               <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  Seleccionar
+                  Acciones
                 </button>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Consultar</a></li>
+                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
                   <li><a class="dropdown-item modificar-btn" data-empleado-id="${data.id}" href="#">Modificar</a></li>
                 </ul>
               </div>`;
@@ -176,31 +187,39 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
   private initializeAsistenciasTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
+      layout: {
+        topStart: 'search',
+        topEnd: null
+      },
       ...commonConfig,
       data: this.Asistencias,
       columns: [
         { data: 'employeeName', title: 'Apellido y nombre' },
         { data: 'date', title: 'Fecha' },
         { data: 'state', title: 'Estado' },
-        { data: 'arrivalTime', title: 'Hora de entrada'},
-        { data: 'departureTime', title: 'Hora de salida'}
+        { data: 'arrivalTime', title: 'Hora de entrada' },
+        { data: 'departureTime', title: 'Hora de salida' }
       ]
     });
   }
 
   private initializeDesempenoTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
+      layout: {
+        topStart: 'search',
+        topEnd: null
+      },
       ...commonConfig,
       data: this.employeePerformances,
       columns: [
-        { 
+        {
           data: 'performance',
           title: 'Fecha Inicio',
           render: (data: any[]) => {
             return data.length > 0 ? new Date(data[0].startDate).toLocaleDateString() : 'No hay fechas';
           }
         },
-        { 
+        {
           data: 'performance',
           title: 'Fecha Fin',
           render: (data: any[]) => {
@@ -209,18 +228,24 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         },
         { data: 'employee.fullName', title: 'Nombre' },
         { data: 'employee.position', title: 'Cargo' },
-        { 
+        {
           data: 'performance',
           title: 'Desempeño',
           render: (data: any[]) => {
             return data.length > 0 ? data[0].performanceType : 'No hay datos';
           }
         },
-        { 
+        {
           data: 'performance',
           title: 'Observaciones',
           render: (data: any[]) => {
-            return data.length > 0 ? data.length : 'No hay observaciones';
+            const filteredData = data.filter(item => {
+              const itemDate = new Date(item.startDate);
+              const startDate = new Date(this.startDate);
+              const endDate = new Date(this.endDate);
+              return itemDate >= startDate && itemDate <= endDate;
+            });
+            return filteredData.length > 0 ? filteredData.length : 'No hay observaciones';
           }
         }
       ]
@@ -230,14 +255,14 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   consultarEmpleado(id: number): void {
     const empByIdSubscription = this.empleadoService.getEmployeeById(id).subscribe({
       next: (empleado) => {
-        const fechaContrato = new Date(empleado.contractStartTime[0], 
-                                     empleado.contractStartTime[1] - 1, 
-                                     empleado.contractStartTime[2])
-                                     .toLocaleDateString();
-                                     
+        const fechaContrato = new Date(empleado.contractStartTime[0],
+          empleado.contractStartTime[1] - 1,
+          empleado.contractStartTime[2])
+          .toLocaleDateString();
+
         const horaInicio = `${empleado.startTime[0]}:${empleado.startTime[1].toString().padStart(2, '0')}`;
         const horaFin = `${empleado.endTime[0]}:${empleado.endTime[1].toString().padStart(2, '0')}`;
-        
+
         const content = `
           <div class="container">
             <div class="row mb-3">
@@ -283,7 +308,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
             </div>
           </div>
         `;
-  
+
         this.modalContent = this.sanitizer.bypassSecurityTrustHtml(content);
         this.showModal = true;
       },
@@ -292,6 +317,59 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.push(empByIdSubscription);
+  }
+
+  onStartDateChange(): void {
+    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
+  
+    // Establecer límites de fechas
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0];
+    endDateInput.max = formattedToday;
+  
+    if (startDateInput.value) {
+      endDateInput.min = startDateInput.value;
+    } else {
+      endDateInput.min = '';
+    }
+  
+    this.filterByDate();
+  }
+  
+  onEndDateChange(): void {
+    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
+  
+    if (endDateInput.value) {
+      startDateInput.max = endDateInput.value;
+    } else {
+      startDateInput.max = '';
+    }
+  
+    this.filterByDate();
+  }
+
+  filterByDate(): void {
+    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
+  
+    const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+    const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+  
+    if (startDate && endDate && startDate > endDate) {
+      alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
+      startDateInput.value = '';
+      endDateInput.value = '';
+      return;
+    }
+  
+    // Si estamos en la ventana de Desempeño y tenemos ambas fechas, actualizamos la tabla
+    if (this.ventana === 'Desempeño' && startDate && endDate) {
+      this.startDate = startDateInput.value;
+      this.endDate = endDateInput.value;
+      this.loadDesempeno();
+    }
   }
 
   onFilterByDate(): void {
@@ -309,13 +387,6 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
   closeModal(): void {
     this.showModal = false;
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
-    if (this.table) {
-      this.table.destroy();
-    }
   }
 
   irMenu(): void {

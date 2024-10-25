@@ -25,7 +25,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   selectedIds: number[] = [];
   private deleteModal: any;
 
-  constructor(private detailService: DetailServiceService) {}
+  constructor(private detailService: DetailServiceService) { }
 
   ngOnInit(): void {
     this.loadDetails();
@@ -62,7 +62,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
       layout: {
         topStart: 'search',
         topEnd: null
-    },
+      },
       data: this.details,
       columns: [
         { data: 'description', title: 'Descripción' },
@@ -94,7 +94,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
       pageLength: 10,
       lengthChange: false,
       language: {
-        
+
         search: 'Buscar:',
         info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
         emptyTable: 'No se encontraron registros', // Mensaje personalizado si no hay datos   
@@ -230,51 +230,51 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     // Implementa la lógica para volver al inventario
   }
 
-// Método para exportar a Excel
-generateExcel(): void {
-  const dataToExport = this.details.map(detail => ({
-    Descripción: detail.description,
-    'Nombre del Proveedor': detail.supplierName,
-    Estado: detail.state,
-    Precio: new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(detail.price),
-  }));
+  // Método para exportar a Excel
+  generateExcel(): void {
+    const dataToExport = this.details.map(detail => ({
+      Descripción: detail.description,
+      'Nombre del Proveedor': detail.supplierName,
+      Estado: detail.state,
+      Precio: new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(detail.price),
+    }));
 
-  // Crear un libro de Excel
-  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Detalles de Productos');
+    // Crear un libro de Excel
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Detalles de Productos');
 
-  // Guardar el archivo
-  XLSX.writeFile(workbook, 'Listado_Productos.xlsx');
-}
+    // Guardar el archivo
+    XLSX.writeFile(workbook, 'Listado_Productos.xlsx');
+  }
 
-// Método para exportar a PDF
-generatePDF(): void {
-  const doc = new jsPDF();
-  doc.setFontSize(16);
-  doc.text('Listado de Productos', 10, 10);
+  // Método para exportar a PDF
+  generatePDF(): void {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Listado de Productos', 10, 10);
 
-  const dataToExport = this.details.map(detail => [
-    detail.description,
-    detail.supplierName,
-    detail.state,
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(detail.price),
-  ]);
+    const dataToExport = this.details.map(detail => [
+      detail.description,
+      detail.supplierName,
+      detail.state,
+      new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(detail.price),
+    ]);
 
-  // Añadir la tabla al PDF
-  (doc as any).autoTable({
-    head: [['Descripción', 'Nombre del Proveedor', 'Estado', 'Precio']],
-    body: dataToExport,
-    startY: 20,
-  });
+    // Añadir la tabla al PDF
+    (doc as any).autoTable({
+      head: [['Descripción', 'Nombre del Proveedor', 'Estado', 'Precio']],
+      body: dataToExport,
+      startY: 20,
+    });
 
-  // Guardar el PDF
-  doc.save('Listado_Productos.pdf');
-}
+    // Guardar el PDF
+    doc.save('Listado_Productos.pdf');
+  }
 }
