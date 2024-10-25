@@ -18,11 +18,12 @@ import 'datatables.net-bs5';
 import { ProductXDetailDto } from '../../models/product-xdetail-dto';
 import DataTable from 'datatables.net-dt';
 import { Details } from '../../models/details';
+import { ProductComponent } from "../product/product.component";
 
 @Component({
   selector: 'app-inventario',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, ProductComponent],
   templateUrl: './inventario.component.html',
   styleUrl: './inventario.component.css'
 })
@@ -33,6 +34,7 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
   private detalleProductoService = inject(DetailServiceService)
   private stockAumentoService = inject(StockAumentoService)
   private router = inject(Router)
+  modalVisible: boolean = false;
 
   categorias$: Observable<ProductCategory[]> = new Observable<ProductCategory[]>();
   estados$: Observable<String[]> = new Observable<String[]>();
@@ -78,6 +80,14 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
   mensajeValidacionMax: string = "";
 
   valAmount:boolean = false;
+
+  abrirModal() {
+    this.modalVisible = true; // Muestra el modal
+  }
+
+  cerrarModal() {
+    this.modalVisible = false; // Oculta el modal
+  }
 
   ngOnInit(): void {
     this.initializeDataTable();
@@ -201,7 +211,8 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
       data: this.productosFiltered,
       columns: [
         {
-          data:'detailProducts', title: 'Fecha de último ingreso',
+          data: 'detailProducts',
+          title: 'Último ingreso',  // Título más corto
           render: (data: any) => {
             let lastDate;
             for (let i = 0; i < data.length; i++) {
@@ -212,37 +223,36 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
                 }
               }
             }
-            if(lastDate){
-              return this.formatDate(lastDate);
-            }else{
-              return "";
-            }
+            return lastDate ? this.formatDate(lastDate) : "";
           },
-
         },
-        { data: 'name', title: 'Nombre' },
-        { data: 'category', title: 'Categoria',
+        { data: 'name', title: 'Nombre' },  // Mantiene el título corto
+        {
+          data: 'category',
+          title: 'Categoría',
           render: (data: any) => {
             return data.categoryName;
           }
-         },
+        },
         { 
           data: 'reusable', 
-          title: 'Reusable',
+          title: 'Reutilizable', 
           render: (data: boolean) => data ? 'SI' : 'NO'
         },
-        { data: 'detailProducts', title: 'Cantidad de items',
+        { 
+          data: 'detailProducts', 
+          title: 'Cantidad', 
           render: (data: any) => {
             return data.length;
           }
-         },
-         {
-          data: 'minQuantityWarning', title: 'Cantidad mínima para alerta'
-         },
-         
+        },
+        { 
+          data: 'minQuantityWarning', 
+          title: 'Min. Alerta' 
+        },
         {
           data: null,
-          title: 'Acciones',
+          title: 'Acciones',  
           render: (data: any, type: any, row: any) => {
             return `
               <div class="dropdown">
@@ -250,9 +260,8 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
                   Acciones
                 </a>
                 <ul class="dropdown-menu">
-                  <li><button class="dropdown-item btn botonDetalleCrear"
-                  data-id="${row.id}">Agregar</button></li>
-                  <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Consultar</button></li>
+                  <li><button class="dropdown-item btn botonDetalleCrear" data-id="${row.id}">Agregar</button></li>
+                  <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
                 </ul>
               </div>
             `;
@@ -263,7 +272,7 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
       lengthChange: false,
       searching: false,
       ordering: true,
-      order:[[0, 'desc']],
+      order: [[0, 'desc']],
       autoWidth: false,  // Desactivar el ajuste automático de ancho
       
       language: {
@@ -281,25 +290,22 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
           this.nombre = $(event.currentTarget).val() as string;
           if (this.table.search() !== this.nombre) {
             this.table.search(this.nombre).draw();
-        }
-        });  
+          }
+        });
       }
     });
-
-    
-
+  
     $('#productsList').on('click', '.botonDetalleCrear', (event) => {
       const id = $(event.currentTarget).data('id');
       this.irAgregarDetalles(id);
     });
-
+  
     $('#productsList').on('click', '.botonDetalleConsultar', (event) => {
       const id = $(event.currentTarget).data('id');
       this.irDetalles(id);
     });
-
-  
   }
+  
 
   /* METODO PARA PASAR DE FECHAS "2024-10-17" A FORMATO dd/mm/yyyy*/ 
   formatDate(inputDate: string): string {
@@ -363,7 +369,8 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   irAgregarProducto(){
-    this.router.navigate(["registro-productos"])
+    this.modalVisible = true; // Muestra el modal
+    //this.router.navigate(["registro-productos"])
   }
 
 

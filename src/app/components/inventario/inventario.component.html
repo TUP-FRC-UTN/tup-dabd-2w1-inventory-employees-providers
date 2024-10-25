@@ -1,263 +1,325 @@
+<!-- Estilos CSS generales para el documento -->
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
-        margin: 0;
-        padding: 20px;
-    }
-    .container {
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        max-width: 1200px;
-        margin: auto;
-    }
-    .titulo {
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-    .form-label {
-        font-weight: bold;
-    }
-    .form-control {
-        border-radius: 5px;
-    }
-    .btn-info {
-        background-color: #007bff;
-        border-color: #007bff;
-    }
-    .btn-info:hover {
-        background-color: #0056b3;
-        border-color: #004085;
-    }
-    .modal-content {
-        border-radius: 10px;
-    }
-    .table {
-        margin-top: 20px;
-    }
-    .volver {
-        margin-top: 20px;
-    }
-    .btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
-    }
-    .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #004085;
-    }
-    .btn-secondary {
-        background-color: #6c757d;
-        border-color: #6c757d;
-    }
-    .btn-secondary:hover {
-        background-color: #5a6268;
-        border-color: #545b62;
-    }
-    .btn-success {
-        background-color: #28a745;
-        border-color: #28a745;
-    }
-    .btn-success:hover {
-        background-color: #218838;
-        border-color: #1e7e34;
-    }
-    .error-container {
-        min-height: 200px;
-        font-size: small;
-        color: red;
-        position: absolute;
-    }
-    .info-button {
-        float: right;
-        font-size: 1.5rem;
-        width: 40px;
-        height: 40px;
-    }
-    .form-group {
-        position: relative;
-        padding-bottom: 20px;
-    }
+  /* Define el estilo de fondo, fuente y margen para el cuerpo */
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+  }
+
+  /* Define el estilo de la contenedor principal */
+  .container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+  }
+
+  /* Estilo para el título principal */
+  .titulo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  /* Estilo para las etiquetas de los formularios */
+  .form-label {
+    font-weight: bold;
+  }
+
+  /* Estilo para los controles de los formularios */
+  .form-control {
+    border-radius: 5px;
+  }
+
+  /* Estilo de los botones con clase btn-info y su comportamiento al pasar el cursor */
+  .btn-info {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+
+  .btn-info:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+  }
+
+  /* Estilo de contenido de modal */
+  .modal-content {
+    border-radius: 10px;
+  }
+
+  /* Margen superior de las tablas */
+  .table {
+    margin-top: 20px;
+  }
+
+  /* Margen superior para elementos con clase volver */
+  .volver {
+    margin-top: 20px;
+  }
+
+  /* Estilos de botones y su comportamiento al pasar el cursor */
+  .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+
+  .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+  }
+
+  .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+  }
+
+  .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+  }
+
+  /* Contenedor para mensajes de error */
+  .error-container {
+    min-height: 200px;
+    font-size: small;
+    color: red;
+    position: absolute;
+  }
+
+  /* Estilo para el botón de información */
+  .info-button {
+    float: right;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Estilo de grupo de formulario para gestionar el espaciado */
+  .form-group {
+    position: relative;
+    padding-bottom: 20px;
+  }
 </style>
+
+<!-- Título del documento -->
 <title>Inventario</title>
+
 <body>
-<form class="form">
+  <!-- Inicio del formulario principal -->
+  <form class="form">
+    <!-- Contenedor principal -->
     <div class="container">
-        <div class="row mb-3">
-            <div class="col">
-                <h2 class="titulo">Inventario</h2>
-            </div>
-            <div class="col-1">
-                <button class="btn btn-primary info-button" data-bs-toggle="modal" data-bs-target="#infoModal"
-        style="background-color: rgb(0, 68, 255);">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="28" fill="currentColor" class="bi bi-info-circle"
-          viewBox="">
-          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-          <path
-            d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-        </svg>
-      </button>
-            </div>
+      <!-- Encabezado con título y botón de información -->
+      <div class="row mb-3">
+        <div class="col">
+          <h2 class="titulo">Inventario</h2>
         </div>
+        <div class="col-1">
+          <!-- Botón para abrir el modal de información -->
+          <button class="btn btn-primary info-button" data-bs-toggle="modal" data-bs-target="#infoModal"
+            style="background-color: rgb(0, 68, 255)">
+            <!-- Ícono de información -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="28" fill="currentColor"
+              class="bi bi-info-circle">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+              <path
+                d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+            </svg>
+          </button>
+        </div>
+      </div>
 
-        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="infoModalLabel">Información</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        En el inventario, puedes ver la información de todos los productos cargados en el sistema y 
-                        filtrarlos según sus categorías, si son reutilizables o no, la cantidad mínima y/o máxima de 
-                        detalles que deben tener y una palabra clave que contenga el nombre del producto.
-                        <hr> 
-                        También tienes la función de agregar productos nuevos, consultar los detalles de cada producto 
-                        y agregar nuevos productos.
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
-                </div>
+      <!-- Modal para información adicional sobre el inventario -->
+      <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!-- Encabezado del modal -->
+            <div class="modal-header">
+              <h5 class="modal-title" id="infoModalLabel">Información</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <!-- Contenido del modal -->
+            <div class="modal-body">
+              En el inventario, puedes ver la información de todos los productos
+              ...
+            </div>
+            <!-- Pie del modal con botón para cerrar -->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Cerrar
+              </button>
+            </div>
+          </div>
         </div>
-        
-        <div class="row m-3" style="width: 100%;">
+      </div>
+
+      <!-- Filtros de búsqueda: Reusable, Categoría, Cantidad, Nombre -->
+      <div class="row m-3" style="width: 100%">
         <!-- SELECTS -->
-            <div class="row mb-3" style="">
-                <div class="col-1">
-                    <label for="Reusable" class="form-label">Reusable</label>
-                </div>
-                <div class="col-5">
-                    <select name="Reusable" id="Reusable" class="form-select" [(ngModel)]="reusable" #Reusable="ngModel" (ngModelChange)="aplicarFiltros()">
-                        <option value="0"></option>
-                        <option [value]="1">Si</option>
-                        <option [value]="2">No</option>
-                    </select>
-                </div>
-                <div class="col-1">
-                    <label for="Categorias" class="form-label">Categoria</label>
-                </div>
-                <div class="col-5">
-                    <select name="Categorias" id="Categorias" class="form-select" 
-                    [(ngModel)]="categoria" #Categorias="ngModel" 
-                    (ngModelChange)="aplicarFiltros()">
-                        <option value="0"></option>
-                        @for (c of categorias; track $index) { 
-                            <option [value]="c.id">{{c.category}}</option>
-                        }
-                    </select>
-                </div>
-            </div>
-            <!-- CANTIDADES -->
-            <div class="row mb-3">
-                <div class="col-1">
-                    <label for="CantMinima" class="form-label">Cant. minima</label>
-                </div>
-                <div class="col-5">
-                    <input type="number" name="CantMinima" id="CantMinima" class="form-control" [(ngModel)]="cantMinima" #CantMinima="ngModel" min="0" (ngModelChange)="aplicarFiltros()">
-                    <div *ngIf="!validoMin" class="error-container mt-1">La cantidad mínima no puede ser mayor a la cantidad máxima</div>
-                </div>
-                <div class="col-1">
-                    <label for="CantMaxima" class="form-label">Cant. máxima</label>
-                </div>
-                <div class="col-5">
-                    <input type="number" name="CantMaxima" id="CantMaxima" class="form-control" [(ngModel)]="cantMaxima" #CantMaxima="ngModel"  min="0" (ngModelChange)="aplicarFiltros()">
-                    <div *ngIf="!validoMax" class="error-container mt-1">La cantidad máxima no puede ser menor a la cantidad mínima </div>
-                </div>
-            </div>
-            
-            <!-- NOMBRE -->
-            <div class="row mb-3">
-                <div class="col-1">
-                    <label for="Nombre" class="form-label">Nombre</label>
-                </div>
-                <div class="col-5">
-                    <input type="text" id="Nombre" name="Nombre" class="form-control" [(ngModel)]="nombre" #Nombre="ngModel" (ngModelChange)="aplicarFiltros()">
-                </div>
-                <div class="col-6" style="text-align: end;">
-                    <button class="btn btn-primary" (click)="cleanFilters()">Limpiar filtros</button>
-                </div>
-            </div>
+        <div class="row mb-3">
+          <div class="col-1">
+            <label for="Reusable" class="form-label">Reusable</label>
+          </div>
+          <div class="col-5">
+            <!-- Selector de reutilizables -->
+            <select name="Reusable" id="Reusable" class="form-select" [(ngModel)]="reusable" #Reusable="ngModel"
+              (ngModelChange)="aplicarFiltros()">
+              <option value="0"></option>
+              <option [value]="1">Si</option>
+              <option [value]="2">No</option>
+            </select>
+          </div>
+          <!-- Selector de categorías -->
+          <div class="col-1">
+            <label for="Categorias" class="form-label">Categoria</label>
+          </div>
+          <div class="col-5">
+            <select name="Categorias" id="Categorias" class="form-select" [(ngModel)]="categoria" #Categorias="ngModel"
+              (ngModelChange)="aplicarFiltros()">
+              <option value="0"></option>
+              @for (c of categorias; track $index) {
+              <option [value]="c.id">{{ c.category }}</option>
+              }
+            </select>
+          </div>
         </div>
 
-        <div class="container row mb-3">
-            <div class="row">
-                <div class="col-10"><label for="
-                    ">Estado de productos</label>
-                </div>
-                <table class="table" style="font-size: small;">
-                    <thead>
-                        <th scope="col">Categoría</th>
-                        <th scope="col">Disponibles</th>
-                        <th scope="col">En uso</th>
-                        <th scope="col">En mantenimiento</th>
-                        <th></th>
-                    </thead>
-                    <tbody>
-                        @for(c of categorias; track $index) {
-                            <tr>
-                                <th scope="row">
-                                    {{c.category}}
-                                </th>
-                                <td>
-                                    {{getCountByategoryAndState(c.id, 'Disponible')}}
-                                </td>
-                                <td>
-                                    {{getCountByategoryAndState(c.id, 'Prestado')}}
-                                </td>
-                                <td>
-                                    {{getCountByategoryAndState(c.id, 'Mantenimiento')}}
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                  </table>
+        <!-- Campos de entrada para cantidad mínima y máxima -->
+        <div class="row mb-3">
+          <div class="col-1">
+            <label for="CantMinima" class="form-label">Cant. minima</label>
+          </div>
+          <div class="col-5">
+            <input type="number" name="CantMinima" id="CantMinima" class="form-control" [(ngModel)]="cantMinima"
+              #CantMinima="ngModel" min="0" (ngModelChange)="aplicarFiltros()" />
+            <div *ngIf="!validoMin" class="error-container mt-1">
+              La cantidad mínima no puede ser mayor a la cantidad máxima
             </div>
+          </div>
+          <div class="col-1">
+            <label for="CantMaxima" class="form-label">Cant. máxima</label>
+          </div>
+          <div class="col-5">
+            <input type="number" name="CantMaxima" id="CantMaxima" class="form-control" [(ngModel)]="cantMaxima"
+              #CantMaxima="ngModel" min="0" (ngModelChange)="aplicarFiltros()" />
+            <div *ngIf="!validoMax" class="error-container mt-1">
+              La cantidad máxima no puede ser menor a la cantidad mínima
+            </div>
+          </div>
         </div>
-        
-        <div class="container row">
-            <div class="col">
-                <h4 style="">Productos</h4>
-            </div>
-            <div class="col-2">
-                <button class="btn btn-danger" (click)="generarPdf()">Generar PDF
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-pdf-fill" viewBox="0 0 16 16">
-                        <path d="M5.523 12.424q.21-.124.459-.238a8 8 0 0 1-.45.606c-.28.337-.498.516-.635.572l-.035.012a.3.3 0 0 1-.026-.044c-.056-.11-.054-.216.04-.36.106-.165.319-.354.647-.548m2.455-1.647q-.178.037-.356.078a21 21 0 0 0 .5-1.05 12 12 0 0 0 .51.858q-.326.048-.654.114m2.525.939a4 4 0 0 1-.435-.41q.344.007.612.054c.317.057.466.147.518.209a.1.1 0 0 1 .026.064.44.44 0 0 1-.06.2.3.3 0 0 1-.094.124.1.1 0 0 1-.069.015c-.09-.003-.258-.066-.498-.256M8.278 6.97c-.04.244-.108.524-.2.829a5 5 0 0 1-.089-.346c-.076-.353-.087-.63-.046-.822.038-.177.11-.248.196-.283a.5.5 0 0 1 .145-.04c.013.03.028.092.032.198q.008.183-.038.465z"/>
-                        <path fill-rule="evenodd" d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2m5.5 1.5v2a1 1 0 0 0 1 1h2zM4.165 13.668c.09.18.23.343.438.419.207.075.412.04.58-.03.318-.13.635-.436.926-.786.333-.401.683-.927 1.021-1.51a11.7 11.7 0 0 1 1.997-.406c.3.383.61.713.91.95.28.22.603.403.934.417a.86.86 0 0 0 .51-.138c.155-.101.27-.247.354-.416.09-.181.145-.37.138-.563a.84.84 0 0 0-.2-.518c-.226-.27-.596-.4-.96-.465a5.8 5.8 0 0 0-1.335-.05 11 11 0 0 1-.98-1.686c.25-.66.437-1.284.52-1.794.036-.218.055-.426.048-.614a1.24 1.24 0 0 0-.127-.538.7.7 0 0 0-.477-.365c-.202-.043-.41 0-.601.077-.377.15-.576.47-.651.823-.073.34-.04.736.046 1.136.088.406.238.848.43 1.295a20 20 0 0 1-1.062 2.227 7.7 7.7 0 0 0-1.482.645c-.37.22-.699.48-.897.787-.21.326-.275.714-.08 1.103"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="col-2">
-                <button class="btn btn-success" (click)="generarExcel()">
-                    Generar Excel
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-spreadsheet" viewBox="0 0 16 16">
-                    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5zM3 12v-2h2v2zm0 1h2v2H4a1 1 0 0 1-1-1zm3 2v-2h3v2zm4 0v-2h3v1a1 1 0 0 1-1 1zm3-3h-3v-2h3zm-7 0v-2h3v2z"/>
-                    </svg>
-                </button>
-            </div>
-                <table class="table table-striped" id="productsList">
-                </table>
-                    
+
+        <!-- Filtro por nombre -->
+        <div class="row mb-3">
+          <div class="col-1">
+            <label for="Nombre" class="form-label">Nombre</label>
+          </div>
+          <div class="col-5">
+            <input type="text" id="Nombre" name="Nombre" class="form-control" [(ngModel)]="nombre" #Nombre="ngModel"
+              (ngModelChange)="aplicarFiltros()" />
+          </div>
+          <!-- Botón para limpiar filtros -->
+          <div class="col-6" style="text-align: end">
+            <button class="btn btn-primary" (click)="cleanFilters()">
+              Limpiar filtros
+            </button>
+          </div>
         </div>
-        
-        <div class="row volver">        
-            <div class="col-6">
-                    <button class="btn btn-secondary" style="width: 100%;
-                    padding: 10px;"
-                    (click)="irMenu()">Volver</button>
-            </div>
-            <div class="col-6">
-                    <button class="btn" routerLink="modal-select" style="width: 100%;
-                    padding: 10px;"
-                    routerLinkActive="router-link-active"
-                    class="btn btn-outline-primary" type="button" id="button-addon2" (click)="irAgregarProducto()">
-                    + Nuevo Producto</button>
-            </div>
+      </div>
+
+      <!-- Tabla con el estado de productos según la categoría -->
+      <div class="container row mb-3">
+        <div class="row">
+          <div class="col-10">
+            <label>Estado de productos</label>
+          </div>
+          <table class="table" style="font-size: small">
+            <thead>
+              <th scope="col">Categoría</th>
+              <th scope="col">Disponibles</th>
+              <th scope="col">En uso</th>
+              <th scope="col">En mantenimiento</th>
+              <th></th>
+            </thead>
+            <tbody>
+              @for(c of categorias; track $index) {
+              <tr>
+                <th scope="row">{{ c.category }}</th>
+                <td>{{ getCountByategoryAndState(c.id, "Disponible") }}</td>
+                <td>{{ getCountByategoryAndState(c.id, "Prestado") }}</td>
+                <td>{{ getCountByategoryAndState(c.id, "Mantenimiento") }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
         </div>
+      </div>
+
+      <!-- Tabla de productos y botones para generar PDF o Excel -->
+      <div class="container row">
+        <div class="col">
+          <h4>Productos</h4>
+        </div>
+        <div class="col-2">
+          <button class="btn btn-danger ms-auto" (click)="generarPdf()">
+            <i class="bi bi-file-earmark-pdf"></i>
+          </button>
+          <button class="btn btn-success ms-2" (click)="generarExcel()">
+            <i class="bi bi-file-earmark-excel"></i>
+          </button>
+        </div>
+        <table class="table table-striped" id="productsList"></table>
+      </div>
+
+      <!-- Botones de navegación: Volver y agregar nuevo producto -->
+      <div class="row volver">
+        <div class="col text-end">
+          <!-- Botón de "Volver" -->
+          <button class="btn btn-secondary me-2" (click)="irMenu()">
+            Volver</button><!-- Botón de "Nuevo Producto" -->
+          <button class="btn btn-outline-primary" (click)="abrirModal()" data-bs-toggle="modal"
+            data-bs-target="#nuevoProductoModal">
+            Nuevo
+          </button>
+        </div>
+      </div>
     </div>
+  </form>
+</body>
 
-</form>
+<!-- Modal para agregar un nuevo producto -->
+<div *ngIf="modalVisible" class="modal fade show" tabindex="-1" aria-labelledby="nuevoProductoModalLabel" aria-hidden="true" style="display: block;">
+  <div class="modal-dialog modal-lg" style="max-width: 75%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Agregar Nuevo Producto</h5>
+        <button type="button" class="btn-close" (click)="cerrarModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Aquí se carga el componente ProductComponent -->
+        <app-product></app-product>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModal()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="modalVisible" class="modal-backdrop fade show"></div>
+
