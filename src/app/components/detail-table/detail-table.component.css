@@ -5,9 +5,30 @@
     z-index: 1000; /* Asegúrate de que esté por encima de otros elementos */
   }
 
-/* Aumentar el tamaño del input de búsqueda */
-.dataTables_wrapper .dataTables_filter input {
-  width: 300px; /* Cambia este valor según sea necesario */
-  padding: 5px; /* Espaciado interno para mejorar la apariencia */
-  font-size: 16px; /* Tamaño de fuente */
+/* Estilos más específicos para el filtro de DataTables */
+div.dataTables_filter input {
+  outline: none !important;
+  border: 1px solid #ced4da !important;
+  border-radius: 0.25rem !important;
+  padding: 0.375rem 0.75rem !important;
+  margin-left: 0.5em !important;
+  box-shadow: none !important;
+}
+
+div.dataTables_filter input:focus {
+  border-color: #86b7fe !important;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* Ajuste del contenedor del filtro */
+div.dataTables_filter {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ajuste del label */
+div.dataTables_filter label {
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
 }

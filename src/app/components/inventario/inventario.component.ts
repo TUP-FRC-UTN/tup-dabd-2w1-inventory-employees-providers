@@ -10,6 +10,7 @@ import { DetailServiceService } from '../../services/detail-service.service';
 import { StockAumentoService } from '../../services/stock-aumento.service';
 import { DtoProducto } from '../../models/dto-producto';
 import { ProductCategory } from '../../models/product-category';
+import * as XLSX from 'xlsx';
 
 import $ from 'jquery';
 import 'datatables.net';
@@ -19,6 +20,7 @@ import { ProductXDetailDto } from '../../models/product-xdetail-dto';
 import DataTable from 'datatables.net-dt';
 import { Details } from '../../models/details';
 import { ProductComponent } from "../product/product.component";
+import jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-inventario',
@@ -278,6 +280,7 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
       language: {
         search: "",
         info: "",
+        emptyTable: 'No se encontraron registros', // Mensaje personalizado si no hay datos   
         paginate: {
           first: "Primero",
           last: "Último",
@@ -328,30 +331,65 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     this.aplicarFiltros();
   }
 
-
-
-
+  
   generarPdf(): void {
-    this.productoService.getProductosPdf().subscribe((pdfArrayBuffer) => {
-      const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'productos_inventario.pdf';
-      a.click();
-      window.URL.revokeObjectURL(url);
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Lista de Productos', 10, 10);
+  
+    // Reordenamos los datos según el orden de columnas en la tabla HTML
+    const dataToExport = this.productosFiltered.map((producto) => [
+      producto.detailProducts ? this.getLastIngreso(producto.detailProducts) : "",  // Último ingreso
+      producto.name,                                                               // Nombre
+      producto.category ? producto.category.categoryName : "",                     // Categoría
+      producto.reusable ? "SI" : "NO",                                             // Reutilizable
+      producto.detailProducts ? producto.detailProducts.length : 0,                // Cantidad
+      producto.minQuantityWarning || "",                                           // Min. Alerta
+    ]);
+  
+    // Orden de encabezados de columnas según la tabla HTML
+    (doc as any).autoTable({
+      head: [['Último ingreso', 'Nombre', 'Categoría', 'Reutilizable', 'Cantidad', 'Min. Alerta']],
+      body: dataToExport,
+      startY: 20,
     });
+  
+    // Guardar archivo PDF
+    doc.save('Lista_Productos.pdf');
   }
+  
+  // Método auxiliar para obtener la última fecha de ingreso
+  getLastIngreso(detailProducts: any[]): string {
+    let lastDate = "";
+    for (let i = 0; i < detailProducts.length; i++) {
+      if (detailProducts[i].lastUpdatedDatetime) {
+        if (!lastDate || detailProducts[i].lastUpdatedDatetime > lastDate) {
+          lastDate = detailProducts[i].lastUpdatedDatetime;
+        }
+      }
+    }
+    return lastDate ? this.formatDate(lastDate) : "";
+  }
+  
 
-  generarExcel() : void{
-    //window.open(this.detailService.urlExcel, '_blank');
-
-    const enlace = document.createElement('a');
-    enlace.href = this.productoService.productExcelPdf; // URL del archivo
-    enlace.download = ''; // Esto sugiere al navegador que debe descargar el archivo
-    document.body.appendChild(enlace); // Necesario para algunos navegadores
-    enlace.click(); // Simula el clic en el enlace
-    document.body.removeChild(enlace); // Limpieza
+  generarExcel(): void {
+    // Reordenamos los datos según el orden de columnas en la tabla HTML
+    const dataToExport = this.productosFiltered.map((producto) => ({
+      'Último ingreso': producto.detailProducts ? this.getLastIngreso(producto.detailProducts) : "",
+      'Nombre': producto.name,
+      'Categoría': producto.category ? producto.category.categoryName : "",
+      'Reutilizable': producto.reusable ? "SI" : "NO",
+      'Cantidad': producto.detailProducts ? producto.detailProducts.length : 0,
+      'Min. Alerta': producto.minQuantityWarning || "",
+    }));
+  
+    // Crear hoja y libro de Excel
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Productos');
+  
+    // Guardar archivo Excel
+    XLSX.writeFile(workbook, 'Lista_Productos.xlsx');
   }
 
   irMenu(){

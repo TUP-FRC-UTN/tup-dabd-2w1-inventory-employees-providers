@@ -1,36 +1,58 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="text-start">Listado y Eliminación de Productos</h2>
-    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#infoModal">
-      Info
+    <button class="btn btn-primary info-button d-flex justify-content-center align-items-center" data-bs-toggle="modal"
+      data-bs-target="#infoModal" style="background-color: rgb(0, 68, 255); 
+           width: 40px; 
+           height: 40px; 
+           border-radius: 5px; 
+           padding: 0; 
+           border: none;">
+      <!-- Ícono de información -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#ffffff" class="bi bi-info-circle">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+        <path
+          d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+      </svg>
     </button>
   </div>
 
-  <!-- Modal de Información -->
-  <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="infoModalLabel">
-            Información sobre la Página
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          Aquí puedes filtrar los productos, seleccionar los que deseas eliminar
-          y proporcionar un justificativo. Utiliza los botones de navegación
-          para desplazarte entre las páginas.
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            Cerrar
-          </button>
-        </div>
+<!-- Modal de Información -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="infoModalLabel">
+          Información sobre la Página
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          En esta página, puedes gestionar el listado de productos disponibles en el sistema. A continuación, se detallan las funciones que puedes realizar:
+        </p>
+        <ul>
+          <li><strong>Filtrar productos:</strong> Utiliza las opciones de filtrado para encontrar productos específicos en la lista.</li>
+          <li><strong>Seleccionar productos:</strong> Marca los productos que deseas eliminar utilizando las casillas de verificación situadas a la derecha de cada fila.</li>
+          <li><strong>Justificativo de eliminación:</strong> Antes de confirmar la eliminación de productos, deberás proporcionar un justificativo en el campo correspondiente.</li>
+          <li><strong>Navegación entre páginas:</strong> Utiliza los botones de navegación para desplazarte por las diferentes páginas de productos si hay una gran cantidad de ellos.</li>
+          <li><strong>Exportar datos:</strong> Puedes exportar la lista de productos a formatos PDF y Excel utilizando los botones correspondientes en la parte superior de la lista.</li>
+        </ul>
+        <p>
+          Asegúrate de proporcionar un justificativo antes de confirmar la eliminación de productos seleccionados. Esta acción no se puede deshacer.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cerrar
+        </button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Modal de Confirmación de Eliminación -->
+
+  <!-- Modal de Confirmación de Eliminación con Justificativo -->
   <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel"
     aria-hidden="true">
     <div class="modal-dialog">
@@ -42,10 +64,16 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          ¿Está seguro que desea eliminar los productos seleccionados?
+          <p>¿Está seguro que desea eliminar los productos seleccionados?</p>
+          <div class="mb-3">
+            <label for="modalJustificativo" class="form-label">Justificativo</label>
+            <textarea id="modalJustificativo" class="form-control" [(ngModel)]="justificativo" rows="3"
+              placeholder="Escribe el motivo por el cual se borran los productos seleccionados"></textarea>
+          </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-danger" (click)="deleteSelected()" data-bs-dismiss="modal">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="confirmDelete()"
+            [disabled]="justificativo.trim() === ''">
             Eliminar
           </button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -56,20 +84,23 @@
     </div>
   </div>
 
-  <!-- Sección: Checkbox Marcar Todos y Botón Generar PDF -->
-  <div class="d-flex mb-3 align-items-center">
-    <!-- Botón Generar PDF y Excel -->
-    <button class="btn btn-danger ms-auto" (click)="generatePDF()">
-      <i class="bi bi-file-earmark-pdf"></i>
-    </button>
-    <button class="btn btn-success ms-2" (click)="generateExcel()">
-      <i class="bi bi-file-earmark-excel"></i>
-    </button>
-  </div>
+<!-- Sección: Botones de Exportación -->
+<div class="d-flex mb-3 justify-content-end align-items-center">
+  <input type="checkbox" id="selectAll" (change)="toggleSelectAll($event)" class="form-check-input me-2" />
+  <label for="selectAll" class="me-3">Seleccionar Todo</label>
+  <button class="btn btn-danger me-2" (click)="generatePDF()">
+    <i class="bi bi-file-earmark-pdf"></i>
+  </button>
+  <button class="btn btn-success" (click)="generateExcel()">
+    <i class="bi bi-file-earmark-excel"></i>
+  </button>
+</div>
+
+
 
   <!-- Sección: Tabla de Detalles de Productos -->
-  <div class="table-responsive mb-4">
-    <table id="productTable" class="table table-striped table-bordered">
+  <div class="table-responsive mb-4 justify-content-between">
+    <table id="productTable" class="table table-striped table-bordered w-100">
       <thead>
         <tr>
           <th>Descripción</th>
@@ -93,23 +124,13 @@
     </table>
   </div>
 
-  <!-- Sección: Campo de Justificativo -->
-  <div class="mb-4">
-    <label for="justificativo" class="form-label">Justificativo</label>
-    <textarea id="justificativo" class="form-control" [(ngModel)]="justificativo"
-      (ngModelChange)="updateDeleteButtonState()" rows="3"
-      placeholder="Escribe el motivo por el cual se borran los productos seleccionados"></textarea>
-  </div>
-
-  <!-- Sección: Botón para Eliminar Seleccionados -->
+  <!-- Sección: Botones de Acción -->
   <div class="d-flex justify-content-between">
     <button class="btn btn-secondary" (click)="volverInventario()">
       Volver
     </button>
 
-    <button id="deleteButton" class="btn btn-danger" (click)="deleteSelected()"
-      [disabled]="selectedIds.length === 0 || justificativo.trim() === ''">
+    <button id="deleteButton" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
+      [disabled]="selectedIds.length === 0">
       Eliminar seleccionados
     </button>
-  </div>
-</div>
