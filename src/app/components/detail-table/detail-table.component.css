@@ -4,3 +4,10 @@
     right: 20px; /* Ajusta la posición horizontal */
     z-index: 1000; /* Asegúrate de que esté por encima de otros elementos */
   }
+
+/* Aumentar el tamaño del input de búsqueda */
+.dataTables_wrapper .dataTables_filter input {
+  width: 300px; /* Cambia este valor según sea necesario */
+  padding: 5px; /* Espaciado interno para mejorar la apariencia */
+  font-size: 16px; /* Tamaño de fuente */
+}

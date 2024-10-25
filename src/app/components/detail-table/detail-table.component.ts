@@ -45,6 +45,13 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     }
 
     this.table = $('#productTable').DataTable({
+      // Configuración de la tabla
+      // Agregar la barra de búsqueda en la parte superior
+      layout: {
+        topStart: 'search',
+        topEnd: null,
+      },
+
       data: this.details,
       columns: [
         { data: 'description', title: 'Descripción' },
@@ -73,13 +80,13 @@ export class DetailTableComponent implements OnInit, OnDestroy {
       pageLength: 10, // Fijamos la cantidad de registros por página en 10
       lengthChange: false, // Deshabilita el selector de cantidad de registros
       language: {
-        search: "Buscar:", // Traducción del texto de búsqueda
-        info: "Mostrando _START_ a _END_ de _TOTAL_ registros", // Texto de información
+        search: 'Buscar:', // Traducción del texto de búsqueda
+        info: 'Mostrando _START_ a _END_ de _TOTAL_ registros', // Texto de información
         paginate: {
-          first: "Primero",
-          last: "Último",
-          next: "Siguiente",
-          previous: "Anterior"
+          first: 'Primero',
+          last: 'Último',
+          next: 'Siguiente',
+          previous: 'Anterior',
         },
       },
     });
@@ -103,9 +110,12 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   }
 
   updateDeleteButtonState(): void {
-    const deleteButton = document.querySelector('#deleteButton') as HTMLButtonElement;
+    const deleteButton = document.querySelector(
+      '#deleteButton'
+    ) as HTMLButtonElement;
     if (deleteButton) {
-      deleteButton.disabled = this.selectedIds.length === 0 || this.justificativo.trim() === '';
+      deleteButton.disabled =
+        this.selectedIds.length === 0 || this.justificativo.trim() === '';
     }
   }
 
@@ -129,7 +139,9 @@ export class DetailTableComponent implements OnInit, OnDestroy {
         },
       });
     } else {
-      console.error('No se pueden eliminar productos sin seleccionarlos o sin justificativo.');
+      console.error(
+        'No se pueden eliminar productos sin seleccionarlos o sin justificativo.'
+      );
       this.loadDetails(); // Recargar la lista de detalles
       this.resetSelectionAndJustification();
     }
