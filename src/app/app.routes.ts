@@ -5,6 +5,7 @@ import { InventarioComponent } from './components/inventario/inventario.componen
 import { StockAumentoComponent } from './components/stock-aumento/stock-aumento.component';
 import { TablaComponent } from './components/tabla/tabla.component';
 import { IEPFormPostEmployeesComponent } from './components/iep-form-post-employees/iep-form-post-employees.component';
+import { EmpPutEmployeesComponent } from './components/emp-put-employees/emp-put-employees.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -41,5 +42,10 @@ export const routes: Routes = [
         component:IEPFormPostEmployeesComponent,
         title:'alta empleado'
 
+    },
+    {
+        path: 'empleados/modificar/:id',  // TOMAS H
+        component:EmpPutEmployeesComponent,
+        title: 'Modificar empleado'
     }
 ];

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { Provincia } from '../models/emp-provincia';
 import { Charge, PostEmployeeDto } from '../models/emp-post-employee-dto';
+import { EmpPutEmployees } from '../models/emp-put-employees';
 
 @Injectable({
   providedIn: 'root'
@@ -50,7 +51,13 @@ export class EmpPostEmployeeService {
     return this.client.post<any>(url, json, { headers });
   }
 
-
+  updateEmployee(dto: EmpPutEmployees): Observable<any> {
+    const url = `http://localhost:8080/employees/put${dto.id}`;
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const json = JSON.stringify(dto);
+    
+    return this.client.put<any>(url, json, { headers });
+  }
 
 
 }

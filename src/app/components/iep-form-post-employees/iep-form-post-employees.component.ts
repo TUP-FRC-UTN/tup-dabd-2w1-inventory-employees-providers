@@ -170,6 +170,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
   public loadProvincias(): void {
     this.serviceCombos.getProvinces().subscribe({
+
       next: (provinciass) => {
         this.provincias = provinciass;
       },

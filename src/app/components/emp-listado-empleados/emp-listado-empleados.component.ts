@@ -27,6 +27,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   // Hook de ciclo de vida que se ejecuta cuando el componente es inicializado
   ngOnInit(): void {
     this.loadEmpleados(); // Carga la lista de empleados
+    this.bindEditButtons();
   }
 
   // Método que obtiene la lista de empleados desde el servicio
@@ -84,7 +85,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
                       data-bs-toggle="modal" data-bs-target="#myModal">Consultar
                       </button>
                     </li>
-                    <li><button class="dropdown-item btn btn-primary" (click)="">Modificar</button></li>
+                    <li><button class="dropdown-item btn btn-primary edit-button" data-id="${data.id}">Modificar</button></li>
                   </ul>
               </div> 
               
@@ -141,10 +142,17 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
   // Métodos para acciones (se deben implementar)
   
-  // Método para editar empleado (implementación pendiente)
+  // Método para editar empleado
   editarEmpleado(id: any): void {
-    // Implementar la lógica de edición
+    this.router.navigate(['/empleados/modificar', id]);
   }
+  bindEditButtons(): void {
+    const self = this; // Guardamos el contexto del componente
+    $('#empleadosTable').on('click', '.edit-button', function () {
+        const id = $(this).data('id'); // Obtenemos el ID del atributo data-id
+        self.editarEmpleado(id); // Llama al método editarEmpleado
+    });
+}
 
   // Método para eliminar empleado (implementación pendiente)
   eliminarEmpleado(id: any): void {
