@@ -322,48 +322,48 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   onStartDateChange(): void {
     const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
     const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
-  
+
     // Establecer límites de fechas
     const today = new Date();
     const formattedToday = today.toISOString().split('T')[0];
     endDateInput.max = formattedToday;
-  
+
     if (startDateInput.value) {
       endDateInput.min = startDateInput.value;
     } else {
       endDateInput.min = '';
     }
-  
+
     this.filterByDate();
   }
-  
+
   onEndDateChange(): void {
     const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
     const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
-  
+
     if (endDateInput.value) {
       startDateInput.max = endDateInput.value;
     } else {
       startDateInput.max = '';
     }
-  
+
     this.filterByDate();
   }
 
   filterByDate(): void {
     const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
     const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
-  
+
     const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
     const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
-  
+
     if (startDate && endDate && startDate > endDate) {
       alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
       startDateInput.value = '';
       endDateInput.value = '';
       return;
     }
-  
+
     // Si estamos en la ventana de Desempeño y tenemos ambas fechas, actualizamos la tabla
     if (this.ventana === 'Desempeño' && startDate && endDate) {
       this.startDate = startDateInput.value;
