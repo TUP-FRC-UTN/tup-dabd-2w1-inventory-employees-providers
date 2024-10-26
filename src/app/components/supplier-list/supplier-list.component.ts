@@ -5,11 +5,12 @@ import { SuppliersService } from '../../services/suppliers.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { SupplierTypePipe } from '../../pipes/supplier-type.pipe';
 
 @Component({
   selector: 'app-supplier-list',
   standalone: true,
-  imports: [BotonVolverComponent, FormsModule, CommonModule, RouterModule],
+  imports: [BotonVolverComponent, FormsModule, CommonModule, RouterModule, SupplierTypePipe],
   templateUrl: './supplier-list.component.html',
   styleUrls: ['./supplier-list.component.css']
 })

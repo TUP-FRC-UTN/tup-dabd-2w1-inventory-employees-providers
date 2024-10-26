@@ -2,16 +2,16 @@
   <h1>Proveedores</h1>
 
   <div class="row">
-    <div class="col-sm-6 col-md-4">
+    <div class="col-sm-6">
       <div class="mb-3">
         <label class="form-label">Razon social</label>
-        <input type="string" class="form-control" [(ngModel)]="name" />
+        <input type="string" class="form-control" [(ngModel)]="name" (ngModelChange)="searchSuppliers()" />
       </div>
     </div>
-    <div class="col-sm-6 col-md-4">
+    <div class="col-sm-6">
       <div class="mb-3">
         <label for="" class="form-label">Tipo proveedor</label>
-        <select class="form-select" [(ngModel)]="type">
+        <select class="form-select" [(ngModel)]="type" (ngModelChange)="searchSuppliers()">
           <option value="" selected>Todos</option>
           <option value="OUTSOURCED_SERVICE">Servicio externo</option>
           <option value="INVENTORY_SUPPLIER">Proveedor de Inventario</option>
@@ -19,26 +19,7 @@
         </select>
       </div>
     </div>
-    <div class="col-sm-12 col-md-4">
-      <div class="mb-3">
-        <label for="" class="form-label">Fecha de incorporación</label>
-        <input type="date" class="form-control" [(ngModel)]="date" />
-      </div>
-    </div>
   </div>
-
-  <div class="row">
-    <div class="col">
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" [(ngModel)]="autorized" />
-        <label class="form-check-label" for=""> Autorizado </label>
-      </div>
-    </div>
-    <div class="col text-end">
-      <button class="btn btn-success" (click)="searchSuppliers()">Buscar</button>
-    </div>
-  </div>
-
   <div class="row mt-3">
     <div class="col table-responsive">
       <table class="table table-striped table-bordered">
@@ -57,7 +38,7 @@
         <tbody>
           <tr *ngFor="let supplier of suppliers">
             <td>{{ supplier.name }}</td>
-            <td>{{ supplier.supplierType }}</td>
+            <td>{{ supplier.supplierType | supplierType }}</td>
             <td>{{ supplier.address }}</td>
             <td>{{ supplier.healthInsurance }}</td>
             <td>{{ supplier.description }}</td>
