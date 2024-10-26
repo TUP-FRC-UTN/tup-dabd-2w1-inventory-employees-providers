@@ -183,27 +183,27 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="cleanDTO()"></button>
       </div>
       <div class="modal-body">
-@if(createMovement$|async){
-  <div class="container mt-2">
-    <div class="alert alert-success" role="alert">
-      <h4 class="alert-heading">¡Registro Exitoso!</h4>
-      <p>El movimiento de inventario se ha registrado correctamente.</p>
-      <hr>
-      <p class="mb-0">Puedes cerrar esta ventana o registrar otro movimiento.</p>
+@if(confirmPost){
+  @if(successCreate){
+    <div class="container mt-2">
+      <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">¡Registro Exitoso!</h4>
+        <p>El movimiento de inventario se ha registrado correctamente.</p>
+        <hr>
+        <p class="mb-0">Puedes cerrar esta ventana o registrar otro movimiento.</p>
+      </div>
     </div>
-  </div>
-  <div class="container mt-2">
-    <div class="alert alert-danger" role="alert">
-      <h4 class="alert-heading">¡Error!</h4>
-      <p>Ha ocurrido un error al registrar el movimiento de inventario. Por favor, inténtalo de nuevo.</p>
-      <hr>
-      <p class="mb-0">Puedes cerrar esta ventana e intentar nuevamente.</p>
+  }@else {
+    <div class="container mt-2">
+      <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">¡Error!</h4>
+        <p>Ha ocurrido un error al registrar el movimiento de inventario. Por favor, inténtalo de nuevo.</p>
+        <hr>
+        <p class="mb-0">Puedes cerrar esta ventana e intentar nuevamente.</p>
+      </div>
     </div>
-  </div>
-
-
-        
-        }@else {
+  }
+    }@else {
            
           <div class="row" style="color: gray;">
             @if(selectedIds.length === 0) {
@@ -227,8 +227,8 @@
                       'is-valid': movementType.valid && movementType.touched
                   }"
                      min="1" required>
-                      <option value="1">Préstamo</option>
-                      <option value="2">Devolución</option>
+                      <option value="1">Devolución</option>
+                      <option value="2">Préstamo</option>
                       <option value="3">A mantenimiento</option>
                     </select>
                     <div class="error-container">
@@ -372,9 +372,7 @@
             </div>
           </div>
         }
-
       </div>
-    
     </div>
   </div>
 </div>

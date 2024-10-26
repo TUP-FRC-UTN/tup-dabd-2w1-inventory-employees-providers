@@ -43,7 +43,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   dtoCreate: IepCreateWarehouseMovementDTO=new IepCreateWarehouseMovementDTO();
   createMovement$: Observable<any>= new Observable<any>();
   errorMessage: string = '';
-  
+  successCreate: boolean = false;
 
   private formatDateForInput(date: Date): Date {
     const year = date.getFullYear();
@@ -105,30 +105,33 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.loading = true;
     if(form.valid){
       this.dtoCreate.id_details = this.selectedIds;
+
+      this.dtoCreate.responsible = 'Encargado de Inventario';
+
       console.log(".............");
       console.log(this.dtoCreate);
       this.createMovement$ = this.warehouseService.postWarehouseMovement(this.dtoCreate,this.idUser);
       this.createMovement$.subscribe({
         next: (data) => {
           console.log('Movimiento de almacén registrado con éxito:', data);
-          this.loadDetails();
+          this.successCreate = true;
+          this.loadDetails(); 
         },
         error: (err) => {
           if(err.error.errorMessage==="Required request parameter 'idLastUpdatedUser' for method parameter type Integer is not present"){
             this.errorMessage = 'Error al registrar movimiento de almacén: No se ha especificado el usuario que realiza el movimiento';
           }
+          if(err.error.errorMessage==="404 Item not available to loan"){
+            this.errorMessage = 'Error al registrar movimiento de almacén: El producto no está disponible para préstamo';
+          }
           console.log( err.error.message);
           console.error('Error al registrar movimiento de almacén:', err);
         },
-        complete: () => {
-          this.loading = false;
-          this.confirmPost = true;
-        }
       });
     }else{
       console.log("Formulario inválido");
     }
-    this.cleanDTO();
+    this.confirmPost = true;
     this.loading = false;
   }
 
@@ -140,6 +143,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.dtoCreate.employee_id = 0;
     this.dtoCreate.applicant = '';
     this.toggleSelectAll({ target: { checked: false } });
+    this.confirmPost = false;
   }
 
   onChangeEmployee(): void {
@@ -171,7 +175,10 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     document.addEventListener('click', (event: any) => {
     if (event.target === modalElement || event.target === modalDeleteElement) {
       // El clic fue en el backdrop
-      this.cleanDTO();  // o cualquier otro método
+      console.log('Clic en el backdrop');
+      this.confirmPost=false;
+      this.cleanDTO();
+      // o cualquier otro método
     }
   });
   }

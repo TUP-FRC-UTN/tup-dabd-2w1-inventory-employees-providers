@@ -210,7 +210,6 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.productosFiltered.reduce((count, producto) => {
       if (producto.category.categoryId === categoryId) {
         for (let i = 0; i < producto.detailProducts.length; i++) {
-          console.log(producto.detailProducts[i].state);
           if (producto.detailProducts[i].state === state) {
             count++;
           }
