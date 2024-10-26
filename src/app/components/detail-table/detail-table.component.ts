@@ -96,7 +96,8 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   {
     if(form.valid){
       this.dtoCreate.id_details = this.selectedIds;
-      console.log('DTO a enviar:', this.dtoCreate);
+      console.log(".............");
+      console.log(this.dtoCreate);
     }
   }
 
@@ -110,6 +111,16 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.toggleSelectAll({ target: { checked: false } });
   }
 
+  onChangeEmployee(): void {
+    var applicantString;
+    for (let i = 0; i < this.employees.length; i++) {
+      if (this.employees[i].id == this.dtoCreate.employee_id) {
+        applicantString = this.employees[i].fullName;
+      }
+    }
+    this.dtoCreate.applicant = applicantString;
+  }
+
 
 
 
@@ -119,6 +130,18 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.initializeModal();
     this.dtoCreate.date = new Date().toISOString().slice(0, 16);
     this.dtoCreate.reinstatement_datetime = new Date().toISOString().slice(0, 16);
+    this.dtoCreate.id_details = [];
+    this.dtoCreate.employee_id = undefined;
+    this.dtoCreate.applicant = '';
+    const modalElement = document.getElementById('warehouseModal');
+    const modalDeleteElement = document.getElementById('confirmDeleteModal');
+  // Agregar listener para clics en el backdrop
+    document.addEventListener('click', (event: any) => {
+    if (event.target === modalElement || event.target === modalDeleteElement) {
+      // El clic fue en el backdrop
+      this.cleanDTO();  // o cualquier otro método
+    }
+  });
   }
 
   initializeModal(): void {
@@ -212,6 +235,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
           next: '>',
           previous: '<',
         },
+        lengthMenu: '_MENU_', // Etiqueta para el menú de longitud
       },
       initComplete: function () {
         // Agregar el checkbox "Seleccionar todos" después de que DataTable se inicialice
