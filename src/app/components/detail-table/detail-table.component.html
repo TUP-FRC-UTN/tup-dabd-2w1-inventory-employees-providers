@@ -85,7 +85,7 @@
             [disabled]="justificativo.trim() === ''">
             Eliminar
           </button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <button type="button" (click)="this.cleanDTO()" class="btn btn-secondary" data-bs-dismiss="modal">
             Cancelar
           </button>
         </div>
@@ -230,13 +230,14 @@
               <div class="mb-3 row">
                 <label for="inputName" class="col-form-label col-2">Empleado</label>
                 <div class="col-10">
-                  <select class="form-select" id="employees" style="border-radius: 0.25rem;"
+                  <select class="form-select" id="employee" style="border-radius: 0.25rem;"
                   name="employee" #employee="ngModel"  
-                  [(ngModel)]="dtoCreate.employee_id"  [ngClass]="{
+                  [(ngModel)]="dtoCreate.employee_id"  (ngModelChange)="onChangeEmployee()" [ngClass]="{
                     'is-invalid': employee.invalid && employee.touched, 
                     'is-valid': employee.valid && employee.touched
                 }"
-                   required>
+                   >
+                    <option value="" selected></option>
                       @for(e of employees; track $index) {
                         <option value="{{e.id}}">{{e.fullName}}</option>
                       }
@@ -256,14 +257,13 @@
                 <div class="col-10">
                   <input type="text" class="form-control" id="inputApplicant" name="applicant"
                   #applicant="ngModel" required minlength="3" maxlength="50"
-                  [(ngModel)]="dtoCreate.applicant" [disabled]="dtoCreate.employee_id!=undefined|| 
-                  dtoCreate.employee_id!=null "
+                  [(ngModel)]="dtoCreate.applicant" [disabled]="(dtoCreate.employee_id!=undefined|| 
+                  dtoCreate.employee_id!=null ) && dtoCreate.employee_id!=0"
                   [ngClass]="{
                     'is-invalid': applicant.invalid && applicant.touched, 
                     'is-valid': applicant.valid && applicant.touched
                 }">
-                </div>
-                <div class="error-container " style="color: red;   min-height: 20px;">
+                 <div class="error-container " style="color: red;   min-height: 20px;">
                   <div *ngIf="applicant.invalid && applicant.touched" class="error-message">
                     @if(applicant.invalid && applicant.touched){
                       @if(applicant.errors?.['required']){
@@ -275,6 +275,8 @@
                     }
                   </div>
                 </div>
+                </div>
+               
               </div>
 
               <div class="container mt-2 mb-2 py-2" style="border: 1px solid rgba(128, 128, 128, 0.3);
@@ -288,7 +290,6 @@
                       'is-invalid': date.invalid && date.touched, 
                       'is-valid': date.valid && date.touched
                   }">
-                  </div>
                   <div class="error-container">
                     <div *ngIf="date.invalid && date.touched" class="error-message">
                       @if(date.invalid && date.touched){
@@ -298,6 +299,8 @@
                       }
                     </div>
                   </div>
+                  </div>
+                  
                 </div>
               </div>
               
@@ -314,28 +317,30 @@
                   <div class="col-10">
                     <input type="datetime-local" #reincorporation="ngModel" name="reincorporation"
                     [(ngModel)]="dtoCreate.reinstatement_datetime"  [value]="dtoCreate.date | date: 'yyyy-MM-ddTHH:mm'"
-                    class="form-control" id="reincorporation" required
+                    class="form-control" id="reincorporation" required  [ngClass]="{
+                      'is-invalid': reincorporation.invalid && reincorporation.touched, 
+                      'is-valid': reincorporation.valid && reincorporation.touched
+                  }"
                     [disabled]="!reincorporationDate">
+                    <div class="error-container error-message">
+                      @if(reincorporationDate){
+                        @if(reincorporation.invalid && reincorporation.touched){
+                            @if(reincorporation.errors?.['required']){
+                              <p>El campo es requerido</p>
+                            }
+                          }
+                      }
+                    </div>
                   </div>
                 </div>
-                <div class="error-container error-message">
-                  @if(reincorporationDate){
-                    @if(reincorporation.invalid && reincorporation.touched){
-                        @if(reincorporation.errors?.['required']){
-                          <p>El campo es requerido</p>
-                        }
-                      }
-                  }
-                </div>
               </div>
-
             </form>
           </div>
         </div>
 
       </div>
       <div class="modal-footer">
-        <button type="submit" [disabled]="myForm.invalid && !myForm.touched"
+        <button type="submit" [disabled]="myForm.invalid "
          class="btn btn-primary" data-bs-dismiss="modal">Registrar</button>
       </div>
     </div>
