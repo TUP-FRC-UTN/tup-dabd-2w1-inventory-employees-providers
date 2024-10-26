@@ -71,10 +71,10 @@ export const routes: Routes = [
         title: "Crear proveedor"
     },
     {
-        path: "supplier-update",
+        path: "supplier-update/:id",
         component: SupplierUpdateComponent,
         title: "Modificar proveedor"
-    }
+      }
     ,
     {
         path:"employee-post",
