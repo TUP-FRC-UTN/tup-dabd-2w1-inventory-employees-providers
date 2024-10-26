@@ -154,14 +154,23 @@
 
   <!-- Sección: Botones de Acción -->
   <div class="d-flex justify-content-end">
-    <button class="btn btn-secondary me-2" (click)="volverInventario()">
-      Volver
-    </button>
+      <button class="btn btn-secondary me-2" (click)="volverInventario()">
+        Volver
+      </button>
+   
+
+      <button id="warehouseButton" class="btn btn-primary me-2" data-bs-toggle="modal"
+      data-bs-target="#warehouseModal"
+      [disabled]="">
+      Registrar Movimiento
+  </button>
 
     <button id="deleteButton" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
       [disabled]="selectedIds.length === 0">
       Eliminar
     </button>
+
+   
   </div>
 </div>
 
@@ -192,14 +201,18 @@
                   <select class="form-select" #movementType="ngModel" 
                   [(ngModel)]="dtoCreate.id_movement_type" 
                   id="movementType" style="border-radius: 0.25rem;"
-                  name="movementType"
+                  name="movementType"  [ngClass]="{
+                    'is-invalid': movementType.invalid && movementType.touched, 
+                    'is-valid': movementType.valid && movementType.touched
+                }"
                    min="1" required>
                     <option value="1">Préstamo</option>
                     <option value="2">Devolución</option>
                     <option value="3">A mantenimiento</option>
                   </select>
                   <div class="error-container">
-                    <div *ngIf="movementType.invalid && movementType.touched" class="error-message">
+                    <div *ngIf="movementType.invalid && movementType.touched" 
+                    class="error-message" style="color: red;">
                       @if(movementType.invalid){
                         @if(movementType.errors?.['min']){
                           <p>Seleccione un Tipo de Movimiento</p>
@@ -219,12 +232,22 @@
                 <div class="col-10">
                   <select class="form-select" id="employees" style="border-radius: 0.25rem;"
                   name="employee" #employee="ngModel"  
-                  [(ngModel)]="dtoCreate.employee_id" (ngModelChange)="changeSelectEmployees()" required>
-                    <option value="0" disabled selected>Seleccione un Empleado</option>
+                  [(ngModel)]="dtoCreate.employee_id"  [ngClass]="{
+                    'is-invalid': employee.invalid && employee.touched, 
+                    'is-valid': employee.valid && employee.touched
+                }"
+                   required>
                       @for(e of employees; track $index) {
                         <option value="{{e.id}}">{{e.fullName}}</option>
                       }
                   </select>
+                  <div class="error-container">
+                    <div *ngIf="employee.invalid && employee.touched" class="error-message" style="color: red;">
+                      @if(employee.invalid){
+                        <p>El campo es requerido</p>
+                      }
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -233,7 +256,8 @@
                 <div class="col-10">
                   <input type="text" class="form-control" id="inputApplicant" name="applicant"
                   #applicant="ngModel" required minlength="3" maxlength="50"
-                  [(ngModel)]="dtoCreate.applicant" [disabled]="dtoCreate.employee_id!=0"
+                  [(ngModel)]="dtoCreate.applicant" [disabled]="dtoCreate.employee_id!=undefined|| 
+                  dtoCreate.employee_id!=null "
                   [ngClass]="{
                     'is-invalid': applicant.invalid && applicant.touched, 
                     'is-valid': applicant.valid && applicant.touched
@@ -241,7 +265,7 @@
                 </div>
                 <div class="error-container " style="color: red;   min-height: 20px;">
                   <div *ngIf="applicant.invalid && applicant.touched" class="error-message">
-                    @if(applicant.invalid){
+                    @if(applicant.invalid && applicant.touched){
                       @if(applicant.errors?.['required']){
                         <p>El campo es requerido</p>
                       }
@@ -288,9 +312,20 @@
                 <div class="mb-3 row">
                   <label for="inputDate" class="col-form-label col-2">Fecha</label>
                   <div class="col-10">
-                    <input type="datetime-local"  [value]="dtoCreate.date | date: 'yyyy-MM-ddTHH:mm'"
-                    class="form-control" id="inputApplicant" [disabled]="!reincorporationDate">
+                    <input type="datetime-local" #reincorporation="ngModel" name="reincorporation"
+                    [(ngModel)]="dtoCreate.reinstatement_datetime"  [value]="dtoCreate.date | date: 'yyyy-MM-ddTHH:mm'"
+                    class="form-control" id="reincorporation" required
+                    [disabled]="!reincorporationDate">
                   </div>
+                </div>
+                <div class="error-container error-message">
+                  @if(reincorporationDate){
+                    @if(reincorporation.invalid && reincorporation.touched){
+                        @if(reincorporation.errors?.['required']){
+                          <p>El campo es requerido</p>
+                        }
+                      }
+                  }
                 </div>
               </div>
 
@@ -300,7 +335,7 @@
 
       </div>
       <div class="modal-footer">
-        <button type="submit" [disabled]="!myForm.invalid"
+        <button type="submit" [disabled]="myForm.invalid"
          class="btn btn-primary" data-bs-dismiss="modal">Registrar</button>
       </div>
     </div>

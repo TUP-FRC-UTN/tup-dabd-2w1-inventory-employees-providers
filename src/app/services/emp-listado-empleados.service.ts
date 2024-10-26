@@ -8,7 +8,7 @@ import { EmpListadoAsistencias } from '../models/emp-listado-asistencias';
   providedIn: 'root',
 })
 export class EmpListadoEmpleadosService {
-  private readonly BASE_URL = 'http://localhost:8080'; // URL base del servidor
+  private readonly BASE_URL = 'http://localhost:8082'; // URL base del servidor
   private _refresh$ = new Subject<void>();
 
   constructor(private http: HttpClient) {}

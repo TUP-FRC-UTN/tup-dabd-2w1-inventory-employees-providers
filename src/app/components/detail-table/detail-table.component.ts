@@ -34,16 +34,8 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   selectedDetailstoShow: Details[] = [];
 
   employees: EmpListadoEmpleados[] = [];
+  dtoCreate: IepCreateWarehouseMovementDTO=new IepCreateWarehouseMovementDTO();
 
-  dtoCreate: IepCreateWarehouseMovementDTO={
-    responsible: "Encargado de Inventario",
-    id_movement_type: 0,
-    id_details: [],
-    applicant: "",
-    date:  new Date().toISOString().slice(0, 16),
-    reinstatement_datetime: this.formatDateForInput(new Date()),
-    employee_id: 0
-  };
 
   private formatDateForInput(date: Date): Date {
     const year = date.getFullYear();
@@ -82,7 +74,8 @@ export class DetailTableComponent implements OnInit, OnDestroy {
 
   
   changeSelectEmployees(): void{
-    this.dtoCreate.applicant = this.employees.find((employee) => employee.id === this.dtoCreate.employee_id)?.fullName;
+    console.log('Empleado seleccionado:', this.dtoCreate.employee_id);
+    this.dtoCreate.applicant = this.employees.find(emp => emp.id === this.dtoCreate.employee_id)?.fullName ;
   }
 
   loadEmployees(): void {
@@ -122,6 +115,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadDetails();
+    this.loadEmployees();
     this.initializeModal();
   }
 

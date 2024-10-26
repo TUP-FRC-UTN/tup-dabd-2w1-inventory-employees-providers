@@ -32,3 +32,8 @@ div.dataTables_filter label {
   display: flex !important;
   align-items: center !important;
 }
+
+.error-message{
+  color: red;
+  font-size: 0.8em;
+}

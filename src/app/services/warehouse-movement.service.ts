@@ -31,4 +31,5 @@ export class WarehouseMovementService {
     return this.http.get<WarehouseMovement[]>('http://localhost:8082/warehouseMovement/search', { params })
      
   }
+  
 }

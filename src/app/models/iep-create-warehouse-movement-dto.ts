@@ -1,10 +1,10 @@
-export interface IepCreateWarehouseMovementDTO {
-  responsible: string;
-  id_movement_type: number;
-  id_details: number[];
+export class IepCreateWarehouseMovementDTO {
+  responsible: string|undefined;
+  id_movement_type: number|undefined;
+  id_details: number[]|undefined;
   applicant: string|undefined;
-  date: string;
-  reinstatement_datetime: Date;
+  date: string|undefined;
+  reinstatement_datetime: Date|undefined;
   employee_id: number|undefined;
   
 }
