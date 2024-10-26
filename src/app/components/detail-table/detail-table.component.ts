@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DetailServiceService } from '../../services/detail-service.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 import $ from 'jquery';
 import 'datatables.net';
 import 'datatables.net-dt';
@@ -14,6 +15,7 @@ import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { IepCreateWarehouseMovementDTO } from '../../models/iep-create-warehouse-movement-dto';
 import { WarehouseMovementService } from '../../services/warehouse-movement.service';
+import { Route } from '@angular/router';
 @Component({
   selector: 'app-detail-table',
   standalone: true,
@@ -55,6 +57,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   constructor(private detailService: DetailServiceService,
     private employeesService: EmpListadoEmpleadosService,
     private warehouseService: WarehouseMovementService,
+    private router:Router
   ) { }
 
   applyStateFilter(event: any): void {
@@ -336,6 +339,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
 
   volverInventario(): void {
     // Implementa la lógica para volver al inventario
+    this.router.navigate(["inventario"])
   }
 
   // Método para exportar a Excel

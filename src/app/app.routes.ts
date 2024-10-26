@@ -7,6 +7,7 @@ import { TablaComponent } from './components/tabla/tabla.component';
 import { ProductComponent } from './components/product/product.component';
 import { IepRegisterWarehouseComponent } from './components/iep-register-warehouse/iep-register-warehouse.component';
 import { FormLlamadoAtencionComponent } from './components/form-llamado-atencion/form-llamado-atencion.component';
+import { PerformancelistComponent } from './components/performancelist/performancelist.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -43,5 +44,10 @@ export const routes: Routes = [
         component: FormLlamadoAtencionComponent,
         title: 'Llamada de atención'
     },
+    {
+        path: 'desempeño',
+        component: PerformancelistComponent,
+        title: 'desempeño'
+    }
   
 ];
