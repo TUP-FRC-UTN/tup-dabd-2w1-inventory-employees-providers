@@ -29,12 +29,12 @@ export class WarehouseMovementService {
     if (searchParams.detailCount) {
       params = params.append('detailCount', searchParams.detailCount);
     }
-    return this.http.get<WarehouseMovement[]>('http://localhost:8082/warehouseMovement/search', { params })
+    return this.http.get<WarehouseMovement[]>('http://localhost:8080/warehouseMovement/search', { params })
      
   }
 
   public postWarehouseMovement(dto: IepCreateWarehouseMovementDTO,idUser:number):Observable<any> {
-    const url = `http://localhost:8082/warehouseMovement`;
+    const url = `http://localhost:8080/warehouseMovement`;
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     const params = new HttpParams().set('idLastUpdatedUser ', idUser.toString());
     const json = JSON.stringify(dto);
