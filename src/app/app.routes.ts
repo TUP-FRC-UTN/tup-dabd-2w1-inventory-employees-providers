@@ -4,18 +4,21 @@ import { DetailTableComponent } from './components/detail-table/detail-table.com
 import { InventarioComponent } from './components/inventario/inventario.component';
 import { StockAumentoComponent } from './components/stock-aumento/stock-aumento.component';
 import { TablaComponent } from './components/tabla/tabla.component';
+import { ProductComponent } from './components/product/product.component';
+import { IepRegisterWarehouseComponent } from './components/iep-register-warehouse/iep-register-warehouse.component';
+import { FormLlamadoAtencionComponent } from './components/form-llamado-atencion/form-llamado-atencion.component';
 import { IepCargosComponent } from './components/iep-cargos/iep-cargos.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
         component: StockAumentoComponent,
         title: 'Aumento de stock'
-    },/*
+    },
     {
         path: 'registro-productos', // TOMAS
         component: ProductComponent,
         title: 'Registro de productos'
-    },*/
+    },
     {
         path: 'inventario',     // AGUSTIN
         component: InventarioComponent,
@@ -35,6 +38,16 @@ export const routes: Routes = [
         path: 'listado-empleados',     // ENZO
         component: EmpListadoEmpleadosComponent,
         title: 'Listado de empleados'
+    },
+    {
+        path: 'wake-up-call',
+        component: FormLlamadoAtencionComponent,
+        title: 'Llamada de atención'
+    },
+    {
+        path: 'warehouse-movements',
+        component: IepRegisterWarehouseComponent,
+        title: 'Movimientos de inventario'
     },
     {
         path: 'cargos',

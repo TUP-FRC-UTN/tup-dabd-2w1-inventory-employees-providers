@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { Modal } from 'bootstrap';
 import { ChargeResponse } from '../../models/charge-response';
 import { ChargeService } from '../../services/charge.service';
-import { ChargeRequest } from '../../models/charge-request';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-iep-cargos',
@@ -14,123 +15,257 @@ import { ChargeRequest } from '../../models/charge-request';
   templateUrl: './iep-cargos.component.html',
   styleUrl: './iep-cargos.component.css'
 })
-export class IepCargosComponent implements OnInit{
+export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
   cargoForm: FormGroup;
   cargos: ChargeResponse[] = [];
   selectedCargo: ChargeResponse | null = null;
   modoEdicion = false;
-  modal: any;
+  private table: any;
+  isModalVisible = false; 
+  isConfirmModalVisible = false;
+  isModalOpen = false;
+  isConfirmDeleteModalOpen = false;
 
   constructor(
     private fb: FormBuilder,
-    private cargoService: ChargeService
+    private cargoService: ChargeService,
   ) {
     this.cargoForm = this.fb.group({
       charge: ['', Validators.required],
-      description: ['', [Validators.required, Validators.maxLength(500)]]
+      description: ['', Validators.required]
     });
   }
 
-  ngOnInit() {
+  exportToPdf(): void {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Lista de Cargos', 10, 10);
+
+    const dataToExport = this.cargos.map((cargo) => [
+      cargo.charge,                
+      cargo.description,          
+    ]);
+
+    (doc as any).autoTable({
+      head: [['Cargo', 'Descripción']],
+      body: dataToExport,
+      startY: 20,
+    });
+
+    doc.save('Lista_Cargos.pdf');
+  }
+
+  exportToExcel(): void {
+     const dataToExport = this.cargos.map((cargo) => ({
+      'Cargo': cargo.charge,
+      'Descripción': cargo.description,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Cargos');
+
+    XLSX.writeFile(workbook, 'Lista_Cargos.xlsx');
+  }
+
+
+  ngOnInit(): void {
     this.loadCargos();
-    this.modal = new Modal(document.getElementById('cargoModal')!);
   }
 
-  loadCargos() {
+  ngAfterViewInit(): void {
+    this.initializeDataTable();
+  }
+
+  loadCargos(): void {
     this.cargoService.getAllCargos().subscribe({
-      next: (cargos: ChargeResponse[]) => {
+      next: (cargos) => {
         this.cargos = cargos;
+        this.refreshDataTable();
       },
-      error: (error) => {
-        console.error('Error loading cargos', error);
+      error: (err) => {
+        console.error('Error al cargar cargos:', err);
       }
     });
   }
 
-  abrirModalNuevo() {
-    this.modoEdicion = false;
-    this.selectedCargo = null;
-    this.cargoForm.reset();
-    this.modal.show();
-  }
-
-  abrirModalEditar(cargo: ChargeResponse) {
-    this.modoEdicion = true;
-    this.selectedCargo = cargo;
-    this.cargoForm.patchValue({
-      charge: cargo.charge,
-      description: cargo.description
-    });
-    this.modal.show();
-  }
-
-  onSubmit() {
-    if (this.cargoForm.valid) {
-      if (this.modoEdicion && this.selectedCargo) {
-        this.actualizarCargo();
-      } else {
-        this.crearCargo();
-      }
+  private refreshDataTable(): void {
+    if (this.table) {
+      this.table.clear().destroy();
+      this.initializeDataTable();
     } else {
-      this.markAllControlsAsTouched();
+      this.initializeDataTable();
     }
   }
 
-  private crearCargo() {
-    const cargoData: ChargeRequest = this.cargoForm.value;
-    this.cargoService.createCargo(cargoData).subscribe({
-      next: (response) => {
-        alert('Cargo creado con éxito');
-        this.modal.hide();
-        this.cargoForm.reset();
-        this.loadCargos(); // Recargar la lista
-      },
-      error: (error) => {
-        console.error('Error creating cargo', error);
+  initializeDataTable(): void {
+    if (!this.cargos || this.cargos.length === 0) {
+      return;
+    }
+
+    this.table = $('#cargosTable').DataTable({
+      data: this.cargos,
+      columns: [
+        { data: 'charge', title: 'Cargo' },
+        { data: 'description', title: 'Descripción' },
+        {
+          data: null,
+          title: 'Acciones',
+          orderable: false,
+          render: (data: any) => {
+            return `
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                  ...
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <li><a class="dropdown-item edit-btn" href="#" data-id="${data.id}">Editar</a></li>
+                  <li><a class="dropdown-item delete-btn" href="#" data-id="${data.id}">Eliminar</a></li>
+                </ul>
+              </div>`;
+          }
+        }
+      ],
+      pageLength: 10,
+      lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+      language: {
+        emptyTable: "No hay datos disponibles en la tabla",
+        zeroRecords: "No se encontraron coincidencias",
+        info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+        infoEmpty: "Mostrando 0 a 0 de 0 entradas",
+        infoFiltered: "(filtrado de _MAX_ entradas totales)",
+        lengthMenu: "Mostrar _MENU_ registros por página",
+        search: 'Buscar:',
+        paginate: {
+          first: '<i class="fas fa-angle-double-left"></i>',  
+          last: '<i class="fas fa-angle-double-right"></i>',   
+          next: '<i class="fas fa-angle-right"></i>',          
+          previous: '<i class="fas fa-angle-left"></i>' 
+        }
+      }
+    });
+
+    this.setupTableListeners();
+  }
+
+  private setupTableListeners(): void {
+    this.table.on('click', '.edit-btn', (event: { preventDefault: () => void; currentTarget: any; }) => {
+      event.preventDefault();
+      const id = parseInt($(event.currentTarget).data('id'), 10);
+      const cargo = this.cargos.find(c => c.id === id);
+      if (cargo) {
+        this.abrirModalEditar(cargo);
+      }
+    });
+
+    this.table.on('click', '.delete-btn', (event: { preventDefault: () => void; currentTarget: any; }) => {
+      event.preventDefault();
+      const id = parseInt($(event.currentTarget).data('id'), 10);
+      const cargo = this.cargos.find(c => c.id === id);
+      if (cargo) {
+        this.abrirModalConfirmarEliminacion(cargo);
       }
     });
   }
 
-  private actualizarCargo() {
-    if (this.selectedCargo) {
-      const updatedCargo = this.cargoForm.value;
-      this.cargoService.updateCargo(this.selectedCargo.id, updatedCargo).subscribe({
-        next: (response) => {
-          alert('Cargo actualizado con éxito');
-          this.modal.hide();
-          this.cargoForm.reset();
-          this.loadCargos(); // Recargar la lista
+  abrirModalConfirmarEliminacion(cargo: ChargeResponse): void {
+    this.selectedCargo = cargo;
+    this.isConfirmDeleteModalOpen = true; 
+  }
+
+  abrirModalNuevo(): void {
+    this.modoEdicion = false;  
+    this.selectedCargo = null;  
+    this.cargoForm.reset();     
+    this.isModalOpen = true; 
+  }
+
+  abrirModalEditar(cargo: any): void {
+    this.modoEdicion = true; 
+    this.selectedCargo = cargo; 
+    this.cargoForm.patchValue(cargo); 
+    this.isModalOpen = true; 
+  }
+
+  onSubmit(): void {
+    if (this.cargoForm.valid) {
+      if (this.modoEdicion) {
+        if(this.selectedCargo){
+          this.cargoService.updateCargo(this.selectedCargo.id, this.cargoForm.value).subscribe(() => {
+            this.loadCargos(); 
+            this.isModalOpen = false; 
+          });
+        }
+      } else {
+        this.cargoService.createCargo(this.cargoForm.value).subscribe(() => {
+          this.loadCargos(); 
+          this.isModalOpen = false; 
+        });
+      }
+    }
+  }
+  
+  private crearCargo(): void {
+    this.cargoService.createCargo(this.cargoForm.value).subscribe({
+      next: () => {
+        this.loadCargos();
+        this.isModalVisible = false; 
+      },
+      error: (err) => {
+        console.error('Error al crear cargo:', err);
+      }
+    });
+  }
+
+  private actualizarCargo(): void {
+    if (this.selectedCargo && typeof this.selectedCargo.id === 'number') {
+      this.cargoService.updateCargo(this.selectedCargo.id, this.cargoForm.value).subscribe({
+        next: () => {
+          this.loadCargos(); 
+          this.isModalVisible = false; 
         },
-        error: (error) => {
-          console.error('Error al actualizar el cargo', error);
+        error: (err) => {
+          console.error('Error al actualizar cargo:', err);
         }
       });
+    } else {
+      console.error('Cargo seleccionado no es válido o no tiene ID.');
     }
   }
 
-  markAllControlsAsTouched() {
+  markAllControlsAsTouched(): void {
     Object.keys(this.cargoForm.controls).forEach(key => {
       this.cargoForm.get(key)?.markAsTouched();
     });
   }
 
-  onCancel() {
-    this.modal.hide();
+  onCancel(): void {
+    this.isModalOpen = false;
     this.cargoForm.reset();
+    this.selectedCargo = null;
+    this.modoEdicion = false; 
+    this.isConfirmDeleteModalOpen = false;
   }
 
-  eliminarCargo(id: number) {
-    if (confirm('¿Está seguro de que desea eliminar este cargo?')) {
-      this.cargoService.deleteCargo(id).subscribe({
-        next: () => {
-          alert('Cargo eliminado con éxito');
-          this.loadCargos();
-        },
-        error: (error) => {
-          console.error('Error al eliminar el cargo', error);
-        }
-      });
+  eliminarCargo(id: number): void {
+    if (!id) return;
+
+    this.cargoService.updateStatus(id).subscribe({
+      next: () => {
+        this.isConfirmDeleteModalOpen = false;
+        this.selectedCargo = null;
+        this.loadCargos();
+      },
+      error: (err) => {
+        console.error('Error al eliminar cargo:', err);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.table) {
+      this.table.destroy();
     }
   }
-
 }
+

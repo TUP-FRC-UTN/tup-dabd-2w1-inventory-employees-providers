@@ -26,10 +26,10 @@ export class ChargeService {
   }
 
   getAllCargos(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}`);
+    return this.http.get<any[]>(`${this.apiUrl}/active`);
   }
 
-  deleteCargo(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  updateStatus(id: number): Observable<ChargeResponse> {
+    return this.http.put<ChargeResponse>(`${this.apiUrl}/status/${id}`, null);
   }
 }

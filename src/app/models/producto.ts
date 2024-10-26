@@ -6,6 +6,7 @@ export interface Producto {
   supplier: string;
   amount: number;
   description: string;
+  stockAfterModification?: number; // Stock después de la modificación (opcional)
 }
 
 export interface ProductoResponse {
