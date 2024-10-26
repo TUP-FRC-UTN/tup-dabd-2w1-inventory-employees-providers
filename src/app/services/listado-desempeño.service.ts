@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, forkJoin, map, BehaviorSubject, tap } from 'rxjs';
 import { Employee, EmployeePerformance, Performance } from '../models/listado-desempeño';
 
 @Injectable({
@@ -10,6 +10,10 @@ export class ListadoDesempeñoService {
 
   private employeesUrl = 'http://localhost:8080/employees/allEmployees';
   private wakeUpCallsUrl = 'http://localhost:8080/wakeUpCalls/todas';
+
+  // Subject para manejar el estado de los datos
+  private performancesSubject = new BehaviorSubject<EmployeePerformance[]>([]);
+  performances$ = this.performancesSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -38,7 +42,13 @@ export class ListadoDesempeñoService {
             performanceType: performance.performanceType
           };
         });
-      })
+      }),
+      tap(data => this.performancesSubject.next(data)) // Emite los datos al Subject
     );
+  }
+
+  // Método para forzar la actualización del listado
+  refreshData(): void {
+    this.getCombinedData().subscribe();
   }
 }
