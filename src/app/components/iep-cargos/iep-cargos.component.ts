@@ -75,6 +75,7 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initializeDataTable();
+
   }
 
   loadCargos(): void {

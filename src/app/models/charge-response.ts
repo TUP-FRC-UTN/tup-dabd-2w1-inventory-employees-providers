@@ -6,4 +6,5 @@ export interface ChargeResponse {
     createdUser: number;
     lastUpdateDate: string;
     lastUpdateUser: number;
+    active: boolean;
 }
