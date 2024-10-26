@@ -60,6 +60,10 @@ export class PerformancelistComponent implements OnInit {
     });
   }
 
+  
+
+
+
   setAvailableYears(): void {
     const years = this.performances.map(p => p.year);
     this.availableYears = [...new Set(years)].sort((a, b) => b - a);

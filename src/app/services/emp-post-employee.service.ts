@@ -35,7 +35,7 @@ export class EmpPostEmployeeService {
   }
 
   getCharges():Observable<Charge[]>{
-    return this.client.get<Charge[]>(this.baseUrlCharges+'/all');
+    return this.client.get<Charge[]>(this.baseUrlCharges);
   }
 
 

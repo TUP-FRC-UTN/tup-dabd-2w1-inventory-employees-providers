@@ -1,7 +1,7 @@
-<div class="container mt-5 col-md-6">
+<div class="container mt-5 col-md-8 ">
     <form #form="ngForm" (ngSubmit)="onSubmit(form)" class="form-container border rounded border shadow p-4">
         <div class="bg-light">
-            <h2 class="text-center mb-5 ">FORMULARIO NUEVO EMPLEADO</h2>
+            <h2 class="text-center mb-5 pt-4">FORMULARIO NUEVO EMPLEADO</h2>
             <hr class="my-4">
         </div>
       
@@ -420,7 +420,7 @@
               <div class="col-md-6 ">
                 <div class="row">
                     <label for="start-time-contract" class="col-form-label col-md-3">Inicio:</label>
-                       <div class="col-md-6">
+                       <div class="col-md-9">
                         <input type="date" id="startTimeContract" id="startTimeContract"
                         class="form-control" 
                         name="startTimeContract" 
@@ -429,10 +429,10 @@
                         required
                         (ngModelChange)="validateDate()"
                         [ngClass]="{
-                            'is-invalid': startTimeContractModel.invalid && startTimeContractModel.touched || invalidDate, 
-                            'is-valid': startTimeContractModel.valid && startTimeContractModel.touched && !invalidDate
+                            'is-invalid': (startTimeContractModel.invalid && startTimeContractModel.touched) || invalidDate, 
+                            'is-valid': (startTimeContractModel.valid && startTimeContractModel.touched )&& !invalidDate
                         }">
-                        <div *ngIf="startTimeContractModel.invalid && startTimeContractModel.touched" class="invalid-feedback">
+                        <div *ngIf="(startTimeContractModel.invalid && startTimeContractModel.touched )||(invalidDate && startTimeContractModel.touched)" class="invalid-feedback">
                             Por favor, selecciona una fecha válida.
                         </div>      
                        </div>
