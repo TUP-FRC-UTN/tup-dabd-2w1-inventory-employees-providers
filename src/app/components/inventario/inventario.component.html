@@ -3,7 +3,6 @@
   /* Define el estilo de fondo, fuente y margen para el cuerpo */
   body {
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
     margin: 0;
     padding: 20px;
   }
@@ -260,14 +259,14 @@
           <!-- Botón para limpiar filtros -->
           <div class="col-6" style="text-align: end">
             <button class="btn btn-primary" (click)="cleanFilters()">
-              Limpiar filtros
-            </button>
+              <i class="bi bi-trash"></i></button>
           </div>
+          
         </div>
       </div>
 
       <!-- Tabla con el estado de productos según la categoría -->
-      <div class="container row mb-3">
+<!--       <div class="container row mb-3">
         <div class="row">
           <div class="col-10">
             <label>Estado de productos</label>
@@ -292,7 +291,7 @@
             </tbody>
           </table>
         </div>
-      </div>
+      </div> -->
 
       <!-- Tabla de productos y botones para generar PDF o Excel -->
       <div class="container row">
