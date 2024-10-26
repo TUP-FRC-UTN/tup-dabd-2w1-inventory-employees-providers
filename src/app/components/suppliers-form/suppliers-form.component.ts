@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { BotonVolverComponent } from "../boton-volver/boton-volver.component";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SuppliersService } from '../../services/suppliers.service';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-suppliers-form',
@@ -14,7 +14,7 @@ import { RouterModule } from '@angular/router';
 export class SuppliersFormComponent {
   proveedorForm!: FormGroup;
 
-  constructor(private fb: FormBuilder,private supplierService:SuppliersService) {}
+  constructor(private fb: FormBuilder,private supplierService:SuppliersService,private router: Router) {}
 
   ngOnInit(): void {
     this.proveedorForm = this.fb.group({
@@ -36,8 +36,8 @@ export class SuppliersFormComponent {
       console.log(formData);
       this.supplierService.createSupplier(formData).subscribe((response) => {
         this.proveedorForm.reset();
-        alert('Proveedoredor creado exitosamente');
-        console.log(response);
+        this.router.navigate(['/suppliers']);
+        
       });
     }
   }
