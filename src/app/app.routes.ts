@@ -4,18 +4,25 @@ import { DetailTableComponent } from './components/detail-table/detail-table.com
 import { InventarioComponent } from './components/inventario/inventario.component';
 import { StockAumentoComponent } from './components/stock-aumento/stock-aumento.component';
 import { TablaComponent } from './components/tabla/tabla.component';
+
 import { IEPFormPostEmployeesComponent } from './components/iep-form-post-employees/iep-form-post-employees.component';
+
+import { ProductComponent } from './components/product/product.component';
+import { IepRegisterWarehouseComponent } from './components/iep-register-warehouse/iep-register-warehouse.component';
+import { FormLlamadoAtencionComponent } from './components/form-llamado-atencion/form-llamado-atencion.component';
+import { WarehouseMovementSearchComponent } from './components/warehouse-movement-search/warehouse-movement-search.component';
+
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
         component: StockAumentoComponent,
         title: 'Aumento de stock'
-    },/*
+    },
     {
         path: 'registro-productos', // TOMAS
         component: ProductComponent,
         title: 'Registro de productos'
-    },*/
+    },
     {
         path: 'inventario',     // AGUSTIN
         component: InventarioComponent,
@@ -37,9 +44,22 @@ export const routes: Routes = [
         title: 'Listado de empleados'
     },
     {
+
         path: 'post-empleado',
         component:IEPFormPostEmployeesComponent,
         title:'alta empleado'
 
+    },
+    {
+
+        path: 'wake-up-call',
+        component: FormLlamadoAtencionComponent,
+        title: 'Llamada de atención'
+    },
+    {
+        path: 'warehouse-movements',
+        component: WarehouseMovementSearchComponent,
+        title: 'Ver almacenes'
     }
+
 ];

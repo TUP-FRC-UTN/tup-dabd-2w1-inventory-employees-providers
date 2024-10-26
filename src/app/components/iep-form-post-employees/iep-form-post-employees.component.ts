@@ -71,7 +71,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   postDto:PostEmployeeDto = new PostEmployeeDto();
   adressDto:AddressDto =new AddressDto();
  
-//TODO: validar bien la fecha
+
   public validateDate() {
     if (this.startTimeContract != null) {
       const today = new Date().setHours(0, 0, 0, 0);

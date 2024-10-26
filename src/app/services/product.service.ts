@@ -5,6 +5,7 @@ import { CreateProductDtoClass } from '../models/create-product-dto-class';
 import { DtoProducto } from '../models/dto-producto';
 import { ProductCategory } from '../models/product-category';
 import { Producto } from '../models/producto';
+import { ProductXDetailDto } from '../models/product-xdetail-dto';
 @Injectable({
   providedIn: 'root'
 })
@@ -48,6 +49,10 @@ import { Producto } from '../models/producto';
     });
   }
 
+  getAllProducts(): Observable<ProductXDetailDto[]> {
+    return this.http.get<any[]>(this.apiUrl+'/getAll');
+  }
+
   // ENZO
   getProductos(): Observable<Producto[]> {
     return this.http.get<any[]>(this.historialAmountUrl).pipe(map(data => data.map(item => ({...item,
@@ -72,6 +77,11 @@ import { Producto } from '../models/producto';
     console.log(json);
 
     return this.http.post<any>(url, json, { headers, params });
+  }
+
+  productGet():Observable<DtoProducto[]>{
+    console.log("aa")
+    return this.http.get<DtoProducto[]>(this.productUrl);
   }
 
   getPdf(): Observable<ArrayBuffer> {
