@@ -35,6 +35,7 @@ export class StockAumentoComponent implements OnInit {
     this.loadSuppliers();  // Cargar proveedores al iniciar
     this.loadProductById(this.productId); // Cargar el producto por su ID que defines en el código
   }
+  
 
   initializeForm() {
     this.stockForm = this.formBuilder.group({
@@ -104,5 +105,4 @@ export class StockAumentoComponent implements OnInit {
   goBack() {
     window.history.back();
   }  
-
 }

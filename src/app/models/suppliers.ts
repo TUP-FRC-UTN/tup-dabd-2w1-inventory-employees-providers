@@ -1,10 +1,13 @@
 export interface Supplier {
     id: number;
     name: string;
-    healthInsurance: number;
+    healthInsurance: string;
     authorized: boolean;
     address: string;
-    supplierTypeId: number | null;
+    supplierType: string;
     description: string | null;
+    email: string;
+    phoneNumber: string;
+    discontinued:boolean;
   }
   

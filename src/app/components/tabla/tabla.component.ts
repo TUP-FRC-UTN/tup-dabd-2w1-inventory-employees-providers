@@ -28,7 +28,28 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private excelPdfService: GenerateExcelPdfService
-  ) {}
+  ) { }
+
+  applyFilter(event: Event): void {
+    const input = event.target as HTMLInputElement; // Obtener el valor del input
+    const filterValue = input.value.toLowerCase(); // Convertir a minúsculas para una comparación insensible
+
+    // Filtrar los productos según el valor del input
+    this.filteredProductos = this.productos.filter((producto) => {
+      return (
+        producto.product.toLowerCase().includes(filterValue) || // Filtrar por producto
+        producto.modificationType.toLowerCase().includes(filterValue) || // Filtrar por tipo de movimiento
+        producto.supplier.toLowerCase().includes(filterValue) || // Filtrar por proveedor
+        producto.description.toLowerCase().includes(filterValue) // Filtrar por justificativo
+      );
+    });
+
+    // Actualizar el DataTable con los productos filtrados
+    if (this.table) {
+      this.table.clear().rows.add(this.filteredProductos).draw();
+    }
+  }
+
 
   onStartDateChange(): void {
     const startDateInput: HTMLInputElement = document.getElementById(
@@ -167,10 +188,10 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
   // Método que inicializa el DataTable
   initializeDataTable(): void {
     this.table = $('#historialTable').DataTable({
-      layout: {
-        topStart: 'search',
-        topEnd: null,
-      },
+      /*       layout: {
+              topStart: 'search',
+              topEnd: null,
+            }, */
       data: this.filteredProductos, // Usar la lista filtrada
       columns: [
         { data: 'date', title: 'Fecha' }, // Columna de fecha
@@ -181,18 +202,23 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
         { data: 'description', title: 'Justificativo' }, // Columna de justificativo
         { data: 'stockAfterModification', title: 'Stock Después' },
       ],
-      pageLength: 10, // Número de registros por página
-      lengthChange: false, // Deshabilita el selector de cantidad de registros
+      pageLength: 10,
+      lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
+      lengthMenu: [ // Opciones para el menú desplegable de longitud
+        [10, 25, 50], // Valores para el número de filas
+        [10, 25, 50] // Etiquetas para el número de filas
+      ],
+      searching: false, // Desactivar la búsqueda
       order: [[0, 'desc']], // Ordenar por fecha de forma descendente
       language: {
         search: 'Buscar:',
         info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
         emptyTable: 'No se encontraron registros', // Mensaje personalizado si no hay datos        
         paginate: {
-          first: 'Primero',
-          last: 'Último',
-          next: 'Siguiente',
-          previous: 'Anterior',
+          first: '<<',
+          last: '>>',
+          next: '>',
+          previous: '<',
         },
       },
     });

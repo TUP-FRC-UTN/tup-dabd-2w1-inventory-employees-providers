@@ -4,126 +4,111 @@ import { ListadoDesempeñoService } from '../../services/listado-desempeño.serv
 import { EmployeePerformance } from '../../models/listado-desempeño';
 import { FormsModule, NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
-import $ from 'jquery'; // Importación de jQuery
+
+import $ from 'jquery';
 import 'datatables.net'; // Importación de DataTables
 import 'datatables.net-dt'; // Estilos para DataTables
 import { BrowserModule } from '@angular/platform-browser';
+import { StockAumentoComponent } from '../stock-aumento/stock-aumento.component';
+import { FormLlamadoAtencionComponent } from '../form-llamado-atencion/form-llamado-atencion.component';
 
 @Component({
   selector: 'app-performancelist',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, StockAumentoComponent, FormLlamadoAtencionComponent],
   templateUrl: './performancelist.component.html',
   styleUrl: './performancelist.component.css'
 })
-export class PerformancelistComponent implements OnInit, AfterViewInit {
-  employeePerformances: EmployeePerformance[] = [];
-  
-  startDate!: string;  
-  endDate!: string;    
-  showWakeUpCallForm: boolean = false;
+export class PerformancelistComponent implements OnInit {
+  performances: EmployeePerformance[] = [];
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
+  searchTerm: string = '';
+  selectedYear: string = '';
+  selectedMonth: string = '';
 
-  constructor(private employeePerformanceService: ListadoDesempeñoService,private router: Router) {}
+  availableYears: number[] = []; // Lista de años disponibles para el filtro
+  months: string[] = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  showModal = false;
 
-  navigateToWakeUpCallForm(): void {
-    this.router.navigate(['/wake-up-call']);  // Redirigir a la ruta del formulario
+  openModal() {
+    this.showModal = true;
   }
+
+  closeModal() {
+    this.showModal = false;
+  }
+
+  constructor(private employeeService: ListadoDesempeñoService, private router: Router) {}
 
   ngOnInit(): void {
-    const today = new Date();
+    // Suscribirse a los datos para recibir actualizaciones en tiempo real
+    this.employeeService.performances$.subscribe({
+      next: (data) => {
+        this.performances = data;
+        this.setAvailableYears();
+      },
+      error: (error) => {
+        console.error('Error al cargar datos:', error);
+      }
+    });
 
-    // Calcular la fecha de inicio y fin del mes anterior
-    const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-
-    // Asignar las fechas de inicio y fin
-    this.startDate = this.formatDate(firstDayOfLastMonth);
-    this.endDate = this.formatDate(lastDayOfLastMonth);
-
-    // Obtener las performances del rango de fechas del mes anterior
-    this.getPerformancesByDateRange(firstDayOfLastMonth, lastDayOfLastMonth);
+    // Inicializar los datos
+    this.employeeService.refreshData();
   }
 
-  ngAfterViewInit(): void {
-    this.initDataTable(); // Inicializar DataTable
-  }
-
-  getPerformancesByDateRange(start: Date, end: Date): void {
-    this.employeePerformanceService.getEmployeesPerformanceByDateRange(start, end)
-      .subscribe((data: EmployeePerformance[]) => {
-        this.employeePerformances = data;
-
-        // Volver a inicializar DataTables después de cargar nuevos datos
-        this.initDataTable(); // Llamar a la función de inicialización
-      });
-  }
-
-  onFilterByDate(): void {
-    const start = new Date(this.startDate);
-    let end = new Date(this.endDate);
-
-    // Validar que las fechas son válidas
-    if (start && end && start <= end) {
-      // Asegurarse de que la fecha de inicio es el primer día del mes
-      start.setDate(1);
-      // Asegurarse de que la fecha de fin es el último día del mes
-      end = new Date(end.getFullYear(), end.getMonth() + 1, 0); // El último día del mes
-
-      this.getPerformancesByDateRange(start, end);
-    } else {
-      alert('Por favor, seleccione un rango de fechas válido.');
-    }
-  }
-
-  initDataTable(): void {
-    // Limpiar DataTable si ya está inicializado
-    if ($.fn.dataTable.isDataTable('#employeePerformanceTable')) {
-      $('#employeePerformanceTable').DataTable().clear().destroy();
-    }
-
-    // Inicializar DataTables
-    $('#employeePerformanceTable').DataTable({
-      data: this.employeePerformances,
-      columns: [
-        { 
-          data: 'performance', // Array de wake up calls
-          render: (data) => {
-            // Mostrar la fecha de inicio del primer wake up call o 'No hay fechas'
-            return data.length > 0 ? new Date(data[0].startDate).toLocaleDateString() : 'No hay fechas';
-          }
-        },
-        { 
-          data: 'performance', // Array de wake up calls
-          render: (data) => {
-            // Mostrar la fecha de fin del primer wake up call o 'No hay fechas'
-            return data.length > 0 ? new Date(data[0].endDate).toLocaleDateString() : 'No hay fechas';
-          }
-        },
-        { data: 'employee.fullName' }, // Nombre del empleado
-        { data: 'employee.position' },  // Cargo del empleado
-        { 
-          data: 'performance', // Array de wake up calls
-          render: (data) => {
-            // Mostrar el primer tipo de desempeño o 'No hay datos'
-            return data.length > 0 ? data[0].performanceType : 'No hay datos';
-          }
-        },
-        { 
-          data: 'performance', // Array de wake up calls
-          render: (data) => {
-            // Mostrar la cantidad de observaciones o 'No hay observaciones'
-            return data.length > 0 ? data.length : 'No hay observaciones';
-          }
-        }
-      ]
+  loadData(): void {
+    this.employeeService.getCombinedData().subscribe({
+      next: (data) => {
+        this.performances = data;
+        this.setAvailableYears(); // Inicializar años disponibles
+      },
+      error: (error) => {
+        console.error('Error loading data:', error);
+      }
     });
   }
 
-  // Método para formatear la fecha en formato 'YYYY-MM-DD'
-  private formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Sumar 1 al mes
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  setAvailableYears(): void {
+    const years = this.performances.map(p => p.year);
+    this.availableYears = [...new Set(years)].sort((a, b) => b - a);
+  }
+
+  sort(column: string): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    this.performances.sort((a: any, b: any) => {
+      const direction = this.sortDirection === 'asc' ? 1 : -1;
+      return a[column] > b[column] ? direction : -direction;
+    });
+  }
+
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) return '↕';
+    return this.sortDirection === 'asc' ? '↑' : '↓';
+  }
+
+  filterData(): EmployeePerformance[] {
+    return this.performances.filter(performance =>
+      (this.searchTerm === '' || performance.fullName.toLowerCase().includes(this.searchTerm.toLowerCase()) || performance.performanceType.toLowerCase().includes(this.searchTerm.toLowerCase())) &&
+      (this.selectedYear === '' || performance.year === +this.selectedYear) &&
+      (this.selectedMonth === '' || performance.month === +this.selectedMonth)
+    );
+  }
+
+  getMonthName(month: number): string {
+    return this.months[month - 1];
+  }
+
+  navigateToWakeUpCallForm(): void {
+    this.router.navigate(['/wake-up-call']);
   }
 }

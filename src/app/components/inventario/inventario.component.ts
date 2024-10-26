@@ -1,4 +1,10 @@
-import { Component, inject, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  AfterViewInit,
+} from '@angular/core';
 import { debounceTime, Observable, Subscription } from 'rxjs';
 import { CategoriaService } from '../../services/categoria.service';
 import { EstadoService } from '../../services/estado.service';
@@ -19,34 +25,36 @@ import 'datatables.net-bs5';
 import { ProductXDetailDto } from '../../models/product-xdetail-dto';
 import DataTable from 'datatables.net-dt';
 import { Details } from '../../models/details';
-import { ProductComponent } from "../product/product.component";
+import { ProductComponent } from '../product/product.component';
 import jsPDF from 'jspdf';
+import { StockAumentoComponent } from '../stock-aumento/stock-aumento.component';
 
 @Component({
   selector: 'app-inventario',
   standalone: true,
-  imports: [FormsModule, CommonModule, ProductComponent],
+  imports: [FormsModule, CommonModule, ProductComponent, StockAumentoComponent],
   templateUrl: './inventario.component.html',
-  styleUrl: './inventario.component.css'
+  styleUrl: './inventario.component.css',
 })
 export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
-  private categoriaService = inject(CategoriaService)
-  private estadoService = inject(EstadoService)
-  private productoService = inject(ProductService)
-  private detalleProductoService = inject(DetailServiceService)
-  private stockAumentoService = inject(StockAumentoService)
-  private router = inject(Router)
+  private categoriaService = inject(CategoriaService);
+  private estadoService = inject(EstadoService);
+  private productoService = inject(ProductService);
+  private detalleProductoService = inject(DetailServiceService);
+  private stockAumentoService = inject(StockAumentoService);
+  private router = inject(Router);
   modalVisible: boolean = false;
 
-  categorias$: Observable<ProductCategory[]> = new Observable<ProductCategory[]>();
+  categorias$: Observable<ProductCategory[]> = new Observable<
+    ProductCategory[]
+  >();
   estados$: Observable<String[]> = new Observable<String[]>();
 
-
-
-  productos$:Observable<ProductXDetailDto[]> = new Observable<ProductXDetailDto[]>();
+  productos$: Observable<ProductXDetailDto[]> = new Observable<
+    ProductXDetailDto[]
+  >();
   productosALL: any[] = [];
   productosFiltered: any[] = [];
-
 
   categoriasSubscription: Subscription | undefined;
   estadosSubscription: Subscription | undefined;
@@ -62,7 +70,7 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
   amountBroken: number = 0;
 
   categoria: number = 0;
-  reusable: number =0;
+  reusable: number = 0;
   cantMinima: number = 0;
   cantMaxima: number = 0;
   nombre: string = '';
@@ -70,26 +78,21 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
   requestInProcess: boolean = false;
 
   myMap: Record<string, number> = {
-    'Disponible': 0,
-    'Prestado': 0,
-    'Roto': 0
+    Disponible: 0,
+    Prestado: 0,
+    Roto: 0,
   };
   private table: any;
 
   validoMin: boolean = true;
   validoMax: boolean = true;
-  mensajeValidacionMin: string = "";
-  mensajeValidacionMax: string = "";
+  mensajeValidacionMin: string = '';
+  mensajeValidacionMax: string = '';
 
-  valAmount:boolean = false;
-
-  abrirModal() {
-    this.modalVisible = true; // Muestra el modal
-  }
-
-  cerrarModal() {
-    this.modalVisible = false; // Oculta el modal
-  }
+  valAmount: boolean = false;
+  showAumentoStockModal: boolean = false;
+  showNuevoProductoModal: boolean = false;
+  selectedProductId: number | null = null;
 
   ngOnInit(): void {
     this.initializeDataTable();
@@ -97,10 +100,9 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     this.cargarProductos();
   }
 
-  ngAfterViewInit(): void {
-  }
+  ngAfterViewInit(): void { }
 
-  cargarProductos(){
+  cargarProductos() {
     this.requestInProcess = true;
     this.productos$ = this.productoService.getAllProducts();
     this.productos$.subscribe({
@@ -114,11 +116,11 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       complete: () => {
         console.log('Completado');
-      }
+      },
     });
   }
-  
-  cargarDatos(){
+
+  cargarDatos() {
     this.categorias$ = this.categoriaService.getCategorias();
     this.categorias$.subscribe({
       next: (categorias) => {
@@ -130,62 +132,73 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       complete: () => {
         console.log('Completado');
-      }
+      },
     });
     this.estados$ = this.estadoService.getEstados();
     this.estados$.subscribe({
       next: (estados) => {
         this.estados = estados;
-        console.log('ESTADOS'+this.estados);
+        console.log('ESTADOS' + this.estados);
       },
       error: (error) => {
         console.error(error);
       },
       complete: () => {
         console.log('Completado');
-      }
+      },
     });
   }
-  
+
   aplicarFiltros(): void {
-    this.productosFiltered=[];
-    if(this.cantMinima>this.cantMaxima){
-      this.validoMin=false;
-    }else{
-      this.validoMin=true;
+    this.productosFiltered = [];
+    if (this.cantMinima > this.cantMaxima) {
+      this.validoMin = false;
+    } else {
+      this.validoMin = true;
     }
-    if(this.cantMaxima<this.cantMinima){
-      this.validoMax=false;
-    }else{
-      this.validoMax=true;
+    if (this.cantMaxima < this.cantMinima) {
+      this.validoMax = false;
+    } else {
+      this.validoMax = true;
     }
 
-    if(!this.reusable){
+    if (!this.reusable) {
       this.reusable = 0;
     }
-    if(!this.cantMaxima){
+    if (!this.cantMaxima) {
       this.cantMaxima = 0;
     }
-    if(!this.cantMinima){
+    if (!this.cantMinima) {
       this.cantMinima = 0;
     }
     console.log(this.reusable);
-    this.productosFiltered = this.productosALL.filter(producto => {
-      const nombreCumple = this.nombre === '' || producto.name.toLowerCase().includes(this.nombre.toLowerCase());
-      const categoriaCumple = this.categoria == 0 || producto.category.categoryId == this.categoria;
-      if(producto.reusable==true && this.reusable == 1){
+    this.productosFiltered = this.productosALL.filter((producto) => {
+      const nombreCumple =
+        this.nombre === '' ||
+        producto.name.toLowerCase().includes(this.nombre.toLowerCase());
+      const categoriaCumple =
+        this.categoria == 0 || producto.category.categoryId == this.categoria;
+      if (producto.reusable == true && this.reusable == 1) {
         var reusableCumple = true;
-      }else if(producto.reusable==false && this.reusable == 2){
+      } else if (producto.reusable == false && this.reusable == 2) {
         var reusableCumple = true;
-      }else if(this.reusable == 0){
+      } else if (this.reusable == 0) {
         var reusableCumple = true;
-      }else{
+      } else {
         var reusableCumple = false;
       }
-      const amount=producto.detailProducts.length;
-      const minQuantityWarningCumple = this.cantMinima == 0 || amount >= this.cantMinima;
-      const maxQuantityWarningCumple = this.cantMaxima == 0 || amount <= this.cantMaxima;
-      return nombreCumple && categoriaCumple && reusableCumple && minQuantityWarningCumple && maxQuantityWarningCumple;
+      const amount = producto.detailProducts.length;
+      const minQuantityWarningCumple =
+        this.cantMinima == 0 || amount >= this.cantMinima;
+      const maxQuantityWarningCumple =
+        this.cantMaxima == 0 || amount <= this.cantMaxima;
+      return (
+        nombreCumple &&
+        categoriaCumple &&
+        reusableCumple &&
+        minQuantityWarningCumple &&
+        maxQuantityWarningCumple
+      );
     });
     this.amountAvailable = this.getCountByategoryAndState(1, 'Disponible');
     this.amountBorrowed = this.getCountByategoryAndState(1, 'Prestado');
@@ -196,9 +209,8 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
   getCountByategoryAndState(categoryId: number, state: string): number {
     return this.productosFiltered.reduce((count, producto) => {
       if (producto.category.categoryId === categoryId) {
-        for(let i = 0; i < producto.detailProducts.length; i++){
-          console.log(producto.detailProducts[i].state);
-          if(producto.detailProducts[i].state === state){
+        for (let i = 0; i < producto.detailProducts.length; i++) {
+          if (producto.detailProducts[i].state === state) {
             count++;
           }
         }
@@ -207,14 +219,13 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 0);
   }
 
-
   initializeDataTable(): void {
     this.table = $('#productsList').DataTable({
       data: this.productosFiltered,
       columns: [
         {
           data: 'detailProducts',
-          title: 'Último ingreso',  // Título más corto
+          title: 'Último ingreso', // Título más corto
           render: (data: any) => {
             let lastDate;
             for (let i = 0; i < data.length; i++) {
@@ -225,49 +236,50 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
                 }
               }
             }
-            return lastDate ? this.formatDate(lastDate) : "";
+            return lastDate ? this.formatDate(lastDate) : '';
           },
         },
-        { data: 'name', title: 'Nombre' },  // Mantiene el título corto
+        { data: 'name', title: 'Nombre' }, // Mantiene el título corto
         {
           data: 'category',
           title: 'Categoría',
           render: (data: any) => {
             return data.categoryName;
-          }
+          },
         },
-        { 
-          data: 'reusable', 
-          title: 'Reutilizable', 
-          render: (data: boolean) => data ? 'SI' : 'NO'
+        {
+          data: 'reusable',
+          title: 'Reutilizable',
+          render: (data: boolean) => (data ? 'SI' : 'NO'),
         },
-        { 
-          data: 'detailProducts', 
-          title: 'Cantidad', 
+        {
+          data: 'detailProducts',
+          title: 'Cantidad',
           render: (data: any) => {
             return data.length;
-          }
+          },
         },
-        { 
-          data: 'minQuantityWarning', 
-          title: 'Min. Alerta' 
+        {
+          data: 'minQuantityWarning',
+          title: 'Min. Alerta',
         },
         {
           data: null,
-          title: 'Acciones',  
+          title: 'Acciones',
           render: (data: any, type: any, row: any) => {
             return `
               <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Acciones
+                <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
+                   style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
+                  &#8942;
                 </a>
                 <ul class="dropdown-menu">
-                  <li><button class="dropdown-item btn botonDetalleCrear" data-id="${row.id}">Agregar</button></li>
+                  <li><button class="dropdown-item btn botonAumentoStock" data-id="${row.id}">Agregar</button></li>
                   <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
                 </ul>
               </div>
             `;
-          }
+          },
         },
       ],
       pageLength: 10,
@@ -275,17 +287,17 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
       searching: false,
       ordering: true,
       order: [[0, 'desc']],
-      autoWidth: false,  // Desactivar el ajuste automático de ancho
-      
+      autoWidth: false, // Desactivar el ajuste automático de ancho
+
       language: {
-        search: "",
-        info: "",
-        emptyTable: 'No se encontraron registros', // Mensaje personalizado si no hay datos   
+        search: '',
+        info: '',
+        emptyTable: 'No se encontraron registros', // Mensaje personalizado si no hay datos
         paginate: {
-          first: "Primero",
-          last: "Último",
-          next: "Siguiente",
-          previous: "Anterior"
+          first: 'Primero',
+          last: 'Último',
+          next: 'Siguiente',
+          previous: 'Anterior',
         },
       },
       initComplete: () => {
@@ -295,22 +307,31 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
             this.table.search(this.nombre).draw();
           }
         });
-      }
+      },
     });
-  
+    // Corregir los event handlers
+    $('#productsList').on('click', '.botonAumentoStock', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const id = $(event.currentTarget).data('id');
+      this.abrirModalAumentoStock(id);
+    });
+
+    $('#productsList').on('click', '.botonDetalleConsultar', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const id = $(event.currentTarget).data('id');
+      this.irDetalles(id);
+    });
+
     $('#productsList').on('click', '.botonDetalleCrear', (event) => {
       const id = $(event.currentTarget).data('id');
       this.irAgregarDetalles(id);
     });
-  
-    $('#productsList').on('click', '.botonDetalleConsultar', (event) => {
-      const id = $(event.currentTarget).data('id');
-      this.irDetalles(id);
-    });
-  }
-  
 
-  /* METODO PARA PASAR DE FECHAS "2024-10-17" A FORMATO dd/mm/yyyy*/ 
+  }
+
+  /* METODO PARA PASAR DE FECHAS "2024-10-17" A FORMATO dd/mm/yyyy*/
   formatDate(inputDate: string): string {
     const [year, month, day] = inputDate.split('-');
     return `${day}/${month}/${year}`;
@@ -331,36 +352,46 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     this.aplicarFiltros();
   }
 
-  
   generarPdf(): void {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('Lista de Productos', 10, 10);
-  
+
     // Reordenamos los datos según el orden de columnas en la tabla HTML
     const dataToExport = this.productosFiltered.map((producto) => [
-      producto.detailProducts ? this.getLastIngreso(producto.detailProducts) : "",  // Último ingreso
-      producto.name,                                                               // Nombre
-      producto.category ? producto.category.categoryName : "",                     // Categoría
-      producto.reusable ? "SI" : "NO",                                             // Reutilizable
-      producto.detailProducts ? producto.detailProducts.length : 0,                // Cantidad
-      producto.minQuantityWarning || "",                                           // Min. Alerta
+      producto.detailProducts
+        ? this.getLastIngreso(producto.detailProducts)
+        : '', // Último ingreso
+      producto.name, // Nombre
+      producto.category ? producto.category.categoryName : '', // Categoría
+      producto.reusable ? 'SI' : 'NO', // Reutilizable
+      producto.detailProducts ? producto.detailProducts.length : 0, // Cantidad
+      producto.minQuantityWarning || '', // Min. Alerta
     ]);
-  
+
     // Orden de encabezados de columnas según la tabla HTML
     (doc as any).autoTable({
-      head: [['Último ingreso', 'Nombre', 'Categoría', 'Reutilizable', 'Cantidad', 'Min. Alerta']],
+      head: [
+        [
+          'Último ingreso',
+          'Nombre',
+          'Categoría',
+          'Reutilizable',
+          'Cantidad',
+          'Min. Alerta',
+        ],
+      ],
       body: dataToExport,
       startY: 20,
     });
-  
+
     // Guardar archivo PDF
     doc.save('Lista_Productos.pdf');
   }
-  
+
   // Método auxiliar para obtener la última fecha de ingreso
   getLastIngreso(detailProducts: any[]): string {
-    let lastDate = "";
+    let lastDate = '';
     for (let i = 0; i < detailProducts.length; i++) {
       if (detailProducts[i].lastUpdatedDatetime) {
         if (!lastDate || detailProducts[i].lastUpdatedDatetime > lastDate) {
@@ -368,81 +399,133 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       }
     }
-    return lastDate ? this.formatDate(lastDate) : "";
+    return lastDate ? this.formatDate(lastDate) : '';
   }
-  
 
   generarExcel(): void {
     // Reordenamos los datos según el orden de columnas en la tabla HTML
     const dataToExport = this.productosFiltered.map((producto) => ({
-      'Último ingreso': producto.detailProducts ? this.getLastIngreso(producto.detailProducts) : "",
-      'Nombre': producto.name,
-      'Categoría': producto.category ? producto.category.categoryName : "",
-      'Reutilizable': producto.reusable ? "SI" : "NO",
-      'Cantidad': producto.detailProducts ? producto.detailProducts.length : 0,
-      'Min. Alerta': producto.minQuantityWarning || "",
+      'Último ingreso': producto.detailProducts
+        ? this.getLastIngreso(producto.detailProducts)
+        : '',
+      Nombre: producto.name,
+      Categoría: producto.category ? producto.category.categoryName : '',
+      Reutilizable: producto.reusable ? 'SI' : 'NO',
+      Cantidad: producto.detailProducts ? producto.detailProducts.length : 0,
+      'Min. Alerta': producto.minQuantityWarning || '',
     }));
-  
+
     // Crear hoja y libro de Excel
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Productos');
-  
+
     // Guardar archivo Excel
     XLSX.writeFile(workbook, 'Lista_Productos.xlsx');
   }
 
-  irMenu(){
+  irMenu() {
     this.router.navigate(['']);
   }
 
-  irDetalles(id: number){
+  irDetalles(id: number) {
     this.detalleProductoService.setId(id);
-    this.router.navigate(["detalle-inventario"])
+    this.router.navigate(['detalle-inventario']);
   }
 
-  irAgregarDetalles(id: number){
-    this.stockAumentoService.setId(id);
-    this.router.navigate(["stock-aumento"])
+ 
+
+  irAgregarProducto() {
+    /* this.modalVisible = true; // Muestra el modal */
+    this.router.navigate(["registro-productos"])
   }
 
-  irAgregarProducto(){
-    this.modalVisible = true; // Muestra el modal
-    //this.router.navigate(["registro-productos"])
-  }
-
-
-  verificarMin(){
-    if ( this.cantMinima < 0) { 
-      this.mensajeValidacionMin = "Nneo puedes por un numero menor a cero" 
-      return false
+  verificarMin() {
+    if (this.cantMinima < 0) {
+      this.mensajeValidacionMin = 'Nneo puedes por un numero menor a cero';
+      return false;
     }
     if (this.cantMinima > this.cantMaxima) {
       if (this.cantMaxima !== 0 && this.cantMaxima !== null) {
-        this.mensajeValidacionMin = "La cantidad minima no puede ser mayor a la cantidad maxima"
+        this.mensajeValidacionMin =
+          'La cantidad minima no puede ser mayor a la cantidad maxima';
         return false;
       }
     }
-        
-    this.mensajeValidacionMin = "";
+
+    this.mensajeValidacionMin = '';
     return true;
   }
 
-  verificarMax(){
-    if (this.cantMaxima < 0){ 
-      this.mensajeValidacionMax = "No puedes poner un numero menor a cero"
-      return false
+  verificarMax() {
+    if (this.cantMaxima < 0) {
+      this.mensajeValidacionMax = 'No puedes poner un numero menor a cero';
+      return false;
     }
 
-    this.mensajeValidacionMax = "";
+    this.mensajeValidacionMax = '';
     return true;
   }
 
-
+  
 
   ngOnDestroy(): void {
-    if (this.categoriasSubscription) { this.categoriasSubscription.unsubscribe() }
-    if (this.estadosSubscription) { this.estadosSubscription.unsubscribe() }
-    if (this.productosSubscription) { this.productosSubscription.unsubscribe() }
+    if (this.categoriasSubscription) {
+      this.categoriasSubscription.unsubscribe();
+    }
+    if (this.estadosSubscription) {
+      this.estadosSubscription.unsubscribe();
+    }
+    if (this.productosSubscription) {
+      this.productosSubscription.unsubscribe();
+    }
+    this.showAumentoStockModal = false;
+    this.selectedProductId = null;
   }
+
+  // Agregar método para recargar la tabla después de aumentar el stock
+  recargarDespuesDeAumentoStock() {
+    this.cargarProductos();
+    this.cerrarModalAumentoStock();
+  }
+
+
+
+
+abrirModalAumentoStock(productId: number) {
+  this.selectedProductId = productId;
+  this.showAumentoStockModal = true;
+  this.modalVisible = false; // Asegurarse que el otro modal esté cerrado
+  this.stockAumentoService.setId(productId);
+}
+
+cerrarModalAumentoStock() {
+  this.showAumentoStockModal = false;
+  this.selectedProductId = null;
+}
+
+abrirModal() {
+  this.modalVisible = true;
+  this.showAumentoStockModal = false; // Asegurarse que el otro modal esté cerrado
+}
+
+cerrarModal() {
+  this.modalVisible = false;
+}
+
+handleModalBackdropClick(event: MouseEvent) {
+  if (event.target === event.currentTarget) {
+    if (this.showAumentoStockModal) {
+      this.cerrarModalAumentoStock();
+    }
+    if (this.modalVisible) {
+      this.cerrarModal();
+    }
+  }
+}
+
+irAgregarDetalles(id: number) {
+  this.stockAumentoService.setId(id);
+  this.abrirModalAumentoStock(id);
+}
 }

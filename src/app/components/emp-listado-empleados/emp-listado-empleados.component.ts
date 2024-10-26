@@ -87,17 +87,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   loadDesempeno(): void {
     const start = new Date(this.startDate);
     const end = new Date(this.endDate);
-    const desempenoSubscription = this.employeePerformanceService
-      .getEmployeesPerformanceByDateRange(start, end)
-      .subscribe({
-        next: (performances) => {
-          this.employeePerformances = performances;
-          this.ventana = 'Desempeño';
-          this.initializeDataTable();
-        },
-        error: (err) => console.error('Error al cargar desempeño:', err),
-      });
-    this.subscriptions.push(desempenoSubscription);
+
   }
 
   initializeDataTable(): void {
@@ -164,10 +154,11 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
           title: 'Acciones',
           render: (data: any) => {
             return `
-              <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  Acciones
-                </button>
+              <div class="dropdown text-center">
+                <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                  style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
+                  &#8942; <!-- Tres puntos verticales -->
+                </a>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
                   <li><a class="dropdown-item modificar-btn" data-empleado-id="${data.id}" href="#">Modificar</a></li>

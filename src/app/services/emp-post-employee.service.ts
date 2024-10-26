@@ -9,7 +9,7 @@ import { Charge, PostEmployeeDto } from '../models/emp-post-employee-dto';
 })
 export class EmpPostEmployeeService {
 
-  private baseUrlSupplier:string = 'http://localhost:8080/suppliers';
+  private baseUrlSupplier:string = 'http://localhost:8081/suppliers';
 
   private baseUrlProvinces:string ='https://mocki.io/v1/555e5ed8-37c8-480b-8452-7affe6f6f833';
 
@@ -35,10 +35,8 @@ export class EmpPostEmployeeService {
   }
 
   getCharges():Observable<Charge[]>{
-    return this.client.get<Charge[]>(this.baseUrlCharges+'/all');
+    return this.client.get<Charge[]>(this.baseUrlCharges);
   }
-
-
 
   createProduct(dto: PostEmployeeDto): Observable<any> {
     const url = `${this.UrlEmployeePost}`;

@@ -1,122 +1,9 @@
 <!-- Estilos CSS generales para el documento -->
 <style>
-  /* Define el estilo de fondo, fuente y margen para el cuerpo */
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    margin: 0;
-    padding: 20px;
-  }
 
-  /* Define el estilo de la contenedor principal */
-  .container {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    max-width: 1200px;
-    margin: auto;
-  }
-
-  /* Estilo para el título principal */
-  .titulo {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-
-  /* Estilo para las etiquetas de los formularios */
-  .form-label {
-    font-weight: bold;
-  }
-
-  /* Estilo para los controles de los formularios */
-  .form-control {
-    border-radius: 5px;
-  }
-
-  /* Estilo de los botones con clase btn-info y su comportamiento al pasar el cursor */
-  .btn-info {
-    background-color: #007bff;
-    border-color: #007bff;
-  }
-
-  .btn-info:hover {
-    background-color: #0056b3;
-    border-color: #004085;
-  }
-
-  /* Estilo de contenido de modal */
-  .modal-content {
-    border-radius: 10px;
-  }
-
-  /* Margen superior de las tablas */
-  .table {
-    margin-top: 20px;
-  }
-
-  /* Margen superior para elementos con clase volver */
-  .volver {
-    margin-top: 20px;
-  }
-
-  /* Estilos de botones y su comportamiento al pasar el cursor */
-  .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-  }
-
-  .btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #004085;
-  }
-
-  .btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-  }
-
-  .btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-  }
-
-  .btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
-  }
-
-  .btn-success:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
-  }
-
-  /* Contenedor para mensajes de error */
-  .error-container {
-    min-height: 200px;
-    font-size: small;
-    color: red;
-    position: absolute;
-  }
-
-  /* Estilo para el botón de información */
-  .info-button {
-    float: right;
-    font-size: 1.5rem;
-    width: 40px;
-    height: 40px;
-  }
-
-  /* Estilo de grupo de formulario para gestionar el espaciado */
-  .form-group {
-    position: relative;
-    padding-bottom: 20px;
-  }
 </style>
 
 <!-- Título del documento -->
-<title>Inventario</title>
 
 <body>
   <!-- Inicio del formulario principal -->
@@ -260,14 +147,14 @@
           <!-- Botón para limpiar filtros -->
           <div class="col-6" style="text-align: end">
             <button class="btn btn-primary" (click)="cleanFilters()">
-              Limpiar filtros
-            </button>
+              <i class="bi bi-trash"></i></button>
           </div>
+          
         </div>
       </div>
 
       <!-- Tabla con el estado de productos según la categoría -->
-      <div class="container row mb-3">
+<!--       <div class="container row mb-3">
         <div class="row">
           <div class="col-10">
             <label>Estado de productos</label>
@@ -292,7 +179,7 @@
             </tbody>
           </table>
         </div>
-      </div>
+      </div> -->
 
       <!-- Tabla de productos y botones para generar PDF o Excel -->
       <div class="container row">
@@ -316,7 +203,7 @@
           <!-- Botón de "Volver" -->
           <button class="btn btn-secondary me-2" (click)="irMenu()">
             Volver</button><!-- Botón de "Nuevo Producto" -->
-          <button class="btn btn-outline-primary" (click)="abrirModal()" data-bs-toggle="modal"
+          <button class="btn btn-outline-primary" (click)="irAgregarProducto()" data-bs-toggle="modal"
             data-bs-target="#nuevoProductoModal">
             Nuevo
           </button>
@@ -326,26 +213,32 @@
   </form>
 </body>
 
-<!-- Modal para agregar un nuevo producto -->
-<div *ngIf="modalVisible" class="modal fade show" tabindex="-1" aria-labelledby="nuevoProductoModalLabel"
-  aria-hidden="true" style="display: block;">
-  <div class="modal-dialog modal-lg" style="max-width: 75%;">
+
+
+<!-- Modal para aumento de stock -->
+<div class="modal fade" 
+     [class.show]="showAumentoStockModal" 
+     [style.display]="showAumentoStockModal ? 'block' : 'none'"
+     id="aumentoStockModal" 
+     tabindex="-1" 
+     aria-labelledby="aumentoStockModalLabel" 
+     [attr.aria-modal]="showAumentoStockModal"
+     [attr.aria-hidden]="!showAumentoStockModal"
+     (click)="handleModalBackdropClick($event)">
+  <div class="modal-dialog modal-lg" style="max-width: 75%;" (click)="$event.stopPropagation()">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Agregar Nuevo Producto</h5>
-        <button type="button" class="btn-close" (click)="cerrarModal()" aria-label="Close"></button>
+        <h5 class="modal-title">Agregar Aumento de Stock</h5>
+        <button type="button" class="btn-close" (click)="cerrarModalAumentoStock()" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <!-- Aquí se carga el componente ProductComponent -->
-        <app-product></app-product>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="cerrarModal()">
-          Cerrar
-        </button>
+        <app-stock-aumento *ngIf="showAumentoStockModal"></app-stock-aumento>
       </div>
     </div>
   </div>
 </div>
 
-<div *ngIf="modalVisible" class="modal-backdrop fade show"></div>
+<div class="modal-backdrop fade" 
+     [class.show]="showNuevoProductoModal || showAumentoStockModal"
+     *ngIf="showNuevoProductoModal || showAumentoStockModal"
+     (click)="handleModalBackdropClick($event)"></div>
