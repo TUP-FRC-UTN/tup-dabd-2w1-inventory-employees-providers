@@ -93,17 +93,36 @@
     </div>
   </div>
 
-  <!-- Sección: Botones de Exportación -->
-  <div class="d-flex mb-3 justify-content-end align-items-center">
+<!-- Sección: Opciones de Búsqueda y Acciones -->
+<div class="d-flex mb-3 justify-content-between align-items-center">
+  <!-- Contenedor Izquierdo: Campo de Búsqueda y ComboBox -->
+  <div class="d-flex align-items-center">
+    <!-- Campo de Búsqueda -->
+    <input type="text" id="filterInput" class="form-control me-3" placeholder="Buscar"
+      (input)="applyFilter($event)" />
+
+    <!-- ComboBox de Estado con el evento (change) para filtrar -->
+    <select id="estadoSelect" class="form-select" style="width: auto;" (change)="applyStateFilter($event)">
+      <option value="">Seleccionar Estado</option>
+      <option value="Disponible">Disponible</option>
+      <option value="Mantenimiento">Mantenimiento</option>
+      <option value="Prestado">Prestado</option>
+    </select>
+  </div>
+
+  <!-- Contenedor Derecho: Selección y Botones de Exportación -->
+  <div class="d-flex align-items-center">
     <input type="checkbox" id="selectAll" (change)="toggleSelectAll($event)" class="form-check-input me-2" />
     <label for="selectAll" class="me-3">Seleccionar Todo</label>
+
+    <button class="btn btn-success me-2" (click)="generateExcel()">
+      <i class="bi bi-file-earmark-excel"></i>
+    </button>
     <button class="btn btn-danger me-2" (click)="generatePDF()">
       <i class="bi bi-file-earmark-pdf"></i>
     </button>
-    <button class="btn btn-success" (click)="generateExcel()">
-      <i class="bi bi-file-earmark-excel"></i>
-    </button>
   </div>
+</div>
 
 
 
@@ -141,8 +160,7 @@
 
     <button id="deleteButton" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
       [disabled]="selectedIds.length === 0">
-      Eliminar seleccionados
+      Eliminar
     </button>
   </div>
-
 </div>

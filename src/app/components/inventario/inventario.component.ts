@@ -258,9 +258,10 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
           render: (data: any, type: any, row: any) => {
             return `
               <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Acciones
-                </a>
+        <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
+           style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
+          &#8942; <!-- Tres puntos verticales -->
+        </a>
                 <ul class="dropdown-menu">
                   <li><button class="dropdown-item btn botonDetalleCrear" data-id="${row.id}">Agregar</button></li>
                   <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>

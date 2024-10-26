@@ -20,12 +20,31 @@ import 'jspdf-autotable';
 })
 export class DetailTableComponent implements OnInit, OnDestroy {
   details: Details[] = [];
+  filteredDetails: Details[] = []; // Nueva lista para elementos filtrados
   private table: any;
   justificativo: string = '';
   selectedIds: number[] = [];
   private deleteModal: any;
+  currentSearchTerm: string = ''; // Almacena el término de búsqueda actual
 
   constructor(private detailService: DetailServiceService) { }
+
+  applyStateFilter(event: any): void {
+    const selectedState = event.target.value;
+    
+    // Filtrar por estado y aplicar el filtro de búsqueda al mismo tiempo
+    this.filteredDetails = this.details.filter(detail => {
+      const matchesState = selectedState ? detail.state === selectedState : true;
+      const matchesSearch = detail.description.toLowerCase().includes(this.currentSearchTerm.toLowerCase()) ||
+                            detail.supplierName.toLowerCase().includes(this.currentSearchTerm.toLowerCase()) ||
+                            detail.state.toLowerCase().includes(this.currentSearchTerm.toLowerCase());
+      return matchesState && matchesSearch;
+    });
+  
+    // Actualizar la tabla con los elementos filtrados
+    this.table.clear().rows.add(this.filteredDetails).draw();
+  }
+  
 
   ngOnInit(): void {
     this.loadDetails();
@@ -42,6 +61,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.detailService.getDetails().subscribe({
       next: (details) => {
         this.details = details;
+        this.filteredDetails = details; // Inicializa el filtro con todos los elementos
         this.initializeDataTable();
       },
       error: (err) => {
@@ -49,6 +69,21 @@ export class DetailTableComponent implements OnInit, OnDestroy {
       },
     });
   }
+
+   applyFilter(event: any): void {
+    const searchTerm = event.target.value.toLowerCase();
+    this.filteredDetails = this.details.filter(detail =>
+      detail.description.toLowerCase().includes(searchTerm) ||
+      detail.supplierName.toLowerCase().includes(searchTerm) ||
+      detail.state.toLowerCase().includes(searchTerm)
+    );
+
+    this.currentSearchTerm = event.target.value.toLowerCase();
+    this.applyStateFilter({ target: { value: (document.getElementById('estadoSelect') as HTMLSelectElement).value } });
+
+    this.table.clear().rows.add(this.filteredDetails).draw(); // Actualiza la tabla con los elementos filtrados
+  }
+
 
   initializeDataTable(): void {
     if (this.table) {
@@ -59,11 +94,11 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.table = $('#productTable').DataTable({
       //dom: '<"d-flex justify-content-between align-items-center mb-3"<"d-flex align-items-center gap-2"f><"select-all-wrapper">>rt<"d-flex justify-content-end"p>',
       //dom: '<"d-flex justify-content-between align-items-center mb-3"f<"select-all-wrapper">>rt<"d-flex justify-content-end"p>', // Paginación a la derecha
-      layout: {
-        topStart: 'search',
-        topEnd: null
-      },
-      data: this.details,
+      /*       layout: {
+              topStart: 'search',
+              topEnd: null
+            }, */
+      data: this.filteredDetails, // Cambia `details` a `filteredDetails`
       columns: [
         { data: 'description', title: 'Descripción' },
         { data: 'supplierName', title: 'Nombre del Proveedor' },
@@ -92,17 +127,20 @@ export class DetailTableComponent implements OnInit, OnDestroy {
         },
       ],
       pageLength: 10,
-      lengthChange: false,
+      lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
+      lengthMenu: [ // Opciones para el menú desplegable de longitud
+        [10, 25, 50], // Valores para el número de filas
+        [10, 25, 50] // Etiquetas para el número de filas
+      ],
+      searching: false, // Desactivar la búsqueda
       language: {
-
-        search: 'Buscar:',
         info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
-        emptyTable: 'No se encontraron registros', // Mensaje personalizado si no hay datos   
+        emptyTable: 'No se encontraron resultados', // Mensaje personalizado si no hay datos   
         paginate: {
-          first: 'Primero',
-          last: 'Último',
-          next: 'Siguiente',
-          previous: 'Anterior',
+          first: '<<',
+          last: '>>',
+          next: '>',
+          previous: '<',
         },
       },
       initComplete: function () {
