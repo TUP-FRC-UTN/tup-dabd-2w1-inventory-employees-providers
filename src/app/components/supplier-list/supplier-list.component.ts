@@ -111,12 +111,10 @@ searchSuppliers() {
   updateSupplier(id:number){
 
 
-    alert("boton apretado");
-    // const confirm = window.confirm('¿Estas seguro desea modificar?');
-
-    // if(confirm){
-    //   this.router.navigate(['/supplier-update',id]);
-    // }
+      console.log("queres modificarrrrrrrrrrrrr")
+    
+       this.router.navigate(['/supplier-update',id]);
+     
     
   }
 

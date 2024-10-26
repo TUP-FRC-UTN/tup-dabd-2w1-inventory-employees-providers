@@ -12,6 +12,7 @@ import { PerformancelistComponent } from './components/performancelist/performan
 import { SuppliersFormComponent } from './components/suppliers-form/suppliers-form.component';
 import { SupplierListComponent } from './components/supplier-list/supplier-list.component';
 import { SupplierUpdateComponent } from './components/supplier-update/supplier-update.component';
+import { IEPFormPostEmployeesComponent } from './components/iep-form-post-employees/iep-form-post-employees.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -74,4 +75,12 @@ export const routes: Routes = [
         component: SupplierUpdateComponent,
         title: "Modificar proveedor"
     }
+    ,
+    {
+        path:"employee-post",
+        component:IEPFormPostEmployeesComponent,
+        title:"Crear empleado"
+    }
+  
+    
 ];

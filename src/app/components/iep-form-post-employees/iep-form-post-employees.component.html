@@ -1,7 +1,7 @@
-<div class="container mt-5 col-md-6">
+<div class="container mt-5 col-md-8 ">
     <form #form="ngForm" (ngSubmit)="onSubmit(form)" class="form-container border rounded border shadow p-4">
         <div class="bg-light">
-            <h2 class="text-center mb-5 ">FORMULARIO NUEVO EMPLEADO</h2>
+            <h2 class="text-center mb-5 pt-4">FORMULARIO NUEVO EMPLEADO</h2>
             <hr class="my-4">
         </div>
       
@@ -9,10 +9,12 @@
 
  <div class="bg-light rounded mb-5 pb-3 pt-3 ps-2" >
 <!-- Datos personales -->
+<p class="text-start mb-3 ">Datos personales:</p>
+<hr>
 <div class="form-group row mb-3">
     <div class="col-md-6">
         <div class="row">
-            <label for="nombre" class="col-form-label col-md-3">Nombre:</label>
+            <label for="nombre" class="col-form-label col-md-3 text-end">Nombre:</label>
             <div class="col-md-9">
                 <input 
                 type="text" 
@@ -37,7 +39,7 @@
 
        <div class="col-md-6">
               <div class="row">
-                  <label for="apellido" class="col-form-label col-md-3">Apellido:</label>
+                  <label for="apellido" class="col-form-label col-md-3 text-end">Apellido:</label>
                   <div class="col-md-9">
                       <input type="text" class="form-control" id="apellido" name="apellido" 
                       name="apellido" 
@@ -62,7 +64,7 @@
 <div class="form-group row mb-3">
     <div class="col-md-6">
         <div class="row">
-            <label for="cuil" class="col-form-label col-md-3">CUIL:</label>
+            <label for="cuil" class="col-form-label col-md-3 text-end">CUIL:</label>
             <div class="form-group col-md-9">  
                 <input type="text" class="form-control" id="cuil" name="cuil" [(ngModel)]="cuil" 
                 #cuilModel="ngModel"
@@ -82,7 +84,7 @@
 
        <div class="col-md-6">
               <div class="row">
-                  <label for="dni" class="col-form-label col-md-3">DNI:</label>
+                  <label for="dni" class="col-form-label col-md-3 text-end">DNI:</label>
                   <div class="col-md-9">
                     <input type="text" class="form-control" id="dni" name="dni"
                     [(ngModel)]="dni"
@@ -103,19 +105,21 @@
          </div>
     </div>
 
-
+<!-- contacto  -->
 <div class="bg-light rounded ps-2 " >
-<p class="text-center">CONTACTO </p>
+    <p class="text-start mb-3 ">Datos de contacto:</p>
+    <hr>
+
 <div class="form-group row mb-3 pb-2 ">
     <div class="col-md-6">
         <div class="row">
-            <label for="telefono" class="col-form-label col-md-3">Teléfono:</label>
+            <label for="telefono" class="col-form-label col-md-3 text-end">Teléfono:</label>
             <div class="col-md-9">
                 <input type="text" class="form-control" id="telefono" name="telefono"
                 [(ngModel)]="telefono"
                 #telefonoModel="ngModel"
                required 
-              pattern="^(0?15)?[1-9]\d{8}$"
+              pattern='^(0?15)?[1-9]\d{8}$'
                [ngClass]="{
                    'is-invalid': telefonoModel.invalid && telefonoModel.touched, 
                    'is-valid': telefonoModel.valid && telefonoModel.touched
@@ -133,7 +137,7 @@
 
        <div class="col-md-6">
               <div class="row">
-                  <label for="mail" class="col-form-label col-md-3">E-mail:</label>
+                  <label for="mail" class="col-form-label col-md-3 text-end">E-mail:</label>
                   <div class="col-md-9">
                       <input type="email" class="form-control" id="mail" name="mail"
                       [(ngModel)]="mail"
@@ -156,10 +160,13 @@
 
 
   <!-- Dirección -->
+   
+    
 <div class="bg-light rounded mb-3 ps-2">
+    <p class="text-start mb-3 ">Datos de direccion:</p>
+    <hr>
     <div class="form-group row mb-3 ">
       
-        <p class="text-center mb-3">DIRECCION</p>
         <div class="col-md-6">
             <div class="row">
                 <label for="provincia" class="col-form-label col-md-3">Provincia:</label>
@@ -263,11 +270,11 @@
 
         <div class="col-md-6">
             <div class="row">
-                <label for="dpto" class="col-form-label col-md-4">Departamento:</label>
-                <div class="col-md-8">
+                <label for="dpto" class="col-form-label col-md-3">Departamento:</label>
+                <div class="col-md-9">
                     <input type="text" class="form-control" id="dpto" name="dpto"  [(ngModel)]="dpto"
                     #dptoModel="ngModel"
-                    required 
+                     
                     pattern="^[a-zA-Z0-9]+$"
                    [ngClass]="{
                        'is-invalid': dptoModel.invalid && dptoModel.touched, 
@@ -286,8 +293,8 @@
     <div class="form-group row mb-3  ">
      <div class="col-md-6">
            <div class="row">
-             <label for="codigo-postal" class="col-form-label col-md-5">Código Postal:</label>
-                <div class="col-md-7">
+             <label for="codigo-postal" class="col-form-label col-md-4">Código Postal:</label>
+                <div class="col-md-8">
                 <input type="text" class="form-control" id="codigo-postal" name="codigo-postal" [(ngModel)]="codigoPostal"
                 #codigoPostaModel="ngModel"
                 required 
@@ -307,55 +314,47 @@
 </div>
 
 
- <!-- Empleado tercerizado -->
-        <div class="bg-light rounded mb-5 pb-3 ps-2" >  
-            <div class="form-group text-center mb-3" >
-              <label class="me-1" for="tercerizado">Empleado Tercerizado: </label>
-              <input type="checkbox" id="tercerizado" name="tercerizado" (click)="changeTerceorized()">
-          </div>
-          @if (terciorizedEmployee) {
-            <!-- Proveedores de servicio tercerizado -->
-            <div class="form-group mb-3">
-                <label for="proveedores">Proveedores de Servicio Tercerizado:</label>
-                <select id="proveedores" name="proveedores" class="form-control" [(ngModel)]="selectedSupplier">
-                    <option disabled selected value="opcion1">Seleccionar proveedor</option>
-                  
-                    @for (x of suppliers; track $index) {
-                        <option [ngValue]="x">  {{x.name}} </option>
-                    }
-                </select>
-            </div>
-            
-         }
-        </div>
+
 
 
   
 
 
-     <!-- Cargo -->
+    
      <div class="bg-light rounded mb-5 pb-2 ps-2 pt-2" >  
+        <p class="text-start mb-3 ">Datos del contrato:</p>
+        <hr>
+
+
+
      <div class="form-group row mb-3">
-        <div class="col-md-6  ">
+
+      
+
+
+
+        <div class="col-md-6 mb-3">
             <div class="row">
-                <label for="cargo" class="col-form-label col-md-4">Cargo:</label>
-                   <div class="col-md-8">
-                    <select id="cargo" name="cargo" class="form-control" [(ngModel)] ="cargoSelected" >
-                        <option disabled selected value="opcion1">Seleccionar Cargo</option>
-                        @for (c of cargos; track $index) {
-                            <option  selected [ngValue]="c">{{c.charge}}</option>
-
-
-                        }
-                       
-                    </select>        
-                   </div>
-              </div>
+             <!-- Empleado tercerizado -->
+  
+                
+                    <label class="col-form-label col-md-4" for="tercerizado">Tercerizado:</label>
+                    <div class="col-md-8" >
+                    
+                    <i
+                    id="tercerizado" name="tercerizado" 
+                    (click)="changeTerceorized()"
+                    [class]="terciorizedEmployee ? 'fas fa-check text-success' : 'fas fa-times text-danger'"
+                    style="font-size: 2.0em; cursor: pointer; margin-left: 10px;"
+                  ></i>
+                  </div>
+                 
+            </div>
          </div>
          @if (!terciorizedEmployee) {
             <!-- Salario -->
             
-            <div class="col-md-6">
+            <div class="col-md-6 mb-3">
                 <div class="row">
                     
                <label class="col-form-label col-md-3" for="salario">Salario:</label>
@@ -380,10 +379,48 @@
             </div>
         </div>
               }
-              <div class="col-md-6 mt-3 ">
+              @else {
+
+                <div class="col-md-6 mb-3">
+                    <div class="row">
+                        
+                   <label class="col-form-label col-md-3" for="proveedores">Proveedores:</label>
+                   <div class="col-md-9">
+                  <!-- Proveedores de servicio tercerizado -->
+                           <select id="proveedores" name="proveedores" class="form-control" [(ngModel)]="selectedSupplier">
+                            <option disabled selected value="opcion1">Seleccionar proveedor</option>
+                  
+                           @for (x of suppliers; track $index) {
+                             <option [ngValue]="x">  {{x.name}} </option>
+                             }
+                            </select>
+                  </div>
+                    
+                </div>  
+                </div>
+              }
+                 <!-- Cargo -->
+              <div class="col-md-6 mb-3">
                 <div class="row">
-                    <label for="start-time-contract" class="col-form-label col-md-6">Fecha inicio contrato:</label>
-                       <div class="col-md-6">
+                    <label for="cargo" class="col-form-label col-md-4">Cargo:</label>
+                       <div class="col-md-8">
+                        <select id="cargo" name="cargo" class="form-control" [(ngModel)] ="cargoSelected" >
+                            <option disabled selected value="opcion1">Seleccionar Cargo</option>
+                            @for (c of cargos; track $index) {
+                                <option  selected [ngValue]="c">{{c.charge}}</option>
+    
+    
+                            }
+                           
+                        </select>        
+                       </div>
+                  </div>
+             </div>
+                 <!-- fecha inicio contrato -->
+              <div class="col-md-6 ">
+                <div class="row">
+                    <label for="start-time-contract" class="col-form-label col-md-3">Inicio:</label>
+                       <div class="col-md-9">
                         <input type="date" id="startTimeContract" id="startTimeContract"
                         class="form-control" 
                         name="startTimeContract" 
@@ -392,10 +429,10 @@
                         required
                         (ngModelChange)="validateDate()"
                         [ngClass]="{
-                            'is-invalid': startTimeContractModel.invalid && startTimeContractModel.touched, 
-                            'is-valid': startTimeContractModel.valid && startTimeContractModel.touched
+                            'is-invalid': (startTimeContractModel.invalid && startTimeContractModel.touched) || invalidDate, 
+                            'is-valid': (startTimeContractModel.valid && startTimeContractModel.touched )&& !invalidDate
                         }">
-                        <div *ngIf="startTimeContractModel.invalid && startTimeContractModel.touched" class="invalid-feedback">
+                        <div *ngIf="(startTimeContractModel.invalid && startTimeContractModel.touched )||(invalidDate && startTimeContractModel.touched)" class="invalid-feedback">
                             Por favor, selecciona una fecha válida.
                         </div>      
                        </div>
@@ -416,8 +453,11 @@
 
 
             <div class="bg-light rounded mb-5 pb-3 ps-2" > 
-            <div class="form-group">
-                <p class="text-center">DIAS LABORALES</p>
+                
+                <p class="text-start mb-3 ">Dias laborales:</p>
+                <hr>
+            <div class="form-group d-flex justify-content-center flex-wrap gap-3 px-3 ">
+                
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="checkbox" id="lunes" name="lunes" [(ngModel)]="lunes">
                     <label class="form-check-label" for="lunes">Lunes</label>
@@ -451,11 +491,12 @@
 
         <!-- Horarios -->
         <div class="bg-light rounded mb-5 pb-3 ps-2" > 
-
-        <div class="form-group row mb-3 ">
-            <div class="col-md-6  ">
+            <p class="text-start mb-3 ">Horarios:</p>
+            <hr>
+        <div class="form-group row mb-3 pt-3">
+            <div class="col-md-6">
                 <div class="row">
-            <label for="hora-entrada" class="col-md-7">Hora de entrada:</label>
+            <label for="hora-entrada" class="col-md-3"> <i class="fas fa-clock"></i> entrada:</label>
             <div class=" col-md-5">
                 <input type="time" class="form-control" id="hora-entrada" name="hora-entrada"  [(ngModel)]="horaEntrada" 
                 #horaEntradaModel="ngModel" 
@@ -474,7 +515,12 @@
 
              <div class="col-md-6">
                 <div class="row">
-                    <label for="hora-salida" class="col-md-7">Hora de salida:</label>
+                    
+                        
+                        <label for="hora-salida" class="col-md-4 text-end">
+                            <i class="fas fa-clock"></i> salida:</label>
+                    
+                    
                     <div class="col-md-5">
                         <input 
                             type="time" 
@@ -502,13 +548,33 @@
 
         <!-- Botones -->
          <div class="row">
-            <div class="col-md-6 d-flex justify-content-start">
-                <button type="button" class="btn btn-danger ">Cancelar</button>
+            <div class="col-md-8"></div>
+            <div class="col-md-2 d-flex justify-content-start">
+                <button type="button" class="btn btn-secondary" (click)="goBack()">Volver</button>
              </div>
-           <div class="col-md-6  d-flex justify-content-end">
+           <div class="col-md-2  d-flex justify-content-end">
             <button [disabled]="!form.valid" type="submit" class="btn btn-primary">Guardar</button>
            </div>
          </div>
-     
+
+
+        
+      <!-- Modal para mostrar mensajes de éxito o error -->
+  <!-- Modal para mostrar mensajes de éxito o error -->
+<div class="modal" *ngIf="showModal" (click)="resetForm(form)">
+    <div class="modal-content" [ngClass]="{'border-success': success, 'border-error': !success}" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ success ? 'Éxito' : 'Error' }}</h5>
+        <button type="button" class="close" (click)="resetForm(form)">&times;</button>
+      </div>
+      <div class="modal-body">
+        {{ success ? successMessage : errorMessage }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="resetForm(form)">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
     </form>
 </div>

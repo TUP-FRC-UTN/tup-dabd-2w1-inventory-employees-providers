@@ -8,7 +8,7 @@ import { Supplier } from '../models/suppliers';
 })
 export class SuppliersService {
   createSupplier(formData: any) {
-    return this.http.post('http://localhost:8080/suppliers', formData);
+    return this.http.post('http://localhost:8081/suppliers', formData);
   }
   searchSuppliers(
     name: string | null, 
@@ -33,21 +33,21 @@ export class SuppliersService {
       params = params.set('dateOfJoining', createdDatetime);
     }
    
-    return this.http.get<Supplier[]>(`http://localhost:8080/suppliers`, { params });
+    return this.http.get<Supplier[]>(`http://localhost:8081/suppliers`, { params });
   }
 
 
   getSupplierById(id:number):Observable<any>{
-    return this.http.get<any>('http://localhost:8080/suppliers'+"/"+id)
+    return this.http.get<any>('http://localhost:8081/suppliers'+"/"+id)
   }
 
 
   updateSupplier(id:number,supplierUpdate:any):Observable<any>{
-    return this.http.put<any>(`http://localhost:8080/suppliers/${id}`,supplierUpdate)
+    return this.http.put<any>(`http://localhost:8081/suppliers/${id}`,supplierUpdate)
   }
 
   deleteSupplier(id: number): Observable<any> {
-    return this.http.put<any>(`http://localhost:8080/suppliers/bajalogica/${id}`, {});
+    return this.http.put<any>(`http://localhost:8081/suppliers/bajalogica/${id}`, {});
 }
 
 
