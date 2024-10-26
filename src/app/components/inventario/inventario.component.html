@@ -203,7 +203,7 @@
           <!-- Botón de "Volver" -->
           <button class="btn btn-secondary me-2" (click)="irMenu()">
             Volver</button><!-- Botón de "Nuevo Producto" -->
-          <button class="btn btn-outline-primary" (click)="abrirModal()" data-bs-toggle="modal"
+          <button class="btn btn-outline-primary" (click)="irAgregarProducto()" data-bs-toggle="modal"
             data-bs-target="#nuevoProductoModal">
             Nuevo
           </button>
@@ -213,26 +213,32 @@
   </form>
 </body>
 
-<!-- Modal para agregar un nuevo producto -->
-<div *ngIf="modalVisible" class="modal fade show" tabindex="-1" aria-labelledby="nuevoProductoModalLabel"
-  aria-hidden="true" style="display: block;">
-  <div class="modal-dialog modal-lg" style="max-width: 75%;">
+
+
+<!-- Modal para aumento de stock -->
+<div class="modal fade" 
+     [class.show]="showAumentoStockModal" 
+     [style.display]="showAumentoStockModal ? 'block' : 'none'"
+     id="aumentoStockModal" 
+     tabindex="-1" 
+     aria-labelledby="aumentoStockModalLabel" 
+     [attr.aria-modal]="showAumentoStockModal"
+     [attr.aria-hidden]="!showAumentoStockModal"
+     (click)="handleModalBackdropClick($event)">
+  <div class="modal-dialog modal-lg" style="max-width: 75%;" (click)="$event.stopPropagation()">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Agregar Nuevo Producto</h5>
-        <button type="button" class="btn-close" (click)="cerrarModal()" aria-label="Close"></button>
+        <h5 class="modal-title">Agregar Aumento de Stock</h5>
+        <button type="button" class="btn-close" (click)="cerrarModalAumentoStock()" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <!-- Aquí se carga el componente ProductComponent -->
-        <app-product></app-product>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="cerrarModal()">
-          Cerrar
-        </button>
+        <app-stock-aumento *ngIf="showAumentoStockModal"></app-stock-aumento>
       </div>
     </div>
   </div>
 </div>
 
-<div *ngIf="modalVisible" class="modal-backdrop fade show"></div>
+<div class="modal-backdrop fade" 
+     [class.show]="showNuevoProductoModal || showAumentoStockModal"
+     *ngIf="showNuevoProductoModal || showAumentoStockModal"
+     (click)="handleModalBackdropClick($event)"></div>

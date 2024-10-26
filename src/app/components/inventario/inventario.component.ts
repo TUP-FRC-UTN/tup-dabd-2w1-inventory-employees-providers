@@ -27,11 +27,12 @@ import DataTable from 'datatables.net-dt';
 import { Details } from '../../models/details';
 import { ProductComponent } from '../product/product.component';
 import jsPDF from 'jspdf';
+import { StockAumentoComponent } from '../stock-aumento/stock-aumento.component';
 
 @Component({
   selector: 'app-inventario',
   standalone: true,
-  imports: [FormsModule, CommonModule, ProductComponent],
+  imports: [FormsModule, CommonModule, ProductComponent, StockAumentoComponent],
   templateUrl: './inventario.component.html',
   styleUrl: './inventario.component.css',
 })
@@ -89,14 +90,9 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
   mensajeValidacionMax: string = '';
 
   valAmount: boolean = false;
-
-  abrirModal() {
-    this.modalVisible = true; // Muestra el modal
-  }
-
-  cerrarModal() {
-    this.modalVisible = false; // Oculta el modal
-  }
+  showAumentoStockModal: boolean = false;
+  showNuevoProductoModal: boolean = false;
+  selectedProductId: number | null = null;
 
   ngOnInit(): void {
     this.initializeDataTable();
@@ -274,12 +270,12 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
           render: (data: any, type: any, row: any) => {
             return `
               <div class="dropdown">
-        <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
-           style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
-          &#8942; <!-- Tres puntos verticales -->
-        </a>
+                <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
+                   style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
+                  &#8942;
+                </a>
                 <ul class="dropdown-menu">
-                  <li><button class="dropdown-item btn botonDetalleCrear" data-id="${row.id}">Agregar</button></li>
+                  <li><button class="dropdown-item btn botonAumentoStock" data-id="${row.id}">Agregar</button></li>
                   <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
                 </ul>
               </div>
@@ -314,16 +310,26 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
         });
       },
     });
+    // Corregir los event handlers
+    $('#productsList').on('click', '.botonAumentoStock', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const id = $(event.currentTarget).data('id');
+      this.abrirModalAumentoStock(id);
+    });
+
+    $('#productsList').on('click', '.botonDetalleConsultar', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const id = $(event.currentTarget).data('id');
+      this.irDetalles(id);
+    });
 
     $('#productsList').on('click', '.botonDetalleCrear', (event) => {
       const id = $(event.currentTarget).data('id');
       this.irAgregarDetalles(id);
     });
 
-    $('#productsList').on('click', '.botonDetalleConsultar', (event) => {
-      const id = $(event.currentTarget).data('id');
-      this.irDetalles(id);
-    });
   }
 
   /* METODO PARA PASAR DE FECHAS "2024-10-17" A FORMATO dd/mm/yyyy*/
@@ -428,14 +434,11 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     this.router.navigate(['detalle-inventario']);
   }
 
-  irAgregarDetalles(id: number) {
-    this.stockAumentoService.setId(id);
-    this.router.navigate(['stock-aumento']);
-  }
+ 
 
   irAgregarProducto() {
-    this.modalVisible = true; // Muestra el modal
-    //this.router.navigate(["registro-productos"])
+    /* this.modalVisible = true; // Muestra el modal */
+    this.router.navigate(["registro-productos"])
   }
 
   verificarMin() {
@@ -465,6 +468,8 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     return true;
   }
 
+  
+
   ngOnDestroy(): void {
     if (this.categoriasSubscription) {
       this.categoriasSubscription.unsubscribe();
@@ -475,5 +480,53 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.productosSubscription) {
       this.productosSubscription.unsubscribe();
     }
+    this.showAumentoStockModal = false;
+    this.selectedProductId = null;
   }
+
+  // Agregar método para recargar la tabla después de aumentar el stock
+  recargarDespuesDeAumentoStock() {
+    this.cargarProductos();
+    this.cerrarModalAumentoStock();
+  }
+
+
+
+
+abrirModalAumentoStock(productId: number) {
+  this.selectedProductId = productId;
+  this.showAumentoStockModal = true;
+  this.modalVisible = false; // Asegurarse que el otro modal esté cerrado
+  this.stockAumentoService.setId(productId);
+}
+
+cerrarModalAumentoStock() {
+  this.showAumentoStockModal = false;
+  this.selectedProductId = null;
+}
+
+abrirModal() {
+  this.modalVisible = true;
+  this.showAumentoStockModal = false; // Asegurarse que el otro modal esté cerrado
+}
+
+cerrarModal() {
+  this.modalVisible = false;
+}
+
+handleModalBackdropClick(event: MouseEvent) {
+  if (event.target === event.currentTarget) {
+    if (this.showAumentoStockModal) {
+      this.cerrarModalAumentoStock();
+    }
+    if (this.modalVisible) {
+      this.cerrarModal();
+    }
+  }
+}
+
+irAgregarDetalles(id: number) {
+  this.stockAumentoService.setId(id);
+  this.abrirModalAumentoStock(id);
+}
 }

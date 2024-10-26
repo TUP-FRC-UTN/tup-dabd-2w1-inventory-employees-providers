@@ -1,85 +1,95 @@
 <div class="container">
-    <form [formGroup]="wakeUpCallForm" (ngSubmit)="onSubmit()" class="wake-up-call-form">
-        <h1 class="text-center mb-4">Llamados de Atención</h1>
-
-        <div class="form-group">
-            <label for="fecha">Fecha</label>
-            <input id="fecha" formControlName="fecha" type="date" class="form-control" />
-            <div *ngIf="wakeUpCallForm.get('fecha')?.invalid && (wakeUpCallForm.get('fecha')?.dirty || wakeUpCallForm.get('fecha')?.touched)"
-                class="text-danger">
-                <small *ngIf="wakeUpCallForm.get('fecha')?.errors?.['required']">La fecha es requerida.</small>
-            </div>
+    <form [formGroup]="wakeUpCallForm" (ngSubmit)="onSubmit()" class="wake-up-call-form">    
+      <div class="mb-3">
+        <label for="fecha" class="form-label">Fecha</label>
+        <input 
+          id="fecha" 
+          formControlName="fecha" 
+          type="date" 
+          class="form-control" 
+          [ngClass]="{'is-valid': wakeUpCallForm.get('fecha')?.valid, 'is-invalid': wakeUpCallForm.get('fecha')?.invalid && (wakeUpCallForm.get('fecha')?.dirty || wakeUpCallForm.get('fecha')?.touched)}" 
+        />
+        <div *ngIf="wakeUpCallForm.get('fecha')?.invalid && (wakeUpCallForm.get('fecha')?.dirty || wakeUpCallForm.get('fecha')?.touched)" class="text-danger">
+          <small *ngIf="wakeUpCallForm.get('fecha')?.errors?.['required']">La fecha es requerida.</small>
         </div>
-
-        <div class="form-group">
-            <label>Buscar Empleado</label>
-            <input type="text" formControlName="searchTerm" (input)="filterEmployees()"
-                placeholder="Ingrese al menos 3 letras" class="form-control" />
-            <div *ngIf="wakeUpCallForm.get('searchTerm')?.invalid && (wakeUpCallForm.get('searchTerm')?.dirty || wakeUpCallForm.get('searchTerm')?.touched)"
-                class="text-danger">
-                <small *ngIf="wakeUpCallForm.get('searchTerm')?.errors?.['minlength']">Ingrese al menos 3
-                    caracteres.</small>
-            </div>
+      </div>
+  
+      <div class="mb-3">
+        <label class="form-label">Buscar Empleado</label>
+        <input 
+          type="text" 
+          formControlName="searchTerm" 
+          (input)="filterEmployees()" 
+          placeholder="Ingrese al menos 3 letras" 
+          class="form-control" 
+          [ngClass]="{'is-valid': wakeUpCallForm.get('searchTerm')?.valid, 'is-invalid': wakeUpCallForm.get('searchTerm')?.invalid && (wakeUpCallForm.get('searchTerm')?.dirty || wakeUpCallForm.get('searchTerm')?.touched)}"
+        />
+        <div *ngIf="wakeUpCallForm.get('searchTerm')?.invalid && (wakeUpCallForm.get('searchTerm')?.dirty || wakeUpCallForm.get('searchTerm')?.touched)" class="text-danger">
+          <small *ngIf="wakeUpCallForm.get('searchTerm')?.errors?.['minlength']">Ingrese al menos 3 caracteres.</small>
         </div>
-
-        <div class="form-group">
-            <label>Empleados</label>
-            <div class="employee-list" formArrayName="empleados">
-                <div *ngFor="let employee of filteredEmployees; let i = index" class="employee-item">
-                    <label>
-                        <input type="checkbox" [formControlName]="i" />
-                        {{ employee.fullName }} - {{ employee.position }}
-                    </label>
-                </div>
-            </div>
-            <div *ngIf="empleadosFormArray.invalid && (empleadosFormArray.dirty || empleadosFormArray.touched)"
-                class="text-danger">
-                <small>Al menos un empleado debe ser seleccionado.</small>
-            </div>
+      </div>
+      
+      <div class="mb-3">
+        <label>Empleados</label>
+        <div class="employee-list" formArrayName="empleados">
+          <div *ngFor="let employee of filteredEmployees; let i = index" class="form-check">
+            <label class="form-check-label">
+              <input type="checkbox" [formControlName]="i" class="form-check-input" />
+              {{ employee.fullName }} - {{ employee.position }}
+            </label>
+          </div>
         </div>
-
-        <div class="form-group">
-            <label>Desempeño</label>
-            <div class="radio-group">
-                <label class="radio-label">
-                    <input type="radio" formControlName="desempeno" value="LEVE" />
-                    <span>Leve</span>
-                </label>
-                <label class="radio-label">
-                    <input type="radio" formControlName="desempeno" value="MODERADO" />
-                    <span>Moderado</span>
-                </label>
-                <label class="radio-label">
-                    <input type="radio" formControlName="desempeno" value="SEVERO" />
-                    <span>Severo</span>
-                </label>
-            </div>
-            <div *ngIf="wakeUpCallForm.get('desempeno')?.invalid && (wakeUpCallForm.get('desempeno')?.dirty || wakeUpCallForm.get('desempeno')?.touched)"
-                class="text-danger">
-                <small>El desempeño es requerido.</small>
-            </div>
+        <div *ngIf="empleadosFormArray.invalid && (empleadosFormArray.dirty || empleadosFormArray.touched)" class="text-danger">
+          <small>Al menos un empleado debe ser seleccionado.</small>
         </div>
-
-        <div class="form-group">
-            <label for="observaciones">Observaciones</label>
-            <textarea id="observaciones" formControlName="observaciones" class="form-control" rows="4"></textarea>
-            <div *ngIf="wakeUpCallForm.get('observaciones')?.invalid && (wakeUpCallForm.get('observaciones')?.dirty || wakeUpCallForm.get('observaciones')?.touched)"
-                class="text-danger">
-                <small>Las observaciones son requeridas.</small>
-            </div>
+      </div>
+      
+      <div class="mb-3">
+        <label>Desempeño</label>
+        <div class="radio-group">
+          <div class="form-check">
+            <input type="radio" formControlName="desempeno" value="LEVE" class="form-check-input" />
+            <label class="form-check-label">Leve</label>
+          </div>
+          <div class="form-check">
+            <input type="radio" formControlName="desempeno" value="MODERADO" class="form-check-input" />
+            <label class="form-check-label">Moderado</label>
+          </div>
+          <div class="form-check">
+            <input type="radio" formControlName="desempeno" value="SEVERO" class="form-check-input" />
+            <label class="form-check-label">Severo</label>
+          </div>
         </div>
-        <div *ngIf="showConfirmation" class="alert alert-success">
-            {{ confirmationMessage }}
+        <div *ngIf="wakeUpCallForm.get('desempeno')?.invalid && (wakeUpCallForm.get('desempeno')?.dirty || wakeUpCallForm.get('desempeno')?.touched)" class="text-danger">
+          <small>El desempeño es requerido.</small>
         </div>
-
-        <div *ngIf="showError" class="alert alert-danger">
-            {{ errorMessage }}
+      </div>
+      
+      <div class="mb-3">
+        <label for="observaciones" class="form-label">Observaciones</label>
+        <textarea 
+          id="observaciones" 
+          formControlName="observaciones" 
+          class="form-control" 
+          rows="4" 
+          [ngClass]="{'is-valid': wakeUpCallForm.get('observaciones')?.valid, 'is-invalid': wakeUpCallForm.get('observaciones')?.invalid && (wakeUpCallForm.get('observaciones')?.dirty || wakeUpCallForm.get('observaciones')?.touched)}"
+        ></textarea>
+        <div *ngIf="wakeUpCallForm.get('observaciones')?.invalid && (wakeUpCallForm.get('observaciones')?.dirty || wakeUpCallForm.get('observaciones')?.touched)" class="text-danger">
+          <small>Las observaciones son requeridas.</small>
         </div>
-
-
-        <div class="button-group">
-            <button type="submit" class="btn btn-primary" [disabled]="wakeUpCallForm.invalid">Confirmar</button>
-            <button type="button" (click)="navigateToPerformanceList()" class="btn btn-secondary">Volver</button>
-        </div>
+      </div>
+  
+      <div *ngIf="showConfirmation" class="alert alert-success">
+        {{ confirmationMessage }}
+      </div>
+  
+      <div *ngIf="showError" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+  
+      <div class="d-flex justify-content-end mt-4">
+        <button type="submit" class="btn btn-primary" [disabled]="wakeUpCallForm.invalid">Confirmar</button>  
+      </div>
+      
     </form>
-</div>
+  </div>
