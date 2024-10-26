@@ -10,11 +10,12 @@ import { ModalSelectComponent } from './components/modal-select/modal-select.com
 import { StockAumentoComponent } from './components/stock-aumento/stock-aumento.component';
 import { TablaComponent } from './components/tabla/tabla.component';
 import { IepRegisterWarehouseComponent } from './components/iep-register-warehouse/iep-register-warehouse.component';
+import { PerformancelistComponent } from './components/performancelist/performancelist.component';
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, RouterModule, EmpListadoEmpleadosComponent, BotonVolverComponent, DetailTableComponent, FiltroComponent,
-    ModalSelectComponent, StockAumentoComponent, TablaComponent,IepRegisterWarehouseComponent
+    ModalSelectComponent, StockAumentoComponent, TablaComponent,IepRegisterWarehouseComponent, PerformancelistComponent
   ],
   providers: [],
 
