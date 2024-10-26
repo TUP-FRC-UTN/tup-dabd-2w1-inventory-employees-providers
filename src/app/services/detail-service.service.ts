@@ -9,7 +9,7 @@ import { PostDecrement } from '../models/details';
 })
 export class DetailServiceService {
 
-  private readonly BASE_URL = 'http://localhost:8080'; // URL base del servidor
+  private readonly BASE_URL = 'http://localhost:8081'; // URL base del servidor
   private _refresh$ = new Subject<void>();
   private id: number = 0;
   urlExcel: string = '';

@@ -11,13 +11,13 @@ import { ProductXDetailDto } from '../models/product-xdetail-dto';
 })
  export class ProductService {
 
-   private apiUrl: string = 'http://localhost:8080/product'; // Tomas C
-   private productUrl : string = 'http://localhost:8080/product/get'; // Agus
-   private historialAmountUrl = 'http://localhost:8080/amountModification/getAllModifications'; // Enzo
-   private apiUrlPDF = 'http://localhost:8080/amountModification/getAllModificationsPdf';
-   apiUrlExcel = 'http://localhost:8080/amountModification/getAllModificationsExcel';
-   private productUrlPdf = 'http://localhost:8080/product/getPdf';  // Agus
-   productExcelPdf = 'http://localhost:8080/product/getExcel';  // Agus
+   private apiUrl: string = 'http://localhost:8081/product'; // Tomas C
+   private productUrl : string = 'http://localhost:8081/product/get'; // Agus
+   private historialAmountUrl = 'http://localhost:8081/amountModification/getAllModifications'; // Enzo
+   private apiUrlPDF = 'http://localhost:8081/amountModification/getAllModificationsPdf';
+   apiUrlExcel = 'http://localhost:8081/amountModification/getAllModificationsExcel';
+   private productUrlPdf = 'http://localhost:8081/product/getPdf';  // Agus
+   productExcelPdf = 'http://localhost:8081/product/getExcel';  // Agus
 
    constructor(private http: HttpClient) {
    }
@@ -25,7 +25,7 @@ import { ProductXDetailDto } from '../models/product-xdetail-dto';
    // TOMAS C
    getAllCategories():Observable<ProductCategory[]> {
      return this.http.get<ProductCategory[]>
-     (`http://localhost:8080/category/getAll`);
+     (`http://localhost:8081/category/getAll`);
    }
 
    // AGUS
