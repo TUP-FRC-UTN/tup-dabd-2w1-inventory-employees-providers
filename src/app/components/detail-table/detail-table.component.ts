@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DetailServiceService } from '../../services/detail-service.service';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import $ from 'jquery';
 import 'datatables.net';
 import 'datatables.net-dt';
@@ -10,7 +10,9 @@ declare var bootstrap: any;
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-
+import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
+import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
+import { IepCreateWarehouseMovementDTO } from '../../models/iep-create-warehouse-movement-dto';
 @Component({
   selector: 'app-detail-table',
   standalone: true,
@@ -27,7 +29,39 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   private deleteModal: any;
   currentSearchTerm: string = ''; // Almacena el término de búsqueda actual
 
-  constructor(private detailService: DetailServiceService) { }
+  //////
+  reincorporationDate=false;
+  selectedDetailstoShow: Details[] = [];
+
+  employees: EmpListadoEmpleados[] = [];
+
+  dtoCreate: IepCreateWarehouseMovementDTO={
+    responsible: "Encargado de Inventario",
+    id_movement_type: 0,
+    id_details: [],
+    applicant: "",
+    date:  new Date().toISOString().slice(0, 16),
+    reinstatement_datetime: this.formatDateForInput(new Date()),
+    employee_id: 0
+  };
+
+  private formatDateForInput(date: Date): Date {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    // Create a new date object with local timezone
+    const formattedDate = new Date(`${year}-${month}-${day}T${hours}:${minutes}`);
+    return formattedDate;
+  }
+
+
+
+  constructor(private detailService: DetailServiceService,
+    private employeesService: EmpListadoEmpleadosService,
+  ) { }
 
   applyStateFilter(event: any): void {
     const selectedState = event.target.value;
@@ -45,6 +79,46 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.table.clear().rows.add(this.filteredDetails).draw();
   }
   
+
+  
+  changeSelectEmployees(): void{
+    this.dtoCreate.applicant = this.employees.find((employee) => employee.id === this.dtoCreate.employee_id)?.fullName;
+  }
+
+  loadEmployees(): void {
+    this.employeesService.getEmployees().subscribe({
+      next: (data) => {
+        this.employees = data;
+        console.log('Empleados cargados con éxito:', data);
+      },
+      error: (err) => {
+        console.error('Error al cargar empleados:', err);
+      },
+    });
+  }
+
+  onSubmit(form: NgForm) 
+  {
+    if(form.valid){
+      this.dtoCreate.id_details = this.selectedIds;
+      console.log('DTO a enviar:', this.dtoCreate);
+    }
+  }
+
+  cleanDTO(): void{
+    this.dtoCreate={
+      responsible: "Encargado de Inventario",
+      id_movement_type: 0,
+      id_details: [],
+      applicant: "",
+      date :  new Date().toISOString().slice(0, 16),
+      reinstatement_datetime : this.formatDateForInput(new Date()),
+      employee_id: 0
+    };
+  }
+
+
+
 
   ngOnInit(): void {
     this.loadDetails();

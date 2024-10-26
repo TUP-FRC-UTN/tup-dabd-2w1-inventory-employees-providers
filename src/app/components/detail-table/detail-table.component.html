@@ -164,3 +164,147 @@
     </button>
   </div>
 </div>
+
+<!-- Modal para registrar Movimiento de Inventario -->
+
+<div class="modal fade" id="warehouseModal" role="dialog" aria-labelledby="warehouseModal" style="width: 100%;" aria-hidden="">
+  <div class="modal-dialog" style="width: 100%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Registro de Movimiento de Inventario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="cleanDTO()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row" style="color: gray;">
+          @if(selectedDetailstoShow.length === 0) {
+            <p class="col-12">No
+              hay ítems seleccionados</p>
+          }@else {
+            <label for="detailsSelected" class="col-form-label col-12">Ítems seleccionados: {{selectedDetailstoShow.length}}</label>
+          }
+        </div>
+        <div class="mt-2" style="">
+          <div class="row form">
+            <form class="custom-form" #myForm="ngForm" (ngSubmit)="onSubmit(myForm)">
+              <div class="mb-3 row">
+                <label for="movementType" class="col-form-label col-2">Tipo</label>
+                <div class="col-10">
+                  <select class="form-select" #movementType="ngModel" 
+                  [(ngModel)]="dtoCreate.id_movement_type" 
+                  id="movementType" style="border-radius: 0.25rem;"
+                  name="movementType"
+                   min="1" required>
+                    <option value="1">Préstamo</option>
+                    <option value="2">Devolución</option>
+                    <option value="3">A mantenimiento</option>
+                  </select>
+                  <div class="error-container">
+                    <div *ngIf="movementType.invalid && movementType.touched" class="error-message">
+                      @if(movementType.invalid){
+                        @if(movementType.errors?.['min']){
+                          <p>Seleccione un Tipo de Movimiento</p>
+                        }
+                        @else {
+                          <p>El campo es requerido</p>
+                        }
+                      }
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3 row">
+                <label for="inputName" class="col-form-label col-2">Empleado</label>
+                <div class="col-10">
+                  <select class="form-select" id="employees" style="border-radius: 0.25rem;"
+                  name="employee" #employee="ngModel"  
+                  [(ngModel)]="dtoCreate.employee_id" (ngModelChange)="changeSelectEmployees()" required>
+                    <option value="0" disabled selected>Seleccione un Empleado</option>
+                      @for(e of employees; track $index) {
+                        <option value="{{e.id}}">{{e.fullName}}</option>
+                      }
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3 row">
+                <label for="inputApplicant" class="col-form-label col-2">Solicitante</label>
+                <div class="col-10">
+                  <input type="text" class="form-control" id="inputApplicant" name="applicant"
+                  #applicant="ngModel" required minlength="3" maxlength="50"
+                  [(ngModel)]="dtoCreate.applicant" [disabled]="dtoCreate.employee_id!=0"
+                  [ngClass]="{
+                    'is-invalid': applicant.invalid && applicant.touched, 
+                    'is-valid': applicant.valid && applicant.touched
+                }">
+                </div>
+                <div class="error-container " style="color: red;   min-height: 20px;">
+                  <div *ngIf="applicant.invalid && applicant.touched" class="error-message">
+                    @if(applicant.invalid){
+                      @if(applicant.errors?.['required']){
+                        <p>El campo es requerido</p>
+                      }
+                      @else {
+                        <p>El campo debe tener entre 3 y 50 caracteres</p>
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <div class="container mt-2 mb-2 py-2" style="border: 1px solid rgba(128, 128, 128, 0.3);
+              border-radius: 10px;">
+                <div class="mb-3 row">
+                  <label for="inputDate"  class="col-form-label col-2">Fecha</label>
+                  <div class="col-10">
+                    <input type="datetime-local"  [value]="dtoCreate.date | date: 'yyyy-MM-ddTHH:mm'"
+                     #date="ngModel" [(ngModel)]="dtoCreate.date" required name="date"
+                     class="form-control" id="date" [ngClass]="{
+                      'is-invalid': date.invalid && date.touched, 
+                      'is-valid': date.valid && date.touched
+                  }">
+                  </div>
+                  <div class="error-container">
+                    <div *ngIf="date.invalid && date.touched" class="error-message">
+                      @if(date.invalid && date.touched){
+                        @if(date.errors?.['required']){
+                          <p>El campo es requerido</p>
+                        }
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+
+              <div class="mb-1 mt-3 form-check  ml-2">
+                <input type="checkbox" name="reusable" class="form-check-input" id="exampleCheck1" (change)="reincorporationDate=!reincorporationDate">
+                <label class="form-check-label" for="exampleCheck1">Programar fecha de reincorporación</label>
+              </div>
+
+              <div class="container mt-2 mb-2 py-2" style="border: 1px solid rgba(128, 128, 128, 0.3);
+              border-radius: 10px;">
+                <div class="mb-3 row">
+                  <label for="inputDate" class="col-form-label col-2">Fecha</label>
+                  <div class="col-10">
+                    <input type="datetime-local"  [value]="dtoCreate.date | date: 'yyyy-MM-ddTHH:mm'"
+                    class="form-control" id="inputApplicant" [disabled]="!reincorporationDate">
+                  </div>
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="submit" [disabled]="!myForm.invalid"
+         class="btn btn-primary" data-bs-dismiss="modal">Registrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+

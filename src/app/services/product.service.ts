@@ -79,6 +79,11 @@ import { ProductXDetailDto } from '../models/product-xdetail-dto';
     return this.http.post<any>(url, json, { headers, params });
   }
 
+  productGet():Observable<DtoProducto[]>{
+    console.log("aa")
+    return this.http.get<DtoProducto[]>(this.productUrl);
+  }
+
   getPdf(): Observable<ArrayBuffer> {
     return this.http.get(this.apiUrlPDF, {
       responseType: 'arraybuffer'

@@ -43,9 +43,5 @@ export const routes: Routes = [
         component: FormLlamadoAtencionComponent,
         title: 'Llamada de atención'
     },
-    {
-        path: 'warehouse-movements',
-        component: IepRegisterWarehouseComponent,
-        title: 'Movimientos de inventario'
-    }
+  
 ];
