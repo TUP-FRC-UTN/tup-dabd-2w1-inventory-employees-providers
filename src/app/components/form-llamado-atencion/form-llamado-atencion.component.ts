@@ -6,6 +6,7 @@ import { EmployeeGetResponseDTO } from "../../models/llamado-atencion";
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
 import { RequestWakeUpCallDTO, RequestWakeUpCallGroupDTO } from "../../models/llamado-atencion";
+import { ListadoDesempeñoService } from "../../services/listado-desempeño.service";
 
 @Component({
   selector: 'app-form-llamado-atencion',
@@ -28,7 +29,8 @@ export class FormLlamadoAtencionComponent implements OnInit{
   constructor(
     private router: Router, 
     private fb: FormBuilder, 
-    private wakeUpCallService: LlamadoAtencionService
+    private wakeUpCallService: LlamadoAtencionService,
+    private ListDesempeño:ListadoDesempeñoService
   ) {
     this.wakeUpCallForm = this.fb.group({
       empleados: this.fb.array([], Validators.required),
@@ -146,6 +148,7 @@ export class FormLlamadoAtencionComponent implements OnInit{
         response => {
           console.log('WakeUpCall grupal creado', response);
           this.showSuccessMessage('¡Llamado registrado exitosamente!');
+          this.ListDesempeño.refreshData();
           this.resetForm();
         },
         error => {

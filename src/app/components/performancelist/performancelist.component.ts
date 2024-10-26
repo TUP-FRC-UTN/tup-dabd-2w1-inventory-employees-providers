@@ -45,7 +45,19 @@ export class PerformancelistComponent implements OnInit {
   constructor(private employeeService: ListadoDesempeñoService, private router: Router) {}
 
   ngOnInit(): void {
-    this.loadData();
+    // Suscribirse a los datos para recibir actualizaciones en tiempo real
+    this.employeeService.performances$.subscribe({
+      next: (data) => {
+        this.performances = data;
+        this.setAvailableYears();
+      },
+      error: (error) => {
+        console.error('Error al cargar datos:', error);
+      }
+    });
+
+    // Inicializar los datos
+    this.employeeService.refreshData();
   }
 
   loadData(): void {
