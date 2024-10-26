@@ -50,8 +50,9 @@ export const routes: Routes = [
         title:"Crear proveedor"
     },
     {
-        path:"supplier-update",
-        component:SupplierUpdateComponent,
-        title:"Modificar proveedor"
-    }
+        path: "supplier-update/:id",
+        component: SupplierUpdateComponent,
+        title: "Modificar proveedor"
+      }
+      
 ];
