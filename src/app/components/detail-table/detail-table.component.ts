@@ -13,6 +13,7 @@ import 'jspdf-autotable';
 import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { IepCreateWarehouseMovementDTO } from '../../models/iep-create-warehouse-movement-dto';
+import { WarehouseMovementService } from '../../services/warehouse-movement.service';
 @Component({
   selector: 'app-detail-table',
   standalone: true,
@@ -53,6 +54,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
 
   constructor(private detailService: DetailServiceService,
     private employeesService: EmpListadoEmpleadosService,
+    private warehouseService: WarehouseMovementService,
   ) { }
 
   applyStateFilter(event: any): void {
@@ -99,15 +101,13 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   }
 
   cleanDTO(): void{
-    this.dtoCreate={
-      responsible: "Encargado de Inventario",
-      id_movement_type: 0,
-      id_details: [],
-      applicant: "",
-      date :  new Date().toISOString().slice(0, 16),
-      reinstatement_datetime : this.formatDateForInput(new Date()),
-      employee_id: 0
-    };
+    this.dtoCreate = new IepCreateWarehouseMovementDTO();
+    this.dtoCreate.date = new Date().toISOString().slice(0, 16);
+    this.dtoCreate.reinstatement_datetime = new Date().toISOString().slice(0, 16);
+    this.dtoCreate.id_details = [];
+    this.dtoCreate.employee_id = 0;
+    this.dtoCreate.applicant = '';
+    this.toggleSelectAll({ target: { checked: false } });
   }
 
 
@@ -117,6 +117,8 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.loadDetails();
     this.loadEmployees();
     this.initializeModal();
+    this.dtoCreate.date = new Date().toISOString().slice(0, 16);
+    this.dtoCreate.reinstatement_datetime = new Date().toISOString().slice(0, 16);
   }
 
   initializeModal(): void {

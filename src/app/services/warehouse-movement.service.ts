@@ -1,8 +1,9 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { GetWarehouseMovementRequest } from '../models/GetWarehouseMovementRequest';
 import { WarehouseMovement } from '../models/getWarehouseMovementResponse';
 import { Observable } from 'rxjs';
+import { IepCreateWarehouseMovementDTO } from '../models/iep-create-warehouse-movement-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -31,5 +32,14 @@ export class WarehouseMovementService {
     return this.http.get<WarehouseMovement[]>('http://localhost:8082/warehouseMovement/search', { params })
      
   }
-  
+
+  public postWarehouseMovement(dto: IepCreateWarehouseMovementDTO,idUser:number):Observable<any> {
+    const url = `http://localhost:8082/warehouseMovement`;
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const params = new HttpParams().set('idLastUpdatedUser ', idUser.toString());
+    const json = JSON.stringify(dto);
+    console.log(json);
+    return this.http.post<any>(url, json, { headers, params });
+  }
+
 }

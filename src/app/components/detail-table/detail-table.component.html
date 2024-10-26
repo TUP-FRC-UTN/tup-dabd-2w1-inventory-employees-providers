@@ -161,7 +161,7 @@
 
       <button id="warehouseButton" class="btn btn-primary me-2" data-bs-toggle="modal"
       data-bs-target="#warehouseModal"
-      [disabled]="">
+      [disabled]="selectedIds.length===0">
       Registrar Movimiento
   </button>
 
@@ -185,11 +185,11 @@
       </div>
       <div class="modal-body">
         <div class="row" style="color: gray;">
-          @if(selectedDetailstoShow.length === 0) {
+          @if(selectedIds.length === 0) {
             <p class="col-12">No
               hay ítems seleccionados</p>
           }@else {
-            <label for="detailsSelected" class="col-form-label col-12">Ítems seleccionados: {{selectedDetailstoShow.length}}</label>
+            <label for="detailsSelected" class="col-form-label col-12">Ítems seleccionados: {{selectedIds.length}}</label>
           }
         </div>
         <div class="mt-2" style="">
@@ -335,7 +335,7 @@
 
       </div>
       <div class="modal-footer">
-        <button type="submit" [disabled]="myForm.invalid"
+        <button type="submit" [disabled]="myForm.invalid && !myForm.touched"
          class="btn btn-primary" data-bs-dismiss="modal">Registrar</button>
       </div>
     </div>

@@ -4,7 +4,7 @@ export class IepCreateWarehouseMovementDTO {
   id_details: number[]|undefined;
   applicant: string|undefined;
   date: string|undefined;
-  reinstatement_datetime: Date|undefined;
+  reinstatement_datetime: string|undefined;
   employee_id: number|undefined;
   
 }
