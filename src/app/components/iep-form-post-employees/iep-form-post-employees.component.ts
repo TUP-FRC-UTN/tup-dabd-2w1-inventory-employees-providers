@@ -168,7 +168,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
             this.createEmployee$.subscribe({
               next: response => {
                 this.success = true;
-                this.successMessage = response.message;
+                this.successMessage = "Empleado guardado con éxito. Credenciales de acceso en trámite.";
                 console.log("PASO: ", response);
                 this.showModal=true;
               },
@@ -223,6 +223,9 @@ export class IEPFormPostEmployeesComponent implements OnInit {
     });
   }
 
+  goBack(){
+    window.history.back();
+  }
 
 
  public loadLocalidades():void{
@@ -233,9 +236,6 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   }
 
   
-
-
-
   public resetForm(form: NgForm) {
     form.reset();
     this.errorMessage = '';
@@ -257,21 +257,12 @@ export class IEPFormPostEmployeesComponent implements OnInit {
     ERROR_MESSAGES = {
     'Cuil exists in the system': 'Ya existe un empleado con ese cuil',
     'Document  exists in the system': 'Ya existe un empleado con ese dni',
+    'Error in contact server': 'El servidor de contacto fallo, intente nuevamente mas tarde',
+    'Error al guardar direccion': 'El servidor de direcciones fallo, intente nuevamente mas tarde',
+    'Error in access server':'El servidor de accesos fallo, intente nuevamente mas tarde',
+    'Charge not found':'El cargo seleccionado ya no existe en el sistema',
+    'default': 'El servidor de empleados fallo , intente  nuevamente mas tarde .'
 
-    
-    '400 No existe el proveedor ingresado': 'No existe el proveedor ingresado',
-    '400 No existe la categoria ingresada': 'La categoría ingresada no existe',
-    '400 Estado invalido': 'El estado del producto ingresado es inválido',
-    '500 Error al crear el producto': 'Ha ocurrido un error al crear el producto.',
-    'default': 'Ha ocurrido un error al crear el producto.'
   };
-
-
-
-
-
- 
-
-
 
 }
