@@ -36,7 +36,7 @@ export class WarehouseMovementService {
   public postWarehouseMovement(dto: IepCreateWarehouseMovementDTO,idUser:number):Observable<any> {
     const url = `http://localhost:8080/warehouseMovement`;
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    const params = new HttpParams().set('idLastUpdatedUser ', idUser.toString());
+    const params = new HttpParams().set('idUser', idUser.toString());
     const json = JSON.stringify(dto);
     console.log(json);
     return this.http.post<any>(url, json, { headers, params });

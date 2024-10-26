@@ -14,6 +14,7 @@ import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { IepCreateWarehouseMovementDTO } from '../../models/iep-create-warehouse-movement-dto';
 import { WarehouseMovementService } from '../../services/warehouse-movement.service';
+import { Observable } from 'rxjs';
 @Component({
   selector: 'app-detail-table',
   standalone: true,
@@ -31,12 +32,16 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   currentSearchTerm: string = ''; // Almacena el término de búsqueda actual
 
   //////
+  idUser:number=1;
   reincorporationDate=false;
   selectedDetailstoShow: Details[] = [];
-
+  loading: boolean = false;
+  confirmPost: boolean = false;
   employees: EmpListadoEmpleados[] = [];
   dtoCreate: IepCreateWarehouseMovementDTO=new IepCreateWarehouseMovementDTO();
-
+  createMovement$: Observable<any>= new Observable<any>();
+  errorMessage: string = '';
+  
 
   private formatDateForInput(date: Date): Date {
     const year = date.getFullYear();
@@ -94,11 +99,34 @@ export class DetailTableComponent implements OnInit, OnDestroy {
 
   onSubmit(form: NgForm) 
   {
+    this.loading = true;
     if(form.valid){
       this.dtoCreate.id_details = this.selectedIds;
       console.log(".............");
       console.log(this.dtoCreate);
+      this.createMovement$ = this.warehouseService.postWarehouseMovement(this.dtoCreate,this.idUser);
+      this.createMovement$.subscribe({
+        next: (data) => {
+          console.log('Movimiento de almacén registrado con éxito:', data);
+          this.loadDetails();
+        },
+        error: (err) => {
+          if(err.error.errorMessage==="Required request parameter 'idLastUpdatedUser' for method parameter type Integer is not present"){
+            this.errorMessage = 'Error al registrar movimiento de almacén: No se ha especificado el usuario que realiza el movimiento';
+          }
+          console.log( err.error.message);
+          console.error('Error al registrar movimiento de almacén:', err);
+        },
+        complete: () => {
+          this.loading = false;
+          this.confirmPost = true;
+        }
+      });
+    }else{
+      console.log("Formulario inválido");
     }
+    this.cleanDTO();
+    this.loading = false;
   }
 
   cleanDTO(): void{
@@ -133,6 +161,7 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.dtoCreate.id_details = [];
     this.dtoCreate.employee_id = undefined;
     this.dtoCreate.applicant = '';
+    this.dtoCreate.responsible = 'Encargado de Inventario';
     const modalElement = document.getElementById('warehouseModal');
     const modalDeleteElement = document.getElementById('confirmDeleteModal');
   // Agregar listener para clics en el backdrop
