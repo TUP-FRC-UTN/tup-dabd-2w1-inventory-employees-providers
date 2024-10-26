@@ -9,6 +9,9 @@ import { IepRegisterWarehouseComponent } from './components/iep-register-warehou
 import { FormLlamadoAtencionComponent } from './components/form-llamado-atencion/form-llamado-atencion.component';
 import { WarehouseMovementSearchComponent } from './components/warehouse-movement-search/warehouse-movement-search.component';
 import { PerformancelistComponent } from './components/performancelist/performancelist.component';
+import { SuppliersFormComponent } from './components/suppliers-form/suppliers-form.component';
+import { SupplierListComponent } from './components/supplier-list/supplier-list.component';
+import { SupplierUpdateComponent } from './components/supplier-update/supplier-update.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -54,6 +57,21 @@ export const routes: Routes = [
         path: 'desempeño',
         component: PerformancelistComponent,
         title: 'desempeño'
+    },
+
+    {
+        path: "suppliers",
+        component: SupplierListComponent,
+        title: "proveedores"
+    },
+    {
+        path: "create-supplier",
+        component: SuppliersFormComponent,
+        title: "Crear proveedor"
+    },
+    {
+        path: "supplier-update",
+        component: SupplierUpdateComponent,
+        title: "Modificar proveedor"
     }
-  
 ];
