@@ -26,6 +26,9 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
   isModalOpen = false;
   isConfirmDeleteModalOpen = false;
 
+  isErrorModalOpen = false;
+  errorMessage = '';
+
   constructor(
     private fb: FormBuilder,
     private cargoService: ChargeService,
@@ -190,50 +193,34 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onSubmit(): void {
     if (this.cargoForm.valid) {
-      if (this.modoEdicion) {
-        if(this.selectedCargo){
-          this.cargoService.updateCargo(this.selectedCargo.id, this.cargoForm.value).subscribe(() => {
-            this.loadCargos(); 
-            this.isModalOpen = false; 
+      const chargeValue = this.cargoForm.get('charge')?.value;
+  
+      this.cargoService.getAllCargos().subscribe(cargos => {
+        const exists = cargos.some(cargo => cargo.charge === chargeValue && cargo.id !== this.selectedCargo?.id);
+  
+        if (exists) {
+          this.errorMessage = `El cargo "${chargeValue}" ya existe. Por favor, elige otro nombre.`;
+          this.isErrorModalOpen = true; 
+          return;
+        }
+  
+        if (this.modoEdicion) {
+          if (this.selectedCargo) {
+            this.cargoService.updateCargo(this.selectedCargo.id, this.cargoForm.value).subscribe(() => {
+              this.loadCargos();
+              this.isModalOpen = false;
+            });
+          }
+        } else {
+          this.cargoService.createCargo(this.cargoForm.value).subscribe(() => {
+            this.loadCargos();
+            this.isModalOpen = false;
           });
         }
-      } else {
-        this.cargoService.createCargo(this.cargoForm.value).subscribe(() => {
-          this.loadCargos(); 
-          this.isModalOpen = false; 
-        });
-      }
+      });
     }
   }
   
-  private crearCargo(): void {
-    this.cargoService.createCargo(this.cargoForm.value).subscribe({
-      next: () => {
-        this.loadCargos();
-        this.isModalVisible = false; 
-      },
-      error: (err) => {
-        console.error('Error al crear cargo:', err);
-      }
-    });
-  }
-
-  private actualizarCargo(): void {
-    if (this.selectedCargo && typeof this.selectedCargo.id === 'number') {
-      this.cargoService.updateCargo(this.selectedCargo.id, this.cargoForm.value).subscribe({
-        next: () => {
-          this.loadCargos(); 
-          this.isModalVisible = false; 
-        },
-        error: (err) => {
-          console.error('Error al actualizar cargo:', err);
-        }
-      });
-    } else {
-      console.error('Cargo seleccionado no es válido o no tiene ID.');
-    }
-  }
-
   markAllControlsAsTouched(): void {
     Object.keys(this.cargoForm.controls).forEach(key => {
       this.cargoForm.get(key)?.markAsTouched();

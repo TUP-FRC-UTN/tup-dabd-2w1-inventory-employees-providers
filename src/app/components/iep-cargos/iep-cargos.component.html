@@ -98,4 +98,23 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal de Error -->
+<div id="errorModal" *ngIf="isErrorModalOpen" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 style="color: red;" class="modal-title">Error</h5>
+        <button type="button" class="btn-close" (click)="isErrorModalOpen = false"></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ errorMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="isErrorModalOpen = false">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
