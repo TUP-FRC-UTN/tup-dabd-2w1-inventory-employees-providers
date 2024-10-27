@@ -87,6 +87,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 0, 1);
     const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
     this.startDate = this.formatDate(thirtyDaysAgo);
     this.endDate = this.formatDate(today);
   }
