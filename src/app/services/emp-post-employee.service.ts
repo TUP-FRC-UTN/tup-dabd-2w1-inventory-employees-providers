@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { catchError, Observable, Subject } from 'rxjs';
 import { Provincia } from '../models/emp-provincia';
 import { Charge, PostEmployeeDto } from '../models/emp-post-employee-dto';
 import { EmpPutEmployees } from '../models/emp-put-employees';
@@ -17,6 +17,7 @@ export class EmpPostEmployeeService {
   private baseUrlCharges = 'http://localhost:8080/charges';
 
   private UrlEmployeePost= 'http://localhost:8080/employees/post';
+  private baseUrlEmployees = 'http://localhost:8080/employees';
 
   constructor(private client:HttpClient) { }
 
@@ -36,7 +37,7 @@ export class EmpPostEmployeeService {
   }
 
   getCharges():Observable<Charge[]>{
-    return this.client.get<Charge[]>(this.baseUrlCharges+'/all');
+    return this.client.get<Charge[]>(this.baseUrlCharges);
   }
 
 

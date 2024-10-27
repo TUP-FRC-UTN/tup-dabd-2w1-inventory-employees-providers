@@ -1,15 +1,17 @@
-<div class="container mt-5 col-md-6">
+<div class="container mt-4 col-md-8">
     <form #form="ngForm" (ngSubmit)="onSubmit(form)" class="form-container border rounded border shadow p-4">
         <div class="bg-light">
-            <h2 class="text-center mb-5">MODIFICAR EMPLEADO</h2>
+            <h2 class="text-center mb-4 pt-3">MODIFICAR EMPLEADO</h2>
             <hr class="my-4">
         </div>
         <div class="bg-light rounded mb-5 pb-3 pt-3 ps-2" >
             <!-- Datos personales -->
+            <p class="text-start mb-3 ">Datos personales:</p>
+            <hr>
             <div class="form-group row mb-3">
                 <div class="col-md-6">
                     <div class="row">
-                        <label for="nombre" class="col-form-label col-md-3">Nombre:</label>
+                        <label for="nombre" class="col-form-label col-md-3 text-end">Nombre:</label>
                         <div class="col-md-9">
                             <input 
                             type="text" 
@@ -34,7 +36,7 @@
             
                    <div class="col-md-6">
                           <div class="row">
-                              <label for="apellido" class="col-form-label col-md-3">Apellido:</label>
+                              <label for="apellido" class="col-form-label col-md-3 text-end">Apellido:</label>
                               <div class="col-md-9">
                                   <input type="text" class="form-control" id="apellido" name="apellido" 
                                   name="apellido" 
@@ -57,7 +59,7 @@
             <div class="form-group row mb-3">
                 <div class="col-md-6">
                     <div class="row">
-                        <label for="cuil" class="col-form-label col-md-3">CUIL:</label>
+                        <label for="cuil" class="col-form-label col-md-3 text-end">CUIL:</label>
                         <div class="form-group col-md-9">  
                             <input type="text" class="form-control" id="cuil" name="cuil" [(ngModel)]="cuil" 
                             #cuilModel="ngModel"
@@ -76,7 +78,7 @@
                 </div>
                    <div class="col-md-6">
                           <div class="row">
-                              <label for="dni" class="col-form-label col-md-3">DNI:</label>
+                              <label for="dni" class="col-form-label col-md-3 text-end">DNI:</label>
                               <div class="col-md-9">
                                 <input type="text" class="form-control" id="dni" name="dni"
                                 [(ngModel)]="dni"
@@ -96,12 +98,15 @@
                           </div>
                      </div>
                 </div>
+            
+            <!-- contacto  --> 
             <div class="bg-light rounded ps-2 " >
-            <p class="text-center">CONTACTO </p>
+            <p class="text-start mb-3 ">Datos de contacto:</p>
+            <hr>
             <div class="form-group row mb-3 pb-2 ">
                 <div class="col-md-6">
                     <div class="row">
-                        <label for="telefono" class="col-form-label col-md-3">Teléfono:</label>
+                        <label for="telefono" class="col-form-label col-md-3 text-end">Teléfono:</label>
                         <div class="col-md-9">
                             <input type="text" class="form-control" id="telefono" name="telefono"
                             [(ngModel)]="telefono"
@@ -123,7 +128,7 @@
                 </div>
                    <div class="col-md-6">
                           <div class="row">
-                              <label for="mail" class="col-form-label col-md-3">E-mail:</label>
+                              <label for="mail" class="col-form-label col-md-3 text-end">E-mail:</label>
                               <div class="col-md-9">
                                   <input type="email" class="form-control" id="mail" name="mail"
                                   [(ngModel)]="mail"
@@ -145,9 +150,9 @@
             </div>
               <!-- Dirección -->
             <div class="bg-light rounded mb-3 ps-2">
+                <p class="text-start mb-3 ">Datos de direccion:</p>
+                <hr>
                 <div class="form-group row mb-3 ">
-                  
-                    <p class="text-center mb-3">DIRECCION</p>
                     <div class="col-md-6">
                         <div class="row">
                             <label for="provincia" class="col-form-label col-md-3">Provincia:</label>
@@ -284,199 +289,226 @@
                  </div>
                 </div>
             </div>
-             <!-- Empleado tercerizado -->
-             <div class="bg-light rounded mb-5 pb-3 ps-2" >  
-                <div class="form-group text-center mb-3" >
-                    <div class="d-flex justify-content-center gap-4">
-                        <div>
-                            <label class="me-1" for="tercerizado">Empleado Tercerizado: </label>
-                            <input type="checkbox" id="tercerizado" name="tercerizado" (click)="changeTerceorized()">
+            <div class="bg-light rounded mb-5 pb-2 ps-2 pt-2" >  
+                <p class="text-start mb-3 ">Datos del contrato:</p>
+                <hr>
+        
+        
+        
+             <div class="form-group row mb-3">
+        
+              
+        
+        
+        
+                <div class="col-md-6 mb-3">
+                    <div class="row">
+                     <!-- Empleado tercerizado -->
+          
+                        
+                            <label class="col-form-label col-md-4" for="tercerizado">Tercerizado:</label>
+                            <div class="col-md-8" >
+                            
+                            <i
+                            id="tercerizado" name="tercerizado" 
+                            (click)="changeTerceorized()"
+                            [class]="terciorizedEmployee ? 'fas fa-check text-success' : 'fas fa-times text-danger'"
+                            style="font-size: 2.0em; cursor: pointer; margin-left: 10px;"
+                          ></i>
+                          </div>
+                         
+                    </div>
+                 </div>
+                 @if (!terciorizedEmployee) {
+                    <!-- Salario -->
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="row">
+                            
+                       <label class="col-form-label col-md-3" for="salario">Salario:</label>
+                       <div class="col-md-9">
+                        <input type="number" 
+                               class="form-control" 
+                               id="salario" 
+                               name="salario" 
+                               [(ngModel)]="salario" 
+                               #salarioModel="ngModel" 
+                               required 
+                               pattern="^[1-9]\d*$"
+                               [ngClass]="{
+                                   'is-invalid': salarioModel.invalid && salarioModel.touched, 
+                                   'is-valid': salarioModel.valid && salarioModel.touched
+                               }">
+                        
+                        <div *ngIf="salarioModel.invalid && salarioModel.touched" class="invalid-feedback">
+                            La entrada no es válida. Asegúrate de introducir un número entero positivo.
                         </div>
-                        <div>
-                            <label class="me-1" for="licencia">Licencia: </label>
-                            <input type="checkbox" 
-                                   id="licencia" 
-                                   name="licencia" 
-                                   [(ngModel)]="license"
-                                   #licenseModel="ngModel">
-                        </div>
+                    </div>
                     </div>
                 </div>
-                @if (terciorizedEmployee) {
-                    <!-- Proveedores de servicio tercerizado -->
-                    <div class="form-group mb-3">
-                        <label for="proveedores">Proveedores de Servicio Tercerizado:</label>
-                        <select id="proveedores" name="proveedores" class="form-control" [(ngModel)]="selectedSupplier">
-                            <option disabled selected value="opcion1">Seleccionar proveedor</option>
-                            @for (x of suppliers; track $index) {
-                                <option [ngValue]="x">{{x.name}}</option>
-                            }
-                        </select>
-                    </div>
-                }
-            </div>
-                 <!-- Cargo -->
-                 <div class="bg-light rounded mb-5 pb-2 ps-2 pt-2" >  
-                 <div class="form-group row mb-3">
-                    <div class="col-md-6  ">
-                        <div class="row">
-                            <label for="cargo" class="col-form-label col-md-4">Cargo:</label>
-                               <div class="col-md-8">
-                                <select id="cargo" name="cargo" class="form-control" [(ngModel)] ="cargoSelected" >
-                                    <option disabled selected value="opcion1">Seleccionar Cargo</option>
-                                    @for (c of cargos; track $index) {
-                                        <option  selected [ngValue]="c">{{c.charge}}</option>
-            
-            
-                                    }
-                                   
-                                </select>        
-                               </div>
-                          </div>
-                     </div>
-                     @if (!terciorizedEmployee) {
-                        <!-- Salario -->
-                        
-                        <div class="col-md-6">
+                      }
+                      @else {
+        
+                        <div class="col-md-6 mb-3">
                             <div class="row">
                                 
-                           <label class="col-form-label col-md-3" for="salario">Salario:</label>
+                           <label class="col-form-label col-md-3" for="proveedores">Proveedores:</label>
                            <div class="col-md-9">
-                            <input type="number" 
-                                   class="form-control" 
-                                   id="salario" 
-                                   name="salario" 
-                                   [(ngModel)]="salario" 
-                                   #salarioModel="ngModel" 
-                                   required 
-                                   pattern="^[1-9]\d*$"
-                                   [ngClass]="{
-                                       'is-invalid': salarioModel.invalid && salarioModel.touched, 
-                                       'is-valid': salarioModel.valid && salarioModel.touched
-                                   }">
+                          <!-- Proveedores de servicio tercerizado -->
+                                   <select id="proveedores" name="proveedores" class="form-control" [(ngModel)]="selectedSupplier">
+                                    <option disabled selected value="opcion1">Seleccionar proveedor</option>
+                          
+                                   @for (x of suppliers; track $index) {
+                                     <option [ngValue]="x">  {{x.name}} </option>
+                                     }
+                                    </select>
+                          </div>
                             
-                            <div *ngIf="salarioModel.invalid && salarioModel.touched" class="invalid-feedback">
-                                La entrada no es válida. Asegúrate de introducir un número entero positivo.
-                            </div>
+                        </div>  
                         </div>
+                    }  <!-- Cargo -->
+                    <div class="col-md-6 mb-3">
+                      <div class="row">
+                          <label for="cargo" class="col-form-label col-md-4">Cargo:</label>
+                             <div class="col-md-8">
+                              <select id="cargo" name="cargo" class="form-control" [(ngModel)] ="cargoSelected" >
+                                  <option disabled selected value="opcion1">Seleccionar Cargo</option>
+                                  @for (c of cargos; track $index) {
+                                      <option  selected [ngValue]="c">{{c.charge}}</option>
+          
+          
+                                  }
+                                 
+                              </select>        
+                             </div>
                         </div>
-                    </div>
-                          }
-                          <div class="col-md-6 mt-3 ">
-                            <div class="row">
-                                <label for="start-time-contract" class="col-form-label col-md-6">Fecha inicio contrato:</label>
-                                   <div class="col-md-6">
-                                    <input type="date" id="startTimeContract" id="startTimeContract"
-                                    class="form-control" 
-                                    name="startTimeContract" 
-                                    [(ngModel)]="startTimeContract" 
-                                    #startTimeContractModel="ngModel" 
-                                    required
-                                    (ngModelChange)="validateDate()"
-                                    [ngClass]="{
-                                        'is-invalid': startTimeContractModel.invalid && startTimeContractModel.touched, 
-                                        'is-valid': startTimeContractModel.valid && startTimeContractModel.touched
-                                    }">
-                                    <div *ngIf="startTimeContractModel.invalid && startTimeContractModel.touched" class="invalid-feedback">
-                                        Por favor, selecciona una fecha válida.
-                                    </div>      
-                                   </div>
-                              </div>
-                         </div>
+                   </div>
+                       <!-- fecha inicio contrato -->
+                    <div class="col-md-6 ">
+                      <div class="row">
+                          <label for="start-time-contract" class="col-form-label col-md-6">Fecha inicio contrato:</label>
+                             <div class="col-md-6">
+                              <input type="date" id="startTimeContract" id="startTimeContract"
+                              class="form-control" 
+                              name="startTimeContract" 
+                              [(ngModel)]="startTimeContract" 
+                              #startTimeContractModel="ngModel" 
+                              required
+                              (ngModelChange)="validateDate()"
+                              [ngClass]="{
+                                  'is-invalid': startTimeContractModel.invalid && startTimeContractModel.touched, 
+                                  'is-valid': startTimeContractModel.valid && startTimeContractModel.touched
+                              }">
+                              <div *ngIf="startTimeContractModel.invalid && startTimeContractModel.touched" class="invalid-feedback">
+                                  Por favor, selecciona una fecha válida.
+                              </div>      
+                             </div>
+                        </div>
+                   </div>
+      
+           </div>
+             
+          </div>      
+                    
+          <div class="bg-light rounded mb-5 pb-3 ps-2" > 
+                
+            <p class="text-start mb-3 ">Dias laborales:</p>
+            <hr>
+        <div class="form-group d-flex justify-content-center flex-wrap gap-3 px-3 ">
             
-                 </div>
-                   
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="lunes" name="lunes" [(ngModel)]="lunes">
+                <label class="form-check-label" for="lunes">Lunes</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="martes" name="martes" [(ngModel)]="martes">
+                <label class="form-check-label" for="martes">Martes</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="miercoles" name="miercoles" [(ngModel)]="miercoles">
+                <label class="form-check-label" for="miercoles">Miércoles</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="jueves" name="jueves" [(ngModel)]="jueves">
+                <label class="form-check-label" for="jueves">Jueves</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="viernes" name="viernes" [(ngModel)]="viernes">
+                <label class="form-check-label" for="viernes">Viernes</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="sabado" name="sabado" [(ngModel)]="sabado">
+                <label class="form-check-label" for="sabado">Sábado</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="domingo" name="domingo" [(ngModel)]="domingo">
+                <label class="form-check-label" for="domingo">Domingo</label>
+            </div>
+        </div>
+        </div>
+        <!-- Horarios -->
+        <div class="bg-light rounded mb-5 pb-3 ps-2" > 
+            <p class="text-start mb-3 ">Horarios:</p>
+            <hr>
+        <div class="form-group row mb-3 pt-3">
+            <div class="col-md-6">
+                <div class="row">
+            <label for="hora-entrada" class="col-md-3"> <i class="fas fa-clock"></i> entrada:</label>
+            <div class=" col-md-5">
+                <input type="time" class="form-control" id="hora-entrada" name="hora-entrada"  [(ngModel)]="horaEntrada" 
+                #horaEntradaModel="ngModel" 
+                required
+                [ngClass]="{
+                    'is-invalid': horaEntradaModel.invalid && horaEntradaModel.touched, 
+                    'is-valid': horaEntradaModel.valid && horaEntradaModel.touched
+                }">
+                <div *ngIf="horaEntradaModel.invalid && horaEntradaModel.touched" class="invalid-feedback">
+                    Por favor, selecciona una hora válida.
                 </div>
-                        <div class="bg-light rounded mb-5 pb-3 ps-2" > 
-                        <div class="form-group">
-                            <p class="text-center">DIAS LABORALES</p>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="lunes" name="lunes" [(ngModel)]="lunes">
-                                <label class="form-check-label" for="lunes">Lunes</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="martes" name="martes" [(ngModel)]="martes">
-                                <label class="form-check-label" for="martes">Martes</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="miercoles" name="miercoles" [(ngModel)]="miercoles">
-                                <label class="form-check-label" for="miercoles">Miércoles</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="jueves" name="jueves" [(ngModel)]="jueves">
-                                <label class="form-check-label" for="jueves">Jueves</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="viernes" name="viernes" [(ngModel)]="viernes">
-                                <label class="form-check-label" for="viernes">Viernes</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="sabado" name="sabado" [(ngModel)]="sabado">
-                                <label class="form-check-label" for="sabado">Sábado</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="domingo" name="domingo" [(ngModel)]="domingo">
-                                <label class="form-check-label" for="domingo">Domingo</label>
-                            </div>
-                        </div>
-                        </div>
-            
-                    <!-- Horarios -->
-                    <div class="bg-light rounded mb-5 pb-3 ps-2" > 
-            
-                    <div class="form-group row mb-3 ">
-                        <div class="col-md-6  ">
-                            <div class="row">
-                        <label for="hora-entrada" class="col-md-7">Hora de entrada:</label>
-                        <div class=" col-md-5">
-                            <input type="time" class="form-control" id="hora-entrada" name="hora-entrada"  [(ngModel)]="horaEntrada" 
-                            #horaEntradaModel="ngModel" 
+
+            </div>
+                 </div>
+             </div>
+
+             <div class="col-md-6">
+                <div class="row">
+                    
+                        
+                        <label for="hora-salida" class="col-md-4 text-end">
+                            <i class="fas fa-clock"></i> salida:</label>
+                    
+                    
+                    <div class="col-md-5">
+                        <input 
+                            type="time" 
+                            class="form-control" 
+                            id="hora-salida" 
+                            name="hora-salida" 
+                            [(ngModel)]="horaSalida" 
+                            #horaSalidaModel="ngModel" 
                             required
                             [ngClass]="{
-                                'is-invalid': horaEntradaModel.invalid && horaEntradaModel.touched, 
-                                'is-valid': horaEntradaModel.valid && horaEntradaModel.touched
+                                'is-invalid': horaSalidaModel.invalid && horaSalidaModel.touched, 
+                                'is-valid': horaSalidaModel.valid && horaSalidaModel.touched
                             }">
-                            <div *ngIf="horaEntradaModel.invalid && horaEntradaModel.touched" class="invalid-feedback">
+                            <div *ngIf="horaSalidaModel.invalid && horaSalidaModel.touched" class="invalid-feedback">
                                 Por favor, selecciona una hora válida.
                             </div>
-            
-                        </div>
-                             </div>
-                         </div>
-            
-                         <div class="col-md-6">
-                            <div class="row">
-                                <label for="hora-salida" class="col-md-7">Hora de salida:</label>
-                                <div class="col-md-5">
-                                    <input 
-                                        type="time" 
-                                        class="form-control" 
-                                        id="hora-salida" 
-                                        name="hora-salida" 
-                                        [(ngModel)]="horaSalida" 
-                                        #horaSalidaModel="ngModel" 
-                                        required
-                                        [ngClass]="{
-                                            'is-invalid': horaSalidaModel.invalid && horaSalidaModel.touched, 
-                                            'is-valid': horaSalidaModel.valid && horaSalidaModel.touched
-                                        }">
-                                        <div *ngIf="horaSalidaModel.invalid && horaSalidaModel.touched" class="invalid-feedback">
-                                            Por favor, selecciona una hora válida.
-                                        </div>
-                                </div>
-                            </div>
-                            
-                        </div>
-               
-                    
                     </div>
-                    </div>
+                </div>
+                
+            </div>
+   
+        
+        </div>
+        </div>
         <!-- Botones -->
         <div class="row">
-            <div class="col-md-6 d-flex justify-content-start">
+            <div class="col-md-8"></div>
+            <div class="col-md-2 d-flex justify-content-start">
                 <button type="button" class="btn btn-danger" (click)="cancelar()">Cancelar</button>
             </div>
-            <div class="col-md-6 d-flex justify-content-end">
+            <div class="col-md-2 d-flex justify-content-end">
                 <button [disabled]="!form.valid" type="submit" class="btn btn-primary">Actualizar</button>
             </div>
         </div>

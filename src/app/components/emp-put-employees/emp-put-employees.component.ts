@@ -177,6 +177,7 @@ export class EmpPutEmployeesComponent implements OnInit {
     });
   }
 
+
   loadLocalidades(): void {
     // Esta función se llama cuando cambia la provincia seleccionada
     // La lógica ya está implementada en el template con el ngModel
