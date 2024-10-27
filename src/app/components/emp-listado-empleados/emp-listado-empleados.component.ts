@@ -33,6 +33,8 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   modalContent: SafeHtml = '';
   startDate!: string;
   endDate!: string;
+  nombreFiltrado!: string;
+  estadoFiltrado!: string;
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -68,7 +70,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     endDateInput.min = startDateInput.value;
 
     // Trigger the filter
-    this.filterByDate();
+    this.filter();
   }
 
   formatDateForInput(date: Date): string {
@@ -230,33 +232,34 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
             let color;
             
             switch (data){
-              case "PRESENTE": 
-                color= "#28a745";
-                break;
-              case "AUSENTE":
-                color= "#dc3545";
-                break;
-              case "JUSTIFICADO":
-                color= "#6f42c1";
-                break;
-              case "TARDE":
-                color= "#ffc107";
-                break;     
+              case "PRESENTE": color= "#28a745"; break;
+              case "AUSENTE": color= "#dc3545"; break;
+              case "JUSTIFICADO": color= "#6f42c1"; break;
+              case "TARDE": color= "#ffc107"; break;     
             }
             return `<button class="btn border rounded-pill w-75" 
             style="background-color: ${color}; color: white;" disabled>${data}</button>`;
           }
         },
-        { data: 'arrivalTime', title: 'Hora de entrada' },
-        { data: 'departureTime', title: 'Hora de salida' },
+        { data: 'arrivalTime', title: 'Hora de entrada',
+          render: (data: any, type: any, row: any, meta: any) => {
+            return row.arrivalTime === null ? "--:--:--" : `${row.arrivalTime}`
+          }
+        },
+        { data: 'departureTime', title: 'Hora de salida',
+          render: (data: any, type: any, row: any, meta: any) => {
+            return row.departureTime === null ? "--:--:--" : `${row.departureTime}`
+          } 
+        },
         { data: null,
           title: 'Seleccionar',
           className: 'text-center',
           render: (data: any, type: any, row: any, meta: any) => {
             const isHidden = row.state === "PRESENTE" || row.state === "TARDE"  ? 'style="display: none;"' : '';
             const accion = row.state === "AUSENTE" ? "Justificar" : "Injustificar";
+            const nuevoEstado = row.state === "AUSENTE" ? "JUSTIFICADO" : "AUSENTE";
             const checkbox = `<button class="btn border w-75" 
-            data-id="${row.id}" data-state="${row.state}" ${isHidden}>${accion}</button>`;
+            ${isHidden} data-id="${row.id}" data-nuevoestado="${nuevoEstado}">${accion}</button>`;
             
             const indicator = row.state === "PRESENTE" || row.state === "TARDE" ? '' : checkbox;
         
@@ -264,6 +267,25 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
           },
         }
       ],
+    });
+
+      $('#empleadosTable').on('click', 'button', (event: any) => {
+        const button = $(event.currentTarget);
+        const id = button.data('id');
+        const nuevoEstado = button.data('nuevoestado');
+
+        if (id && nuevoEstado) {
+          this.empleadoService.putAttendances(id, nuevoEstado).subscribe(
+              response => {
+                  // Manejar respuesta aquí
+                  console.log('Asistencia actualizada:', response);
+                  this.loadAsistencias();
+              },
+              error => {
+                  console.error('Error al actualizar asistencia:', error);
+              }
+          );
+        }
     });
   }
 
@@ -398,7 +420,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       endDateInput.min = '';
     }
 
-    this.filterByDate();
+    this.filter();
   }
 
   onEndDateChange(): void {
@@ -411,10 +433,10 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       startDateInput.max = '';
     }
 
-    this.filterByDate();
+    this.filter();
   }
 
-  filterByDate(): void {
+  filter(): void {
     const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
     const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
 
@@ -435,6 +457,18 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       );
     });
 
+    if (this.nombreFiltrado.length >= 3) {
+      this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
+        return asistencia.employeeName.toUpperCase().includes(this.nombreFiltrado.toUpperCase());
+      })
+    }
+
+    if (this.estadoFiltrado !== ""){
+      this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
+        return asistencia.state === this.estadoFiltrado;
+      })
+    }
+
     // Actualizar el DataTable
     if (this.table) {
       this.table.clear().rows.add(this.filteredAsistencias).draw(); // Actualiza la tabla con los productos filtrados
@@ -445,6 +479,12 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     if (this.ventana === 'Asistencias') {
       this.loadAsistencias;
     }
+  }
+
+  limpiarFiltro(){
+    this.nombreFiltrado = "";
+    this.estadoFiltrado = "";
+    this.setInitialDates();
   }
 
   formatDateyyyyMMdd(dateString: string): string {

@@ -90,12 +90,17 @@
     <div class="row filtros" *ngIf="ventana === 'Desempeño' || ventana === 'Asistencias'">   
         <!-- Contenedor de búsqueda por nombre del empleado -->
         <div class="col-3 d-flex">
-            <input type="text"  id="searchTerm" placeholder="Nombre" class="form-control">
+            <input type="text"  id="searchTerm" placeholder="Nombre" class="form-control"
+            [(ngModel)]="nombreFiltrado" (ngModelChange)="filter()">
         </div>
         <!-- Filtro de estado  -->
         <div class="col-2 d-flex">
-            <select class="form-select" name="" id="">
+            <select class="form-select" id="" [(ngModel)]="estadoFiltrado" (ngModelChange)="filter()">
                 <option value="">Estado</option>
+                <option value="PRESENTE">PRESENTE</option>
+                <option value="TARDE">TARDE</option>
+                <option value="AUSENTE">AUSENTE</option>
+                <option value="JUSTIFICADO">JUSTIFICADO</option>
             </select>
         </div>
         <!-- Filtros por fecha -->
@@ -109,17 +114,17 @@
         </div>
         <!-- Boton para limpiar los filtros -->
         <div class="col-1 ">
-            <button class="btn btn-primary ms-auto">
+            <button class="btn btn-primary ms-auto" (click)="limpiarFiltro()">
                 <i class="bi bi-trash"></i>
             </button>
         </div>
         <!-- Tabla de productos y botones para generar PDF o Excel -->
         <div class="col text-end">
-          <button class="btn btn-danger ms-auto">
-            <i class="bi bi-file-earmark-pdf"></i>
-          </button>
-          <button class="btn btn-success ms-2">
+          <button class="btn btn-success ms-auto">
             <i class="bi bi-file-earmark-excel"></i>
+          </button>
+          <button class="btn btn-danger ms-2">
+            <i class="bi bi-file-earmark-pdf"></i>
           </button>
         </div>
     </div>
