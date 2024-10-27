@@ -86,6 +86,17 @@
         </ul>
     </div>
 
+    <!-- Input de búsqueda de empleados y filtro de posición -->
+    <div class="input-group my-3">
+        <input type="text" id="inputFiltroNombre" class="form-control m-2" placeholder="Buscar por nombre o apellido"
+            (input)="onNameFilterChange($event)" />
+
+            <select class="form-select m-2" id="comboFiltroCargo" (change)="onPositionFilterChange($event)">
+                <option value="">Todos los cargos</option>
+            </select>
+    </div>
+
+
     <!-- Filtros de fecha para Desempeño y Asistencias -->
     <div class="row mt-3" *ngIf="ventana === 'Desempeño' || ventana === 'Asistencias'">
         <div class="col-md-3 d-flex align-items-center">
@@ -164,24 +175,25 @@
         }
     </div>
 
-<!-- Modal de confirmación de eliminación -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                ¿Está seguro de que desea eliminar este empleado?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="confirmDelete()">Eliminar</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    <!-- Modal de confirmación de eliminación -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Está seguro de que desea eliminar este empleado?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                        (click)="confirmDelete()">Eliminar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
 </div>
