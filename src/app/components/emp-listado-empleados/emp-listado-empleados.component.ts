@@ -35,16 +35,19 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   endDate!: string;
   private subscriptions: Subscription[] = [];
 
+
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
     private employeePerformanceService: ListadoDesempeñoService,
     private sanitizer: DomSanitizer
+    
   ) { }
 
   ngOnInit(): void {
     this.loadEmpleados();
     this.initializeDates();
     this.setInitialDates();
+    this.bindEditButtons();
   }
 
   setInitialDates(): void {
@@ -193,8 +196,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
                   &#8942; <!-- Tres puntos verticales -->
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
-                  <li><a class="dropdown-item modificar-btn" data-empleado-id="${data.id}" href="#">Modificar</a></li>
+                <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
                 </ul>
               </div>`;
           }
@@ -202,12 +204,37 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       ]
     });
 
+
     $('#empleadosTable').on('click', '.consultar-btn', (event: any) => {
       event.preventDefault();
       const empleadoId = $(event.currentTarget).data('empleado-id');
       this.consultarEmpleado(empleadoId);
     });
+
+    $('#empleadosTable').on('click', '.modificar-btn',(event: any) => {
+      event.preventDefault();
+      const id =  $(event.currentTarget).data('empleado-id');
+      this.editarEmpleado(id); 
+  });
   }
+
+
+  editarEmpleado(id: any): void {
+
+    console.log("me fuiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+    this.router.navigate(['/empleados/modificar', id]);
+  }
+
+  bindEditButtons(): void {
+    const self = this; // Guardamos el contexto del componente
+    $('#empleadosTable').on('click', '.edit-button',  () => {
+        const id = $(this).data('id'); // Obtenemos el ID del atributo data-id
+        self.editarEmpleado(id); // Llama al método editarEmpleado
+    });
+ }
+
+
+
 
   private initializeAsistenciasTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
