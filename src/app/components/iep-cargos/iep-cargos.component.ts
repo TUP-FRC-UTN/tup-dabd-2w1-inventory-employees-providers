@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ChargeResponse } from '../../models/charge-response';
 import { ChargeService } from '../../services/charge.service';
@@ -11,7 +11,7 @@ import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-iep-cargos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
   templateUrl: './iep-cargos.component.html',
   styleUrl: './iep-cargos.component.css'
 })
@@ -25,9 +25,11 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
   isConfirmModalVisible = false;
   isModalOpen = false;
   isConfirmDeleteModalOpen = false;
-
   isErrorModalOpen = false;
   errorMessage = '';
+
+  searchTerm: string = '';
+  filteredData: ChargeResponse[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -81,10 +83,26 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
+  filterData(event: any): void {
+    const searchTerm = event.target.value.toLowerCase().trim();
+    
+    if (!searchTerm) {
+      this.filteredData = [...this.cargos];
+    } else {
+      this.filteredData = this.cargos.filter(cargo => 
+        cargo.charge.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    this.refreshDataTable();
+  }
+
+
   loadCargos(): void {
     this.cargoService.getAllCargos().subscribe({
       next: (cargos) => {
         this.cargos = cargos;
+        this.filteredData = [...cargos];
         this.refreshDataTable();
       },
       error: (err) => {
@@ -108,7 +126,7 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.table = $('#cargosTable').DataTable({
-      data: this.cargos,
+      data: this.filteredData,
       columns: [
         { data: 'charge', title: 'Cargo' },
         { data: 'description', title: 'Descripción' },
