@@ -77,6 +77,10 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       next: (asistencias) => {
         this.Asistencias = asistencias;
         this.ventana = 'Asistencias';
+
+        const startDate = this.startDate ? new Date(this.startDate) : null;
+        const endDate = this.endDate ? new Date(this.endDate) : null;
+        
         this.initializeDataTable();
       },
       error: (err) => console.error('Error al cargar asistencias:', err),
@@ -87,7 +91,6 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   loadDesempeno(): void {
     const start = new Date(this.startDate);
     const end = new Date(this.endDate);
-
   }
 
   initializeDataTable(): void {
@@ -98,7 +101,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
     const commonConfig = {
       pageLength: 10,
-      lengthChange: false,
+      lengthChange: true,
       searching: false,
       language: {
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
@@ -108,6 +111,12 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
           next: ">",
           previous: "<"
         },
+        lengthMenu:
+          `<select class="form-select">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>`,
         zeroRecords: "No se encontraron registros",
         emptyTable: "No hay datos disponibles",
       }
@@ -179,6 +188,10 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   private initializeAsistenciasTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
       ...commonConfig,
+      dom:
+        '<"mb-3"t>' +                           //Tabla
+        '<"d-flex justify-content-between"lp>', //Paginacion
+      order: [[0, 'desc']], // Ordenar por fecha de forma descendente
       data: this.Asistencias,
       columns: [
         { data: 'date', title: 'Fecha' },
@@ -201,7 +214,8 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
                 color= "#ffc107";
                 break;     
             }
-            return `<button class="btn" style="background-color: ${color}; color: white;" disabled>${data}</button>`;
+            return `<button class="btn border rounded-pill w-75" 
+            style="background-color: ${color}; color: white;" disabled>${data}</button>`;
           }
         },
         { data: 'arrivalTime', title: 'Hora de entrada' },
@@ -211,10 +225,11 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
           className: 'text-center',
           render: (data: any, type: any, row: any, meta: any) => {
             const isHidden = row.state === "PRESENTE" || row.state === "TARDE"  ? 'style="display: none;"' : '';
-            const checkbox = `<input type="checkbox" class="form-check-input selection-checkbox" 
-                              data-id="${row.id}" data-state="${row.state}" ${isHidden} />`;
+            const accion = row.state === "AUSENTE" ? "Justificar" : "Injustificar";
+            const checkbox = `<button class="btn border w-75" 
+            data-id="${row.id}" data-state="${row.state}" ${isHidden}>${accion}</button>`;
             
-            const indicator = row.state === "PRESENTE" || row.state === "TARDE" ? '<span class="text-muted"></span>' : checkbox;
+            const indicator = row.state === "PRESENTE" || row.state === "TARDE" ? '' : checkbox;
         
             return indicator;
           },
@@ -346,6 +361,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     // Establecer límites de fechas
     const today = new Date();
     const formattedToday = today.toISOString().split('T')[0];
+    console.log(formattedToday);
     endDateInput.max = formattedToday;
 
     if (startDateInput.value) {
@@ -384,17 +400,37 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.Asistencias = this.Asistencias.filter((asistencia) => {
+      const productDate = new Date(this.formatDateyyyyMMdd(asistencia.date));
+      return (
+        (!startDate || productDate >= startDate) &&
+        (!endDate || productDate <= endDate)
+      );
+    });
+
+    // Actualizar el DataTable
+    if (this.table) {
+      this.table.clear().rows.add(this.Asistencias).draw(); // Actualiza la tabla con los productos filtrados
+    }
+
+
+    
     // Si estamos en la ventana de Desempeño y tenemos ambas fechas, actualizamos la tabla
-    if (this.ventana === 'Desempeño' && startDate && endDate) {
+    if (this.ventana === 'Asistencias' && startDate && endDate) {
       this.startDate = startDateInput.value;
       this.endDate = endDateInput.value;
-      this.loadDesempeno();
+      this.loadAsistencias();
     }
   }
 
+  formatDateyyyyMMdd(dateString: string): string {
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month}-${day}`;
+  }
+
   onFilterByDate(): void {
-    if (this.ventana === 'Desempeño') {
-      this.loadDesempeno();
+    if (this.ventana === 'Asistencias') {
+      this.loadAsistencias();
     }
   }
 
