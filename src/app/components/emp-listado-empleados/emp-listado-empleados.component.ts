@@ -136,12 +136,6 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       searching: false,
       language: {
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-        paginate: {
-          first: "<<",
-          last: ">>",
-          next: ">",
-          previous: "<"
-        },
         lengthMenu:
           `<select class="form-select">
             <option value="10">10</option>
@@ -238,7 +232,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
               case "TARDE": color= "#ffc107"; break;     
             }
             return `<button class="btn border rounded-pill w-75" 
-            style="background-color: ${color}; color: white;" disabled>${data}</button>`;
+            style="background-color: ${color}; color: white;">${data}</button>`;
           }
         },
         { data: 'arrivalTime', title: 'Hora de entrada',
