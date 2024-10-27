@@ -77,15 +77,26 @@ export class SupplierListComponent implements AfterViewInit {
             title: 'Acciones',
             render: (data: any, type: any, row: any) => {
               return `
-                <button type="button" class="btn btn-primary btn-modificar" data-id="${data.id}">Modificar</button>
-                <button type="button" class="btn btn-danger btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${data.id}">Eliminar</button>
-              `;
+                <div class="dropdown">
+                  <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
+                     style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
+                    &#8942;
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="dropdown-item edit-btn" href="#" data-id="${data.id}">Editar</a></li>
+                    <li><a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${data.id}">Eliminar</a></li>
+                  </ul>
+                </div>`;
             }
           }
         ],
         pageLength: 10,
-        lengthChange: false,
-        searching: true,
+        lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
+        lengthMenu: [ // Opciones para el menú desplegable de longitud
+          [10, 25, 50], // Valores para el número de filas
+          [10, 25, 50] // Etiquetas para el número de filas
+        ],
+        searching: false,
         destroy: true,
         language: {
           search: "Buscar:",
@@ -101,13 +112,15 @@ export class SupplierListComponent implements AfterViewInit {
       });
   
 
-      $('#suppliersTable tbody').on('click', '.btn-delete', (event) => {
+      // Actualizar los event listeners
+      $('#suppliersTable tbody').on('click', '.delete-btn', (event) => {
+        event.preventDefault(); // Prevenir navegación por defecto
         const id = $(event.currentTarget).data('id');
         this.setSupplierToDelete(id);
       });
-  
 
-      $('#suppliersTable tbody').on('click', '.btn-modificar', (event) => {
+      $('#suppliersTable tbody').on('click', '.edit-btn', (event) => {
+        event.preventDefault(); // Prevenir navegación por defecto
         const id = $(event.currentTarget).data('id');
         this.updateSupplier(id);
       });
