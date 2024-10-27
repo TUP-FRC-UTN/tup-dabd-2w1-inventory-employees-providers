@@ -38,7 +38,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
     private employeePerformanceService: ListadoDesempeñoService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
   ) { }
 
   ngOnInit(): void {
@@ -110,10 +110,6 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         this.Asistencias = asistencias;
         this.filteredAsistencias = asistencias;
         this.ventana = 'Asistencias';
-
-        const startDate = this.startDate ? new Date(this.startDate) : null;
-        const endDate = this.endDate ? new Date(this.endDate) : null;
-        
         this.initializeDataTable();
       },
       error: (err) => console.error('Error al cargar asistencias:', err),
@@ -394,7 +390,6 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     // Establecer límites de fechas
     const today = new Date();
     const formattedToday = today.toISOString().split('T')[0];
-    console.log(formattedToday);
     endDateInput.max = formattedToday;
 
     if (startDateInput.value) {
@@ -440,30 +435,15 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       );
     });
 
-    this.Asistencias = this.Asistencias.filter((asistencia) => {
-      const productDate = new Date(this.formatDateyyyyMMdd(asistencia.date));
-      return (
-        (!startDate || productDate >= startDate) &&
-        (!endDate || productDate <= endDate)
-      );
-    });
-
     // Actualizar el DataTable
     if (this.table) {
       this.table.clear().rows.add(this.filteredAsistencias).draw(); // Actualiza la tabla con los productos filtrados
-    }
-    
-    // Si estamos en la ventana de Desempeño y tenemos ambas fechas, actualizamos la tabla
-    if (this.ventana === 'Asistencias' && startDate && endDate) {
-      this.startDate = startDateInput.value;
-      this.endDate = endDateInput.value;
-      this.loadAsistencias();
     }
   }
 
   onFilterByDate(): void {
     if (this.ventana === 'Asistencias') {
-      this.loadAsistencias();
+      this.loadAsistencias;
     }
   }
 

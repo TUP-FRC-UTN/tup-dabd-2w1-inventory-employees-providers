@@ -42,6 +42,6 @@ export class EmpListadoEmpleadosService {
     params = params.set('id', id);
     params = params.set('state', state);
     console.log("Id: " + id + " State: " + state)
-    return this.http.put(`${this.BASE_URL}/attendances/put`, null, {params});
+    return this.http.put(`${this.BASE_URL}/attendances/putState`, null, {params});
   }
 }
