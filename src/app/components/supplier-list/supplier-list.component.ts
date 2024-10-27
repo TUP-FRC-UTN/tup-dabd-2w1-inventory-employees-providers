@@ -183,4 +183,11 @@ export class SupplierListComponent implements AfterViewInit {
     );
     //}
   }
+
+  goBack(){
+    window.history.back();
+  }
+
+
+
 }
