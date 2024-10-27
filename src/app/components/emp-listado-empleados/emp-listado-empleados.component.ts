@@ -196,7 +196,9 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
                   &#8942; <!-- Tres puntos verticales -->
                 </a>
                 <ul class="dropdown-menu">
-                <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
+                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
+               
+                <li><a class="dropdown-item eliminar-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-empleado-id="${data.id}" href="#">Eliminar</a></li>
                 </ul>
               </div>`;
           }
@@ -211,12 +213,39 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       this.consultarEmpleado(empleadoId);
     });
 
+
     $('#empleadosTable').on('click', '.modificar-btn',(event: any) => {
       event.preventDefault();
       const id =  $(event.currentTarget).data('empleado-id');
       this.editarEmpleado(id); 
   });
+
+  // Event handler for eliminar (delete) button
+  $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
+    event.preventDefault();
+    this.empleadoIdToDelete = $(event.currentTarget).data('empleado-id');
+  });
+}
+// Agrega esta propiedad a la clase
+empleadoIdToDelete: number | null = null;
+
+// Agrega esta nueva función para manejar la confirmación
+confirmDelete(): void {
+  if (this.empleadoIdToDelete) {
+    this.empleadoService.changeEmployeeStatus(this.empleadoIdToDelete).subscribe({
+      next: () => {
+        this.loadEmpleados();
+        this.empleadoIdToDelete = null;
+      },
+      error: (error) => {
+        console.error('Error al eliminar el empleado:', error);
+        alert('Error al eliminar el empleado');
+        this.empleadoIdToDelete = null;
+      }
+    });
+
   }
+}
 
 
   editarEmpleado(id: any): void {
