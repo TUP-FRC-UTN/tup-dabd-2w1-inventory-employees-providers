@@ -99,14 +99,14 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     const commonConfig = {
       pageLength: 10,
       lengthChange: false,
+      searching: false,
       language: {
-        search: "Buscar:",
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
         paginate: {
-          first: "Primero",
-          last: "Último",
-          next: "Siguiente",
-          previous: "Anterior"
+          first: "<<",
+          last: ">>",
+          next: ">",
+          previous: "<"
         },
         zeroRecords: "No se encontraron registros",
         emptyTable: "No hay datos disponibles",
@@ -178,19 +178,48 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
   private initializeAsistenciasTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
-      layout: {
-        topStart: 'search',
-        topEnd: null
-      },
       ...commonConfig,
       data: this.Asistencias,
       columns: [
-        { data: 'employeeName', title: 'Apellido y nombre' },
         { data: 'date', title: 'Fecha' },
-        { data: 'state', title: 'Estado' },
+        { data: 'employeeName', title: 'Apellido y nombre' },
+        { data: 'state', title: 'Estado', className: 'text-center',
+          render: (data: any) =>{
+            let color;
+            
+            switch (data){
+              case "PRESENTE": 
+                color= "#28a745";
+                break;
+              case "AUSENTE":
+                color= "#dc3545";
+                break;
+              case "JUSTIFICADO":
+                color= "#6f42c1";
+                break;
+              case "TARDE":
+                color= "#ffc107";
+                break;     
+            }
+            return `<button class="btn" style="background-color: ${color}; color: white;" disabled>${data}</button>`;
+          }
+        },
         { data: 'arrivalTime', title: 'Hora de entrada' },
-        { data: 'departureTime', title: 'Hora de salida' }
-      ]
+        { data: 'departureTime', title: 'Hora de salida' },
+        { data: null,
+          title: 'Seleccionar',
+          className: 'text-center',
+          render: (data: any, type: any, row: any, meta: any) => {
+            const isHidden = row.state === "PRESENTE" || row.state === "TARDE"  ? 'style="display: none;"' : '';
+            const checkbox = `<input type="checkbox" class="form-check-input selection-checkbox" 
+                              data-id="${row.id}" data-state="${row.state}" ${isHidden} />`;
+            
+            const indicator = row.state === "PRESENTE" || row.state === "TARDE" ? '<span class="text-muted"></span>' : checkbox;
+        
+            return indicator;
+          },
+        }
+      ],
     });
   }
 
