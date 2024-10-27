@@ -45,16 +45,13 @@ export class SupplierListComponent implements AfterViewInit {
   }
 
   searchSuppliers() {
-    const nameFilter = this.name.toLowerCase();
-    const typeFilter = this.type;
-  
-    this.filteredSuppliers = this.suppliers.filter((supplier) => {
-      const matchesName = supplier.name.toLowerCase().includes(nameFilter);
-      const matchesType = !typeFilter || supplier.supplierType === typeFilter;
-      return matchesName && matchesType;
-    });
+    this.supplierService.searchSuppliers(this.name, this.type, this.date, this.autorized).subscribe(
+      data => {
+        this.suppliers = data;
+        console.log(data);
+      }
+    );
   }
-  
 
   updateSupplier(id: number) {
 
