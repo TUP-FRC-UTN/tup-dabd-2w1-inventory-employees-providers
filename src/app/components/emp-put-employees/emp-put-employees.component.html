@@ -99,8 +99,8 @@
                      </div>
                 </div>
             
-            <!-- contacto  --> 
-            <div class="bg-light rounded ps-2 " >
+            <!-- contacto   -->
+             <div class="bg-light rounded ps-2 " >
             <p class="text-start mb-3 ">Datos de contacto:</p>
             <hr>
             <div class="form-group row mb-3 pb-2 ">
@@ -148,7 +148,7 @@
                     </div>
             </div>
             </div>
-              <!-- Dirección -->
+              <!-- Dirección  -->
             <div class="bg-light rounded mb-3 ps-2">
                 <p class="text-start mb-3 ">Datos de direccion:</p>
                 <hr>
@@ -289,6 +289,7 @@
                  </div>
                 </div>
             </div>
+            
             <div class="bg-light rounded mb-5 pb-2 ps-2 pt-2" >  
                 <p class="text-start mb-3 ">Datos del contrato:</p>
                 <hr>
@@ -404,6 +405,16 @@
                               </div>      
                              </div>
                         </div>
+                   </div>
+                   <div class="col-md-6">
+                    <div>
+                        <label class="me-1" for="licencia">Licencia: </label>
+                        <input type="checkbox" 
+                               id="licencia" 
+                               name="licencia" 
+                               [(ngModel)]="license"
+                               #licenseModel="ngModel">
+                    </div>
                    </div>
       
            </div>

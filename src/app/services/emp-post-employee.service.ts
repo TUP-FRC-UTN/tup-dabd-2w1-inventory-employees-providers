@@ -53,11 +53,11 @@ export class EmpPostEmployeeService {
   }
 
   updateEmployee(dto: EmpPutEmployees): Observable<any> {
-    const url = `http://localhost:8080/employees/put/${dto.id}`;
+    const url = `${this.baseUrlEmployees}/put/${dto.id}`;
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     const json = JSON.stringify(dto);
     
-    return this.client.put<any>(url, json, { headers });
+    return this.client.put<any>(url, json, { headers});
   }
 
 

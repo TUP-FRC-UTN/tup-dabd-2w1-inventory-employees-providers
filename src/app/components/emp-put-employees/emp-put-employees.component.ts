@@ -220,7 +220,7 @@ export class EmpPutEmployeesComponent implements OnInit {
         charge: this.cargoSelected?.id,
         contractStartTime: this.startTimeContract,
         salary: this.salario,
-        active: true,
+        //active: true,
         license: this.license,
         mondayWorkday: this.lunes,
         tuesdayWorkday: this.martes,
@@ -232,7 +232,7 @@ export class EmpPutEmployeesComponent implements OnInit {
         startTime: this.formatTime(this.horaEntrada),
         endTime: this.formatTime(this.horaSalida),
         supplierId: this.terciorizedEmployee ? this.selectedSupplier?.id : undefined,
-        emailValue: this.mail,
+        emailValue: this.mail || '',
         telephoneValue: parseInt(this.telefono),
         adressDto: {
           street: this.calle,
@@ -243,9 +243,7 @@ export class EmpPutEmployeesComponent implements OnInit {
           city: this.provinciaSelect?.nombre,
           locality: this.localidadSelect
         },
-        contactId: undefined
       };
-
       this.postEmployeeService.updateEmployee(employeeData).subscribe({
         next: (response) => {
           this.showModal('confirm', 'Empleado actualizado exitosamente');
@@ -255,10 +253,15 @@ export class EmpPutEmployeesComponent implements OnInit {
             this.router.navigate(['/empleados/listado']);
           });
         },
-
-        error: (error) => {
+        error: (error: any) => {
+          if (error.status === 404) {
+            this.showModal('error', 'Empleado no encontrado');
+          } else if (error.status === 500) {
+            this.showModal('error', 'Error al actualizar empleado 500');
+          } else {
+            this.showModal('error', error.message);
+          }
           console.error('Error al actualizar el empleado:', error);
-          this.showModal('error', 'Error al actualizar el empleado. Por favor, intente nuevamente.');
         }
       });
     }

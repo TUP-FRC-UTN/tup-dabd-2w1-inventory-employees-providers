@@ -9,7 +9,7 @@ export class EmpPutEmployees {
   charge: number | undefined;
   contractStartTime?: Date | undefined;
   salary: number | undefined;
-  active: boolean | undefined; // Agregado para reflejar si el empleado está activo
+  //active: boolean | undefined; // Agregado para reflejar si el empleado está activo
   license: boolean | undefined;
   mondayWorkday: boolean | undefined;
   tuesdayWorkday: boolean | undefined;
@@ -24,5 +24,5 @@ export class EmpPutEmployees {
   emailValue: string | undefined;
   telephoneValue: number | undefined;
   adressDto: AddressDto | undefined; // Incluye el dto de dirección
-  contactId: number | undefined; // Agregado para el ID de contacto
+  //contactId: number | undefined; // Agregado para el ID de contacto
 }
