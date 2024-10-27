@@ -11,6 +11,9 @@ import 'datatables.net-dt'; // Estilos para DataTables
 import { BrowserModule } from '@angular/platform-browser';
 import { StockAumentoComponent } from '../stock-aumento/stock-aumento.component';
 import { FormLlamadoAtencionComponent } from '../form-llamado-atencion/form-llamado-atencion.component';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-performancelist',
@@ -43,6 +46,47 @@ export class PerformancelistComponent implements OnInit {
   }
 
   constructor(private employeeService: ListadoDesempeñoService, private router: Router) {}
+
+  exportToPdf(): void {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Lista de Desempeños de Empleados', 10, 10);
+
+    const dataToExport = this.performances.map((performance) => [
+      performance.id,
+      performance.fullName,
+      performance.year,
+      this.months[performance.month - 1], // Convert month number to name
+      performance.totalObservations,
+      performance.performanceType,
+    ]);
+
+    (doc as any).autoTable({
+      head: [['ID', 'Nombre Completo', 'Año', 'Mes', 'Total Observaciones', 'Tipo de Desempeño']],
+      body: dataToExport,
+      startY: 20,
+    });
+
+    doc.save('Lista_Desempeños.pdf');
+}
+
+exportToExcel(): void {
+  const dataToExport = this.performances.map((performance) => ({
+    'ID': performance.id,
+    'Nombre Completo': performance.fullName,
+    'Año': performance.year,
+    'Mes': this.months[performance.month - 1], // Convert month number to name
+    'Total Observaciones': performance.totalObservations,
+    'Tipo de Desempeño': performance.performanceType,
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Desempeños');
+
+  XLSX.writeFile(workbook, 'Lista_Desempeños.xlsx');
+}
+
 
   ngOnInit(): void {
     // Suscribirse a los datos para recibir actualizaciones en tiempo real

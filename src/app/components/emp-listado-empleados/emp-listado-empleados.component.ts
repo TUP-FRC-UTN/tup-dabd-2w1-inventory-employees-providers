@@ -222,10 +222,10 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         search: "Buscar:",
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
         paginate: {
-          first: "Primero",
-          last: "Último",
-          next: "Siguiente",
-          previous: "Anterior"
+          first: '<<',
+          last: '>>',
+          next: '>',
+          previous: '<',
         },
         zeroRecords: "No se encontraron registros",
         emptyTable: "No hay datos disponibles",

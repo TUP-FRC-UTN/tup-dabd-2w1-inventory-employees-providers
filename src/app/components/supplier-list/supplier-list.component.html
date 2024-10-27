@@ -26,10 +26,22 @@
     <div class="col-md-10"></div>
     <div class="col-md-2">
       <div class="col text-end">
-        <a class="btn btn-primary w-100" routerLink="/create-supplier">Nuevo Proveedor</a>
+        <a class="btn btn-primary w-100 mb-3" routerLink="/create-supplier">Nuevo Proveedor</a>
       </div>
     </div>
   </div>
+
+    <!-- Fila para los botones de exportación alineados a la derecha -->
+    <div class="row mb-4"> <!-- Aquí se ha agregado un margen inferior -->
+      <div class="col d-flex justify-content-end">
+        <button class="btn btn-success me-2" (click)="exportToExcel()">
+          <i class="fa-solid fa-file-excel"></i>
+        </button>
+        <button class="btn btn-danger" (click)="exportToPdf()">
+          <i class="fas fa-file-pdf"></i>
+        </button>
+      </div>
+    </div>
 
   <div class="row mt-1">
     <div class="col table-responsive">

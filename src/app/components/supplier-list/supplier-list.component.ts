@@ -6,6 +6,9 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { SupplierTypePipe } from '../../pipes/supplier-type.pipe';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-supplier-list',
@@ -26,6 +29,53 @@ export class SupplierListComponent implements AfterViewInit {
   dataTableInstance: any;
 
   constructor(private supplierService: SuppliersService, private router: Router) { }
+
+  exportToPdf(): void {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Lista de Proveedores', 10, 10);
+  
+    const dataToExport = this.suppliers.map((supplier) => [
+      supplier.name,
+      supplier.healthInsurance,
+      supplier.authorized ? 'Sí' : 'No',
+      supplier.address,
+      supplier.supplierType,
+      supplier.description,
+      supplier.email,
+      supplier.phoneNumber,
+      supplier.discontinued ? 'Sí' : 'No',
+    ]);
+  
+    (doc as any).autoTable({
+      head: [['Nombre', 'Seguro de Salud', 'Autorizado', 'Dirección', 'Tipo de Proveedor', 'Descripción', 'Correo Electrónico', 'Número de Teléfono', 'Descontinuado']],
+      body: dataToExport,
+      startY: 20,
+    });
+  
+    doc.save('Lista_Proveedores.pdf');
+  }
+  
+  exportToExcel(): void {
+    const dataToExport = this.suppliers.map((supplier) => ({
+      'Nombre': supplier.name,
+      'Seguro de Salud': supplier.healthInsurance,
+      'Autorizado': supplier.authorized ? 'Sí' : 'No',
+      'Dirección': supplier.address,
+      'Tipo de Proveedor': supplier.supplierType,
+      'Descripción': supplier.description,
+      'Correo Electrónico': supplier.email,
+      'Número de Teléfono': supplier.phoneNumber,
+      'Descontinuado': supplier.discontinued ? 'Sí' : 'No',
+    }));
+  
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Proveedores');
+  
+    XLSX.writeFile(workbook, 'Lista_Proveedores.xlsx');
+  }
+  
 
   ngAfterViewInit(): void {
 
@@ -92,20 +142,17 @@ export class SupplierListComponent implements AfterViewInit {
         ],
         pageLength: 10,
         lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
-        lengthMenu: [ // Opciones para el menú desplegable de longitud
-          [10, 25, 50], // Valores para el número de filas
-          [10, 25, 50] // Etiquetas para el número de filas
-        ],
+        lengthMenu:[10, 25, 50],
         searching: false,
         destroy: true,
         language: {
           search: "Buscar:",
           info: "Mostrando _START_ a _END_ de _TOTAL_ proveedores",
           paginate: {
-            first: "Primero",
-            last: "Último",
-            next: "Siguiente",
-            previous: "Anterior"
+            first: '<<',
+            last: '>>',
+            next: '>',
+            previous: '<',
           },
           emptyTable: "No hay datos disponibles en la tabla",
         }

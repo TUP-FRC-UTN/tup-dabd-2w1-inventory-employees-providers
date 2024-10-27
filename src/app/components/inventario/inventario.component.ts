@@ -283,7 +283,8 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
         },
       ],
       pageLength: 10,
-      lengthChange: false,
+      lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
+      lengthMenu:[10, 25, 50], // Valores para el número de filas],
       searching: false,
       ordering: true,
       order: [[0, 'desc']],
@@ -291,13 +292,13 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
 
       language: {
         search: '',
-        info: '',
-        emptyTable: 'No se encontraron registros', // Mensaje personalizado si no hay datos
+        info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+        emptyTable: 'No se encontraron registros',
         paginate: {
-          first: 'Primero',
-          last: 'Último',
-          next: 'Siguiente',
-          previous: 'Anterior',
+          first: '<<',
+          last: '>>',
+          next: '>',
+          previous: '<',
         },
       },
       initComplete: () => {
