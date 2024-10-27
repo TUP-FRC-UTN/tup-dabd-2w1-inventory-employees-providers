@@ -87,14 +87,16 @@
     </div>
 
     <!-- Input de búsqueda de empleados y filtro de posición -->
+    <div class="row mt-3" *ngIf="ventana === 'Informacion'">
     <div class="input-group my-3">
         <input type="text" id="inputFiltroNombre" class="form-control m-2" placeholder="Buscar por nombre o apellido"
             (input)="onNameFilterChange($event)" />
 
-            <select class="form-select m-2" id="comboFiltroCargo" (change)="onPositionFilterChange($event)">
-                <option value="">Todos los cargos</option>
-            </select>
+        <select class="form-select m-2" id="comboFiltroCargo" (change)="onPositionFilterChange($event)">
+            <option value="">Todos los cargos</option>
+        </select>
     </div>
+</div>
 
 
     <!-- Filtros de fecha para Desempeño y Asistencias -->
