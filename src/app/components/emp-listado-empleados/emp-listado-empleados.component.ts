@@ -24,6 +24,7 @@ declare var DataTable: any;
 export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   Empleados: EmpListadoEmpleados[] = [];
   Asistencias: EmpListadoAsistencias[] = [];
+  filteredAsistencias: EmpListadoAsistencias[] = [];
   employeePerformances: EmployeePerformance[] = [];
   private table: any;
   ventana: string = "Informacion";
@@ -76,6 +77,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     const asistSubscription = this.empleadoService.getAttendances().subscribe({
       next: (asistencias) => {
         this.Asistencias = asistencias;
+        this.filteredAsistencias = asistencias;
         this.ventana = 'Asistencias';
         this.initializeDataTable();
       },
@@ -183,10 +185,10 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         topEnd: null
       },
       ...commonConfig,
-      data: this.Asistencias,
+      data: this.filteredAsistencias,
       columns: [
-        { data: 'employeeName', title: 'Apellido y nombre' },
         { data: 'date', title: 'Fecha' },
+        { data: 'employeeName', title: 'Apellido y nombre' },
         { data: 'state', title: 'Estado' },
         { data: 'arrivalTime', title: 'Hora de entrada' },
         { data: 'departureTime', title: 'Hora de salida' }
@@ -354,12 +356,17 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       endDateInput.value = '';
       return;
     }
+    this.filteredAsistencias = this.Asistencias.filter((producto) => {
+      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
+      return (
+        (!startDate || productDate >= startDate) &&
+        (!endDate || productDate <= endDate)
+      );
+    });
 
-    // Si estamos en la ventana de Desempeño y tenemos ambas fechas, actualizamos la tabla
-    if (this.ventana === 'Desempeño' && startDate && endDate) {
-      this.startDate = startDateInput.value;
-      this.endDate = endDateInput.value;
-      this.loadDesempeno();
+    // Actualizar el DataTable
+    if (this.table) {
+      this.table.clear().rows.add(this.filteredAsistencias).draw(); // Actualiza la tabla con los productos filtrados
     }
   }
 
@@ -367,6 +374,11 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     if (this.ventana === 'Desempeño') {
       this.loadDesempeno();
     }
+  }
+
+  formatDateyyyyMMdd(dateString: string): string {
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month}-${day}`;
   }
 
   private formatDate(date: Date): string {
