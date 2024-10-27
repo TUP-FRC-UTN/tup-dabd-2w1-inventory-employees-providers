@@ -24,6 +24,7 @@ declare var DataTable: any;
 export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   Empleados: EmpListadoEmpleados[] = [];
   Asistencias: EmpListadoAsistencias[] = [];
+  filteredAsistencias: EmpListadoAsistencias[] = [];
   employeePerformances: EmployeePerformance[] = [];
   private table: any;
   ventana: string = "Informacion";
@@ -43,6 +44,35 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadEmpleados();
     this.initializeDates();
+    this.setInitialDates();
+  }
+
+  setInitialDates(): void {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    const startDateInput: HTMLInputElement = document.getElementById(
+      'startDate'
+    ) as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById(
+      'endDate'
+    ) as HTMLInputElement;
+
+    startDateInput.value = this.formatDateForInput(thirtyDaysAgo);
+    endDateInput.value = this.formatDateForInput(today);
+
+    // Establecer los límites de las fechas
+    endDateInput.max = this.formatDateForInput(today);
+    startDateInput.max = endDateInput.value;
+    endDateInput.min = startDateInput.value;
+
+    // Trigger the filter
+    this.filterByDate();
+  }
+
+  formatDateForInput(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 
   ngOnDestroy(): void {
@@ -54,10 +84,12 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
   initializeDates(): void {
     const today = new Date();
-    const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-    this.startDate = this.formatDate(firstDayOfLastMonth);
-    this.endDate = this.formatDate(lastDayOfLastMonth);
+    const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 0, 1);
+    const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    this.startDate = this.formatDate(thirtyDaysAgo);
+    this.endDate = this.formatDate(today);
   }
 
   loadEmpleados(): void {
@@ -76,6 +108,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     const asistSubscription = this.empleadoService.getAttendances().subscribe({
       next: (asistencias) => {
         this.Asistencias = asistencias;
+        this.filteredAsistencias = asistencias;
         this.ventana = 'Asistencias';
 
         const startDate = this.startDate ? new Date(this.startDate) : null;
@@ -192,7 +225,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         '<"mb-3"t>' +                           //Tabla
         '<"d-flex justify-content-between"lp>', //Paginacion
       order: [[0, 'desc']], // Ordenar por fecha de forma descendente
-      data: this.Asistencias,
+      data: this.filteredAsistencias,
       columns: [
         { data: 'date', title: 'Fecha' },
         { data: 'employeeName', title: 'Apellido y nombre' },
@@ -394,11 +427,18 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
 
     if (startDate && endDate && startDate > endDate) {
-      alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
+      //alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
       startDateInput.value = '';
       endDateInput.value = '';
       return;
     }
+    this.filteredAsistencias = this.Asistencias.filter((producto) => {
+      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
+      return (
+        (!startDate || productDate >= startDate) &&
+        (!endDate || productDate <= endDate)
+      );
+    });
 
     this.Asistencias = this.Asistencias.filter((asistencia) => {
       const productDate = new Date(this.formatDateyyyyMMdd(asistencia.date));
@@ -410,10 +450,8 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
     // Actualizar el DataTable
     if (this.table) {
-      this.table.clear().rows.add(this.Asistencias).draw(); // Actualiza la tabla con los productos filtrados
+      this.table.clear().rows.add(this.filteredAsistencias).draw(); // Actualiza la tabla con los productos filtrados
     }
-
-
     
     // Si estamos en la ventana de Desempeño y tenemos ambas fechas, actualizamos la tabla
     if (this.ventana === 'Asistencias' && startDate && endDate) {
@@ -423,15 +461,15 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatDateyyyyMMdd(dateString: string): string {
-    const [day, month, year] = dateString.split('/');
-    return `${year}-${month}-${day}`;
-  }
-
   onFilterByDate(): void {
     if (this.ventana === 'Asistencias') {
       this.loadAsistencias();
     }
+  }
+
+  formatDateyyyyMMdd(dateString: string): string {
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month}-${day}`;
   }
 
   private formatDate(date: Date): string {

@@ -38,12 +38,12 @@ export class SuppliersService {
 
 
   getSupplierById(id:number):Observable<any>{
-    return this.http.get<any>('http://localhost:8081/suppliers'+"/"+id)
+    return this.http.get<any>('http://localhost:8081/suppliers/getbyId/'+id)
   }
 
 
-  updateSupplier(id:number,supplierUpdate:any):Observable<any>{
-    return this.http.put<any>(`http://localhost:8081/suppliers/${id}`,supplierUpdate)
+  updateSupplier(supplierUpdate:Supplier):Observable<any>{
+    return this.http.put<any>(`http://localhost:8081/suppliers`,supplierUpdate)
   }
 
   deleteSupplier(id: number): Observable<any> {

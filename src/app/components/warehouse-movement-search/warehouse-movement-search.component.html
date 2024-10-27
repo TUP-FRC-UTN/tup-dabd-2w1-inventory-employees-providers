@@ -59,14 +59,14 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p><strong>ID:</strong> {{ selectedMovement?.id }}</p>
+           
             <p><strong>Fecha:</strong> {{ selectedMovement?.date | date: 'short' }}</p>
             <p><strong>Solicitante:</strong> {{ selectedMovement?.applicant }}</p>
             <p><strong>Tipo:</strong> {{ selectedMovement?.movement_type ?? '' | warehouseType }}</p>
             <p class="mb-0"><strong>Productos:</strong> </p>
             <ul>
                 @for (product of selectedMovement?.detailProducts; track $index) {
-                    <li>{{ product.description }}</li>
+                    <li>{{ product.description}}</li>
                 }
             </ul>
             <p><strong>Responsable: </strong>{{ selectedMovement?.responsible }} </p>
