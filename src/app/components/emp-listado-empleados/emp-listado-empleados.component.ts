@@ -53,25 +53,9 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     this.initializeDates();
     this.setInitialDates();
     this.bindEditButtons();
-    this.initializeFilters(); // Nuevo método
   }
 
-  private initializeFilters(): void {
-    // Usar los empleados que ya tenemos cargados
-    if (this.Empleados.length > 0) {
-      this.uniquePositions = [...new Set(this.Empleados.map(emp => emp.position))].sort();
-      this.updatePositionFilter();
-    } else {
-      const subscription = this.empleadoService.getEmployees().subscribe({
-        next: (empleados) => {
-          this.uniquePositions = [...new Set(empleados.map(emp => emp.position))].sort();
-          this.updatePositionFilter();
-        },
-        error: (err) => console.error('Error al cargar cargos:', err)
-      });
-      this.subscriptions.push(subscription);
-    }
-  }
+
 
   onNameFilterChange(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -82,18 +66,28 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   private updatePositionFilter(): void {
     const comboFiltroCargo = document.getElementById('comboFiltroCargo') as HTMLSelectElement;
     if (comboFiltroCargo) {
-      // Mantener la opción por defecto
+      const currentValue = comboFiltroCargo.value; // Guardar el valor actual
+      
+      // Limpiar opciones existentes excepto la primera
       while (comboFiltroCargo.options.length > 1) {
         comboFiltroCargo.remove(1);
       }
-  
-      // Agregar las opciones de cargos
+      
+      // Agregar las nuevas opciones
       this.uniquePositions.forEach(position => {
-        const option = document.createElement('option');
-        option.value = position;
-        option.text = position;
-        comboFiltroCargo.appendChild(option);
+        if (position) {
+          const option = document.createElement('option');
+          option.value = position;
+          option.text = position;
+          comboFiltroCargo.appendChild(option);
+        }
       });
+      
+      // Restaurar el valor seleccionado si existía
+      if (currentValue && this.uniquePositions.includes(currentValue)) {
+        comboFiltroCargo.value = currentValue;
+        this.positionFilter = currentValue;
+      }
     }
   }
 
@@ -108,8 +102,10 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       this.table.clear();
 
       const filteredData = this.Empleados.filter(empleado => {
-        const nameMatch = empleado.fullName.toLowerCase().includes(this.nameFilter.toLowerCase());
-        const positionMatch = !this.positionFilter || empleado.position === this.positionFilter;
+        const nameMatch = !this.nameFilter || 
+          empleado.fullName.toLowerCase().includes(this.nameFilter.toLowerCase());
+        const positionMatch = !this.positionFilter || 
+          empleado.position === this.positionFilter;
         return nameMatch && positionMatch;
       });
 
@@ -167,8 +163,23 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       next: (empleados) => {
         this.Empleados = empleados;
         this.ventana = 'Informacion';
-        this.initializeFilters(); // Llamar aquí después de cargar los empleados
+        // Obtener posiciones únicas
+        this.uniquePositions = [...new Set(empleados.map(emp => emp.position))].sort();
+        
+        // Guardar el filtro actual si existe
+        const currentFilter = this.positionFilter;
+        
+        // Inicializar DataTable
         this.initializeDataTable();
+        
+        // Actualizar el combobox y restaurar el filtro
+        setTimeout(() => {
+          this.updatePositionFilter();
+          if (currentFilter) {
+            this.positionFilter = currentFilter;
+            this.applyFilters();
+          }
+        });
       },
       error: (err) => console.error('Error al cargar empleados:', err),
     });
@@ -181,6 +192,9 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         this.Asistencias = asistencias;
         this.filteredAsistencias = asistencias;
         this.ventana = 'Asistencias';
+        // Limpiar los filtros cuando cambies a Asistencias
+        this.positionFilter = '';
+        this.nameFilter = '';
         this.initializeDataTable();
       },
       error: (err) => console.error('Error al cargar asistencias:', err),
