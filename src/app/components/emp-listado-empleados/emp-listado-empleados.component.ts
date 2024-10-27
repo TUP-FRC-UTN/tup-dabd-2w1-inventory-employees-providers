@@ -44,6 +44,35 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadEmpleados();
     this.initializeDates();
+    this.setInitialDates();
+  }
+
+  setInitialDates(): void {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    const startDateInput: HTMLInputElement = document.getElementById(
+      'startDate'
+    ) as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById(
+      'endDate'
+    ) as HTMLInputElement;
+
+    startDateInput.value = this.formatDateForInput(thirtyDaysAgo);
+    endDateInput.value = this.formatDateForInput(today);
+
+    // Establecer los límites de las fechas
+    endDateInput.max = this.formatDateForInput(today);
+    startDateInput.max = endDateInput.value;
+    endDateInput.min = startDateInput.value;
+
+    // Trigger the filter
+    this.filterByDate();
+  }
+
+  formatDateForInput(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 
   ngOnDestroy(): void {
@@ -55,10 +84,11 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
   initializeDates(): void {
     const today = new Date();
-    const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-    this.startDate = this.formatDate(firstDayOfLastMonth);
-    this.endDate = this.formatDate(lastDayOfLastMonth);
+    const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 0, 1);
+    const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const thirtyDaysAgo = new Date(today);
+    this.startDate = this.formatDate(thirtyDaysAgo);
+    this.endDate = this.formatDate(today);
   }
 
   loadEmpleados(): void {
@@ -351,7 +381,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
 
     if (startDate && endDate && startDate > endDate) {
-      alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
+      //alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
       startDateInput.value = '';
       endDateInput.value = '';
       return;
