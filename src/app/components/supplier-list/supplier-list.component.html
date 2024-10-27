@@ -5,7 +5,7 @@
     <div class="col-sm-6">
       <div class="mb-3">
         <label class="form-label">Razon social</label>
-        <input type="string" class="form-control" [(ngModel)]="name" (ngModelChange)="searchSuppliers()" />
+        <input id="inputFilter" type="string" class="form-control" [(ngModel)]="name" (input)="searchSuppliers()" />
       </div>
     </div>
     <div class="col-sm-6">
@@ -36,7 +36,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let supplier of suppliers">
+          <tr *ngFor="let supplier of filteredSuppliers">
             <td>{{ supplier.name }}</td>
             <td>{{ supplier.supplierType | supplierType }}</td>
             <td>{{ supplier.address }}</td>
