@@ -18,6 +18,18 @@ import { post } from 'jquery';
 export class IEPFormPostEmployeesComponent implements OnInit {
   constructor(private serviceCombos: EmpPostEmployeeService) {}
 
+  isInfoModalVisible: boolean = false;
+
+  showInfoModal() {
+    this.isInfoModalVisible = true;
+  }
+
+  closeInfoModal() {
+    this.isInfoModalVisible = false;
+  }
+
+
+
   createEmployee$: Observable<any>= new Observable<any>();
 
   lunes:boolean=false;
