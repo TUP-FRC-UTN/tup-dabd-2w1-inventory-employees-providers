@@ -36,4 +36,11 @@ export class EmpListadoEmpleadosService {
       `${this.BASE_URL}/attendances/get`
     );
   }
+
+  changeEmployeeStatus(id: number): Observable<void> {
+    return this.http.put<void>(
+      `${this.BASE_URL}/employees/updateActiveEmployee/${id}`,
+      {}
+    );
+  }
 }
