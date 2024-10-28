@@ -51,11 +51,14 @@ export class EmpListadoEmpleadosService {
   }
 
   putAttendances(id: number, state: string): Observable<any> {
-    let params = new HttpParams();
-    params = params.set('id', id);
-    params = params.set('state', state);
-    console.log("Id: " + id + " State: " + state)
-    return this.http.put(`${this.BASE_URL}/attendances/putState`, null, {params});
+    // Inicializa nuevos parámetros en cada ejecución
+    let params = new HttpParams()
+        .set('id', id.toString())
+        .set('state', state);
+
+    console.log("Id: " + id + " State: " + state);
+    
+    return this.http.put(`${this.BASE_URL}/attendances/putState`, null, { params });
   }
 
 }

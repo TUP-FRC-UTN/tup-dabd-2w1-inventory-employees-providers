@@ -103,6 +103,9 @@ export class WarehouseMovementSearchComponent implements AfterViewInit, AfterVie
     $(document).ready(() => {
       this.dataTableInstance = $('#movementsTable').DataTable({
         data: this.movements,
+        dom:
+        '<"mb-3"t>' +                           //Tabla
+        '<"d-flex justify-content-between"lp>', //Paginacion
         columns: [
           {
             data: 'date',
@@ -151,18 +154,17 @@ export class WarehouseMovementSearchComponent implements AfterViewInit, AfterVie
         ],
         pageLength: 10,
         lengthChange: true,
-        lengthMenu:[10, 25, 50],
         searching: false,
         destroy: true, 
         language: {
           search: "Buscar:",
           info: "Mostrando _START_ a _END_ de _TOTAL_ movimientos",
-          paginate: {
-            first: '<<',
-            last: '>>',
-            next: '>',
-            previous: '<',
-          },
+          lengthMenu:
+          `<select class="form-select">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>`,
           emptyTable: "No hay datos disponibles en la tabla",
         }
       });
