@@ -180,7 +180,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
             this.createEmployee$.subscribe({
               next: response => {
                 this.success = true;
-                this.successMessage = "Empleado guardado con éxito.Credenciales de acceso habilitadas.";
+                this.successMessage = "Empleado guardado.Credenciales de acceso habilitadas.";
                 console.log("PASO: ", response);
                 this.showModal=true;
               },
