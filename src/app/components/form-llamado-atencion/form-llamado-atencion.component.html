@@ -11,6 +11,7 @@
           class="form-control"
           [class.is-invalid]="wakeUpCallForm.get('fecha')?.invalid && (wakeUpCallForm.get('fecha')?.touched || formSubmitted)"
           [class.is-valid]="wakeUpCallForm.get('fecha')?.valid && wakeUpCallForm.get('fecha')?.touched"
+        
         />
         <div class="valid-feedback">
           <i class="bi bi-check-lg"></i> Fecha válida

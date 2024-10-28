@@ -268,7 +268,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
     ERROR_MESSAGES = {
     'Cuil exists in the system': 'Ya existe un empleado con ese cuil',
-    'Document  exists in the system': 'Ya existe un empleado con ese dni',
+    'Document exists in the system': 'Ya existe un empleado con ese dni',
     'Error in contact server': 'El servidor de contacto fallo, intente nuevamente mas tarde',
     'Error al guardar direccion': 'El servidor de direcciones fallo, intente nuevamente mas tarde',
     'Error in access server':'El servidor de accesos fallo, intente nuevamente mas tarde',
