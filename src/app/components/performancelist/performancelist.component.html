@@ -107,6 +107,46 @@
     </div>
   </div>
 
+<!-- Modal de Detalles -->
+<div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeDetailsModal()"></div>
+<div class="modal fade" tabindex="-1" [class.show]="showDetailsModal" [ngStyle]="{'display': showDetailsModal ? 'block' : 'none'}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalles de Llamados de Atención</h5>
+        <button type="button" class="btn-close" (click)="closeDetailsModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Observación</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let detail of selectedEmployeeDetails">
+                <td>{{detail.dateReal[0]}}-{{detail.dateReal[1]}}-{{detail.dateReal[2]}}</td>
+                <td>
+                  <span class="tag" [ngClass]="detail.wackeUpTypeEnum.toLowerCase()">
+                    {{detail.wackeUpTypeEnum}}
+                  </span>
+                </td>
+                <td>{{detail.observation}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="selectedEmployeeDetails.length === 0" class="text-center p-3">
+          No hay llamados de atención para mostrar en este período.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
   <!-- Modal -->
   <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()"></div>
   <div class="modal fade" tabindex="-1" [class.show]="showModal" [ngStyle]="{'display': showModal ? 'block' : 'none'}">

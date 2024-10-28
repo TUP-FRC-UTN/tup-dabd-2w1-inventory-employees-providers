@@ -14,6 +14,7 @@ import 'datatables.net-dt'; // Estilos para DataTables
 import { BrowserModule } from '@angular/platform-browser';
 import { StockAumentoComponent } from '../stock-aumento/stock-aumento.component';
 import { FormLlamadoAtencionComponent } from '../form-llamado-atencion/form-llamado-atencion.component';
+import { WakeUpCallDetail } from '../../models/listado-desempeño';
 
 @Component({
   selector: 'app-performancelist',
@@ -37,6 +38,24 @@ export class PerformancelistComponent implements OnInit {
   showModal = false;
   
   showInfoModal = false; // Nueva variable para el modal de información
+  selectedEmployeeDetails: WakeUpCallDetail[] = [];
+  showDetailsModal = false;
+
+  viewDetails(employeeId: number, year: number, month: number): void {
+    this.employeeService.getWakeUpCallDetails().subscribe(details => {
+      this.selectedEmployeeDetails = details.filter(detail => {
+        const detailDate = new Date(detail.dateReal[0], detail.dateReal[1] - 1, detail.dateReal[2]);
+        return detail.employeeId === employeeId && 
+               detailDate.getFullYear() === year && 
+               detailDate.getMonth() === month - 1;
+      });
+      this.showDetailsModal = true;
+    });
+  }
+
+  closeDetailsModal(): void {
+    this.showDetailsModal = false;
+  }
 
   constructor(
     private employeeService: ListadoDesempeñoService,
@@ -134,6 +153,12 @@ exportToExcel(): void {
             render: (data: string) => {
               return `<span class="tag ${data.toLowerCase()}">${data}</span>`;
             }
+          },
+          {
+            data: null,
+            render: function (data: any) {
+              return '<button class="btn btn-info btn-sm view-details">Ver más</button>';
+            }
           }
         ],
         language: {
@@ -152,6 +177,10 @@ exportToExcel(): void {
         },
         pageLength: 10,
         order: [[0, 'desc'], [1, 'desc']]
+      });
+      $('.data-table tbody').on('click', 'button.view-details', (event) => {
+        const data = this.dataTable.row($(event.target).closest('tr')).data();
+        this.viewDetails(data.id, data.year, data.month);
       });
     }
   }
