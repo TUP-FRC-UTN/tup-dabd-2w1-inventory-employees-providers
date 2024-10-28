@@ -218,7 +218,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
     const commonConfig = {
       pageLength: 10,
-      lengthChange: false,
+      lengthChange: true,
       searching: false,
       language: {
         search: "Buscar:",
