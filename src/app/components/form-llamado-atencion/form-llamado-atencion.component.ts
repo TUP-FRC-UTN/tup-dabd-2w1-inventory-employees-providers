@@ -23,17 +23,18 @@ export class FormLlamadoAtencionComponent implements OnInit{
   showError: boolean = false;
   employees: EmployeeGetResponseDTO[] = [];
   filteredEmployees: EmployeeGetResponseDTO[] = [];
-  dateFilteredEmployees: EmployeeGetResponseDTO[] = []; // Nueva propiedad para almacenar empleados filtrados por fecha
+  dateFilteredEmployees: EmployeeGetResponseDTO[] = [];
+  selectedEmployeeIds: Set<number> = new Set<number>(); // Control de empleados seleccionados
   searchTerm: string = '';
+  formSubmitted: boolean = false; // Nueva propiedad para controlar el estado de envío
 
   constructor(
-    private router: Router, 
-    private fb: FormBuilder, 
+    private router: Router,
+    private fb: FormBuilder,
     private wakeUpCallService: LlamadoAtencionService,
-    private ListDesempeño:ListadoDesempeñoService
+    private ListDesempeño: ListadoDesempeñoService
   ) {
     this.wakeUpCallForm = this.fb.group({
-      empleados: this.fb.array([], Validators.required),
       fecha: ['', Validators.required],
       desempeno: ['', Validators.required],
       observaciones: ['', Validators.required],
@@ -43,20 +44,16 @@ export class FormLlamadoAtencionComponent implements OnInit{
 
   ngOnInit() {
     this.loadEmployees();
-    
-    // Suscribirse a cambios en la fecha
+
     this.wakeUpCallForm.get('fecha')?.valueChanges.subscribe(date => {
       if (date) {
         this.loadEmployeesForDate(date);
       } else {
-        this.dateFilteredEmployees = [];
-        this.filteredEmployees = [];
-        this.addCheckboxes();
+        this.clearEmployeeSelection();
       }
     });
 
-    // Suscribirse a cambios en el término de búsqueda
-    this.wakeUpCallForm.get('searchTerm')?.valueChanges.subscribe(term => {
+    this.wakeUpCallForm.get('searchTerm')?.valueChanges.subscribe(() => {
       this.filterEmployees();
     });
   }
@@ -69,8 +66,7 @@ export class FormLlamadoAtencionComponent implements OnInit{
         if (fecha) {
           this.loadEmployeesForDate(fecha);
         } else {
-          this.filteredEmployees = [];
-          this.addCheckboxes();
+          this.clearEmployeeSelection();
         }
       },
       (error) => {
@@ -83,10 +79,10 @@ export class FormLlamadoAtencionComponent implements OnInit{
   loadEmployeesForDate(date: string) {
     this.wakeUpCallService.getMovements(date).subscribe(
       (documents) => {
-        this.dateFilteredEmployees = this.employees.filter(employee => 
+        this.dateFilteredEmployees = this.employees.filter(employee =>
           documents.includes(employee.document)
         );
-        this.filterEmployees(); // Aplicar el filtro de búsqueda sobre los empleados filtrados por fecha
+        this.filterEmployees();
       },
       (error) => {
         console.error('Error al cargar movimientos', error);
@@ -97,38 +93,36 @@ export class FormLlamadoAtencionComponent implements OnInit{
 
   filterEmployees() {
     const searchTerm = this.wakeUpCallForm.get('searchTerm')?.value?.toLowerCase() || '';
-    const employeesToFilter = this.dateFilteredEmployees.length > 0 ? 
-      this.dateFilteredEmployees : 
-      [];
+    const employeesToFilter = this.dateFilteredEmployees.length > 0
+      ? this.dateFilteredEmployees
+      : this.employees;
 
-    if (searchTerm.length >= 3) {
-      this.filteredEmployees = employeesToFilter.filter(employee =>
-        employee.fullName.toLowerCase().includes(searchTerm)
-      );
+    this.filteredEmployees = searchTerm.length >= 3
+      ? employeesToFilter.filter(employee => employee.fullName.toLowerCase().includes(searchTerm))
+      : employeesToFilter;
+
+    this.clearEmployeeSelection();
+  }
+
+  // Controlar selección de empleados
+  toggleEmployeeSelection(employeeId: number) {
+    if (this.selectedEmployeeIds.has(employeeId)) {
+      this.selectedEmployeeIds.delete(employeeId);
     } else {
-      this.filteredEmployees = employeesToFilter;
+      this.selectedEmployeeIds.add(employeeId);
     }
-    
-    this.addCheckboxes();
   }
 
-  private addCheckboxes() {
-    this.empleadosFormArray.clear();
-    this.filteredEmployees.forEach(() => 
-      this.empleadosFormArray.push(this.fb.control(false))
-    );
-  }
-
-  get empleadosFormArray() {
-    return this.wakeUpCallForm.controls['empleados'] as FormArray;
+  clearEmployeeSelection() {
+    this.selectedEmployeeIds.clear();
   }
 
   onSubmit() {
+    this.formSubmitted = true; // Marcar el formulario como enviado
+
     if (this.wakeUpCallForm.valid) {
       const formValues = this.wakeUpCallForm.value;
-      const selectedEmployeeIds = this.filteredEmployees
-        .filter((_, i) => formValues.empleados[i])
-        .map(e => e.id);
+      const selectedEmployeeIds = Array.from(this.selectedEmployeeIds);
 
       if (selectedEmployeeIds.length === 0) {
         this.showErrorMessage('Debe seleccionar al menos un empleado');
@@ -148,12 +142,13 @@ export class FormLlamadoAtencionComponent implements OnInit{
         response => {
           console.log('WakeUpCall grupal creado', response);
           this.showSuccessMessage('¡Llamado registrado exitosamente!');
-          this.ListDesempeño.refreshData();
+          this.ListDesempeño.refreshData(); // Refrescar la lista de desempeño
+          this.actualizar(); // Llama a actualizar aquí si es necesario
           this.resetForm();
         },
         error => {
           console.error('Error al registrar', error);
-          this.showErrorMessage(error);
+          this.showErrorMessage('Error al registrar el llamado');
         }
       );
     }
@@ -175,12 +170,25 @@ export class FormLlamadoAtencionComponent implements OnInit{
 
   private resetForm() {
     this.wakeUpCallForm.reset();
-    this.dateFilteredEmployees = [];
-    this.filteredEmployees = [];
-    this.empleadosFormArray.clear();
+    this.clearEmployeeSelection();
+    this.formSubmitted = false; // Reiniciar el estado de envío
   }
 
   navigateToPerformanceList(): void {
     this.router.navigate(['/listado-empleados']);
   }
+
+  actualizar() {
+    this.ListDesempeño.getCombinedData().subscribe(
+      (data) => {
+        console.log('Datos de desempeño actualizados:', data);
+        // Aquí puedes manejar los datos de desempeño como desees
+      },
+      (error) => {
+        console.error('Error al actualizar datos de desempeño:', error);
+        this.showErrorMessage('Error al actualizar datos de desempeño');
+      }
+    );
+  }
+  
 }

@@ -34,24 +34,21 @@ export class LlamadoAtencionService {
   getMovements(date: string): Observable<string[]> {
     return this.http.get<MovementRecord[]>(this.movementsUrl).pipe(
       map(movements => {
-        // Filtrar movimientos por la fecha seleccionada
         const selectedDate = date.split('T')[0];
-        const filteredMovements = movements.filter(movement => 
+        const filteredMovements = movements.filter(movement =>
           movement.movementDatetime.startsWith(selectedDate)
         );
-
-        // Agrupar por documento
+  
         const employeeMovements = new Map<string, string[]>();
         filteredMovements.forEach(movement => {
-          const movements = employeeMovements.get(movement.document) || [];
-          movements.push(movement.movementType);
-          employeeMovements.set(movement.document, movements);
+          const employeeTypes = employeeMovements.get(movement.document) || [];
+          employeeTypes.push(movement.movementType);
+          employeeMovements.set(movement.document, employeeTypes);
         });
-
-        // Retornar documentos que tienen tanto entrada como salida
+  
         return Array.from(employeeMovements.entries())
-          .filter(([_, movements]) => 
-            movements.includes('ENTRADA') && movements.includes('SALIDA')
+          .filter(([_, types]) =>
+            types.includes('ENTRADA') && types.includes('SALIDA')
           )
           .map(([document]) => document);
       })

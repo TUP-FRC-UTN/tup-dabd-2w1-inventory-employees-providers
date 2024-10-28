@@ -4,6 +4,9 @@ import { ListadoDesempeñoService } from '../../services/listado-desempeño.serv
 import { EmployeePerformance } from '../../models/listado-desempeño';
 import { FormsModule, NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 import $ from 'jquery';
 import 'datatables.net'; // Importación de DataTables
@@ -11,9 +14,6 @@ import 'datatables.net-dt'; // Estilos para DataTables
 import { BrowserModule } from '@angular/platform-browser';
 import { StockAumentoComponent } from '../stock-aumento/stock-aumento.component';
 import { FormLlamadoAtencionComponent } from '../form-llamado-atencion/form-llamado-atencion.component';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
-import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-performancelist',
@@ -24,28 +24,24 @@ import * as XLSX from 'xlsx';
 })
 export class PerformancelistComponent implements OnInit {
   performances: EmployeePerformance[] = [];
-  sortColumn: string = '';
-  sortDirection: 'asc' | 'desc' = 'asc';
   searchTerm: string = '';
   selectedYear: string = '';
   selectedMonth: string = '';
+  dataTable: any;
 
-  availableYears: number[] = []; // Lista de años disponibles para el filtro
+  availableYears: number[] = [];
   months: string[] = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
   showModal = false;
+  
+  showInfoModal = false; // Nueva variable para el modal de información
 
-  openModal() {
-    this.showModal = true;
-  }
-
-  closeModal() {
-    this.showModal = false;
-  }
-
-  constructor(private employeeService: ListadoDesempeñoService, private router: Router) {}
+  constructor(
+    private employeeService: ListadoDesempeñoService,
+    private router: Router
+  ) {}
 
   exportToPdf(): void {
     const doc = new jsPDF();
@@ -87,28 +83,28 @@ exportToExcel(): void {
   XLSX.writeFile(workbook, 'Lista_Desempeños.xlsx');
 }
 
-
   ngOnInit(): void {
-    // Suscribirse a los datos para recibir actualizaciones en tiempo real
-    this.employeeService.performances$.subscribe({
-      next: (data) => {
-        this.performances = data;
-        this.setAvailableYears();
-      },
-      error: (error) => {
-        console.error('Error al cargar datos:', error);
-      }
-    });
-
-    // Inicializar los datos
+    // Primero obtenemos los datos
+    this.loadData();
     this.employeeService.refreshData();
+  }
+
+  ngOnDestroy() {
+    // Destruir la tabla cuando el componente se destruye
+    if (this.dataTable) {
+      this.dataTable.destroy();
+    }
   }
 
   loadData(): void {
     this.employeeService.getCombinedData().subscribe({
       next: (data) => {
         this.performances = data;
-        this.setAvailableYears(); // Inicializar años disponibles
+        this.setAvailableYears();
+        // Inicializamos la tabla después de que los datos estén disponibles
+        setTimeout(() => {
+          this.initializeDataTable();
+        }, 0);
       },
       error: (error) => {
         console.error('Error loading data:', error);
@@ -116,43 +112,101 @@ exportToExcel(): void {
     });
   }
 
+  initializeDataTable() {
+    if (this.dataTable) {
+      this.dataTable.destroy();
+    }
+
+    const table = $('.data-table');
+    if (table.length > 0) {
+      this.dataTable = table.DataTable({
+        data: this.performances,
+        columns: [
+          { data: 'year' },
+          { 
+            data: 'month',
+            render: (data: number) => this.getMonthName(data)
+          },
+          { data: 'fullName' },
+          { data: 'totalObservations' },
+          { 
+            data: 'performanceType',
+            render: (data: string) => {
+              return `<span class="tag ${data.toLowerCase()}">${data}</span>`;
+            }
+          }
+        ],
+        language: {
+          paginate: {
+            first: "Primero",
+            last: "Último",
+            next: "Siguiente",
+            previous: "Anterior"
+          },
+          lengthMenu: "Mostrando _MENU_ registros por página",
+          zeroRecords: "No se encontraron registros",
+          info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+          infoEmpty: "Mostrando 0 a 0 de 0 registros",
+          infoFiltered: "(filtrado de _MAX_ registros totales)",
+          search: "Buscar:"
+        },
+        pageLength: 10,
+        order: [[0, 'desc'], [1, 'desc']]
+      });
+    }
+  }
+
   setAvailableYears(): void {
     const years = this.performances.map(p => p.year);
     this.availableYears = [...new Set(years)].sort((a, b) => b - a);
   }
 
-  sort(column: string): void {
-    if (this.sortColumn === column) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortColumn = column;
-      this.sortDirection = 'asc';
-    }
+  filterData(): void {
+    if (!this.dataTable) return;
 
-    this.performances.sort((a: any, b: any) => {
-      const direction = this.sortDirection === 'asc' ? 1 : -1;
-      return a[column] > b[column] ? direction : -direction;
-    });
-  }
+    this.dataTable.search(this.searchTerm);
 
-  getSortIcon(column: string): string {
-    if (this.sortColumn !== column) return '↕';
-    return this.sortDirection === 'asc' ? '↑' : '↓';
-  }
-
-  filterData(): EmployeePerformance[] {
-    return this.performances.filter(performance =>
-      (this.searchTerm === '' || performance.fullName.toLowerCase().includes(this.searchTerm.toLowerCase()) || performance.performanceType.toLowerCase().includes(this.searchTerm.toLowerCase())) &&
-      (this.selectedYear === '' || performance.year === +this.selectedYear) &&
-      (this.selectedMonth === '' || performance.month === +this.selectedMonth)
+    // Aplicar filtros de año y mes
+    $.fn.dataTable.ext.search.push(
+      (settings: any, data: any[]) => {
+        if (this.selectedYear === '' && this.selectedMonth === '') return true;
+        
+        const rowYear = data[0];
+        const rowMonth = data[1];
+        
+        const yearMatch = this.selectedYear === '' || rowYear === this.selectedYear;
+        const monthMatch = this.selectedMonth === '' || 
+          rowMonth === this.getMonthName(parseInt(this.selectedMonth));
+        
+        return yearMatch && monthMatch;
+      }
     );
+
+    this.dataTable.draw();
   }
 
   getMonthName(month: number): string {
     return this.months[month - 1];
   }
 
+  openModal() {
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.loadData();
+  }
+
   navigateToWakeUpCallForm(): void {
     this.router.navigate(['/wake-up-call']);
+  }
+
+  openInfoModal() { // Nueva función para abrir el modal de información
+    this.showInfoModal = true;
+  }
+
+  closeInfoModal() { // Nueva función para cerrar el modal de información
+    this.showInfoModal = false;
   }
 }

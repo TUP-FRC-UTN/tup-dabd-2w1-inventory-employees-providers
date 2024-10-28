@@ -49,6 +49,8 @@ export class ListadoDesempeñoService {
 
   // Método para forzar la actualización del listado
   refreshData(): void {
+    console.log('Refrescando datos de desempeño...'); // Debug: Log al iniciar refresh
     this.getCombinedData().subscribe();
   }
 }
+
