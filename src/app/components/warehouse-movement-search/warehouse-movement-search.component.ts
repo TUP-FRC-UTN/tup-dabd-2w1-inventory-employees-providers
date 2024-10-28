@@ -109,13 +109,20 @@ export class WarehouseMovementSearchComponent implements AfterViewInit, AfterVie
         columns: [
           {
             data: 'date',
-            title: 'Hora',
-            render: (data: string) => {
+            title: 'Fecha y Hora',
+
+            
+
+
+
+
+
+           render: (data: string) => {
               if (!data) return '';
               const date = new Date(data);
               if (isNaN(date.getTime())) return '';
-              return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
-            }
+              return this.formatearFecha(date)
+            } 
           },
           
           { data: 'applicant', title: 'Solicitante' },
@@ -179,6 +186,15 @@ export class WarehouseMovementSearchComponent implements AfterViewInit, AfterVie
     });
   }
 
+
+  formatearFecha(fecha: Date): string {
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Mes comienza en 0
+    const anio = fecha.getFullYear();
+    const horas = String(fecha.getHours()).padStart(2, '0');
+    const minutos = String(fecha.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
+  }
   
   updateDataTable(newMovements: WarehouseMovement[]): void {
     if (this.dataTableInstance) {
