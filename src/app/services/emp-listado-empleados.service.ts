@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { EmpListadoEmpleados, Employee } from '../models/emp-listado-empleados';
@@ -49,4 +49,13 @@ export class EmpListadoEmpleadosService {
       {}
     );
   }
+
+  putAttendances(id: number, state: string): Observable<any> {
+    let params = new HttpParams();
+    params = params.set('id', id);
+    params = params.set('state', state);
+    console.log("Id: " + id + " State: " + state)
+    return this.http.put(`${this.BASE_URL}/attendances/putState`, null, {params});
+  }
+
 }

@@ -33,6 +33,8 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   modalContent: SafeHtml = '';
   startDate!: string;
   endDate!: string;
+  nombreFiltrado!: string;
+  estadoFiltrado!: string;
   private subscriptions: Subscription[] = [];
   private nameFilter: string = '';
   private positionFilter: string = '';
@@ -221,12 +223,12 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       language: {
         search: "Buscar:",
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-        paginate: {
-          first: '<<',
-          last: '>>',
-          next: '>',
-          previous: '<',
-        },
+        lengthMenu:
+          `<select class="form-select">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>`,
         zeroRecords: "No se encontraron registros",
         emptyTable: "No hay datos disponibles",
       }
@@ -373,19 +375,74 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
   private initializeAsistenciasTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
-      layout: {
-        topStart: 'search',
-        topEnd: null
-      },
       ...commonConfig,
+      dom:
+        '<"mb-3"t>' +                           //Tabla
+        '<"d-flex justify-content-between"lp>', //Paginacion
+      order: [[0, 'desc']], // Ordenar por fecha de forma descendente
       data: this.filteredAsistencias,
       columns: [
         { data: 'date', title: 'Fecha' },
         { data: 'employeeName', title: 'Apellido y nombre' },
-        { data: 'state', title: 'Estado' },
-        { data: 'arrivalTime', title: 'Hora de entrada' },
-        { data: 'departureTime', title: 'Hora de salida' }
-      ]
+        { data: 'state', title: 'Estado', className: 'text-center',
+          render: (data: any) =>{
+            let color;
+            
+            switch (data){
+              case "PRESENTE": color= "#28a745"; break;
+              case "AUSENTE": color= "#dc3545"; break;
+              case "JUSTIFICADO": color= "#6f42c1"; break;
+              case "TARDE": color= "#ffc107"; break;     
+            }
+            return `<button class="btn border rounded-pill w-75" 
+            style="background-color: ${color}; color: white;">${data}</button>`;
+          }
+        },
+        { data: 'arrivalTime', title: 'Hora de entrada',
+          render: (data: any, type: any, row: any, meta: any) => {
+            return row.arrivalTime === null ? "--:--:--" : `${row.arrivalTime}`
+          }
+        },
+        { data: 'departureTime', title: 'Hora de salida',
+          render: (data: any, type: any, row: any, meta: any) => {
+            return row.departureTime === null ? "--:--:--" : `${row.departureTime}`
+          } 
+        },
+        { data: null,
+          title: 'Seleccionar',
+          className: 'text-center',
+          render: (data: any, type: any, row: any, meta: any) => {
+            const isHidden = row.state === "PRESENTE" || row.state === "TARDE"  ? 'style="display: none;"' : '';
+            const accion = row.state === "AUSENTE" ? "Justificar" : "Injustificar";
+            const nuevoEstado = row.state === "AUSENTE" ? "JUSTIFICADO" : "AUSENTE";
+            const checkbox = `<button class="btn border w-75" 
+            ${isHidden} data-id="${row.id}" data-nuevoestado="${nuevoEstado}">${accion}</button>`;
+            
+            const indicator = row.state === "PRESENTE" || row.state === "TARDE" ? '' : checkbox;
+        
+            return indicator;
+          },
+        }
+      ],
+    });
+
+      $('#empleadosTable').on('click', 'button', (event: any) => {
+        const button = $(event.currentTarget);
+        const id = button.data('id');
+        const nuevoEstado = button.data('nuevoestado');
+
+        if (id && nuevoEstado) {
+          this.empleadoService.putAttendances(id, nuevoEstado).subscribe(
+              response => {
+                  // Manejar respuesta aquí
+                  console.log('Asistencia actualizada:', response);
+                  this.loadAsistencias();
+              },
+              error => {
+                  console.error('Error al actualizar asistencia:', error);
+              }
+          );
+        }
     });
   }
 
@@ -557,6 +614,18 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       );
     });
 
+    if (this.nombreFiltrado.length >= 3) {
+      this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
+        return asistencia.employeeName.toUpperCase().includes(this.nombreFiltrado.toUpperCase());
+      })
+    }
+
+    if (this.estadoFiltrado !== ""){
+      this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
+        return asistencia.state === this.estadoFiltrado;
+      })
+    }
+
     // Actualizar el DataTable
     if (this.table) {
       this.table.clear().rows.add(this.filteredAsistencias).draw(); // Actualiza la tabla con los productos filtrados
@@ -567,6 +636,12 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     if (this.ventana === 'Desempeño') {
       this.loadDesempeno();
     }
+  }
+
+  limpiarFiltro(){
+    this.nombreFiltrado = "";
+    this.estadoFiltrado = "";
+    this.setInitialDates();
   }
 
   formatDateyyyyMMdd(dateString: string): string {
