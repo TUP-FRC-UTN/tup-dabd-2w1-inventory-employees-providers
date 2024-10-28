@@ -136,13 +136,8 @@ exportToExcel(): void {
             }
           }
         ],
+        searching: false,
         language: {
-          paginate: {
-            first: "Primero",
-            last: "Último",
-            next: "Siguiente",
-            previous: "Anterior"
-          },
           lengthMenu: "Mostrando _MENU_ registros por página",
           zeroRecords: "No se encontraron registros",
           info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
