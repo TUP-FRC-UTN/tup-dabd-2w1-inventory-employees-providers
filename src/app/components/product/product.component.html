@@ -1,65 +1,91 @@
-  <!--@if(abrirModal){
-      @if (success) {
-        <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"  style="display: block;">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="exampleModalLabel">Operación Exitosa</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="closeModal()"></button>
-              </div>
-              <div class="modal-body text-center">
-                <div class="my-3">
-                </div>
-                <p>La operación se completó con éxito.</p>
-              </div>
-              <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="closeModal()">Cerrar</button>
+
+
+<!-- Modal para Categorias -->
+<div class="modal fade" id="categoriaModal" role="dialog" aria-labelledby="categoriaModal" style="width: 100%;" aria-hidden="">
+  <div class="modal-dialog" style="width: 100%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Categorias</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" #modalCategoryForm="ngForm">
+          <div class="row">
+            <div class="col-12">
+              <div class="input-group mb-3">
+                <label for="category" class="col-form-label">Categoría</label>
+                <select class="form-select" id="categoryModal" style="border-radius: 0.25rem;"
+                #categoryOfModal="ngModel"  [(ngModel)]="categoryOfModal"  name="categoryOfModal" 
+                  (ngModelChange)="setCategoryDescription()" required>
+                  @if(categories$|async) {
+                    @for (c of categories; track $index) {
+                      <option value="{{ c.id }}">{{ c.category }}</option>
+                    }
+                  }@else {
+                    @if(requestInProgress){
+                        <option class="loading" 
+                        value="0" selected disabled>Cargando categorías...</option>
+                    }@else {
+                      @if(categoriesError){
+                       <option class="text-danger" disabled>Error al cargar categorías</option>
+                      }@else {
+                        <option class="text-danger" selected disabled>No hay categorías disponibles</option>
+                      }
+                    }
+                  }
+                </select>
               </div>
             </div>
           </div>
+
+          <div class="mb-3 mt-1 form-check  ml-2">
+            <input type="checkbox" name="reusable" class="form-check-input" id="exampleCheck1" >
+            <label class="form-check-label" for="exampleCheck1">Nuevo</label>
+          </div>
+
+          <div class="row">
+            <div class="input-group form-group">
+              <label for="inputName" class="col-form-label" style="margin-right: 10px;">Descripción</label>
+              <input type="text" class="form-control" #newCategory="ngModel" [(ngModel)]="newCategory" name="newCategory"
+                minlength="3" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="">
+              <button type="submit" [disabled]="modalCategoryForm.invalid"
+              class="btn btn-primary" data-bs-dismiss="">Actualizar</button>
+            </div>
         </div>
-      }@else {
-        @if (success==false) {
-          <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"  style="display: block;">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                  <h5 class="modal-title" id="exampleModalLabel">Operación Fallida</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="closeModal()"></button>
-                </div>
-                <div class="modal-body text-center">
-                  <div class="my-3">
-                  </div>
-                  <p>{{ errorMessage }}</p>
-                </div>
-                <div class="modal-footer justify-content-center">
-                  <button type="button" class="btn-secondary btn " data-bs-dismiss="modal" (click)="closeModal()">Cerrar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        }@else {
-          <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" style="display: block;">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Cargando...</h5>
-                </div>
-                <div class="modal-body text-center">
-                  <div class="my-3">
-                    <div class="spinner-border text-primary" role="status">
-                      <span class="visually-hidden">Cargando...</span>
-                    </div>
-                  </div>
-                  <p>Por favor, espere un momento...</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        }
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal para proveedores -->
+<div class="modal fade" id="supplierModal" role="dialog" aria-labelledby="supplierModal" style="width: 100%;" aria-hidden="">
+  <div class="modal-dialog" style="width: 100%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Proveedores</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
         
-      }
-        }-->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
 <title>Formulario de Registro de Producto</title>
 <div class="container mt-5">
 <div class="row form">
@@ -108,7 +134,8 @@
             }
           </select>
           <button routerLink="modal-select" routerLinkActive="router-link-active"
-          class="btn btn-outline-secondary" type="button" id="button-addon2" (click)="openModal()">+</button>
+          class="btn btn-outline-secondary" type="button" id="button-addon2" data-bs-toggle="modal" data-bs-target="#categoriaModal"
+          (click)="openModal()">+</button>
         </div>
         <div class="error-container">
           @if(category.invalid && category.touched) {
@@ -182,7 +209,8 @@
               }
             }
           </select>
-          <button class="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
+          <button class="btn btn-outline-secondary" type="button" id="button-addon2" data-bs-toggle="modal" data-bs-target="#supplierModal"
+          >+</button>
         </div>
         <div class="error-container">
           @if(supplier.invalid && supplier.touched) {

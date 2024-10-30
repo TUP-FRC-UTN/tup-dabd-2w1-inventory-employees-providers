@@ -37,7 +37,8 @@ export class ProductComponent {
   abrirModal: boolean = false;
   successMessage: string|undefined;
   errorMessage: string|undefined;
-
+  newCategory: string = ''; 
+  categoryOfModal: number | undefined;
 
   constructor(productService: ProductService,
     providersService: SuppliersService,private categoryService:CategoriaService) {
@@ -49,7 +50,7 @@ export class ProductComponent {
   ngOnInit() {
 
     this.loadCategories();
-
+    this.newCategory = '';
     this.providers$ = this.providerService.getAll();
     this.providers$.subscribe({
       next: providers =>{
@@ -59,6 +60,19 @@ export class ProductComponent {
       },
       error: error => this.providersError = true
     })
+  }
+
+  setCategoryDescription(){
+    console.log(this.categoryOfModal);
+    if(this.categoryOfModal != 0){
+    this.categories.forEach(category => {
+      console.log(category.id);
+      if(category.id == this.categoryOfModal){
+
+        this.newCategory = category.category;
+      }
+    });
+  }
   }
 
   showSuccessAlert() {
