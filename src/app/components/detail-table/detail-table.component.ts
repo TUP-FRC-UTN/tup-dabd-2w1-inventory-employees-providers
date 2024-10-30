@@ -15,7 +15,7 @@ import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { IepCreateWarehouseMovementDTO } from '../../models/iep-create-warehouse-movement-dto';
 import { WarehouseMovementService } from '../../services/warehouse-movement.service';
-import { Observable } from 'rxjs';
+import { catchError, delay, Observable, Subscription } from 'rxjs';
 import { Route } from '@angular/router';
 @Component({
   selector: 'app-detail-table',
@@ -42,8 +42,10 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   employees: EmpListadoEmpleados[] = [];
   dtoCreate: IepCreateWarehouseMovementDTO=new IepCreateWarehouseMovementDTO();
   createMovement$: Observable<any>= new Observable<any>();
-  errorMessage: string = '';
-  successCreate: boolean = false;
+  errorMessage: string | undefined;
+  errorPost:boolean=false;
+  optionsToMovement: string[] = [];
+
 
   private formatDateForInput(date: Date): Date {
     const year = date.getFullYear();
@@ -103,36 +105,40 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   onSubmit(form: NgForm) 
   {
     this.loading = true;
+    this.confirmPost = false;
+    this.errorPost=false;
     if(form.valid){
       this.dtoCreate.id_details = this.selectedIds;
-
       this.dtoCreate.responsible = 'Encargado de Inventario';
-
       console.log(".............");
       console.log(this.dtoCreate);
-      this.createMovement$ = this.warehouseService.postWarehouseMovement(this.dtoCreate,this.idUser);
-      this.createMovement$.subscribe({
-        next: (data) => {
-          console.log('Movimiento de almacén registrado con éxito:', data);
-          this.successCreate = true;
-          this.loadDetails(); 
-        },
-        error: (err) => {
-          if(err.error.errorMessage==="Required request parameter 'idLastUpdatedUser' for method parameter type Integer is not present"){
-            this.errorMessage = 'Error al registrar movimiento de almacén: No se ha especificado el usuario que realiza el movimiento';
+      this.createMovement$ = this.warehouseService.postWarehouseMovement(this.dtoCreate,this.idUser)
+        .pipe(catchError((err) => {
+          if(err.error.message=="Required request parameter 'idLastUpdatedUser' for method parameter type Integer is not present"){
+            this.errorMessage = 'No se ha especificado el usuario que realiza el movimiento';
           }
-          if(err.error.errorMessage==="404 Item not available to loan"){
-            this.errorMessage = 'Error al registrar movimiento de almacén: El producto no está disponible para préstamo';
+          if(err.error.message=="404 Item not available to loan"){
+            this.errorMessage = 'El producto no está disponible para préstamo';
           }
-          console.log( err.error.message);
+          if(err.error.message=='404 Item already available'){
+            this.errorMessage = 'El producto ya está disponible';
+          }
+          if(err.error.message=='404 Item already in maintenance'){
+            this.errorMessage = 'El producto ya está en mantenimiento';
+          }
+          this.errorPost=true;
           console.error('Error al registrar movimiento de almacén:', err);
-        },
-      });
+          console.log(err.error.message);
+          return [];
+        }
+        ));
     }else{
       console.log("Formulario inválido");
     }
-    this.confirmPost = true;
     this.loading = false;
+    if(this.createMovement$){
+      this.confirmPost = true;
+    }
   }
 
   cleanDTO(): void{
@@ -144,7 +150,12 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.dtoCreate.applicant = '';
     this.toggleSelectAll({ target: { checked: false } });
     this.confirmPost = false;
+    this.optionsToMovement = [];
+    this.selectedIds = [];
+    this.loadDetails();
   }
+
+ 
 
   onChangeEmployee(): void {
     var applicantString;
@@ -190,11 +201,19 @@ export class DetailTableComponent implements OnInit, OnDestroy {
   }
 
   loadDetails(): void {
+
     this.detailService.getDetails().subscribe({
       next: (details) => {
-        this.details = details;
-        this.filteredDetails = details; // Inicializa el filtro con todos los elementos
-        this.initializeDataTable();
+        if(this.details.length==0){
+          this.details = details;
+          this.filteredDetails = details; 
+          this.initializeDataTable();
+        }else{
+          this.details = details;
+          this.filteredDetails = details; 
+          this.updateDataTable();
+        }
+        // Inicializa el filtro con todos los elementos
       },
       error: (err) => {
         console.error('Error al cargar detalles:', err);
@@ -216,6 +235,9 @@ export class DetailTableComponent implements OnInit, OnDestroy {
     this.table.clear().rows.add(this.filteredDetails).draw(); // Actualiza la tabla con los elementos filtrados
   }
 
+  updateDataTable(): void {
+    this.table.clear().rows.add(this.filteredDetails).draw();
+  }
 
   initializeDataTable(): void {
     if (this.table) {

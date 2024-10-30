@@ -160,7 +160,7 @@
    
 
       <button id="warehouseButton" class="btn btn-primary me-2" data-bs-toggle="modal"
-      data-bs-target="#warehouseModal"
+      data-bs-target="#warehouseModal" 
       [disabled]="selectedIds.length===0">
       Registrar Movimiento
   </button>
@@ -184,7 +184,7 @@
       </div>
       <div class="modal-body">
 @if(confirmPost){
-  @if(successCreate){
+  @if(createMovement$ | async){
     <div class="container mt-2">
       <div class="alert alert-success" role="alert">
         <h4 class="alert-heading">¡Registro Exitoso!</h4>
@@ -194,17 +194,18 @@
       </div>
     </div>
   }@else {
-    <div class="container mt-2">
-      <div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading">¡Error!</h4>
-        <p>Ha ocurrido un error al registrar el movimiento de inventario. Por favor, inténtalo de nuevo.</p>
-        <hr>
-        <p class="mb-0">Puedes cerrar esta ventana e intentar nuevamente.</p>
+    @if(errorPost){
+      <div class="container mt-2">
+        <div class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">¡Error!</h4>
+          <p>{{errorMessage}}</p>
+          <hr>
+          <p class="mb-0">Puedes cerrar esta ventana e intentar nuevamente.</p>
+        </div>
       </div>
-    </div>
+    }
   }
     }@else {
-           
           <div class="row" style="color: gray;">
             @if(selectedIds.length === 0) {
               <p class="col-12">No
@@ -272,7 +273,8 @@
                     </div>
                   </div>
                 </div>
-  
+              <!--
+
                 <div class="mb-3 row">
                   <label for="inputApplicant" class="col-form-label col-2">Solicitante</label>
                   <div class="col-10">
@@ -299,6 +301,7 @@
                   </div>
                  
                 </div>
+                -->
   
                 <div class="container mt-2 mb-2 py-2" style="border: 1px solid rgba(128, 128, 128, 0.3);
                 border-radius: 10px;">
@@ -306,7 +309,7 @@
                     <label for="inputDate"  class="col-form-label col-2">Fecha</label>
                     <div class="col-10">
                       <input type="datetime-local"  [value]="dtoCreate.date | date: 'yyyy-MM-ddTHH:mm'"
-                       #date="ngModel" [(ngModel)]="dtoCreate.date" required name="date"
+                       #date="ngModel" [(ngModel)]="dtoCreate.date" required name="date" max="dtoCreate.reincorporationDate"
                        class="form-control" id="date" [ngClass]="{
                         'is-invalid': date.invalid && date.touched, 
                         'is-valid': date.valid && date.touched
@@ -325,19 +328,21 @@
                   </div>
                 </div>
                 
+              <!--
   
                 <div class="mb-1 mt-3 form-check  ml-2">
                   <input type="checkbox" name="reusable" class="form-check-input" id="exampleCheck1" (change)="reincorporationDate=!reincorporationDate">
                   <label class="form-check-label" for="exampleCheck1">Programar fecha de reincorporación</label>
                 </div>
-  
+
                 <div class="container mt-2 mb-2 py-2" style="border: 1px solid rgba(128, 128, 128, 0.3);
                 border-radius: 10px;">
                   <div class="mb-3 row">
                     <label for="inputDate" class="col-form-label col-2">Fecha</label>
                     <div class="col-10">
                       <input type="datetime-local" #reincorporation="ngModel" name="reincorporation"
-                      [(ngModel)]="dtoCreate.reinstatement_datetime"  [value]="dtoCreate.date | date: 'yyyy-MM-ddTHH:mm'"
+                      [(ngModel)]="dtoCreate.reinstatement_datetime" min="dtoCreate.date"
+                       [value]="dtoCreate.reinstatement_datetime | date: 'yyyy-MM-ddTHH:mm'"
                       class="form-control" id="reincorporation" required  [ngClass]="{
                         'is-invalid': reincorporation.invalid && reincorporation.touched, 
                         'is-valid': reincorporation.valid && reincorporation.touched
@@ -355,6 +360,7 @@
                     </div>
                   </div>
                 </div>
+                -->
                 <div class="modal-footer">
                   <div class="">
                     @if(loading){
@@ -376,5 +382,4 @@
     </div>
   </div>
 </div>
-
 
