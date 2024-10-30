@@ -117,10 +117,10 @@ export class IEPFormPostEmployeesComponent implements OnInit {
           this.adressDto.street=this.calle
           this.adressDto.city=this.provinciaSelect?.nombre
           this.adressDto.locality=this.provinciaSelect?.nombre
-          this.adressDto.postal_code=this.codigoPostal
+          this.adressDto.postalCode=this.codigoPostal
           this.adressDto.apartment=this.dpto
           this.adressDto.floor=this.piso
-          this.adressDto.number_street=this.numeroCalle
+          this.adressDto.numberStreet=this.numeroCalle
 
           if(this.postDto!=null){
             this.postDto.name=this.nombre;

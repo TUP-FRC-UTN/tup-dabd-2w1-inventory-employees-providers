@@ -31,10 +31,10 @@ export class PostEmployeeDto{
 
 export class AddressDto{
 street: string|undefined;
-number_street: number|undefined;
+numberStreet: number|undefined;
 apartment: string|undefined;
 floor: number|undefined;
-postal_code: string|undefined;
+postalCode: string|undefined;
 city: string|undefined;
 locality: string|undefined;
 }
