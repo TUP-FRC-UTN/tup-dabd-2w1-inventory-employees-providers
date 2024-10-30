@@ -9,7 +9,7 @@ import { ProductCategory } from '../models/product-category';
 })
 export class CategoriaService {
 
-  private readonly EMPLOYEE_BASE_URL: string = 'http://localhost:8080/';
+  private readonly EMPLOYEE_BASE_URL: string = 'http://localhost:8081/';
 
   private readonly CATEGORY_URL: string = `${this.EMPLOYEE_BASE_URL}category`;
   

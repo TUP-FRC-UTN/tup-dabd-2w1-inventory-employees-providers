@@ -443,7 +443,7 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
 
   verificarMin() {
     if (this.cantMinima < 0) {
-      this.mensajeValidacionMin = 'Nneo puedes por un numero menor a cero';
+      this.mensajeValidacionMin = 'El número no puede ser menor a cero';
       return false;
     }
     if (this.cantMinima > this.cantMaxima) {
