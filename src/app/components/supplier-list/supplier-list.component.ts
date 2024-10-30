@@ -146,6 +146,7 @@ export class SupplierListComponent implements AfterViewInit {
         searching: false,
         destroy: true,
         language: {
+          lengthMenu: '_MENU_', // Esto eliminará el texto "entries per page"
           search: "Buscar:",
           info: "Mostrando _START_ a _END_ de _TOTAL_ proveedores",
           paginate: {

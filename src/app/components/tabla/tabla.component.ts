@@ -211,6 +211,7 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
       searching: false, // Desactivar la búsqueda
       order: [[0, 'desc']], // Ordenar por fecha de forma descendente
       language: {
+        lengthMenu: '_MENU_', // Esto eliminará el texto "entries per page"
         search: 'Buscar:',
         info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
         emptyTable: 'No se encontraron registros', // Mensaje personalizado si no hay datos        

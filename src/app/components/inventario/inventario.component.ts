@@ -292,6 +292,7 @@ export class InventarioComponent implements OnInit, OnDestroy, AfterViewInit {
 
       language: {
         search: '',
+        lengthMenu: '_MENU_', // Esto eliminará el texto "entries per page"
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
         emptyTable: 'No se encontraron registros',
         paginate: {
