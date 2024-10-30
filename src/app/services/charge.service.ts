@@ -8,28 +8,30 @@ import { ChargeRequest } from '../models/charge-request';
   providedIn: 'root'
 })
 export class ChargeService {
-
-  private apiUrl = 'http://localhost:8080/charges';
+  
+  private readonly EMPLOYEE_BASE_URL: string = 'http://localhost:8080/';
+  private readonly CHARGES_URL: string = `${this.EMPLOYEE_BASE_URL}charges`;
+  
 
   constructor(private http: HttpClient) { }
 
   createCargo(cargoData: ChargeRequest): Observable<ChargeResponse> {
-    return this.http.post<ChargeResponse>(`${this.apiUrl}`, cargoData);
+    return this.http.post<ChargeResponse>(`${this.CHARGES_URL}`, cargoData);
   }
 
   updateCargo(id: number, cargoData: ChargeRequest): Observable<ChargeResponse> {
-    return this.http.put<ChargeResponse>(`${this.apiUrl}/${id}`, cargoData);
+    return this.http.put<ChargeResponse>(`${this.CHARGES_URL}/${id}`, cargoData);
   }
 
   getCargo(id: number): Observable<ChargeResponse> {
-    return this.http.get<ChargeResponse>(`${this.apiUrl}/${id}`);
+    return this.http.get<ChargeResponse>(`${this.CHARGES_URL}/${id}`);
   }
 
   getAllCargos(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/active`);
+    return this.http.get<any[]>(`${this.CHARGES_URL}/active`);
   }
 
   updateStatus(id: number): Observable<ChargeResponse> {
-    return this.http.put<ChargeResponse>(`${this.apiUrl}/status/${id}`, null);
+    return this.http.put<ChargeResponse>(`${this.CHARGES_URL}/status/${id}`, null);
   }
 }

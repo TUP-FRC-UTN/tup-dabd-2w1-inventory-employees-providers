@@ -9,7 +9,7 @@ import { EmpPutEmployees } from '../models/emp-put-employees';
   providedIn: 'root',
 })
 export class EmpListadoEmpleadosService {
-  private readonly BASE_URL = 'http://localhost:8080'; // URL base del servidor
+  private readonly EMPLOYEE_BASE_URL = 'http://localhost:8080'; // URL base del servidor
   private _refresh$ = new Subject<void>();
 
   constructor(private http: HttpClient) {}
@@ -22,30 +22,30 @@ export class EmpListadoEmpleadosService {
   // Método para obtener los empleados.
   getEmployees(): Observable<EmpListadoEmpleados[]> {
     return this.http.get<EmpListadoEmpleados[]>(
-      `${this.BASE_URL}/employees/allActiveEmployees`
+      `${this.EMPLOYEE_BASE_URL}/employees/allActiveEmployees`
     );
   }
 
   getEmployeeById(id: number): Observable<Employee> {
     return this.http.get<Employee>(
-      `${this.BASE_URL}/employees/employeeById?id=${id}`
+      `${this.EMPLOYEE_BASE_URL}/employees/employeeById?id=${id}`
     );
   }
   getEmployeeById2(id: number): Observable<EmpPutEmployees> {
     return this.http.get<EmpPutEmployees>(
-      `${this.BASE_URL}/employees/employeeById?id=${id}`
+      `${this.EMPLOYEE_BASE_URL}/employees/employeeById?id=${id}`
     );
   }
 
   getAttendances(): Observable<EmpListadoAsistencias[]> {
     return this.http.get<EmpListadoAsistencias[]>(
-      `${this.BASE_URL}/attendances/get`
+      `${this.EMPLOYEE_BASE_URL}/attendances/get`
     );
   }
 
   changeEmployeeStatus(id: number): Observable<void> {
     return this.http.put<void>(
-      `${this.BASE_URL}/employees/updateActiveEmployee/${id}`,
+      `${this.EMPLOYEE_BASE_URL}/employees/updateActiveEmployee/${id}`,
       {}
     );
   }
@@ -58,7 +58,7 @@ export class EmpListadoEmpleadosService {
 
     console.log("Id: " + id + " State: " + state);
     
-    return this.http.put(`${this.BASE_URL}/attendances/putState`, null, { params });
+    return this.http.put(`${this.EMPLOYEE_BASE_URL}/attendances/putState`, null, { params });
   }
 
 }

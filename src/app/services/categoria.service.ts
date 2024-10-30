@@ -9,16 +9,19 @@ import { ProductCategory } from '../models/product-category';
 })
 export class CategoriaService {
 
-  categoryUrl = 'http://localhost:8080/category/getAll'
+  private readonly EMPLOYEE_BASE_URL: string = 'http://localhost:8080/';
+
+  private readonly CATEGORY_URL: string = `${this.EMPLOYEE_BASE_URL}category`;
+  
 
   constructor(private client: HttpClient) { }
 
   getCategorias():Observable<ProductCategory[]> {
     return this.client.get<ProductCategory[]>
-    (`${this.categoryUrl}`);
+    (`${this.CATEGORY_URL}/getAll`);
   }
 
   postCategory(createCategoryDto:CreateCategoryDto):Observable<any>{
-    return this.client.post("http://localhost:8080/category",createCategoryDto);
+    return this.client.post(this.CATEGORY_URL,createCategoryDto);
   }
 }

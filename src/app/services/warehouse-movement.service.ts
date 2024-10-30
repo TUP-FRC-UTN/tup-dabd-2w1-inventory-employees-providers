@@ -6,19 +6,29 @@ import { Observable } from 'rxjs';
 import { IepCreateWarehouseMovementDTO } from '../models/iep-create-warehouse-movement-dto';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WarehouseMovementService {
+  private readonly INVENTORY_BASE_URL: string = 'http://localhost:8081/';
 
-  constructor(private http: HttpClient) {}
+  private readonly WAREHOUSE_MOVEMENT_URL: string = `${this.INVENTORY_BASE_URL}warehouseMovement`;
 
-  public searchMovements(searchParams:GetWarehouseMovementRequest):Observable<WarehouseMovement[]> {
+  private readonly WAREHOUSE_MOVEMENT_URL_SEARCH: string = `${this.WAREHOUSE_MOVEMENT_URL}/search`;
+
+  constructor(private http: HttpClient) { }
+
+  public searchMovements(
+    searchParams: GetWarehouseMovementRequest
+  ): Observable<WarehouseMovement[]> {
     let params = new HttpParams();
     if (searchParams.createdDate) {
       params = params.append('createdDate', searchParams.createdDate);
     }
     if (searchParams.applicantOrResponsible) {
-      params = params.append('applicantOrResponsible', searchParams.applicantOrResponsible);
+      params = params.append(
+        'applicantOrResponsible',
+        searchParams.applicantOrResponsible
+      );
     }
     if (searchParams.productId) {
       params = params.append('productId', searchParams.productId);
@@ -29,17 +39,21 @@ export class WarehouseMovementService {
     if (searchParams.detailCount) {
       params = params.append('detailCount', searchParams.detailCount);
     }
-    return this.http.get<WarehouseMovement[]>('http://localhost:8081/warehouseMovement/search', { params })
-     
+    return this.http.get<WarehouseMovement[]>(
+      this.WAREHOUSE_MOVEMENT_URL_SEARCH,
+      { params }
+    );
   }
 
-  public postWarehouseMovement(dto: IepCreateWarehouseMovementDTO,idUser:number):Observable<any> {
-    const url = `http://localhost:8081/warehouseMovement`;
+  public postWarehouseMovement(
+    dto: IepCreateWarehouseMovementDTO,
+    idUser: number
+  ): Observable<any> {
+    const url = this.WAREHOUSE_MOVEMENT_URL;
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     const params = new HttpParams().set('idUser', idUser.toString());
     const json = JSON.stringify(dto);
     console.log(json);
     return this.http.post<any>(url, json, { headers, params });
   }
-
 }
