@@ -151,10 +151,7 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
       ],
       pageLength: 10,
       lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
-      lengthMenu: [ // Opciones para el menú desplegable de longitud
-        [10, 25, 50], // Valores para el número de filas
-        [10, 25, 50] // Etiquetas para el número de filas
-      ],
+      lengthMenu:[10, 25, 50],
       searching: false, // Desactivar la búsqueda
       language: {
         emptyTable: "No hay datos disponibles en la tabla",
@@ -162,7 +159,6 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
         info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
         infoEmpty: "Mostrando 0 a 0 de 0 entradas",
         infoFiltered: "(filtrado de _MAX_ entradas totales)",
-        lengthMenu: "Mostrar _MENU_ registros por página",
         search: 'Buscar:',
         paginate: {
           first: '<<',

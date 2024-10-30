@@ -36,17 +36,83 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   nombreFiltrado!: string;
   estadoFiltrado!: string;
   private subscriptions: Subscription[] = [];
+  private nameFilter: string = '';
+  private positionFilter: string = '';
+  private uniquePositions: string[] = [];
+
 
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
     private employeePerformanceService: ListadoDesempeñoService,
-    private sanitizer: DomSanitizer,
+    private sanitizer: DomSanitizer
+
   ) { }
+
+
 
   ngOnInit(): void {
     this.loadEmpleados();
     this.initializeDates();
     this.setInitialDates();
+    this.bindEditButtons();
+  }
+
+
+
+  onNameFilterChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.nameFilter = input.value.toLowerCase();
+    this.applyFilters();
+  }
+
+  private updatePositionFilter(): void {
+    const comboFiltroCargo = document.getElementById('comboFiltroCargo') as HTMLSelectElement;
+    if (comboFiltroCargo) {
+      const currentValue = comboFiltroCargo.value; // Guardar el valor actual
+      
+      // Limpiar opciones existentes excepto la primera
+      while (comboFiltroCargo.options.length > 1) {
+        comboFiltroCargo.remove(1);
+      }
+      
+      // Agregar las nuevas opciones
+      this.uniquePositions.forEach(position => {
+        if (position) {
+          const option = document.createElement('option');
+          option.value = position;
+          option.text = position;
+          comboFiltroCargo.appendChild(option);
+        }
+      });
+      
+      // Restaurar el valor seleccionado si existía
+      if (currentValue && this.uniquePositions.includes(currentValue)) {
+        comboFiltroCargo.value = currentValue;
+        this.positionFilter = currentValue;
+      }
+    }
+  }
+
+  onPositionFilterChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.positionFilter = select.value;
+    this.applyFilters();
+  }
+
+  private applyFilters(): void {
+    if (this.table) {
+      this.table.clear();
+
+      const filteredData = this.Empleados.filter(empleado => {
+        const nameMatch = !this.nameFilter || 
+          empleado.fullName.toLowerCase().includes(this.nameFilter.toLowerCase());
+        const positionMatch = !this.positionFilter || 
+          empleado.position === this.positionFilter;
+        return nameMatch && positionMatch;
+      });
+
+      this.table.rows.add(filteredData).draw();
+    }
   }
 
   setInitialDates(): void {
@@ -70,7 +136,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     endDateInput.min = startDateInput.value;
 
     // Trigger the filter
-    this.filter();
+    this.filterByDate();
   }
 
   formatDateForInput(date: Date): string {
@@ -99,7 +165,23 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       next: (empleados) => {
         this.Empleados = empleados;
         this.ventana = 'Informacion';
+        // Obtener posiciones únicas
+        this.uniquePositions = [...new Set(empleados.map(emp => emp.position))].sort();
+        
+        // Guardar el filtro actual si existe
+        const currentFilter = this.positionFilter;
+        
+        // Inicializar DataTable
         this.initializeDataTable();
+        
+        // Actualizar el combobox y restaurar el filtro
+        setTimeout(() => {
+          this.updatePositionFilter();
+          if (currentFilter) {
+            this.positionFilter = currentFilter;
+            this.applyFilters();
+          }
+        });
       },
       error: (err) => console.error('Error al cargar empleados:', err),
     });
@@ -112,6 +194,9 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
         this.Asistencias = asistencias;
         this.filteredAsistencias = asistencias;
         this.ventana = 'Asistencias';
+        // Limpiar los filtros cuando cambies a Asistencias
+        this.positionFilter = '';
+        this.nameFilter = '';
         this.initializeDataTable();
       },
       error: (err) => console.error('Error al cargar asistencias:', err),
@@ -122,6 +207,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   loadDesempeno(): void {
     const start = new Date(this.startDate);
     const end = new Date(this.endDate);
+
   }
 
   initializeDataTable(): void {
@@ -135,6 +221,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       lengthChange: true,
       searching: false,
       language: {
+        search: "Buscar:",
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
         lengthMenu:
           `<select class="form-select">
@@ -169,9 +256,27 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       },
       data: this.Empleados,
       columns: [
-        { data: 'fullName', title: 'Apellido y Nombre' },
+        {
+          data: 'fullName',
+          title: 'Apellido y Nombre',
+          render: (data: string, type: string, row: any) => {
+            if (type === 'display') {
+              return data;
+            }
+            return data.toLowerCase(); // Esto ayuda con el ordenamiento
+          }
+        },
         { data: 'document', title: 'Documento' },
-        { data: 'position', title: 'Posición' },
+        {
+          data: 'position',
+          title: 'Posición',
+          render: (data: string, type: string) => {
+            if (type === 'display') {
+              return data;
+            }
+            return data.toLowerCase(); // Esto ayuda con el ordenamiento
+          }
+        },
         {
           data: 'salary',
           title: 'Salario',
@@ -195,7 +300,8 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
                 </a>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
-                  <li><a class="dropdown-item modificar-btn" data-empleado-id="${data.id}" href="#">Modificar</a></li>
+               
+                <li><a class="dropdown-item eliminar-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-empleado-id="${data.id}" href="#">Eliminar</a></li>
                 </ul>
               </div>`;
           }
@@ -203,12 +309,69 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       ]
     });
 
+
     $('#empleadosTable').on('click', '.consultar-btn', (event: any) => {
       event.preventDefault();
       const empleadoId = $(event.currentTarget).data('empleado-id');
       this.consultarEmpleado(empleadoId);
     });
+
+
+    $('#empleadosTable').on('click', '.modificar-btn', (event: any) => {
+      event.preventDefault();
+      const id = $(event.currentTarget).data('empleado-id');
+      this.editarEmpleado(id);
+    });
+
+    // Event handler for eliminar (delete) button
+    $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
+      event.preventDefault();
+      this.empleadoIdToDelete = $(event.currentTarget).data('empleado-id');
+    });
+
+    // Aplicar filtros iniciales si existen
+    if (this.nameFilter || this.positionFilter) {
+      this.applyFilters();
+    }
   }
+  // Agrega esta propiedad a la clase
+  empleadoIdToDelete: number | null = null;
+
+  // Agrega esta nueva función para manejar la confirmación
+  confirmDelete(): void {
+    if (this.empleadoIdToDelete) {
+      this.empleadoService.changeEmployeeStatus(this.empleadoIdToDelete).subscribe({
+        next: () => {
+          this.loadEmpleados();
+          this.empleadoIdToDelete = null;
+        },
+        error: (error) => {
+          console.error('Error al eliminar el empleado:', error);
+          alert('Error al eliminar el empleado');
+          this.empleadoIdToDelete = null;
+        }
+      });
+
+    }
+  }
+
+
+  editarEmpleado(id: any): void {
+
+    console.log("me fuiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+    this.router.navigate(['/empleados/modificar', id]);
+  }
+
+  bindEditButtons(): void {
+    const self = this; // Guardamos el contexto del componente
+    $('#empleadosTable').on('click', '.edit-button', () => {
+      const id = $(this).data('id'); // Obtenemos el ID del atributo data-id
+      self.editarEmpleado(id); // Llama al método editarEmpleado
+    });
+  }
+
+
+
 
   private initializeAsistenciasTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
@@ -263,23 +426,32 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       ],
     });
 
-      $('#empleadosTable').on('click', 'button', (event: any) => {
-        const button = $(event.currentTarget);
-        const id = button.data('id');
-        const nuevoEstado = button.data('nuevoestado');
-
-        if (id && nuevoEstado) {
-          this.empleadoService.putAttendances(id, nuevoEstado).subscribe(
-              response => {
-                  // Manejar respuesta aquí
+    $('#empleadosTable').off('click', 'button').on('click', 'button', (event: any) => {
+      const button = $(event.currentTarget);
+      const id = button.data('id');
+      const nuevoEstado = button.data('nuevoestado');
+  
+      // Deshabilitar el botón para evitar múltiples clics
+      button.prop('disabled', true);
+  
+      if (id && nuevoEstado) {
+          this.empleadoService.putAttendances(id, nuevoEstado).subscribe({
+              next: (response) => {
                   console.log('Asistencia actualizada:', response);
                   this.loadAsistencias();
               },
-              error => {
+              error: (error) => {
                   console.error('Error al actualizar asistencia:', error);
+              },
+              complete: () => {
+                  // Habilitar el botón nuevamente si es necesario
+                  button.prop('disabled', false);
               }
-          );
-        }
+          });
+      } else {
+          // Habilitar el botón nuevamente si no hay id o nuevoEstado
+          button.prop('disabled', false);
+      }
     });
   }
 
@@ -414,7 +586,7 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       endDateInput.min = '';
     }
 
-    this.filter();
+    this.filterByDate();
   }
 
   onEndDateChange(): void {
@@ -427,10 +599,10 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       startDateInput.max = '';
     }
 
-    this.filter();
+    this.filterByDate();
   }
 
-  filter(): void {
+  filterByDate(): void {
     const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
     const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
 
@@ -470,8 +642,8 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   }
 
   onFilterByDate(): void {
-    if (this.ventana === 'Asistencias') {
-      this.loadAsistencias;
+    if (this.ventana === 'Desempeño') {
+      this.loadDesempeno();
     }
   }
 

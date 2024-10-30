@@ -14,6 +14,7 @@ import { SupplierListComponent } from './components/supplier-list/supplier-list.
 import { SupplierUpdateComponent } from './components/supplier-update/supplier-update.component';
 import { IEPFormPostEmployeesComponent } from './components/iep-form-post-employees/iep-form-post-employees.component';
 import { IepCargosComponent } from './components/iep-cargos/iep-cargos.component';
+import { EmpPutEmployeesComponent } from './components/iep-put-employees/emp-put-employees.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI
@@ -86,6 +87,14 @@ export const routes: Routes = [
         path: 'cargos',
         component: IepCargosComponent,
         title: 'Gestión de Cargos'
+    },
+    {
+        
+      path: 'empleados/modificar/:id',  // TOMAS H
+      component:EmpPutEmployeesComponent,
+      title: 'Modificar empleado'
+        
+
     }
   
     

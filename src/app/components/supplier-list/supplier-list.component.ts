@@ -6,6 +6,9 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { SupplierTypePipe } from '../../pipes/supplier-type.pipe';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-supplier-list',
@@ -26,6 +29,53 @@ export class SupplierListComponent implements AfterViewInit {
   dataTableInstance: any;
 
   constructor(private supplierService: SuppliersService, private router: Router) { }
+
+  exportToPdf(): void {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Lista de Proveedores', 10, 10);
+  
+    const dataToExport = this.suppliers.map((supplier) => [
+      supplier.name,
+      supplier.healthInsurance,
+      supplier.authorized ? 'Sí' : 'No',
+      supplier.address,
+      supplier.supplierType,
+      supplier.description,
+      supplier.email,
+      supplier.phoneNumber,
+      supplier.discontinued ? 'Sí' : 'No',
+    ]);
+  
+    (doc as any).autoTable({
+      head: [['Nombre', 'Seguro de Salud', 'Autorizado', 'Dirección', 'Tipo de Proveedor', 'Descripción', 'Correo Electrónico', 'Número de Teléfono', 'Descontinuado']],
+      body: dataToExport,
+      startY: 20,
+    });
+  
+    doc.save('Lista_Proveedores.pdf');
+  }
+  
+  exportToExcel(): void {
+    const dataToExport = this.suppliers.map((supplier) => ({
+      'Nombre': supplier.name,
+      'Seguro de Salud': supplier.healthInsurance,
+      'Autorizado': supplier.authorized ? 'Sí' : 'No',
+      'Dirección': supplier.address,
+      'Tipo de Proveedor': supplier.supplierType,
+      'Descripción': supplier.description,
+      'Correo Electrónico': supplier.email,
+      'Número de Teléfono': supplier.phoneNumber,
+      'Descontinuado': supplier.discontinued ? 'Sí' : 'No',
+    }));
+  
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Proveedores');
+  
+    XLSX.writeFile(workbook, 'Lista_Proveedores.xlsx');
+  }
+  
 
   ngAfterViewInit(): void {
 
@@ -77,37 +127,47 @@ export class SupplierListComponent implements AfterViewInit {
             title: 'Acciones',
             render: (data: any, type: any, row: any) => {
               return `
-                <button type="button" class="btn btn-primary btn-modificar" data-id="${data.id}">Modificar</button>
-                <button type="button" class="btn btn-danger btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${data.id}">Eliminar</button>
-              `;
+                <div class="dropdown">
+                  <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
+                     style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
+                    &#8942;
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="dropdown-item edit-btn" href="#" data-id="${data.id}">Editar</a></li>
+                    <li><a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${data.id}">Eliminar</a></li>
+                  </ul>
+                </div>`;
             }
           }
         ],
         pageLength: 10,
-        lengthChange: false,
-        searching: true,
+        lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
+        lengthMenu:[10, 25, 50],
+        searching: false,
         destroy: true,
         language: {
           search: "Buscar:",
           info: "Mostrando _START_ a _END_ de _TOTAL_ proveedores",
           paginate: {
-            first: "Primero",
-            last: "Último",
-            next: "Siguiente",
-            previous: "Anterior"
+            first: '<<',
+            last: '>>',
+            next: '>',
+            previous: '<',
           },
           emptyTable: "No hay datos disponibles en la tabla",
         }
       });
   
 
-      $('#suppliersTable tbody').on('click', '.btn-delete', (event) => {
+      // Actualizar los event listeners
+      $('#suppliersTable tbody').on('click', '.delete-btn', (event) => {
+        event.preventDefault(); // Prevenir navegación por defecto
         const id = $(event.currentTarget).data('id');
         this.setSupplierToDelete(id);
       });
-  
 
-      $('#suppliersTable tbody').on('click', '.btn-modificar', (event) => {
+      $('#suppliersTable tbody').on('click', '.edit-btn', (event) => {
+        event.preventDefault(); // Prevenir navegación por defecto
         const id = $(event.currentTarget).data('id');
         this.updateSupplier(id);
       });
@@ -170,4 +230,11 @@ export class SupplierListComponent implements AfterViewInit {
     );
     //}
   }
+
+  goBack(){
+    window.history.back();
+  }
+
+
+
 }

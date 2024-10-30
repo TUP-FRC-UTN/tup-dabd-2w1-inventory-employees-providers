@@ -37,7 +37,7 @@ export class SupplierUpdateComponent implements OnInit{
   
       this.supplierService.updateSupplier(supplierUpdate).subscribe(
         response => {
-          alert('Proveedor actualizado exitosamente');
+          //alert('Proveedor actualizado exitosamente');
           this.router.navigate(['/suppliers'])
         },
         error => {

@@ -5,43 +5,54 @@ import { StockAumento } from '../models/stock-aumento';
 import { Supplier } from '../models/suppliers';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StockAumentoService {
+  private readonly INVENTORY_BASE_URL: string = 'http://localhost:8081/';
 
-  private apiUrl = 'http://localhost:8081/amountModification/modify-stock'; // TOMAS
-  private suppliersUrl = 'http://localhost:8081/suppliers'; // Ruta para obtener proveedores  //TOMAS
-  private productsUrl = 'http://localhost:8081/product/getAll'; // URL de los productos //SANTI
+  private readonly AMOUNT_MODIFICATION_URL: string = `${this.INVENTORY_BASE_URL}amountModification`;
+  private readonly AMOUNT_MODIFICATION_URL_MODIFY_STOCK: string = `${this.AMOUNT_MODIFICATION_URL}/modify-stock`; // TOMAS
+
+  private readonly SUPPLIERS_URL: string = `${this.INVENTORY_BASE_URL}suppliers`; // Ruta para obtener proveedores // TOMAS
+
+  private readonly PRODUCT_URL: string = `${this.INVENTORY_BASE_URL}product`;
+  private readonly PRODUCT_URL_GET_ALL: string = `${this.PRODUCT_URL}/getAll`; // URL de los productos // SANTI
 
   idProduct: number = 0;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Método para modificar stock  // TOMAS
   modifyStock(stockData: StockAumento): Observable<string> {
-    return this.http.post(this.apiUrl, stockData, { responseType: 'text' });
-  }
-  
-  // Método para obtener proveedores // TOMAS
-  getSuppliers(): Observable<Supplier[]> { // Nuevo método para obtener proveedores
-    return this.http.get<Supplier[]>(this.suppliersUrl);
+    return this.http.post(
+      this.AMOUNT_MODIFICATION_URL_MODIFY_STOCK,
+      stockData,
+      { responseType: 'text' }
+    );
   }
 
-   // Método para obtener todos los productos // SANTI
-   getProducts(): Observable<any[]> {
-    return this.http.get<any[]>(this.productsUrl);
+  // Método para obtener proveedores // TOMAS
+  getSuppliers(): Observable<Supplier[]> {
+    // Nuevo método para obtener proveedores
+    return this.http.get<Supplier[]>(this.SUPPLIERS_URL);
+  }
+
+  // Método para obtener todos los productos // SANTI
+  getProducts(): Observable<any[]> {
+    return this.http.get<any[]>(this.PRODUCT_URL_GET_ALL);
   }
 
   // Método para obtener un producto específico por su ID // SANTI
   getProductById(): Observable<any> {
-    return this.http.get<any>(`${this.productsUrl}?id=${this.idProduct}`);
+    return this.http.get<any>(
+      `${this.PRODUCT_URL_GET_ALL}?id=${this.idProduct}`
+    );
   }
 
-  setId(id: number){
+  setId(id: number) {
     this.idProduct = id;
   }
 
-  getId(){
+  getId() {
     return this.idProduct;
   }
-
-  }
+}

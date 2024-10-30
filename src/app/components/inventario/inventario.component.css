@@ -8,10 +8,10 @@
     text-align: left;
 }
 
-button{
+/*button{
     border: 1px solid black;
     border-radius: 5px;
-}
+}*/
 
 table{
     width: 100%;
@@ -144,7 +144,7 @@ table{
     border-color: #545b62;
   }
 
-  .btn-success {
+  /*.btn-success {
     background-color: #28a745;
     border-color: #28a745;
   }
@@ -152,7 +152,7 @@ table{
   .btn-success:hover {
     background-color: #218838;
     border-color: #1e7e34;
-  }
+  }*/
 
   /* Contenedor para mensajes de error */
   .error-container {

@@ -43,9 +43,22 @@
         <div class="col-0 col-sm-3"></div>
         <div class="col-0 col-sm-3"></div>
         <div class="col-12 col-sm-3">
-            <input type="button" class="btn btn-success mt-3 w-100" value="Buscar" (click)="searchMovements()">
+            <input type="button" class="btn btn-primary mt-3 w-100" value="Buscar" (click)="searchMovements()">
         </div>
     </div>
+
+    <!-- Fila para los botones de exportación alineados a la derecha -->
+    <div class="row mb-2">
+        <div class="col d-flex justify-content-end">
+            <button class="btn btn-success me-2" (click)="exportToExcel()">
+                <i class="fa-solid fa-file-excel"></i>
+            </button>
+            <button class="btn btn-danger" (click)="exportToPdf()">
+                <i class="fas fa-file-pdf"></i>
+            </button>
+        </div>
+    </div>
+
     <table id="movementsTable" class="table table-striped mt-4">
         
       </table>

@@ -7,11 +7,13 @@ import { Observable } from 'rxjs';
 })
 export class EstadoService {
 
-  estadoUrl = 'http://localhost:8080/detailProductState/getAll'
+  private readonly INVENTORY_BASE_URL: string = 'http://localhost:8081/';
+
+  private readonly ESTADO_URL: string = `${this.INVENTORY_BASE_URL}detailProductState/getAll`;  
 
   constructor(private client: HttpClient) { }
 
   getEstados():Observable<String[]> {
-    return this.client.get<String[]>(`${this.estadoUrl}`);
+    return this.client.get<String[]>(`${this.ESTADO_URL}`);
   }
 }
