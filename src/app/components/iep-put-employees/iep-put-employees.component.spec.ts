@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { IepPutEmployeesComponent } from './iep--put-employees.component';
+import { IepPutEmployeesComponent } from './iep-put-employees.component';
 
 describe('IepPutEmployeesComponent', () => {
   let component: IepPutEmployeesComponent;

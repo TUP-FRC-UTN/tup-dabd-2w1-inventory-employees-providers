@@ -14,7 +14,7 @@ import { IepSupplierListComponent } from './components/iep-supplier-list/iep-sup
 import { IepSupplierUpdateComponent } from './components/iep-supplier-update/iep-supplier-update.component';
 import { IEPFormPostEmployeesComponent } from './components/iep-form-post-employees/iep-form-post-employees.component';
 import { IepChargesComponent } from './components/iep-charges/iep-charges.component';
-import { IepPutEmployeesComponent } from './components/iep-put-employees/iep--put-employees.component';
+import { IepPutEmployeesComponent } from './components/iep-put-employees/iep-put-employees.component';
 export const routes: Routes = [
     {
         path: 'stock-aumento',  // SANTI

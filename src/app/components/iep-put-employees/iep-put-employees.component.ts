@@ -13,8 +13,8 @@ declare var bootstrap: any;
   selector: 'app-iep-put-employees',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './iep--put-employees.component.html',
-  styleUrls: ['./iep--put-employees.component.css']
+  templateUrl: './iep-put-employees.component.html',
+  styleUrls: ['./iep-put-employees.component.css']
 })
 export class IepPutEmployeesComponent implements OnInit {
   // Variables para datos personales
