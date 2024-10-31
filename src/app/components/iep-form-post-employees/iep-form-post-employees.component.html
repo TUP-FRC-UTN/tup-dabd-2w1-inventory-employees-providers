@@ -153,7 +153,7 @@
 
     <div class="col-md-6">
         <div class="row">
-            <label for="dni" class="col-form-label col-md-3 text-end">Tipo Doc:</label>
+            <label for="documentType" class="col-form-label col-md-3 text-end">Tipo Doc:</label>
             <div class="col-md-9">
                 <select id="documentType" name="documentType" class="form-control"
                 [(ngModel)]="documentType"
@@ -289,14 +289,15 @@
             <div class="row">
                 <label for="provincia" class="col-form-label col-md-3">Provincia:</label>
                 <div class="col-md-9">
-                    <select id="provincia" name="provincia" class="form-control"
-                     [(ngModel)]="provinciaSelect"
-                     (change)="loadLocalidades()" >
-                        <option disabled selected value="opcion1">Seleccionar provincia</option>
-                        @for (p of provincias; track $index) {
-                            <option   [ngValue]="p" >{{p.nombre}}</option>
-
-                        }
+                    <select id="provincia" 
+                       name="provincia" 
+                       class="form-control"
+                       [(ngModel)]="provinciaSelect"
+                       (change)="loadLocalidades()">
+                     <option [ngValue]="undefined">Seleccionar provincia</option>
+                         @for (p of provincias; track $index) {
+                          <option [ngValue]="p">{{p.nombre}}</option>
+                             }
                     </select>
                 </div>
             </div>
@@ -307,7 +308,7 @@
                 <div class="col-md-9">
                     <select id="localidad" name="localidad" class="form-control" 
                     [(ngModel)]="localidadSelect" >
-                        <option disabled selected value="opcion1">Seleccionar localidad</option>
+                        <option disabled required [ngValue]="undefined">Seleccionar localidad</option>
                         @for (l of provinciaSelect?.ciudades; track $index) {
 
                             <option  selected value="opcion1">{{l.nombre}}</option>

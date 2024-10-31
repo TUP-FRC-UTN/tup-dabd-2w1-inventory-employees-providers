@@ -79,12 +79,20 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   cargos:Charge[]=[];
 
   cargoSelected?:Charge
-  provinciaSelect? : Provincia;
+  provinciaSelect? : Provincia ;
   localidadSelect?:Ciudad;
   
   postDto:PostEmployeeDto = new PostEmployeeDto();
   adressDto:AddressDto =new AddressDto();
  
+
+
+
+
+  validateProvincia(){
+
+    
+  }
 
   public validateDate() {
     if (this.startTimeContract != null) {
