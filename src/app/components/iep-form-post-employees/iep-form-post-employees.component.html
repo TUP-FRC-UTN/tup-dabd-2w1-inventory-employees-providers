@@ -148,6 +148,32 @@
 
 
 <div class="form-group row mb-3">
+
+
+
+    <div class="col-md-6">
+        <div class="row">
+            <label for="dni" class="col-form-label col-md-3 text-end">Tipo Doc:</label>
+            <div class="col-md-9">
+                <select id="documentType" name="documentType" class="form-control"
+                [(ngModel)]="documentType"
+                 >
+                      <option  disabled required value="">Seleccionar tipo de documento</option>
+                       <option  [ngValue]="'DNI'" >DNI</option>
+                       <option  [ngValue]="'PASSPORT'" >PASAPORTE</option>
+
+                   
+               </select>
+          <div *ngIf="dniModel.invalid && dniModel.touched" class="invalid-feedback">
+              "La entrada no es válida. Asegúrate de seleccionar un tipo."
+           </div>
+          </div>
+             </div>
+        </div>
+
+
+
+
     <div class="col-md-6">
         <div class="row">
             <label for="cuil" class="col-form-label col-md-3 text-end">CUIL:</label>
@@ -168,26 +194,32 @@
         </div>
     </div>
 
-       <div class="col-md-6">
-              <div class="row">
-                  <label for="dni" class="col-form-label col-md-3 text-end">DNI:</label>
-                  <div class="col-md-9">
-                    <input type="text" class="form-control" id="dni" name="dni"
-                    [(ngModel)]="dni"
-                     #dniModel="ngModel"
-                    required 
-                    pattern="^[1-9]\d*$"
-                    [ngClass]="{
-                        'is-invalid': dniModel.invalid && dniModel.touched, 
-                        'is-valid': dniModel.valid && dniModel.touched
-                    }"
-                >
-                <div *ngIf="dniModel.invalid && dniModel.touched" class="invalid-feedback">
-                    "La entrada no es válida. Asegúrate de usar solo numeros."
-                 </div>
-                </div>
-                   </div>
-              </div>
+
+
+    <div class="col-md-6 mt-3">
+        <div class="row">
+            <label for="dni" class="col-form-label col-md-3 text-end">DNI:</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="dni" name="dni"
+              [(ngModel)]="dni"
+               #dniModel="ngModel"
+              required 
+              pattern="^[1-9]\d*$"
+              [ngClass]="{
+                  'is-invalid': dniModel.invalid && dniModel.touched, 
+                  'is-valid': dniModel.valid && dniModel.touched
+              }"
+          >
+          <div *ngIf="dniModel.invalid && dniModel.touched" class="invalid-feedback">
+              "La entrada no es válida. Asegúrate de usar solo numeros."
+           </div>
+          </div>
+             </div>
+        </div>
+
+
+
+
          </div>
     </div>
 

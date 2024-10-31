@@ -32,6 +32,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
   createEmployee$: Observable<any>= new Observable<any>();
 
+
   lunes:boolean=false;
   martes:boolean=false;
   miercoles:boolean=false;
@@ -45,6 +46,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   nombre: string = '';
   apellido: string = '';
   cuil: string = '';
+  documentType:string='';
   dni?: number;
   telefono?: number;
   mail: string = '';
