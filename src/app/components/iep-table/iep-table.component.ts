@@ -224,7 +224,6 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
           next: '>',
           previous: '<',
         },
-        lengthMenu: '_MENU_',
       },
     });
   }

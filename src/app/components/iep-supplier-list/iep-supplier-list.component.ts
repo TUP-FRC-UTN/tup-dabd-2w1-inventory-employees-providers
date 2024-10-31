@@ -158,7 +158,7 @@ export class IepSupplierListComponent implements AfterViewInit {
             next: '>',
             previous: '<',
           },
-          lengthMenu: '_MENU_',
+
           emptyTable: "No hay datos disponibles en la tabla",
         }
       });

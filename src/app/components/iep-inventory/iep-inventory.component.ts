@@ -25,9 +25,9 @@ import 'datatables.net-bs5';
 import { ProductXDetailDto } from '../../models/product-xdetail-dto';
 import DataTable from 'datatables.net-dt';
 import { Details } from '../../models/details';
-import { IepProductComponent } from '../iep-product/iep-product.component';
 import jsPDF from 'jspdf';
 import { IepStockIncreaseComponent } from '../iep-stock-increase/iep-stock-increase.component';
+import { IepProductComponent } from '../iep-product/iep-product.component';
 
 @Component({
   selector: 'app-iep-inventory',
@@ -304,7 +304,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           next: '>',
           previous: '<',
         },
-        lengthMenu: '_MENU_',
       },
       initComplete: () => {
         $('#Nombre').on('keyup', (event) => {

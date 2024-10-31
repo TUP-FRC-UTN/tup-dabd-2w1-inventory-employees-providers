@@ -1,5 +1,4 @@
 
-
 <!-- Modal para Categorias -->
 <div class="modal fade" id="categoriaModal" role="dialog" aria-labelledby="categoriaModal" style="width: 100%;" aria-hidden="">
   <div class="modal-dialog" style="width: 100%;">
@@ -165,7 +164,7 @@
       <div class="input-group form-group">
         <label for="inputPrice" class="col-form-label">Precio Unitario</label>
         <input type="number" class="form-control" 
-        aria-label="Amount" #unit="ngModel" [(ngModel)]="dto.unitPrice"
+        aria-label="Amount" #unit="ngModel" [(ngModel)]="dto.unit_price"
         name="unit" min="0">
         <span class="input-group-text">$</span>
       </div>
@@ -228,7 +227,7 @@
       <div class="col-6">
         <div class="input-group form-group">
           <label for="inputStock" class="col-form-label">Stock Inicial</label>
-          <input type="number" name="stock" class="form-control" style=""
+          <input type="number" name="stock" class="form-control" 
           [(ngModel)]="dto.amount" 
           id="inputStock" #stock="ngModel"  min="1" required>
         
@@ -245,7 +244,7 @@
       </div>
      
     <div class="col-6">
-      <div class="form-group n input-group" style="">
+      <div class="form-group n input-group" >
         <label for="inputMinStock" class="col-form-label">Stock insuficiente</label>
         <input #min="ngModel" min="1" type="number" name="min" 
         [(ngModel)]="dto.min_amount_warning" class="form-control" 

@@ -14,7 +14,7 @@ import { SuppliersService } from '../../services/suppliers.service';
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-iep-product',
+  selector: 'app-product',
   standalone: true,
   imports: [FormsModule,CommonModule,RouterModule],
   templateUrl: './iep-product.component.html',
@@ -99,8 +99,8 @@ export class IepProductComponent {
       if (this.dto.supplier_id == null || this.dto.supplier_id === 0) {
         this.dto.supplier_id = undefined;
       }
-      if(this.dto.unitPrice == null || this.dto.unitPrice === 0) {
-        this.dto.unitPrice = 0;
+      if(this.dto.unit_price == null || this.dto.unit_price === 0) {
+        this.dto.unit_price = 0;
       }
       this.abrirModal = true;
       this.createProduct$ = this.productService.createProduct(this.dto, 1);
