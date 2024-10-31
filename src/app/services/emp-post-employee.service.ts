@@ -54,12 +54,27 @@ export class EmpPostEmployeeService {
       'Accept': 'application/json', // Aceptar respuesta en formato JSON
       // Puedes añadir más encabezados aquí si es necesario
   });
-
-  
   // Realiza la petición GET
   return this.client.get<boolean>(`${this.EMPLOYEE_URL}/validate/dni`, { params});
 
   }
+  validateCuil(cuil:string):Observable<boolean>{
+
+    const params = new HttpParams()
+    .set('cuil', cuil);
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json', // Cambia esto según tus necesidades
+      'Accept': 'application/json', // Aceptar respuesta en formato JSON
+      // Puedes añadir más encabezados aquí si es necesario
+  });
+  // Realiza la petición GET
+  return this.client.get<boolean>(`${this.EMPLOYEE_URL}/validate/cuil`, { params});
+
+  
+  }
+
+  
 
   createProduct(dto: PostEmployeeDto): Observable<any> {
     const url = `${this.EMPLOYEE_POST_URL}`;

@@ -1,6 +1,6 @@
-import { CommonModule, JsonPipe } from '@angular/common';
+import { CommonModule, JsonPipe, NgFor } from '@angular/common';
 import { Component, importProvidersFrom, Inject, OnInit } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { Form, FormsModule, NgForm } from '@angular/forms';
 import { EmpPostEmployeeService } from '../../services/emp-post-employee.service';
 import { Ciudad, Provincia } from '../../models/emp-provincia';
 import { Observable } from 'rxjs';
@@ -33,6 +33,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   createEmployee$: Observable<any>= new Observable<any>();
 
   validateDni$:Observable<any> = new Observable<any>();
+  validateCuil$:Observable<any>=new Observable<any>();
 
   lunes:boolean=false;
   martes:boolean=false;
@@ -82,14 +83,14 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
   cargoSelected?:Charge
   provinciaSelect? : Provincia ;
-  localidadSelect?:Ciudad;
+  localidadSelect?:Ciudad ;
   
   postDto:PostEmployeeDto = new PostEmployeeDto();
   adressDto:AddressDto =new AddressDto();
  
   isValidDni:boolean =true;
 
-  
+  isValidCuil:boolean=true;
 
 
 
@@ -113,9 +114,45 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   }
 
 
+  public validateCuil(form:NgForm){
+    console.log("pre validando"+this.cuil)
+    if(this.cuil!=null&&this.cuil!=undefined ){
+
+      console.log("prevalidando2")
+        this.validateCuil$ = this.serviceCombos.validateCuil(this.cuil)
+        this.validateCuil$.subscribe({
+          next: response => {
+            console.log("respuestaa"+response)
+            this.isValidCuil = !response;
+            console.log(this.isValidCuil)
+            console.log(form.valid)
+
+
+
+    // Verificar cada control en el formulario y registrar errores
+ //   Object.keys(form.controls).forEach(field => {
+   //   const control = form.controls[field];
+      
+   //   if (control.invalid) {
+   //       console.log(`Campo '${field}' inválido. Errores:`, control.errors);
+   //   }
+  //  });
+
+   
+      }
+       
+            })
+
+    }
+
+
+  }
+
+  
+
+
   public validateDni(){
 
-    console.log("pre validando"+this.dni,this.documentType)
     if(this.dni!=null&&this.dni!=undefined && this.documentType!=null&& this.documentType!=undefined){
 
       if(this.dni.length>7){
@@ -123,9 +160,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
         this.validateDni$ = this.serviceCombos.validateDni(this.dni,this.documentType)
         this.validateDni$.subscribe({
           next: response => {
-            console.log("respuestaa"+response)
             this.isValidDni = !response;
-            console.log(this.isValidDni)
           }
             
             })
@@ -279,6 +314,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
     if(this.provinciaSelect!= null){
     this.localidades=this.provinciaSelect?.ciudades
+    this.localidadSelect=undefined
     }
   }
 

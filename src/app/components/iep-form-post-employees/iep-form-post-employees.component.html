@@ -173,6 +173,7 @@
                     'is-invalid': cuilModel.invalid && cuilModel.touched, 
                     'is-valid': cuilModel.valid && cuilModel.touched
                 }"
+               (input)="cuilModel.valid ? validateCuil(form) : null"
             >
             <div *ngIf="cuilModel.invalid && cuilModel.touched" class="invalid-feedback">
                 "La entrada no es válida. Asegúrate que cumpla con el formato estipulado."
@@ -199,7 +200,7 @@
               (input)="validateDni()"
           >
           <div *ngIf="dniModel.invalid && dniModel.touched" class="invalid-feedback">
-              "La entrada no es válida. Asegúrate de usar solo numeros."
+              "La entrada no es válida."
            </div>
            <div *ngIf="dniModel.touched&&!isValidDni" class="invalid-feedback">
                 "El DNI ingresado ya existe en el sistema"
@@ -289,7 +290,7 @@
                        [(ngModel)]="provinciaSelect"
                        (change)="loadLocalidades()"
                        required>
-                     <option [ngValue]="undefined">Seleccionar provincia</option>
+                     <option disabled [ngValue]="undefined">Seleccionar provincia</option>
                          @for (p of provincias; track $index) {
                           <option [ngValue]="p">{{p.nombre}}</option>
                              }
@@ -306,10 +307,10 @@
                     [(ngModel)]="localidadSelect" 
                     required
                     >
-                        <option disabled required [ngValue]="undefined">Seleccionar localidad</option>
+                        <option disabled  [ngValue]="undefined">Seleccionar localidad</option>
                         @for (l of provinciaSelect?.ciudades; track $index) {
 
-                            <option  selected value="opcion1">{{l.nombre}}</option>
+                            <option  selected [ngValue]="l">{{l.nombre}}</option>
                         }
                     </select>
                 </div>
