@@ -56,5 +56,9 @@ export class SuppliersService {
     return this.http.put<any>(`${this.SUPPLIERS_URL_BAJA_LOGICA}/${id}`, {});
   }
 
+  getAll(): Observable<Supplier[]> {
+    return this.http.get<Supplier[]>(this.SUPPLIERS_URL+'/all');
+  }
+
   constructor(private http: HttpClient) { }
 }

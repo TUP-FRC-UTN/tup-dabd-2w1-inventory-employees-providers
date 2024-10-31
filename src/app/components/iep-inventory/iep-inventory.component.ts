@@ -295,6 +295,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
       language: {
         search: '',
+        lengthMenu: '_MENU_', // Esto eliminará el texto "entries per page"
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
         emptyTable: 'No se encontraron registros',
         paginate: {
@@ -447,7 +448,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   verificarMin() {
     if (this.cantMinima < 0) {
-      this.mensajeValidacionMin = 'Nneo puedes por un numero menor a cero';
+      this.mensajeValidacionMin = 'El número no puede ser menor a cero';
       return false;
     }
     if (this.cantMinima > this.cantMaxima) {

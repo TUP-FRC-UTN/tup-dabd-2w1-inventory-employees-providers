@@ -9,6 +9,9 @@ import { CategoriaService } from '../../services/categoria.service';
 import { CreateProductDtoClass } from '../../models/create-product-dto-class';
 import { ProductCategory } from '../../models/product-category';
 import { Provider } from '../../models/provider';
+import { Supplier } from '../../models/suppliers';
+import { SuppliersService } from '../../services/suppliers.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-iep-product',
@@ -19,11 +22,11 @@ import { Provider } from '../../models/provider';
 })
 export class IepProductComponent {
   private productService: ProductService;
-  private providerService: ProvidersService;
+  private providerService: SuppliersService;
   categories: ProductCategory[] = [];
   categories$: Observable<ProductCategory[]>= new Observable<ProductCategory[]>();
-  providers: Provider[] = [];
-  providers$: Observable<Provider[]>= new Observable<Provider[]>();
+  providers: Supplier[] = [];
+  providers$: Observable<Supplier[]>= new Observable<Supplier[]>();
   dto: CreateProductDtoClass = new CreateProductDtoClass();
   categoriesError: boolean = false;
   providersError: boolean = false;
@@ -34,10 +37,11 @@ export class IepProductComponent {
   abrirModal: boolean = false;
   successMessage: string|undefined;
   errorMessage: string|undefined;
-
+  newCategory: string = ''; 
+  categoryOfModal: number | undefined;
 
   constructor(productService: ProductService,
-    providersService: ProvidersService,private categoryService:CategoriaService) {
+    providersService: SuppliersService,private categoryService:CategoriaService) {
     this.productService = productService;
     this.providerService = providersService;
     this.success = false;
@@ -46,8 +50,8 @@ export class IepProductComponent {
   ngOnInit() {
 
     this.loadCategories();
-
-    this.providers$ = this.providerService.getProviders();
+    this.newCategory = '';
+    this.providers$ = this.providerService.getAll();
     this.providers$.subscribe({
       next: providers =>{
         this.providers = providers;
@@ -56,6 +60,38 @@ export class IepProductComponent {
       },
       error: error => this.providersError = true
     })
+  }
+
+  setCategoryDescription(){
+    console.log(this.categoryOfModal);
+    if(this.categoryOfModal != 0){
+    this.categories.forEach(category => {
+      console.log(category.id);
+      if(category.id == this.categoryOfModal){
+
+        this.newCategory = category.category;
+      }
+    });
+  }
+  }
+
+  showSuccessAlert() {
+    Swal.fire({
+      icon: 'success',
+      title: 'Registro creado',
+      text: this.successMessage,
+      confirmButtonText: 'OK'
+    });
+  }
+
+
+  showErrorAlert() {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: this.errorMessage,
+      confirmButtonText: 'Intentar de nuevo'
+    });
   }
 
   onSubmit(form: NgForm) {
@@ -71,8 +107,8 @@ export class IepProductComponent {
       console.log(this.createProduct$);
       this.createProduct$.subscribe({
         next: response => {
-          this.success = true;
           this.successMessage = response.message;
+          this.showSuccessAlert();
           console.log("PASO: ", response);
           form.reset();
         },
@@ -92,6 +128,7 @@ export class IepProductComponent {
           }
           console.error(error);
           this.success = false;
+          this.showErrorAlert();
           form.reset();
         },
         complete: () => {
