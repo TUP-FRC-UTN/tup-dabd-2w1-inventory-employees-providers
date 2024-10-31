@@ -3,7 +3,8 @@ export class PostEmployeeDto{
 
   name: string|undefined;
   surname: string|undefined;
-  documenValue: number|undefined;
+  documenValue: string|undefined;
+  documentType:DocumentTypeEnum|undefined;
   cuil: string|undefined;
   charge: number|undefined;
   contractStartTime?: Date|undefined;
@@ -27,6 +28,11 @@ export class PostEmployeeDto{
 
 }
 
+export enum DocumentTypeEnum{
+    DNI = "DNI",
+    PASSPORT = "PASSPORT",
+    OTHER = "OTHER"
+}
 
 
 export class AddressDto{

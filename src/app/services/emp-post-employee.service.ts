@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { Provincia } from '../models/emp-provincia';
-import { Charge, PostEmployeeDto } from '../models/emp-post-employee-dto';
+import { Charge, DocumentTypeEnum, PostEmployeeDto } from '../models/emp-post-employee-dto';
 import { EmpPutEmployees } from '../models/emp-put-employees';
 
 @Injectable({
@@ -42,6 +42,23 @@ export class EmpPostEmployeeService {
 
   getCharges(): Observable<Charge[]> {
     return this.client.get<Charge[]>(this.CHARGES_URL);
+  }
+
+  validateDni(dni:string,documentType:DocumentTypeEnum):Observable<boolean>{
+    const params = new HttpParams()
+    .set('documentType', documentType)
+    .set('dni', dni);
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json', // Cambia esto según tus necesidades
+      'Accept': 'application/json', // Aceptar respuesta en formato JSON
+      // Puedes añadir más encabezados aquí si es necesario
+  });
+
+  
+  // Realiza la petición GET
+  return this.client.get<boolean>(`${this.EMPLOYEE_URL}/validate/dni`, { params});
+
   }
 
   createProduct(dto: PostEmployeeDto): Observable<any> {

@@ -73,24 +73,6 @@
 
 
 
-
-
-
-<!-- empieza el formulario -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
  
 <!-- Datos personales -->
  <div class="bg-light rounded mb-5 pb-3 pt-3 ps-2" >
@@ -98,6 +80,8 @@
 <p class="text-start mb-3 ">Datos personales:</p>
 <hr>
 <div class="form-group row mb-3">
+    <!-- nombre  -->
+
     <div class="col-md-6">
         <div class="row">
             <label for="nombre" class="col-form-label col-md-3 text-end">Nombre:</label>
@@ -123,6 +107,7 @@
         </div>
     </div>
 
+        <!-- apellido  -->
        <div class="col-md-6">
               <div class="row">
                   <label for="apellido" class="col-form-label col-md-3 text-end">Apellido:</label>
@@ -150,6 +135,7 @@
 <div class="form-group row mb-3">
 
 
+    <!-- tipo doc  -->
 
     <div class="col-md-6">
         <div class="row">
@@ -159,8 +145,8 @@
                 [(ngModel)]="documentType"
                  >
                       <option  disabled required value="">Seleccionar tipo de documento</option>
-                       <option  [ngValue]="'DNI'" >DNI</option>
-                       <option  [ngValue]="'PASSPORT'" >PASAPORTE</option>
+                       <option  [ngValue]="documentTypeEnum.DNI" >DNI</option>
+                       <option  [ngValue]="documentTypeEnum.PASSPORT" >PASAPORTE</option>
 
                    
                </select>
@@ -173,6 +159,7 @@
 
 
 
+    <!-- cuil  -->
 
     <div class="col-md-6">
         <div class="row">
@@ -195,23 +182,27 @@
     </div>
 
 
+    <!-- document-dni  -->
 
     <div class="col-md-6 mt-3">
         <div class="row">
-            <label for="dni" class="col-form-label col-md-3 text-end">DNI:</label>
+            <label for="dni" class="col-form-label col-md-3 text-end">Documento:</label>
             <div class="col-md-9">
               <input type="text" class="form-control" id="dni" name="dni"
               [(ngModel)]="dni"
-               #dniModel="ngModel"
+              #dniModel="ngModel"
               required 
-              pattern="^[1-9]\d*$"
               [ngClass]="{
-                  'is-invalid': dniModel.invalid && dniModel.touched, 
-                  'is-valid': dniModel.valid && dniModel.touched
+                  'is-invalid': (dniModel.invalid && dniModel.touched)|| (!isValidDni), 
+                  'is-valid': dniModel.valid && dniModel.touched && isValidDni
               }"
+              (input)="validateDni()"
           >
           <div *ngIf="dniModel.invalid && dniModel.touched" class="invalid-feedback">
               "La entrada no es válida. Asegúrate de usar solo numeros."
+           </div>
+           <div *ngIf="dniModel.touched&&!isValidDni" class="invalid-feedback">
+                "El DNI ingresado ya existe en el sistema"
            </div>
           </div>
              </div>
@@ -229,6 +220,8 @@
     <hr>
 
 <div class="form-group row mb-3 pb-2 ">
+    <!-- tel  -->
+
     <div class="col-md-6">
         <div class="row">
             <label for="telefono" class="col-form-label col-md-3 text-end">Teléfono:</label>
@@ -252,6 +245,7 @@
         </div>
     </div>
 
+        <!-- mail  -->
 
        <div class="col-md-6">
               <div class="row">
@@ -279,12 +273,12 @@
 
   <!-- Dirección -->
    
-    
 <div class="bg-light rounded mb-3 ps-2">
     <p class="text-start mb-3 ">Datos de domicilio:</p>
     <hr>
     <div class="form-group row mb-3 ">
-      
+        <!-- provincia  -->
+
         <div class="col-md-6">
             <div class="row">
                 <label for="provincia" class="col-form-label col-md-3">Provincia:</label>
@@ -293,7 +287,8 @@
                        name="provincia" 
                        class="form-control"
                        [(ngModel)]="provinciaSelect"
-                       (change)="loadLocalidades()">
+                       (change)="loadLocalidades()"
+                       required>
                      <option [ngValue]="undefined">Seleccionar provincia</option>
                          @for (p of provincias; track $index) {
                           <option [ngValue]="p">{{p.nombre}}</option>
@@ -302,12 +297,15 @@
                 </div>
             </div>
         </div>
+        <!-- localidad  -->
         <div class="col-md-6">
             <div class="row">
                 <label for="localidad" class="col-form-label col-md-3">Localidad:</label>
                 <div class="col-md-9">
                     <select id="localidad" name="localidad" class="form-control" 
-                    [(ngModel)]="localidadSelect" >
+                    [(ngModel)]="localidadSelect" 
+                    required
+                    >
                         <option disabled required [ngValue]="undefined">Seleccionar localidad</option>
                         @for (l of provinciaSelect?.ciudades; track $index) {
 
@@ -320,6 +318,8 @@
   </div>
 
   <div class="form-group row mb-3  ">
+
+    <!-- calle  -->
 
     <div class="col-md-6">
         <div class="row">
@@ -342,6 +342,7 @@
         </div>
     </div>
 
+    <!-- nro calle  -->
 
     <div class="col-md-6">
         <div class="row">
@@ -365,6 +366,8 @@
 </div>
 
 <div class="form-group row mb-3  ">
+    
+    <!-- piso  -->
 
     <div class="col-md-6">
         <div class="row">
@@ -386,6 +389,7 @@
          </div>
     </div>
 
+    <!-- depa  -->
 
         <div class="col-md-6">
             <div class="row">
@@ -410,6 +414,8 @@
  
 
     <div class="form-group row mb-3  ">
+        <!-- cod postal  -->
+
      <div class="col-md-6">
            <div class="row">
              <label for="codigo-postal" class="col-form-label col-md-4">Código Postal:</label>
@@ -451,10 +457,10 @@
       
 
 
-
+ <!-- Empleado tercerizado -->
         <div class="col-md-6 mb-3">
             <div class="row">
-             <!-- Empleado tercerizado -->
+            
   
                 
                     <label class="col-form-label col-md-4" for="tercerizado">Tercerizado:</label>
@@ -499,14 +505,14 @@
         </div>
               }
               @else {
-
+                 <!-- Proveedores de servicio tercerizado -->
                 <div class="col-md-6 mb-3">
                     <div class="row">
                         
                    <label class="col-form-label col-md-3" for="proveedores">Proveedores:</label>
                    <div class="col-md-9">
-                  <!-- Proveedores de servicio tercerizado -->
-                           <select id="proveedores" name="proveedores" class="form-control" [(ngModel)]="selectedSupplier">
+                 
+                           <select id="proveedores" name="proveedores" class="form-control" [(ngModel)]="selectedSupplier" required>
                             <option disabled selected value="opcion1">Seleccionar proveedor</option>
                   
                            @for (x of suppliers; track $index) {
@@ -523,7 +529,7 @@
                 <div class="row">
                     <label for="cargo" class="col-form-label col-md-4">Cargo:</label>
                        <div class="col-md-8">
-                        <select id="cargo" name="cargo" class="form-control" [(ngModel)] ="cargoSelected" >
+                        <select id="cargo" name="cargo" class="form-control" [(ngModel)] ="cargoSelected" required>
                             <option disabled selected value="opcion1">Seleccionar Cargo</option>
                             @for (c of cargos; track $index) {
                                 <option  selected [ngValue]="c">{{c.charge}}</option>
@@ -570,7 +576,7 @@
 
          
 
-
+ <!-- dias laborales -->
             <div class="bg-light rounded mb-5 pb-3 ps-2" > 
                 
                 <p class="text-start mb-3 ">Dias laborales:</p>

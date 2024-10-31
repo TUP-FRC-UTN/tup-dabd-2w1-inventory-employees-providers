@@ -6,7 +6,7 @@ import { Ciudad, Provincia } from '../../models/emp-provincia';
 import { Observable } from 'rxjs';
 import { Provider } from '../../models/provider';
 import { Supplier } from '../../models/suppliers';
-import { AddressDto, Charge, PostEmployeeDto } from '../../models/emp-post-employee-dto';
+import { AddressDto, Charge, DocumentTypeEnum, PostEmployeeDto } from '../../models/emp-post-employee-dto';
 import { post } from 'jquery';
 @Component({
   selector: 'app-iep-form-post-employees',
@@ -32,6 +32,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
   createEmployee$: Observable<any>= new Observable<any>();
 
+  validateDni$:Observable<any> = new Observable<any>();
 
   lunes:boolean=false;
   martes:boolean=false;
@@ -41,13 +42,14 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   sabado:boolean=false;
   domingo:boolean=false;
 
+  documentTypeEnum=DocumentTypeEnum
 
   userId: number=0
   nombre: string = '';
   apellido: string = '';
   cuil: string = '';
-  documentType:string='';
-  dni?: number;
+  documentType:DocumentTypeEnum|undefined;
+  dni?: string;
   telefono?: number;
   mail: string = '';
   calle: string = '';
@@ -85,14 +87,14 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   postDto:PostEmployeeDto = new PostEmployeeDto();
   adressDto:AddressDto =new AddressDto();
  
+  isValidDni:boolean =true;
+
+  
 
 
 
 
-  validateProvincia(){
-
-    
-  }
+  
 
   public validateDate() {
     if (this.startTimeContract != null) {
@@ -111,6 +113,28 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   }
 
 
+  public validateDni(){
+
+    console.log("pre validando"+this.dni,this.documentType)
+    if(this.dni!=null&&this.dni!=undefined && this.documentType!=null&& this.documentType!=undefined){
+
+      if(this.dni.length>7){
+
+        this.validateDni$ = this.serviceCombos.validateDni(this.dni,this.documentType)
+        this.validateDni$.subscribe({
+          next: response => {
+            console.log("respuestaa"+response)
+            this.isValidDni = !response;
+            console.log(this.isValidDni)
+          }
+            
+            })
+      }
+
+    }
+
+
+  }
 
  
 
@@ -134,8 +158,9 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
           if(this.postDto!=null){
             this.postDto.name=this.nombre;
-            this.postDto.surname=this.apellido;    
-            this.postDto.documenValue=this.dni
+            this.postDto.surname=this.apellido;
+            this.postDto.documentType=this.documentType;   
+            this.postDto.documenValue=this.dni;
             this.postDto.cuil=this.cuil;
 
             if(this.telefono!=null){
