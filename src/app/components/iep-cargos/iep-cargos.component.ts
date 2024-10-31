@@ -21,7 +21,7 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedCargo: ChargeResponse | null = null;
   modoEdicion = false;
   private table: any;
-  isModalVisible = false; 
+  isModalVisible = false;
   isConfirmModalVisible = false;
   isModalOpen = false;
   isConfirmDeleteModalOpen = false;
@@ -47,8 +47,8 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
     doc.text('Lista de Cargos', 10, 10);
 
     const dataToExport = this.cargos.map((cargo) => [
-      cargo.charge,                
-      cargo.description,          
+      cargo.charge,
+      cargo.description,
     ]);
 
     (doc as any).autoTable({
@@ -61,7 +61,7 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   exportToExcel(): void {
-     const dataToExport = this.cargos.map((cargo) => ({
+    const dataToExport = this.cargos.map((cargo) => ({
       'Cargo': cargo.charge,
       'Descripción': cargo.description,
     }));
@@ -137,7 +137,7 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
           render: (data: any) => {
             return `
               <div class="dropdown">
-                  <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
+                <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
                    style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
                   &#8942;
                 </a>
@@ -150,19 +150,15 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       ],
       pageLength: 10,
-      lengthChange: true,
-      lengthMenu: [ 
-        [5, 10, 25, 50], 
-        [5, 10, 25, 50] 
-      ],
-      searching: false, 
+      lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
+      lengthMenu:[10, 25, 50],
+      searching: false, // Desactivar la búsqueda
       language: {
         emptyTable: "No hay datos disponibles en la tabla",
         zeroRecords: "No se encontraron coincidencias",
         info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
         infoEmpty: "Mostrando 0 a 0 de 0 entradas",
         infoFiltered: "(filtrado de _MAX_ entradas totales)",
-        lengthMenu: "Mostrar _MENU_ registros por página",
         search: 'Buscar:',
         paginate: {
           first: '<<',
@@ -198,36 +194,36 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   abrirModalConfirmarEliminacion(cargo: ChargeResponse): void {
     this.selectedCargo = cargo;
-    this.isConfirmDeleteModalOpen = true; 
+    this.isConfirmDeleteModalOpen = true;
   }
 
   abrirModalNuevo(): void {
-    this.modoEdicion = false;  
-    this.selectedCargo = null;  
-    this.cargoForm.reset();     
-    this.isModalOpen = true; 
+    this.modoEdicion = false;
+    this.selectedCargo = null;
+    this.cargoForm.reset();
+    this.isModalOpen = true;
   }
 
   abrirModalEditar(cargo: any): void {
-    this.modoEdicion = true; 
-    this.selectedCargo = cargo; 
-    this.cargoForm.patchValue(cargo); 
-    this.isModalOpen = true; 
+    this.modoEdicion = true;
+    this.selectedCargo = cargo;
+    this.cargoForm.patchValue(cargo);
+    this.isModalOpen = true;
   }
 
   onSubmit(): void {
     if (this.cargoForm.valid) {
       const chargeValue = this.cargoForm.get('charge')?.value;
-  
+
       this.cargoService.getAllCargos().subscribe(cargos => {
         const exists = cargos.some(cargo => cargo.charge === chargeValue && cargo.id !== this.selectedCargo?.id);
-  
+
         if (exists) {
           this.errorMessage = `El cargo "${chargeValue}" ya existe. Por favor, elige otro nombre.`;
-          this.isErrorModalOpen = true; 
+          this.isErrorModalOpen = true;
           return;
         }
-  
+
         if (this.modoEdicion) {
           if (this.selectedCargo) {
             this.cargoService.updateCargo(this.selectedCargo.id, this.cargoForm.value).subscribe(() => {
@@ -244,7 +240,7 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
       });
     }
   }
-  
+
   markAllControlsAsTouched(): void {
     Object.keys(this.cargoForm.controls).forEach(key => {
       this.cargoForm.get(key)?.markAsTouched();
@@ -255,7 +251,7 @@ export class IepCargosComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isModalOpen = false;
     this.cargoForm.reset();
     this.selectedCargo = null;
-    this.modoEdicion = false; 
+    this.modoEdicion = false;
     this.isConfirmDeleteModalOpen = false;
   }
 

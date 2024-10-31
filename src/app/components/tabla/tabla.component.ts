@@ -240,7 +240,7 @@ export class TablaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Validar que las fechas sean válidas
     if (startDate && endDate && startDate > endDate) {
-      alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
+      //alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
       startDateInput.value = '';
       endDateInput.value = '';
       return;

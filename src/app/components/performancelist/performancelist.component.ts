@@ -1,14 +1,13 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { CommonModule} from '@angular/common';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
-import { EmployeePerformance } from '../../models/listado-desempeño';
-import { FormsModule, NgModel } from '@angular/forms';
+import { EmployeePerformance, WakeUpCallDetail } from '../../models/listado-desempeño';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { jsPDF } from 'jspdf';
+import * as XLSX from 'xlsx';
 import $ from 'jquery';
-import 'datatables.net'; // Importación de DataTables
-import 'datatables.net-dt'; // Estilos para DataTables
-import { BrowserModule } from '@angular/platform-browser';
+import 'datatables.net';
 import { StockAumentoComponent } from '../stock-aumento/stock-aumento.component';
 import { FormLlamadoAtencionComponent } from '../form-llamado-atencion/form-llamado-atencion.component';
 
@@ -21,54 +20,135 @@ import { FormLlamadoAtencionComponent } from '../form-llamado-atencion/form-llam
 })
 export class PerformancelistComponent implements OnInit {
   performances: EmployeePerformance[] = [];
-  sortColumn: string = '';
-  sortDirection: 'asc' | 'desc' = 'asc';
+  filteredPerformances: EmployeePerformance[] = [];
   searchTerm: string = '';
   selectedYear: string = '';
   selectedMonth: string = '';
+  dataTable: any;
 
-  availableYears: number[] = []; // Lista de años disponibles para el filtro
+  availableYears: number[] = [];
   months: string[] = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
   showModal = false;
+  showInfoModal = false;
+  selectedEmployeeDetails: WakeUpCallDetail[] = [];
+  showDetailsModal = false;
 
-  openModal() {
-    this.showModal = true;
-  }
-
-  closeModal() {
-    this.showModal = false;
-  }
-
-  constructor(private employeeService: ListadoDesempeñoService, private router: Router) {}
+  constructor(
+    private employeeService: ListadoDesempeñoService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    // Suscribirse a los datos para recibir actualizaciones en tiempo real
-    this.employeeService.performances$.subscribe({
-      next: (data) => {
-        this.performances = data;
-        this.setAvailableYears();
-      },
-      error: (error) => {
-        console.error('Error al cargar datos:', error);
-      }
-    });
-
-    // Inicializar los datos
+    this.loadData();
     this.employeeService.refreshData();
+  }
+
+  ngOnDestroy() {
+    if (this.dataTable) {
+      this.dataTable.destroy();
+    }
   }
 
   loadData(): void {
     this.employeeService.getCombinedData().subscribe({
       next: (data) => {
         this.performances = data;
-        this.setAvailableYears(); // Inicializar años disponibles
+        this.filteredPerformances = [...data];
+        this.setAvailableYears();
+        this.initializeDataTable();
       },
       error: (error) => {
         console.error('Error loading data:', error);
       }
+    });
+  }
+
+  initializeDataTable() {
+    if (this.dataTable) {
+      this.dataTable.destroy();
+    }
+
+    const table = $('.data-table');
+    if (table.length > 0) {
+      this.dataTable = table.DataTable({
+        data: this.filteredPerformances,
+        columns: [
+          { data: 'year' },
+          { 
+            data: 'month',
+            render: (data: number) => this.getMonthName(data)
+          },
+          { data: 'fullName' },
+          { data: 'totalObservations' },
+          { 
+            data: 'performanceType',
+            render: (data: string) => {
+              return `<span class="tag ${data.toLowerCase()}">${data}</span>`;
+            }
+          },
+          {
+            data: null,
+            render: function (data: any) {
+              return '<button class="btn btn-info btn-sm view-details">Ver más</button>';
+            }
+          }
+        ],
+        searching: false,
+        language: {
+          lengthMenu: "Mostrando _MENU_ registros por página",
+          zeroRecords: "No se encontraron registros",
+          info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+          infoEmpty: "Mostrando 0 a 0 de 0 registros",
+          infoFiltered: "(filtrado de _MAX_ registros totales)",
+          search: "Buscar:"
+        },
+        pageLength: 10,
+        order: [[0, 'desc'], [1, 'desc']]
+      });
+
+      $('.data-table tbody').on('click', 'button.view-details', (event) => {
+        const data = this.dataTable.row($(event.target).closest('tr')).data();
+        this.viewDetails(data.id, data.year, data.month);
+      });
+    }
+  }
+
+  filterData(): void {
+    // Aplicar filtros
+    this.filteredPerformances = this.performances.filter(performance => {
+      const matchesSearch = this.searchTerm === '' || 
+        performance.fullName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        performance.performanceType.toLowerCase().includes(this.searchTerm.toLowerCase());
+
+      const matchesYear = this.selectedYear === '' || 
+        performance.year.toString() === this.selectedYear;
+
+      const matchesMonth = this.selectedMonth === '' || 
+        performance.month.toString() === this.selectedMonth;
+
+      return matchesSearch && matchesYear && matchesMonth;
+    });
+
+    // Actualizar DataTable con los datos filtrados
+    if (this.dataTable) {
+      this.dataTable.clear();
+      this.dataTable.rows.add(this.filteredPerformances);
+      this.dataTable.draw();
+    }
+  }
+
+  viewDetails(employeeId: number, year: number, month: number): void {
+    this.employeeService.getWakeUpCallDetails().subscribe(details => {
+      this.selectedEmployeeDetails = details.filter(detail => {
+        const detailDate = new Date(detail.dateReal[0], detail.dateReal[1] - 1, detail.dateReal[2]);
+        return detail.employeeId === employeeId && 
+               detailDate.getFullYear() === year && 
+               detailDate.getMonth() === month - 1;
+      });
+      this.showDetailsModal = true;
     });
   }
 
@@ -77,38 +157,69 @@ export class PerformancelistComponent implements OnInit {
     this.availableYears = [...new Set(years)].sort((a, b) => b - a);
   }
 
-  sort(column: string): void {
-    if (this.sortColumn === column) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortColumn = column;
-      this.sortDirection = 'asc';
-    }
-
-    this.performances.sort((a: any, b: any) => {
-      const direction = this.sortDirection === 'asc' ? 1 : -1;
-      return a[column] > b[column] ? direction : -direction;
-    });
-  }
-
-  getSortIcon(column: string): string {
-    if (this.sortColumn !== column) return '↕';
-    return this.sortDirection === 'asc' ? '↑' : '↓';
-  }
-
-  filterData(): EmployeePerformance[] {
-    return this.performances.filter(performance =>
-      (this.searchTerm === '' || performance.fullName.toLowerCase().includes(this.searchTerm.toLowerCase()) || performance.performanceType.toLowerCase().includes(this.searchTerm.toLowerCase())) &&
-      (this.selectedYear === '' || performance.year === +this.selectedYear) &&
-      (this.selectedMonth === '' || performance.month === +this.selectedMonth)
-    );
-  }
-
   getMonthName(month: number): string {
     return this.months[month - 1];
   }
 
-  navigateToWakeUpCallForm(): void {
-    this.router.navigate(['/wake-up-call']);
+  // Funciones de exportación
+  exportToPdf(): void {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Lista de Desempeños de Empleados', 10, 10);
+
+    const dataToExport = this.filteredPerformances.map((performance) => [
+      performance.id,
+      performance.fullName,
+      performance.year,
+      this.months[performance.month - 1],
+      performance.totalObservations,
+      performance.performanceType,
+    ]);
+
+    (doc as any).autoTable({
+      head: [['ID', 'Nombre Completo', 'Año', 'Mes', 'Total Observaciones', 'Tipo de Desempeño']],
+      body: dataToExport,
+      startY: 20,
+    });
+
+    doc.save('Lista_Desempeños.pdf');
+  }
+
+  exportToExcel(): void {
+    const dataToExport = this.filteredPerformances.map((performance) => ({
+      'ID': performance.id,
+      'Nombre Completo': performance.fullName,
+      'Año': performance.year,
+      'Mes': this.months[performance.month - 1],
+      'Total Observaciones': performance.totalObservations,
+      'Tipo de Desempeño': performance.performanceType,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Desempeños');
+    XLSX.writeFile(workbook, 'Lista_Desempeños.xlsx');
+  }
+
+  // Funciones modales
+  openModal() {
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.loadData();
+  }
+
+  openInfoModal() {
+    this.showInfoModal = true;
+  }
+
+  closeInfoModal() {
+    this.showInfoModal = false;
+  }
+
+  closeDetailsModal(): void {
+    this.showDetailsModal = false;
   }
 }

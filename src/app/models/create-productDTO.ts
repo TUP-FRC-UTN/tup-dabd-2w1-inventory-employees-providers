@@ -5,6 +5,6 @@ export interface createProductDTO {
     amount: number;
     supplier_id: number;
     description: string;
-    unit_price: number;
+    unitPrice: number;
     category_id: number;
 }

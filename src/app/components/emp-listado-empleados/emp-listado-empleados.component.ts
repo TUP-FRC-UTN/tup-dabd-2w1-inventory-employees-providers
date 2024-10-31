@@ -24,6 +24,7 @@ declare var DataTable: any;
 export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   Empleados: EmpListadoEmpleados[] = [];
   Asistencias: EmpListadoAsistencias[] = [];
+  filteredAsistencias: EmpListadoAsistencias[] = [];
   employeePerformances: EmployeePerformance[] = [];
   private table: any;
   ventana: string = "Informacion";
@@ -32,17 +33,114 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
   modalContent: SafeHtml = '';
   startDate!: string;
   endDate!: string;
+  nombreFiltrado!: string;
+  estadoFiltrado!: string;
   private subscriptions: Subscription[] = [];
+  private nameFilter: string = '';
+  private positionFilter: string = '';
+  private uniquePositions: string[] = [];
+
 
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
     private employeePerformanceService: ListadoDesempeñoService,
     private sanitizer: DomSanitizer
+
   ) { }
+
+
 
   ngOnInit(): void {
     this.loadEmpleados();
     this.initializeDates();
+    this.setInitialDates();
+    this.bindEditButtons();
+  }
+
+
+
+  onNameFilterChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.nameFilter = input.value.toLowerCase();
+    this.applyFilters();
+  }
+
+  private updatePositionFilter(): void {
+    const comboFiltroCargo = document.getElementById('comboFiltroCargo') as HTMLSelectElement;
+    if (comboFiltroCargo) {
+      const currentValue = comboFiltroCargo.value; // Guardar el valor actual
+      
+      // Limpiar opciones existentes excepto la primera
+      while (comboFiltroCargo.options.length > 1) {
+        comboFiltroCargo.remove(1);
+      }
+      
+      // Agregar las nuevas opciones
+      this.uniquePositions.forEach(position => {
+        if (position) {
+          const option = document.createElement('option');
+          option.value = position;
+          option.text = position;
+          comboFiltroCargo.appendChild(option);
+        }
+      });
+      
+      // Restaurar el valor seleccionado si existía
+      if (currentValue && this.uniquePositions.includes(currentValue)) {
+        comboFiltroCargo.value = currentValue;
+        this.positionFilter = currentValue;
+      }
+    }
+  }
+
+  onPositionFilterChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.positionFilter = select.value;
+    this.applyFilters();
+  }
+
+  private applyFilters(): void {
+    if (this.table) {
+      this.table.clear();
+
+      const filteredData = this.Empleados.filter(empleado => {
+        const nameMatch = !this.nameFilter || 
+          empleado.fullName.toLowerCase().includes(this.nameFilter.toLowerCase());
+        const positionMatch = !this.positionFilter || 
+          empleado.position === this.positionFilter;
+        return nameMatch && positionMatch;
+      });
+
+      this.table.rows.add(filteredData).draw();
+    }
+  }
+
+  setInitialDates(): void {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    const startDateInput: HTMLInputElement = document.getElementById(
+      'startDate'
+    ) as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById(
+      'endDate'
+    ) as HTMLInputElement;
+
+    startDateInput.value = this.formatDateForInput(thirtyDaysAgo);
+    endDateInput.value = this.formatDateForInput(today);
+
+    // Establecer los límites de las fechas
+    endDateInput.max = this.formatDateForInput(today);
+    startDateInput.max = endDateInput.value;
+    endDateInput.min = startDateInput.value;
+
+    // Trigger the filter
+    this.filterByDate();
+  }
+
+  formatDateForInput(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 
   ngOnDestroy(): void {
@@ -54,10 +152,12 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
   initializeDates(): void {
     const today = new Date();
-    const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-    this.startDate = this.formatDate(firstDayOfLastMonth);
-    this.endDate = this.formatDate(lastDayOfLastMonth);
+    const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 0, 1);
+    const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    this.startDate = this.formatDate(thirtyDaysAgo);
+    this.endDate = this.formatDate(today);
   }
 
   loadEmpleados(): void {
@@ -65,7 +165,23 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       next: (empleados) => {
         this.Empleados = empleados;
         this.ventana = 'Informacion';
+        // Obtener posiciones únicas
+        this.uniquePositions = [...new Set(empleados.map(emp => emp.position))].sort();
+        
+        // Guardar el filtro actual si existe
+        const currentFilter = this.positionFilter;
+        
+        // Inicializar DataTable
         this.initializeDataTable();
+        
+        // Actualizar el combobox y restaurar el filtro
+        setTimeout(() => {
+          this.updatePositionFilter();
+          if (currentFilter) {
+            this.positionFilter = currentFilter;
+            this.applyFilters();
+          }
+        });
       },
       error: (err) => console.error('Error al cargar empleados:', err),
     });
@@ -76,7 +192,11 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     const asistSubscription = this.empleadoService.getAttendances().subscribe({
       next: (asistencias) => {
         this.Asistencias = asistencias;
+        this.filteredAsistencias = asistencias;
         this.ventana = 'Asistencias';
+        // Limpiar los filtros cuando cambies a Asistencias
+        this.positionFilter = '';
+        this.nameFilter = '';
         this.initializeDataTable();
       },
       error: (err) => console.error('Error al cargar asistencias:', err),
@@ -98,16 +218,17 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
 
     const commonConfig = {
       pageLength: 10,
-      lengthChange: false,
+      lengthChange: true,
+      searching: false,
       language: {
         search: "Buscar:",
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-        paginate: {
-          first: "Primero",
-          last: "Último",
-          next: "Siguiente",
-          previous: "Anterior"
-        },
+        lengthMenu:
+          `<select class="form-select">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>`,
         zeroRecords: "No se encontraron registros",
         emptyTable: "No hay datos disponibles",
       }
@@ -135,9 +256,27 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       },
       data: this.Empleados,
       columns: [
-        { data: 'fullName', title: 'Apellido y Nombre' },
+        {
+          data: 'fullName',
+          title: 'Apellido y Nombre',
+          render: (data: string, type: string, row: any) => {
+            if (type === 'display') {
+              return data;
+            }
+            return data.toLowerCase(); // Esto ayuda con el ordenamiento
+          }
+        },
         { data: 'document', title: 'Documento' },
-        { data: 'position', title: 'Posición' },
+        {
+          data: 'position',
+          title: 'Posición',
+          render: (data: string, type: string) => {
+            if (type === 'display') {
+              return data;
+            }
+            return data.toLowerCase(); // Esto ayuda con el ordenamiento
+          }
+        },
         {
           data: 'salary',
           title: 'Salario',
@@ -161,7 +300,8 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
                 </a>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
-                  <li><a class="dropdown-item modificar-btn" data-empleado-id="${data.id}" href="#">Modificar</a></li>
+               
+                <li><a class="dropdown-item eliminar-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-empleado-id="${data.id}" href="#">Eliminar</a></li>
                 </ul>
               </div>`;
           }
@@ -169,28 +309,149 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
       ]
     });
 
+
     $('#empleadosTable').on('click', '.consultar-btn', (event: any) => {
       event.preventDefault();
       const empleadoId = $(event.currentTarget).data('empleado-id');
       this.consultarEmpleado(empleadoId);
     });
+
+
+    $('#empleadosTable').on('click', '.modificar-btn', (event: any) => {
+      event.preventDefault();
+      const id = $(event.currentTarget).data('empleado-id');
+      this.editarEmpleado(id);
+    });
+
+    // Event handler for eliminar (delete) button
+    $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
+      event.preventDefault();
+      this.empleadoIdToDelete = $(event.currentTarget).data('empleado-id');
+    });
+
+    // Aplicar filtros iniciales si existen
+    if (this.nameFilter || this.positionFilter) {
+      this.applyFilters();
+    }
   }
+  // Agrega esta propiedad a la clase
+  empleadoIdToDelete: number | null = null;
+
+  // Agrega esta nueva función para manejar la confirmación
+  confirmDelete(): void {
+    if (this.empleadoIdToDelete) {
+      this.empleadoService.changeEmployeeStatus(this.empleadoIdToDelete).subscribe({
+        next: () => {
+          this.loadEmpleados();
+          this.empleadoIdToDelete = null;
+        },
+        error: (error) => {
+          console.error('Error al eliminar el empleado:', error);
+          alert('Error al eliminar el empleado');
+          this.empleadoIdToDelete = null;
+        }
+      });
+
+    }
+  }
+
+
+  editarEmpleado(id: any): void {
+
+    console.log("me fuiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+    this.router.navigate(['/empleados/modificar', id]);
+  }
+
+  bindEditButtons(): void {
+    const self = this; // Guardamos el contexto del componente
+    $('#empleadosTable').on('click', '.edit-button', () => {
+      const id = $(this).data('id'); // Obtenemos el ID del atributo data-id
+      self.editarEmpleado(id); // Llama al método editarEmpleado
+    });
+  }
+
+
+
 
   private initializeAsistenciasTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
-      layout: {
-        topStart: 'search',
-        topEnd: null
-      },
       ...commonConfig,
-      data: this.Asistencias,
+      dom:
+        '<"mb-3"t>' +                           //Tabla
+        '<"d-flex justify-content-between"lp>', //Paginacion
+      order: [[0, 'desc']], // Ordenar por fecha de forma descendente
+      data: this.filteredAsistencias,
       columns: [
-        { data: 'employeeName', title: 'Apellido y nombre' },
         { data: 'date', title: 'Fecha' },
-        { data: 'state', title: 'Estado' },
-        { data: 'arrivalTime', title: 'Hora de entrada' },
-        { data: 'departureTime', title: 'Hora de salida' }
-      ]
+        { data: 'employeeName', title: 'Apellido y nombre' },
+        { data: 'state', title: 'Estado', className: 'text-center',
+          render: (data: any) =>{
+            let color;
+            
+            switch (data){
+              case "PRESENTE": color= "#28a745"; break;
+              case "AUSENTE": color= "#dc3545"; break;
+              case "JUSTIFICADO": color= "#6f42c1"; break;
+              case "TARDE": color= "#ffc107"; break;     
+            }
+            return `<button class="btn border rounded-pill w-75" 
+            style="background-color: ${color}; color: white;">${data}</button>`;
+          }
+        },
+        { data: 'arrivalTime', title: 'Hora de entrada',
+          render: (data: any, type: any, row: any, meta: any) => {
+            return row.arrivalTime === null ? "--:--:--" : `${row.arrivalTime}`
+          }
+        },
+        { data: 'departureTime', title: 'Hora de salida',
+          render: (data: any, type: any, row: any, meta: any) => {
+            return row.departureTime === null ? "--:--:--" : `${row.departureTime}`
+          } 
+        },
+        { data: null,
+          title: 'Seleccionar',
+          className: 'text-center',
+          render: (data: any, type: any, row: any, meta: any) => {
+            const isHidden = row.state === "PRESENTE" || row.state === "TARDE"  ? 'style="display: none;"' : '';
+            const accion = row.state === "AUSENTE" ? "Justificar" : "Injustificar";
+            const nuevoEstado = row.state === "AUSENTE" ? "JUSTIFICADO" : "AUSENTE";
+            const checkbox = `<button class="btn border w-75" 
+            ${isHidden} data-id="${row.id}" data-nuevoestado="${nuevoEstado}">${accion}</button>`;
+            
+            const indicator = row.state === "PRESENTE" || row.state === "TARDE" ? '' : checkbox;
+        
+            return indicator;
+          },
+        }
+      ],
+    });
+
+    $('#empleadosTable').off('click', 'button').on('click', 'button', (event: any) => {
+      const button = $(event.currentTarget);
+      const id = button.data('id');
+      const nuevoEstado = button.data('nuevoestado');
+  
+      // Deshabilitar el botón para evitar múltiples clics
+      button.prop('disabled', true);
+  
+      if (id && nuevoEstado) {
+          this.empleadoService.putAttendances(id, nuevoEstado).subscribe({
+              next: (response) => {
+                  console.log('Asistencia actualizada:', response);
+                  this.loadAsistencias();
+              },
+              error: (error) => {
+                  console.error('Error al actualizar asistencia:', error);
+              },
+              complete: () => {
+                  // Habilitar el botón nuevamente si es necesario
+                  button.prop('disabled', false);
+              }
+          });
+      } else {
+          // Habilitar el botón nuevamente si no hay id o nuevoEstado
+          button.prop('disabled', false);
+      }
     });
   }
 
@@ -349,17 +610,34 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
 
     if (startDate && endDate && startDate > endDate) {
-      alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
+      //alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
       startDateInput.value = '';
       endDateInput.value = '';
       return;
     }
+    this.filteredAsistencias = this.Asistencias.filter((producto) => {
+      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
+      return (
+        (!startDate || productDate >= startDate) &&
+        (!endDate || productDate <= endDate)
+      );
+    });
 
-    // Si estamos en la ventana de Desempeño y tenemos ambas fechas, actualizamos la tabla
-    if (this.ventana === 'Desempeño' && startDate && endDate) {
-      this.startDate = startDateInput.value;
-      this.endDate = endDateInput.value;
-      this.loadDesempeno();
+    if (this.nombreFiltrado.length >= 3) {
+      this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
+        return asistencia.employeeName.toUpperCase().includes(this.nombreFiltrado.toUpperCase());
+      })
+    }
+
+    if (this.estadoFiltrado !== ""){
+      this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
+        return asistencia.state === this.estadoFiltrado;
+      })
+    }
+
+    // Actualizar el DataTable
+    if (this.table) {
+      this.table.clear().rows.add(this.filteredAsistencias).draw(); // Actualiza la tabla con los productos filtrados
     }
   }
 
@@ -367,6 +645,17 @@ export class EmpListadoEmpleadosComponent implements OnInit, OnDestroy {
     if (this.ventana === 'Desempeño') {
       this.loadDesempeno();
     }
+  }
+
+  limpiarFiltro(){
+    this.nombreFiltrado = "";
+    this.estadoFiltrado = "";
+    this.setInitialDates();
+  }
+
+  formatDateyyyyMMdd(dateString: string): string {
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month}-${day}`;
   }
 
   private formatDate(date: Date): string {

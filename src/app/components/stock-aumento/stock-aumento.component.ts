@@ -44,7 +44,7 @@ export class StockAumentoComponent implements OnInit {
       quantity: ['', [Validators.required, Validators.min(1)]],
       description: ['', Validators.required],
       justification: ['', Validators.required],
-      unit_price: ['', [Validators.required, Validators.min(1)]] 
+      unitPrice: ['', [Validators.required, Validators.min(1)]] 
     });
   }
 

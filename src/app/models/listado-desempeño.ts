@@ -36,4 +36,16 @@ month: number;
 totalObservations: number;
 performanceType: string;
 }
+
+export interface WakeUpCallDetail {
+  id: number;
+  employeeId: number;
+  observation: string;
+  dateReal: number[];
+  wackeUpTypeEnum: string;
+  createdDate: number[];
+  createdUser: number;
+  lastUpdateDate: number[];
+  lastUpdateUser: number;
+}
   

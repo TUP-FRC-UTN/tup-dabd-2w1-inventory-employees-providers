@@ -6,7 +6,8 @@ import { delay, Observable } from 'rxjs';
 })
 export class ProvidersService {
 
-  private baseUrl:string = 'http://localhost:8080/suppliers';
+  private readonly INVENTORY_BASE_URL: string = 'http://localhost:8081/';
+  private readonly SUPPLIERS_URL: string = `${this.INVENTORY_BASE_URL}suppliers`;  
 
   constructor(private client:HttpClient) { }
 
@@ -15,7 +16,7 @@ export class ProvidersService {
   // }
 
   getProviders():Observable<any[]>{
-    return this.client.get<any[]>(this.baseUrl);
+    return this.client.get<any[]>(this.SUPPLIERS_URL);
   }
 
 }

@@ -28,9 +28,9 @@
       </div>
 
       <div class="mb-3">
-        <label for="unit_price" class="form-label">Precio Unitario</label>
-        <input id="unit_price" type="number" formControlName="unit_price" class="form-control">
-        <div *ngIf="stockForm.get('unit_price')?.invalid && stockForm.get('unit_price')?.touched" class="text-danger">
+        <label for="unitPrice" class="form-label">Precio Unitario</label>
+        <input id="unitPrice" type="number" formControlName="unitPrice" class="form-control">
+        <div *ngIf="stockForm.get('unitPrice')?.invalid && stockForm.get('unitPrice')?.touched" class="text-danger">
           El precio unitario es requerido y debe ser mayor que 0 
         </div>
       </div>

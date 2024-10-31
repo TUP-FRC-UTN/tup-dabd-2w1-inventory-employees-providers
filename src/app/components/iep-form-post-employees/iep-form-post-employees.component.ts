@@ -18,7 +18,20 @@ import { post } from 'jquery';
 export class IEPFormPostEmployeesComponent implements OnInit {
   constructor(private serviceCombos: EmpPostEmployeeService) {}
 
+  isInfoModalVisible: boolean = false;
+
+  showInfoModal() {
+    this.isInfoModalVisible = true;
+  }
+
+  closeInfoModal() {
+    this.isInfoModalVisible = false;
+  }
+
+
+
   createEmployee$: Observable<any>= new Observable<any>();
+
 
   lunes:boolean=false;
   martes:boolean=false;
@@ -33,6 +46,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   nombre: string = '';
   apellido: string = '';
   cuil: string = '';
+  documentType:string='';
   dni?: number;
   telefono?: number;
   mail: string = '';
@@ -65,12 +79,20 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   cargos:Charge[]=[];
 
   cargoSelected?:Charge
-  provinciaSelect? : Provincia;
+  provinciaSelect? : Provincia ;
   localidadSelect?:Ciudad;
   
   postDto:PostEmployeeDto = new PostEmployeeDto();
   adressDto:AddressDto =new AddressDto();
  
+
+
+
+
+  validateProvincia(){
+
+    
+  }
 
   public validateDate() {
     if (this.startTimeContract != null) {
@@ -168,7 +190,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
             this.createEmployee$.subscribe({
               next: response => {
                 this.success = true;
-                this.successMessage = "Empleado guardado con éxito. Credenciales de acceso en trámite.";
+                this.successMessage = "Empleado guardado.Credenciales de acceso habilitadas.";
                 console.log("PASO: ", response);
                 this.showModal=true;
               },
@@ -256,7 +278,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
     ERROR_MESSAGES = {
     'Cuil exists in the system': 'Ya existe un empleado con ese cuil',
-    'Document  exists in the system': 'Ya existe un empleado con ese dni',
+    'Document exists in the system': 'Ya existe un empleado con ese dni',
     'Error in contact server': 'El servidor de contacto fallo, intente nuevamente mas tarde',
     'Error al guardar direccion': 'El servidor de direcciones fallo, intente nuevamente mas tarde',
     'Error in access server':'El servidor de accesos fallo, intente nuevamente mas tarde',

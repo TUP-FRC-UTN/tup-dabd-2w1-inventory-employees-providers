@@ -186,14 +186,15 @@
         <div class="col">
           <h4>Productos</h4>
         </div>
-        <div class="col-2">
-          <button class="btn btn-danger ms-auto" (click)="generarPdf()">
-            <i class="bi bi-file-earmark-pdf"></i>
+        <div class="col d-flex justify-content-end">
+          <button class="btn btn-success me-2" (click)="generarExcel()">
+            <i class="fa-solid fa-file-excel"></i>
           </button>
-          <button class="btn btn-success ms-2" (click)="generarExcel()">
-            <i class="bi bi-file-earmark-excel"></i>
+          <button class="btn btn-danger" (click)="generarPdf()">
+            <i class="fas fa-file-pdf"></i>
           </button>
         </div>
+        
         <table class="table table-striped" id="productsList"></table>
       </div>
 
