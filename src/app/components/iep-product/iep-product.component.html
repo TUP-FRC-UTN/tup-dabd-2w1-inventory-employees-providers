@@ -163,7 +163,7 @@
     <div class="mb-5">
       <div class="input-group form-group">
         <label for="inputPrice" class="col-form-label">Precio Unitario</label>
-        <input type="number" class="form-control" 
+        <input   type="number" class="form-control text-end" 
         aria-label="Amount" #unit="ngModel" [(ngModel)]="dto.unit_price"
         name="unit" min="0">
         <span class="input-group-text">$</span>
@@ -227,7 +227,7 @@
       <div class="col-6">
         <div class="input-group form-group">
           <label for="inputStock" class="col-form-label">Stock Inicial</label>
-          <input type="number" name="stock" class="form-control" 
+          <input type="number" name="stock" class="form-control text-end" 
           [(ngModel)]="dto.amount" 
           id="inputStock" #stock="ngModel"  min="1" required>
         
@@ -247,7 +247,7 @@
       <div class="form-group n input-group" >
         <label for="inputMinStock" class="col-form-label">Stock insuficiente</label>
         <input #min="ngModel" min="1" type="number" name="min" 
-        [(ngModel)]="dto.min_amount_warning" class="form-control" 
+        [(ngModel)]="dto.min_amount_warning" class="form-control text-end" 
         id="inputMinStock">
       </div>
       <div class="error-container">
