@@ -557,7 +557,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
               <div class="col-md-6">
                 <h6>Información Personal</h6>
                 <p><strong>Nombre completo:</strong> ${empleado.surname}, ${empleado.name}</p>
-                <p><strong>Documento:</strong> ${empleado.documentType} ${empleado.documenValue}</p>
+                <p><strong>Documento:</strong> ${empleado.documentType} ${empleado.documentValue}</p>
                 <p><strong>CUIL:</strong> ${empleado.cuil}</p>
               </div>
               <div class="col-md-6">
