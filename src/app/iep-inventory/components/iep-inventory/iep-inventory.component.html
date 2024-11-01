@@ -197,4 +197,10 @@
 </div>
 
 <div class="modal-backdrop fade" [class.show]="showNuevoProductoModal || showAumentoStockModal"
-  *ngIf="showNuevoProductoModal || showAumentoStockModal" (click)="handleModalBackdropClick($event)"></div>
+  *ngIf="showNuevoProductoModal || showAumentoStockModal" (click)="handleModalBackdropClick($event)">
+</div>
+
+<!-- Boton + Flotante -->
+<button class="floating-btn btn btn-primary">
+  <span class="bi-plus-lg"></span>
+</button>
