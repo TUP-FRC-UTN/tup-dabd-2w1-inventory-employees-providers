@@ -1,0 +1,200 @@
+<!-- Estilos CSS generales para el documento -->
+<style>
+
+</style>
+
+<!-- Título del documento -->
+
+<body>
+  <form class="form">
+    <div class="container">
+
+      <!-- Modal para información adicional sobre el inventario -->
+      <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!-- Encabezado del modal -->
+            <div class="modal-header">
+              <h5 class="modal-title" id="infoModalLabel">Información</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Contenido del modal -->
+            <div class="modal-body">
+              Esta página de inventario te permite realizar las siguientes acciones:
+
+              <ul>
+                <li><strong>Visualizar el inventario completo:</strong> Observa el listado de todos los productos
+                  almacenados en el inventario, incluyendo detalles como su disponibilidad, estado y categoría.</li>
+
+                <li><strong>Filtrar productos:</strong> Usa los filtros para afinar la búsqueda según:
+                  <ul>
+                    <li>Si el producto es <em>Reusable</em> (Sí o No).</li>
+                    <li>La <em>Categoría</em> del producto.</li>
+                    <li><em>Cantidad mínima</em> y <em>máxima</em>, para definir el rango de cantidades.</li>
+                    <li><em>Nombre</em> del producto.</li>
+                  </ul>
+                  Además, puedes limpiar los filtros seleccionados con el botón de "Limpiar filtros".
+                </li>
+
+                <li><strong>Estado de productos por categoría:</strong> Visualiza un resumen del estado actual de los
+                  productos (disponibles, en uso o en mantenimiento) por categoría, en la tabla de estado de productos.
+                </li>
+
+                <li><strong>Exportar datos:</strong> Genera y descarga informes en formato PDF o Excel para el listado
+                  de productos.</li>
+
+                <li><strong>Añadir nuevos productos:</strong> Usa el botón "Nuevo" para abrir el formulario de agregar
+                  producto y registrar un nuevo artículo en el inventario.</li>
+
+                <li><strong>Volver al menú principal:</strong> Usa el botón "Volver" para regresar a la página de inicio
+                  o menú principal.</li>
+              </ul>
+            </div>
+            <!-- Pie del modal con botón para cerrar -->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones para generar PDF o Excel -->
+      <div class="row">
+
+        <!-- Sección de filtros y botones de exportación -->
+        <div class="d-flex mb-3 justify-content-between align-items-center">
+          <div class="d-flex align-items-center flex-grow-1">
+            <!-- Campo de Búsqueda -->
+            <div class="col-md-4 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
+              <input type="text" id="filterInput" class="form-control" placeholder="Buscar"
+                (input)="applyFilter($event)" />
+            </div>
+
+            <!-- Campo Desde para seleccionar la fecha de inicio -->
+            <div class="col-md-3 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
+              <input type="date" id="startDate" class="form-control" #startDateInput (change)="onStartDateChange()" />
+            </div>
+
+            <!-- Campo Hasta para seleccionar la fecha de fin -->
+            <div class="col-md-3 mb-3 mb-md-0">
+              <input type="date" id="endDate" class="form-control" #endDateInput (change)="onEndDateChange()" />
+            </div>
+          </div>
+
+          <!-- Botón para mostrar/ocultar filtros -->
+          <div class="col-mb-3">
+            <button class="btn btn-primary" (click)="toggleFilters()">
+              <i class="bi bi-funnel-fill"></i></button>
+          </div>
+
+          <!-- Botón para limpiar filtros -->
+          <div class="col-mb-3 ms-2">
+            <button class="btn btn-secondary" (click)="cleanFilters()">
+              <i class="bi bi-trash"></i></button>
+          </div>
+
+          <!-- Botones para exportar datos a PDF y Excel -->
+          <div class="d-flex align-items-center ms-2">
+            <button class="btn btn-success" (click)="generarExcel()" title="Exportar a Excel">
+              <i class="fa-solid bi-file-earmark-excel"></i>
+            </button>
+            <button class="btn btn-danger ms-2" (click)="generarPdf()" title="Exportar a PDF">
+              <i class="fas bi-file-earmark-pdf"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtros de búsqueda: Reusable, Categoría, Cantidad, Nombre -->
+        <div *ngIf="filtersVisible" class="row">
+          <div class="row align-items-center">
+            <!-- Filtro por nombre -->
+            <div class="col-2">
+              <input type="text" id="Nombre" name="Nombre" class="form-control" [(ngModel)]="nombre" #Nombre="ngModel"
+                (ngModelChange)="aplicarFiltros()" placeholder="Nombre" />
+            </div>
+
+            <!-- Selector de categorías -->
+            <div class="col-2">
+              <select name="Categorias" id="Categorias" class="form-select" [(ngModel)]="categoria"
+                #Categorias="ngModel" (ngModelChange)="aplicarFiltros()">
+                <option value="0">Categoría</option>
+                <option *ngFor="let c of categories" [value]="c.id">{{ c.category }}</option>
+              </select>
+            </div>
+
+            <!-- Selector de reutilizables -->
+            <div class="col-2">
+              <select name="Reusable" id="Reusable" class="form-select" [(ngModel)]="reusable" #Reusable="ngModel"
+                (ngModelChange)="aplicarFiltros()">
+                <option value="0">Reusable</option>
+                <option [value]="1">Sí</option>
+                <option [value]="2">No</option>
+              </select>
+            </div>
+
+            <!-- Cantidad mínima -->
+            <div class="col-2">
+              <input type="number" placeholder="Cant. Mínima" name="CantMinima" id="CantMinima"
+                class="form-control text-end" [(ngModel)]="cantMinima" #CantMinima="ngModel" min="0"
+                (ngModelChange)="aplicarFiltros()" />
+              <div *ngIf="!validoMin" class="error-container mt-1 text-danger">
+                La cantidad mínima no puede ser mayor a la cantidad máxima
+              </div>
+            </div>
+
+            <!-- Cantidad máxima -->
+            <div class="col-2">
+              <input type="number" placeholder="Cant. Máxima" name="CantMaxima" id="CantMaxima"
+                class="form-control text-end" [(ngModel)]="cantMaxima" #CantMaxima="ngModel" min="0"
+                (ngModelChange)="aplicarFiltros()" />
+              <div *ngIf="!validoMax" class="error-container mt-1 text-danger">
+                La cantidad máxima no puede ser menor a la cantidad mínima
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div>
+        <table class="table table-striped" id="productsList"></table>
+      </div>
+
+      <!-- Botones de navegación: Volver y agregar nuevo producto -->
+      <div class="row volver">
+        <div class="col text-end">
+          <!-- Botón de "Volver" -->
+          <button class="btn btn-secondary me-2" (click)="irMenu()">
+            Volver</button><!-- Botón de "Nuevo Producto" -->
+          <button class="btn btn-outline-primary" (click)="irAgregarProducto()" data-bs-toggle="modal"
+            data-bs-target="#nuevoProductoModal">
+            Nuevo
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</body>
+
+
+
+<!-- Modal para aumento de stock -->
+<div class="modal fade" [class.show]="showAumentoStockModal" [style.display]="showAumentoStockModal ? 'block' : 'none'"
+  id="aumentoStockModal" tabindex="-1" aria-labelledby="aumentoStockModalLabel"
+  [attr.aria-modal]="showAumentoStockModal" [attr.aria-hidden]="!showAumentoStockModal"
+  (click)="handleModalBackdropClick($event)">
+  <div class="modal-dialog modal-lg" style="max-width: 75%;" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Agregar Aumento de Stock</h5>
+        <button type="button" class="btn-close" (click)="cerrarModalAumentoStock()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <app-iep-stock-increase *ngIf="showAumentoStockModal"></app-iep-stock-increase>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade" [class.show]="showNuevoProductoModal || showAumentoStockModal"
+  *ngIf="showNuevoProductoModal || showAumentoStockModal" (click)="handleModalBackdropClick($event)"></div>
