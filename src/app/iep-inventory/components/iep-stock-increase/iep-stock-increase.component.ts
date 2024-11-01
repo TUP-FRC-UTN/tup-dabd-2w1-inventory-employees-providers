@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component,OnInit } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { StockAumentoService } from '../../inventory-services/stock-aumento.service';
+import { StockAumentoService } from '../../services/stock-aumento.service';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { Supplier } from '../../models/suppliers';

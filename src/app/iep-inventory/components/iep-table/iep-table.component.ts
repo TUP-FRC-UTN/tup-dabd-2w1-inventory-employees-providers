@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProductService } from '../../inventory-services/product.service';
+import { ProductService } from '../../services/product.service';
 import 'datatables.net';
 import 'datatables.net-bs5';
 import $ from 'jquery';

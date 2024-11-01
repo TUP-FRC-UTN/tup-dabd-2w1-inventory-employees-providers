@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit, AfterViewChecked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { WarehouseMovementService } from '../../inventory-services/warehouse-movement.service';
+import { WarehouseMovementService } from '../../services/warehouse-movement.service';
 import { GetWarehouseMovementRequest } from '../../models/GetWarehouseMovementRequest';
 import { WarehouseMovement } from '../../models/getWarehouseMovementResponse';
-import { ProductService } from '../../inventory-services/product.service';
+import { ProductService } from '../../services/product.service';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';

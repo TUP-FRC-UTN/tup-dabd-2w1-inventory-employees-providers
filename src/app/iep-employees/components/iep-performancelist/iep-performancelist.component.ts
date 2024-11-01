@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'datatables.net';
 import { IepStockIncreaseComponent } from '../../../iep-inventory/components/iep-stock-increase/iep-stock-increase.component';
 import { IepAttentionCallComponent } from '../iep-attention-call/iep-attention-call.component';
-import { ListadoDesempeñoService } from '../../employee-services/listado-desempeño.service';
+import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
 
 @Component({
   selector: 'app-iep-performancelist',

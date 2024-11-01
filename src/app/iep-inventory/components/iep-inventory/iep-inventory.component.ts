@@ -1,10 +1,10 @@
 import { Component, inject, OnDestroy, OnInit, AfterViewInit, } from '@angular/core';
 import { debounceTime, Observable, Subscription } from 'rxjs';
-import { ProductService } from '../../inventory-services/product.service';
+import { ProductService } from '../../services/product.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { StockAumentoService } from '../../inventory-services/stock-aumento.service';
+import { StockAumentoService } from '../../services/stock-aumento.service';
 import * as XLSX from 'xlsx';
 import $ from 'jquery';
 import 'datatables.net';
@@ -16,9 +16,9 @@ import { IepStockIncreaseComponent } from '../iep-stock-increase/iep-stock-incre
 import { Details } from '../../models/details';
 import { ProductCategory } from '../../models/product-category';
 import { ProductXDetailDto } from '../../models/product-xdetail-dto';
-import { CategoriaService } from '../../inventory-services/categoria.service';
-import { DetailServiceService } from '../../inventory-services/detail-service.service';
-import { EstadoService } from '../../inventory-services/estado.service';
+import { CategoriaService } from '../../services/categoria.service';
+import { DetailServiceService } from '../../services/detail-service.service';
+import { EstadoService } from '../../services/estado.service';
 @Component({
   selector: 'app-iep-inventory',
   standalone: true,
@@ -509,14 +509,14 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   irDetalles(id: number) {
     this.detalleProductoService.setId(id);
-    this.router.navigate(['detalle-inventario']);
+    this.router.navigate(['home/inventory-detail']);
   }
 
 
 
   irAgregarProducto() {
     /* this.modalVisible = true; // Muestra el modal */
-    this.router.navigate(["new-product"])
+    this.router.navigate(["home/new-product"])
   }
 
   verificarMin() {

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProvidersService } from '../../inventory-services/providers.service';
-import { SuppliersService } from '../../inventory-services/suppliers.service';
+import { ProvidersService } from '../../services/providers.service';
+import { SuppliersService } from '../../services/suppliers.service';
 import { Supplier } from '../../models/suppliers';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';

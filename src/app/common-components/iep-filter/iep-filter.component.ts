@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ProductService } from '../../iep-inventory/inventory-services/product.service';
+import { ProductService } from '../../iep-inventory/services/product.service';
 
 @Component({
   selector: 'app-iep-filter',

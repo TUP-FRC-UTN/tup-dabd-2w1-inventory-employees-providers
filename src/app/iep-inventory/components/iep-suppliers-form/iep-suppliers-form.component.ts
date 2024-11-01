@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SuppliersService } from '../../inventory-services/suppliers.service';
+import { SuppliersService } from '../../services/suppliers.service';
 import { Router, RouterModule } from '@angular/router';
 import { iepBackButtonComponent } from '../../../common-components/iep-back-button/iep-back-button.component';
 

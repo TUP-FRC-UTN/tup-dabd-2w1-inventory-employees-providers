@@ -1,15 +1,15 @@
 import { Component, NgModule } from '@angular/core';
-import { ProductService } from '../../inventory-services/product.service';
+import { ProductService } from '../../services/product.service';
 import { Observable } from 'rxjs';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProductCategory } from '../../models/product-category';
 import { Supplier } from '../../models/suppliers';
-import { SuppliersService } from '../../inventory-services/suppliers.service';
+import { SuppliersService } from '../../services/suppliers.service';
 import Swal from 'sweetalert2';
 import { CreateProductDtoClass } from '../../models/create-product-dto-class';
-import { CategoriaService } from '../../inventory-services/categoria.service';
+import { CategoriaService } from '../../services/categoria.service';
 
 @Component({
   selector: 'app-product',

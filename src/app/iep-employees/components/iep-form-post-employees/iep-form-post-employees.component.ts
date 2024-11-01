@@ -7,7 +7,7 @@ import { Provider } from '../../../iep-inventory/models/provider';
 import { Supplier } from '../../../iep-inventory/models/suppliers';
 import { AddressDto, Charge, DocumentTypeEnum, PostEmployeeDto } from '../../Models/emp-post-employee-dto';
 import { post } from 'jquery';
-import { EmpPostEmployeeService } from '../../employee-services/emp-post-employee.service';
+import { EmpPostEmployeeService } from '../../services/emp-post-employee.service';
 @Component({
   selector: 'app-iep-form-post-employees',
   standalone: true,

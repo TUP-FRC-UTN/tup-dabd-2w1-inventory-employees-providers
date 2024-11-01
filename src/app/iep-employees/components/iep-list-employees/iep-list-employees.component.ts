@@ -8,8 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { EmpListadoEmpleados } from '../../Models/emp-listado-empleados';
 import { EmpListadoAsistencias } from '../../Models/emp-listado-asistencias';
 import { EmployeePerformance } from '../../Models/listado-desempeño';
-import { EmpListadoEmpleadosService } from '../../employee-services/emp-listado-empleados.service';
-import { ListadoDesempeñoService } from '../../employee-services/listado-desempeño.service';
+import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
+import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
 
 declare var $: any;
 declare var DataTable: any;

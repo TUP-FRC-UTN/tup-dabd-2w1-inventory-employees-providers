@@ -1,6 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { Supplier } from '../../models/suppliers';
-import { SuppliersService } from '../../inventory-services/suppliers.service';
+import { SuppliersService } from '../../services/suppliers.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';

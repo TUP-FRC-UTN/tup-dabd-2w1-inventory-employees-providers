@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 //import { MatDialogRef } from '@angular/material/dialog';
-import { ProductService } from '../../inventory-services/product.service';
+import { ProductService } from '../../services/product.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CreateCategoryDto } from '../../models/create-category-dto';
-import { CategoriaService } from '../../inventory-services/categoria.service';
+import { CategoriaService } from '../../services/categoria.service';
 
 @Component({
   selector: 'app-iep-modal-select',

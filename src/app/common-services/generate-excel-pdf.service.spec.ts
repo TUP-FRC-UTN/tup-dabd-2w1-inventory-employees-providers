@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { GenerateExcelPdfService } from '../iep-employees/employee-services/generate-excel-pdf.service';
+import { GenerateExcelPdfService } from '../iep-employees/services/generate-excel-pdf.service';
 
 describe('GenerateExcelPdfService', () => {
   let service: GenerateExcelPdfService;

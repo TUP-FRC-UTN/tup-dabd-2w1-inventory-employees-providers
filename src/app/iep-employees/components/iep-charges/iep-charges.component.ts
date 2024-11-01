@@ -3,7 +3,7 @@ import { AfterViewInit, Component, Inject, OnDestroy, OnInit } from '@angular/co
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ChargeResponse } from '../../Models/charge-response';
-import { ChargeService } from '../../employee-services/charge.service';
+import { ChargeService } from '../../services/charge.service';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';

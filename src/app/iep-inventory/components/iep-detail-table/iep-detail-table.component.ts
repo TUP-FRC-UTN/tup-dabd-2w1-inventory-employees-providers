@@ -11,11 +11,11 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { EmpListadoEmpleados } from '../../../iep-employees/Models/emp-listado-empleados';
-import { EmpListadoEmpleadosService } from '../../../iep-employees/employee-services/emp-listado-empleados.service';
-import { WarehouseMovementService } from '../../inventory-services/warehouse-movement.service';
+import { EmpListadoEmpleadosService } from '../../../iep-employees/services/emp-listado-empleados.service';
+import { WarehouseMovementService } from '../../services/warehouse-movement.service';
 import { catchError, delay, Observable } from 'rxjs';
 import { IepCreateWarehouseMovementDTO } from '../../models/iep-create-warehouse-movement-dto';
-import { DetailServiceService } from '../../inventory-services/detail-service.service';
+import { DetailServiceService } from '../../services/detail-service.service';
 @Component({
   selector: 'app-iep-detail-table',
   standalone: true,

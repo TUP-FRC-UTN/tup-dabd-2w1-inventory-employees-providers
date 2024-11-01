@@ -5,8 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Provincia } from '../../Models/emp-provincia';
 import { Charge } from '../../Models/emp-post-employee-dto';
 import { EmpPutEmployees } from '../../Models/emp-put-employees';
-import { EmpListadoEmpleadosService } from '../../employee-services/emp-listado-empleados.service';
-import { EmpPostEmployeeService } from '../../employee-services/emp-post-employee.service';
+import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
+import { EmpPostEmployeeService } from '../../services/emp-post-employee.service';
 declare var bootstrap: any;
 
 @Component({
