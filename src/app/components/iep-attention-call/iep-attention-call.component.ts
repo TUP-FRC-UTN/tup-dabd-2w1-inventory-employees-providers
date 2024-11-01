@@ -2,10 +2,10 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup,FormArray, ReactiveFormsModule, Validators, NgModel, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { LlamadoAtencionService } from "../../services/llamado-atencion.service";
-import { EmployeeGetResponseDTO } from "../../models/llamado-atencion";
+import { EmployeeGetResponseDTO } from "../../Models/llamado-atencion";
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
-import { RequestWakeUpCallDTO, RequestWakeUpCallGroupDTO } from "../../models/llamado-atencion";
+import { RequestWakeUpCallDTO, RequestWakeUpCallGroupDTO } from "../../Models/llamado-atencion";
 import { ListadoDesempeñoService } from "../../services/listado-desempeño.service";
 
 @Component({

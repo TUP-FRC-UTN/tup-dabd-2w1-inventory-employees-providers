@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '../../services/product.service';
-import { Producto } from '../../models/producto';
 import 'datatables.net';
 import 'datatables.net-bs5';
 import $ from 'jquery';
@@ -9,6 +8,7 @@ import * as XLSX from 'xlsx';
 import { GenerateExcelPdfService } from '../../services/generate-excel-pdf.service';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { Producto } from '../../Models/producto';
 
 @Component({
   selector: 'app-iep-table',

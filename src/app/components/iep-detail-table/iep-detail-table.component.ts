@@ -6,17 +6,17 @@ import { Router } from '@angular/router';
 import $ from 'jquery';
 import 'datatables.net';
 import 'datatables.net-dt';
-import { Details, PostDecrement } from '../../models/details';
+import { Details, PostDecrement } from '../../Models/details';
 declare var bootstrap: any;
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { EmpListadoEmpleados } from '../../models/emp-listado-empleados';
+import { EmpListadoEmpleados } from '../../Models/emp-listado-empleados';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
-import { IepCreateWarehouseMovementDTO } from '../../models/iep-create-warehouse-movement-dto';
 import { WarehouseMovementService } from '../../services/warehouse-movement.service';
 import { catchError, delay, Observable, Subscription } from 'rxjs';
 import { Route } from '@angular/router';
+import { IepCreateWarehouseMovementDTO } from '../../Models/iep-create-warehouse-movement-dto';
 @Component({
   selector: 'app-iep-detail-table',
   standalone: true,

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { StockAumento } from '../models/stock-aumento';
-import { Supplier } from '../models/suppliers';
+import { StockAumento } from '../Models/stock-aumento';
+import { Supplier } from '../Models/suppliers';
 
 @Injectable({
   providedIn: 'root',

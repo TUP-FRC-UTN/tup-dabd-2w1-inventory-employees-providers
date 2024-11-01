@@ -2,14 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit, AfterViewChecked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WarehouseMovementService } from '../../services/warehouse-movement.service';
-import { GetWarehouseMovementRequest } from '../../models/GetWarehouseMovementRequest';
-import { WarehouseMovement } from '../../models/getWarehouseMovementResponse';
+import { GetWarehouseMovementRequest } from '../../Models/GetWarehouseMovementRequest';
+import { WarehouseMovement } from '../../Models/getWarehouseMovementResponse';
 import { WarehouseTypePipe } from '../../pipes/warehouse-type.pipe';
 import { ProductService } from '../../services/product.service';
-import { DtoProducto } from '../../models/dto-producto';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import { DtoProducto } from '../../Models/dto-producto';
 
 @Component({
   selector: 'app-iep-warehouse-movement-search',

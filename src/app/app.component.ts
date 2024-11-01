@@ -11,11 +11,14 @@ import { IepStockIncreaseComponent } from './components/iep-stock-increase/iep-s
 import { IepTableComponent } from './components/iep-table/iep-table.component';
 import { IepRegisterWarehouseComponent } from './components/iep-register-warehouse/iep-register-warehouse.component';
 import { IepPerformancelistComponent } from './components/iep-performancelist/iep-performancelist.component';
+import { UsersNavbarComponent } from './components/users-navbar/users-navbar.component';
+import { UsersSideButtonComponent } from './components/users-side-button/users-side-button.component';
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, RouterModule, IepListEmployeesComponent, iepBackButtonComponent, IepDetailTableComponent, IepFilterComponent,
-    IepModalSelectComponent, IepStockIncreaseComponent, IepTableComponent, IepRegisterWarehouseComponent, IepPerformancelistComponent],
+    IepModalSelectComponent, UsersNavbarComponent,UsersSideButtonComponent,
+    IepStockIncreaseComponent, IepTableComponent, IepRegisterWarehouseComponent, IepPerformancelistComponent],
   providers: [],
 
   templateUrl: './app.component.html',

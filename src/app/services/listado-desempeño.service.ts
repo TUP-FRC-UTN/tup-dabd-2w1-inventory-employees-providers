@@ -6,7 +6,7 @@ import {
   EmployeePerformance,
   Performance,
   WakeUpCallDetail,
-} from '../models/listado-desempeño';
+} from '../Models/listado-desempeño';
 
 @Injectable({
   providedIn: 'root',

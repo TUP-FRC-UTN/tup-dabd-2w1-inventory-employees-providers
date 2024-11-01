@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ChargeResponse } from '../models/charge-response';
-import { ChargeRequest } from '../models/charge-request';
+import { ChargeResponse } from '../Models/charge-response';
+import { ChargeRequest } from '../Models/charge-request';
 
 @Injectable({
   providedIn: 'root'

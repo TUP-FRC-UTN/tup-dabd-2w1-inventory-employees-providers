@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProvidersService } from '../../services/providers.service';
 import { SuppliersService } from '../../services/suppliers.service';
-import { Supplier } from '../../models/suppliers';
+import { Supplier } from '../../Models/suppliers';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { error } from 'jquery';

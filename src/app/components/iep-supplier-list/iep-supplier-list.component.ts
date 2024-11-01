@@ -1,6 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { iepBackButtonComponent } from "../iep-back-button/iep-back-button.component";
-import { Supplier } from '../../models/suppliers';
+import { Supplier } from '../../Models/suppliers';
 import { SuppliersService } from '../../services/suppliers.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';

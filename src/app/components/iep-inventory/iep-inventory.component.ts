@@ -14,21 +14,19 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DetailServiceService } from '../../services/detail-service.service';
 import { StockAumentoService } from '../../services/stock-aumento.service';
-import { DtoProducto } from '../../models/dto-producto';
-import { ProductCategory } from '../../models/product-category';
 import * as XLSX from 'xlsx';
 
 import $ from 'jquery';
 import 'datatables.net';
 import 'datatables.net-dt';
 import 'datatables.net-bs5';
-import { ProductXDetailDto } from '../../models/product-xdetail-dto';
 import DataTable from 'datatables.net-dt';
-import { Details } from '../../models/details';
 import jsPDF from 'jspdf';
 import { IepStockIncreaseComponent } from '../iep-stock-increase/iep-stock-increase.component';
 import { IepProductComponent } from '../iep-product/iep-product.component';
-
+import { ProductXDetailDto } from '../../Models/product-xdetail-dto';
+import { Details } from '../../Models/details';
+import { ProductCategory } from '../../Models/product-category';
 @Component({
   selector: 'app-iep-inventory',
   standalone: true,

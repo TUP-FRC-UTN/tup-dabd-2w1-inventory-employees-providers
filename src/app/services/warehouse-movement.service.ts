@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { GetWarehouseMovementRequest } from '../models/GetWarehouseMovementRequest';
-import { WarehouseMovement } from '../models/getWarehouseMovementResponse';
+import { GetWarehouseMovementRequest } from '../Models/GetWarehouseMovementRequest';
+import { WarehouseMovement } from '../Models/getWarehouseMovementResponse';
 import { Observable } from 'rxjs';
-import { IepCreateWarehouseMovementDTO } from '../models/iep-create-warehouse-movement-dto';
+import { IepCreateWarehouseMovementDTO } from '../Models/iep-create-warehouse-movement-dto';
 
 @Injectable({
   providedIn: 'root',

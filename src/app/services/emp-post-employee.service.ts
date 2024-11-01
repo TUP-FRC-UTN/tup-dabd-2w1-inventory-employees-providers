@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { Provincia } from '../models/emp-provincia';
-import { Charge, DocumentTypeEnum, PostEmployeeDto } from '../models/emp-post-employee-dto';
-import { EmpPutEmployees } from '../models/emp-put-employees';
+import { Provincia } from '../Models/emp-provincia';
+import { Charge, DocumentTypeEnum, PostEmployeeDto } from '../Models/emp-post-employee-dto';
+import { EmpPutEmployees } from '../Models/emp-put-employees';
 
 @Injectable({
   providedIn: 'root',

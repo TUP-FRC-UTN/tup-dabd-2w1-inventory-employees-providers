@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { EmpListadoEmpleados, Employee } from '../models/emp-listado-empleados';
-import { EmpListadoAsistencias } from '../models/emp-listado-asistencias';
-import { EmpPutEmployees } from '../models/emp-put-employees';
+import { EmpListadoEmpleados, Employee } from '../Models/emp-listado-empleados';
+import { EmpListadoAsistencias } from '../Models/emp-listado-asistencias';
+import { EmpPutEmployees } from '../Models/emp-put-employees';
 
 @Injectable({
   providedIn: 'root',

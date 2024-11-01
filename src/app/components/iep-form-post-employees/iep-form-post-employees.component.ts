@@ -2,11 +2,11 @@ import { CommonModule, JsonPipe, NgFor } from '@angular/common';
 import { Component, importProvidersFrom, Inject, OnInit } from '@angular/core';
 import { Form, FormsModule, NgForm } from '@angular/forms';
 import { EmpPostEmployeeService } from '../../services/emp-post-employee.service';
-import { Ciudad, Provincia } from '../../models/emp-provincia';
+import { Ciudad, Provincia } from '../../Models/emp-provincia';
 import { Observable } from 'rxjs';
-import { Provider } from '../../models/provider';
-import { Supplier } from '../../models/suppliers';
-import { AddressDto, Charge, DocumentTypeEnum, PostEmployeeDto } from '../../models/emp-post-employee-dto';
+import { Provider } from '../../Models/provider';
+import { Supplier } from '../../Models/suppliers';
+import { AddressDto, Charge, DocumentTypeEnum, PostEmployeeDto } from '../../Models/emp-post-employee-dto';
 import { post } from 'jquery';
 @Component({
   selector: 'app-iep-form-post-employees',

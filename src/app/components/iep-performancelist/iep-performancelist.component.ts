@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
-import { EmployeePerformance, WakeUpCallDetail } from '../../models/listado-desempeño';
+import { EmployeePerformance, WakeUpCallDetail } from '../../Models/listado-desempeño';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { jsPDF } from 'jspdf';

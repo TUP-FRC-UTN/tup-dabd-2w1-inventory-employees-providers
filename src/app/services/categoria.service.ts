@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { CreateCategoryDto } from '../models/create-category-dto';
-import { ProductCategory } from '../models/product-category';
+import { CreateCategoryDto } from '../Models/create-category-dto';
+import { ProductCategory } from '../Models/product-category';
 
 @Injectable({
   providedIn: 'root'

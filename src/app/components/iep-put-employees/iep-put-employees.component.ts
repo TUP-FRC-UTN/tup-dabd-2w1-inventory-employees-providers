@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { EmpPostEmployeeService } from '../../services/emp-post-employee.service';
-import { Provincia } from '../../models/emp-provincia';
-import { Charge } from '../../models/emp-post-employee-dto';
-import { EmpPutEmployees } from '../../models/emp-put-employees';
+import { Provincia } from '../../Models/emp-provincia';
+import { Charge } from '../../Models/emp-post-employee-dto';
+import { EmpPutEmployees } from '../../Models/emp-put-employees';
 declare var bootstrap: any;
 
 @Component({

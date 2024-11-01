@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { ChargeResponse } from '../../models/charge-response';
+import { ChargeResponse } from '../../Models/charge-response';
 import { ChargeService } from '../../services/charge.service';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';

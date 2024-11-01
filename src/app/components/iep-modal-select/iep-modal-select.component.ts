@@ -4,7 +4,7 @@ import { ProductService } from '../../services/product.service';
 import { CategoriaService } from '../../services/categoria.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { CreateCategoryDto } from '../../models/create-category-dto';
+import { CreateCategoryDto } from '../../Models/create-category-dto';
 
 @Component({
   selector: 'app-iep-modal-select',

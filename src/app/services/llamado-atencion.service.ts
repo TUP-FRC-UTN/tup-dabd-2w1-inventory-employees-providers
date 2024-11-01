@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import {  RequestWakeUpCallDTO,  RequestWakeUpCallGroupDTO,  ResponseWakeUpCallDTO,  EmployeeGetResponseDTO,} from '../models/llamado-atencion';
-import { MovementRecord } from '../models/llamado-atencion';
+import {  RequestWakeUpCallDTO,  RequestWakeUpCallGroupDTO,  ResponseWakeUpCallDTO,  EmployeeGetResponseDTO,} from '../Models/llamado-atencion';
+import { MovementRecord } from '../Models/llamado-atencion';
 
 @Injectable({
   providedIn: 'root',

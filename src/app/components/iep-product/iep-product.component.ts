@@ -3,15 +3,13 @@ import { ProductService } from '../../services/product.service';
 import { Observable } from 'rxjs';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ProvidersService } from '../../services/providers.service';
 import { RouterModule } from '@angular/router';
 import { CategoriaService } from '../../services/categoria.service';
-import { CreateProductDtoClass } from '../../models/create-product-dto-class';
-import { ProductCategory } from '../../models/product-category';
-import { Provider } from '../../models/provider';
-import { Supplier } from '../../models/suppliers';
+import { ProductCategory } from '../../Models/product-category';
+import { Supplier } from '../../Models/suppliers';
 import { SuppliersService } from '../../services/suppliers.service';
 import Swal from 'sweetalert2';
+import { CreateProductDtoClass } from '../../Models/create-product-dto-class';
 
 @Component({
   selector: 'app-product',

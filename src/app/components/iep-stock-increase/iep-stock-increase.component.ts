@@ -6,7 +6,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { StockAumentoService } from '../../services/stock-aumento.service';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
-import { Supplier } from '../../models/suppliers';
+import { Supplier } from '../../Models/suppliers';
 
 @Component({
   selector: 'app-iep-stock-increase',
