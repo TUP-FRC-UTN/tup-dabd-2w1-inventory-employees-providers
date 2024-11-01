@@ -118,7 +118,7 @@
               <select name="Categorias" id="Categorias" class="form-select" [(ngModel)]="categoria"
                 #Categorias="ngModel" (ngModelChange)="aplicarFiltros()">
                 <option value="0">Categoría</option>
-                <option *ngFor="let c of categorias" [value]="c.id">{{ c.category }}</option>
+                <option *ngFor="let c of categories" [value]="c.id">{{ c.category }}</option>
               </select>
             </div>
 

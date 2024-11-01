@@ -134,7 +134,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   estadosSubscription: Subscription | undefined;
   productosSubscription: Subscription | undefined;
 
-  categorias: ProductCategory[] = [];
+  categories: ProductCategory[] = [];
   estados: String[] = [];
   productos: ProductXDetailDto[] = [];
   details: Details[] = [];
@@ -197,9 +197,9 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   cargarDatos() {
     this.categorias$ = this.categoriaService.getCategorias();
     this.categorias$.subscribe({
-      next: (categorias) => {
-        this.categorias = categorias;
-        console.log(this.categorias);
+      next: (categories) => {
+        this.categories = categories;
+        console.log(this.categories);
       },
       error: (error) => {
         console.error(error);
