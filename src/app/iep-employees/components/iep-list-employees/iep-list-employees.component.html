@@ -124,6 +124,9 @@
                 <i class="bi bi-trash"></i>
             </button>
         </div>
+        <div class="col-1">
+            
+        </div>
         <!-- Tabla de productos y botones para generar PDF o Excel -->
         <div class="col text-end">
         <button class="btn btn-success ms-auto">
@@ -133,6 +136,7 @@
             <i class="bi bi-file-earmark-pdf"></i>
         </button>
         </div>
+        
     </div>
 
     <!-- Tabla de empleados con cabecera de columnas -->
@@ -170,28 +174,9 @@
 
     <!-- Opciones de acción según la ventana seleccionada -->
     <div class="opciones">
-        <!-- Opciones cuando la ventana es "Información" -->
-        @if (ventana == "Informacion") {
-        <div class="row">
-            <div class="col text-end">
-                <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
-            </div>
-        </div>
-        }
-        <!-- Opciones cuando la ventana es "Asistencias" -->
-        @if (ventana == "Asistencias") {
-        <div class="row">
-            <div class="col text-end">
-                <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
-            </div>
-        </div>
-        }
         <!-- Opciones cuando la ventana es "Desempeño" -->
         @if (ventana == "Desempeño") {
         <div class="row">
-            <div class="col text-end">
-                <button class="btn btn-secondary" (click)="irMenu()">Volver</button>
-            </div>
             <div class="col-2">
                 <div class="row">
                     <button class="btn btn-primary" (click)="navigateToWakeUpCallForm()">Registrar observacion</button>
