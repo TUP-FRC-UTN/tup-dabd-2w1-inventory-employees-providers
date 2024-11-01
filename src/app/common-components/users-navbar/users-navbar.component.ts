@@ -57,6 +57,12 @@ export class UsersNavbarComponent {
           roles: ["SuperAdmin", "Admin","Encargado de inventario"]
         },
         {
+          icon: "bi-arrow-left-right",
+          title: "Movimientos de inventario",
+          route: "home/warehouse-movements",
+          roles: ["SuperAdmin", "Admin","Encargado de inventario"]
+        },
+        {
           icon: "bi-truck",
           title: "Proveedores",
           route: "home/suppliers",
