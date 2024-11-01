@@ -1,10 +1,4 @@
-import {
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-  AfterViewInit,
-} from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, AfterViewInit, } from '@angular/core';
 import { debounceTime, Observable, Subscription } from 'rxjs';
 import { CategoriaService } from '../../services/categoria.service';
 import { EstadoService } from '../../services/estado.service';
@@ -37,6 +31,90 @@ import { IepStockIncreaseComponent } from '../iep-stock-increase/iep-stock-incre
   styleUrl: './iep-inventory.component.css',
 })
 export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  // Variables necesarias para el filtrado por fecha
+  startDate: string = '';
+  endDate: string = '';
+
+
+  onStartDateChange(): void {
+    const startDateInput = document.getElementById('startDate') as HTMLInputElement;
+    this.startDate = startDateInput.value;
+    this.applyDateFilter();
+  }
+
+  onEndDateChange(): void {
+    const endDateInput = document.getElementById('endDate') as HTMLInputElement;
+    this.endDate = endDateInput.value;
+    this.applyDateFilter();
+  }
+
+  applyDateFilter(): void {
+    this.productosFiltered = this.productosALL.filter(producto => {
+      // Obtener la última fecha de actualización de los detalles del producto
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime) {
+          if (!lastDate || detail.lastUpdatedDatetime > lastDate) {
+            lastDate = detail.lastUpdatedDatetime;
+          }
+        }
+      }
+
+      // Si no hay fecha de inicio ni fin, mostrar todos los productos
+      if (!this.startDate && !this.endDate) {
+        return true;
+      }
+
+      // Si no hay fecha para el producto, no lo incluimos en el filtro
+      if (!lastDate) {
+        return false;
+      }
+
+      const productDate = new Date(lastDate);
+
+      // Filtrar por fecha de inicio si existe
+      if (this.startDate && !this.endDate) {
+        return productDate >= new Date(this.startDate);
+      }
+
+      // Filtrar por fecha final si existe
+      if (!this.startDate && this.endDate) {
+        return productDate <= new Date(this.endDate);
+      }
+
+      // Filtrar por rango de fechas si ambas existen
+      return productDate >= new Date(this.startDate) && productDate <= new Date(this.endDate);
+    });
+
+    this.updateDataTable();
+  }
+  applyFilter(event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value.toLowerCase();
+
+    this.productosFiltered = this.productosALL.filter(producto => {
+      // Obtener todos los valores de las columnas excepto la primera (fecha)
+      const searchableValues = [
+        producto.name,
+        producto.category?.categoryName,
+        producto.reusable ? 'SI' : 'NO',
+        producto.detailProducts?.length.toString(),
+        producto.minQuantityWarning?.toString()
+      ].map(value => value?.toLowerCase() || '');
+
+      // Verificar si alguno de los valores coincide con el texto de búsqueda
+      return searchableValues.some(value => value.includes(filterValue));
+    });
+
+    this.updateDataTable();
+  }
+
+  filtersVisible = false; // Controla la visibilidad de los filtros
+
+  toggleFilters(): void {
+    this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+  }
+
   private categoriaService = inject(CategoriaService);
   private estadoService = inject(EstadoService);
   private productoService = inject(ProductService);
@@ -165,12 +243,12 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!this.reusable) {
       this.reusable = 0;
     }
-    if (!this.cantMaxima) {
-      this.cantMaxima = 0;
-    }
-    if (!this.cantMinima) {
-      this.cantMinima = 0;
-    }
+    /*     if (!this.cantMaxima) {
+          this.cantMaxima = 0;
+        }
+        if (!this.cantMinima) {
+          this.cantMinima = 0;
+        } */
     console.log(this.reusable);
     this.productosFiltered = this.productosALL.filter((producto) => {
       const nombreCumple =
@@ -222,8 +300,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   initializeDataTable(): void {
     this.table = $('#productsList').DataTable({
       dom:
-      '<"mb-3"t>' +                           
-      '<"d-flex justify-content-between"lp>', 
+        '<"mb-3"t>' +
+        '<"d-flex justify-content-between"lp>',
       data: this.productosFiltered,
       columns: [
         {
@@ -287,7 +365,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       ],
       pageLength: 10,
       lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
-      lengthMenu:[10, 25, 50], // Valores para el número de filas],
+      lengthMenu: [10, 25, 50], // Valores para el número de filas],
       searching: false,
       ordering: true,
       order: [[0, 'desc']],
@@ -438,7 +516,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.router.navigate(['detalle-inventario']);
   }
 
- 
+
 
   irAgregarProducto() {
     /* this.modalVisible = true; // Muestra el modal */
@@ -472,7 +550,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     return true;
   }
 
-  
+
 
   ngOnDestroy(): void {
     if (this.categoriasSubscription) {
@@ -497,40 +575,40 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
 
-abrirModalAumentoStock(productId: number) {
-  this.selectedProductId = productId;
-  this.showAumentoStockModal = true;
-  this.modalVisible = false; // Asegurarse que el otro modal esté cerrado
-  this.stockAumentoService.setId(productId);
-}
+  abrirModalAumentoStock(productId: number) {
+    this.selectedProductId = productId;
+    this.showAumentoStockModal = true;
+    this.modalVisible = false; // Asegurarse que el otro modal esté cerrado
+    this.stockAumentoService.setId(productId);
+  }
 
-cerrarModalAumentoStock() {
-  this.showAumentoStockModal = false;
-  this.selectedProductId = null;
-}
+  cerrarModalAumentoStock() {
+    this.showAumentoStockModal = false;
+    this.selectedProductId = null;
+  }
 
-abrirModal() {
-  this.modalVisible = true;
-  this.showAumentoStockModal = false; // Asegurarse que el otro modal esté cerrado
-}
+  abrirModal() {
+    this.modalVisible = true;
+    this.showAumentoStockModal = false; // Asegurarse que el otro modal esté cerrado
+  }
 
-cerrarModal() {
-  this.modalVisible = false;
-}
+  cerrarModal() {
+    this.modalVisible = false;
+  }
 
-handleModalBackdropClick(event: MouseEvent) {
-  if (event.target === event.currentTarget) {
-    if (this.showAumentoStockModal) {
-      this.cerrarModalAumentoStock();
-    }
-    if (this.modalVisible) {
-      this.cerrarModal();
+  handleModalBackdropClick(event: MouseEvent) {
+    if (event.target === event.currentTarget) {
+      if (this.showAumentoStockModal) {
+        this.cerrarModalAumentoStock();
+      }
+      if (this.modalVisible) {
+        this.cerrarModal();
+      }
     }
   }
-}
 
-irAgregarDetalles(id: number) {
-  this.stockAumentoService.setId(id);
-  this.abrirModalAumentoStock(id);
-}
+  irAgregarDetalles(id: number) {
+    this.stockAumentoService.setId(id);
+    this.abrirModalAumentoStock(id);
+  }
 }

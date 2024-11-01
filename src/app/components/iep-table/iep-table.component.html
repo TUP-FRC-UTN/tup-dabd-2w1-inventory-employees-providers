@@ -37,8 +37,20 @@
       </div>
     </div>
 
+    <!-- Botón para mostrar/ocultar filtros -->
+    <div class="col-mb-3">
+      <button class="btn btn-secondary" (click)="toggleFilters()">
+        <i class="bi bi-funnel-fill"></i></button>
+    </div>
+
+    <!-- Botón para limpiar filtros -->
+    <div class="col-mb-3 ms-2">
+      <button class="btn btn-primary" (click)="cleanColumnFilters()">
+        <i class="bi bi-trash"></i></button>
+    </div>
+
     <!-- Botones para exportar datos a PDF y Excel -->
-    <div class="d-flex align-items-center ms-3">
+    <div class="d-flex align-items-center ms-2">
       <button class="btn btn-success" (click)="exportToExcel()" title="Exportar a Excel">
         <i class="fa-solid fa-file-excel"></i>
       </button>
@@ -48,10 +60,41 @@
     </div>
   </div>
 
+  <!-- Sección de filtros por columna -->
+  <div *ngIf="filtersVisible" class="row mb-3">
+    <!--       <div class="col-md-2">
+        <input type="text" placeholder="Fecha" (input)="applyColumnFilter($event, 'date')" class="form-control" />
+      </div> -->
+    <div class="col-md-2">
+      <input type="text" placeholder="Producto" (input)="applyColumnFilter($event, 'product')" class="form-control" />
+    </div>
+    <!--       <div class="col-md-2">
+        <input type="text" placeholder="Tipo Movimiento" (input)="applyColumnFilter($event, 'modificationType')" class="form-control" />
+      </div> -->
+    <div class="col-md-2">
+      <select (change)="applyColumnFilter($event, 'modificationType')" class="form-control">
+        <option value="">Tipo Movimiento</option>
+        <option value="disminución">Disminución</option>
+        <option value="aumento">Aumento</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <input type="text" placeholder="Proveedor" (input)="applyColumnFilter($event, 'supplier')" class="form-control" />
+    </div>
+    <div class="col-md-2">
+      <input type="number" placeholder="Cantidad Mínima" (input)="applyAmountFilter('min', $event)"
+        class="form-control text-end" />
+    </div>
 
-
-
-
+    <div class="col-md-2">
+      <input type="number" placeholder="Cantidad Máxima" (input)="applyAmountFilter('max', $event)"
+        class="form-control text-end" />
+    </div>
+    <div class="col-md-2">
+      <input type="text" placeholder="Justificativo" (input)="applyColumnFilter($event, 'description')"
+        class="form-control" />
+    </div>
+  </div>
 
   <!-- Tabla que muestra el historial de movimientos de productos -->
   <div class="table-responsive mt-4">

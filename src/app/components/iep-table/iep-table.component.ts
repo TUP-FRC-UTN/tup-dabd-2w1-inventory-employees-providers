@@ -193,8 +193,8 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
               topEnd: null,
             }, */
       dom:
-      '<"mb-3"t>' +                           //Tabla
-      '<"d-flex justify-content-between"lp>', //Paginacion
+        '<"mb-3"t>' +                           //Tabla
+        '<"d-flex justify-content-between"lp>', //Paginacion
       data: this.filteredProductos, // Usar la lista filtrada
       columns: [
         { data: 'date', title: 'Fecha' }, // Columna de fecha
@@ -387,5 +387,81 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.table.destroy(); // Destruye la instancia de DataTable al destruir el componente
     }
   }
+
+
+  filtersVisible = false; // Controla la visibilidad de los filtros
+
+  minAmount: number | null = null;
+  maxAmount: number | null = null;
+
+  toggleFilters(): void {
+    this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+  }
+
+  applyAmountFilter(type: 'min' | 'max', event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value ? parseFloat(input.value) : null;
+
+    if (type === 'min') {
+      this.minAmount = value;
+    } else {
+      this.maxAmount = value;
+    }
+
+    this.applyColumnFilter();
+  }
+
+  applyColumnFilter(event?: Event, column?: string): void {
+    let filterValue = '';
+
+    if (event && column) {
+      const input = event.target as HTMLInputElement;
+      filterValue = input.value.toLowerCase();
+    }
+
+    // Filtra los productos según los filtros establecidos
+    this.filteredProductos = this.productos.filter((producto) => {
+      const productFieldValue = column ? (producto as any)[column]?.toString().toLowerCase() : '';
+      const matchesColumnFilter = column ? productFieldValue.includes(filterValue) : true;
+
+      const amount = parseFloat((producto as any)['amount']);
+      const matchesAmountFilter =
+        (this.minAmount === null || amount >= this.minAmount) &&
+        (this.maxAmount === null || amount <= this.maxAmount);
+
+      return matchesColumnFilter && matchesAmountFilter;
+    });
+
+    // Actualiza el DataTable con los productos filtrados
+    if (this.table) {
+      this.table.clear().rows.add(this.filteredProductos).draw();
+    }
+  }
+
+
+  cleanColumnFilters(): void {
+    // Restablece los valores de filtro
+    this.minAmount = null;
+    this.maxAmount = null;
+
+    // Restablece el listado de productos filtrados al listado completo
+    this.filteredProductos = [...this.productos];
+
+    // Limpia los valores de los inputs en el DOM
+    const textInputs = document.querySelectorAll('input.form-control');
+    const selectInputs = document.querySelectorAll('select.form-control');
+
+    // Limpia cada campo de texto
+    textInputs.forEach(input => (input as HTMLInputElement).value = '');
+
+    // Limpia cada campo de selección
+    selectInputs.forEach(select => (select as HTMLSelectElement).value = '');
+
+    // Actualiza el DataTable con todos los productos sin filtrar
+    if (this.table) {
+        this.table.clear().rows.add(this.filteredProductos).draw();
+    }
+}
+
 
 }
