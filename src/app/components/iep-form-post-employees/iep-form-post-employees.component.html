@@ -143,9 +143,9 @@
             <div class="col-md-9">
                 <select id="documentType" name="documentType" class="form-control"
                 [(ngModel)]="documentType"
-                 >
-                      <option  disabled required value="">Seleccionar tipo de documento</option>
-                       <option  [ngValue]="documentTypeEnum.DNI" >DNI</option>
+                [value]="documentType"
+                 >       
+                       <option selected [ngValue]="documentTypeEnum.DNI" >DNI</option>
                        <option  [ngValue]="documentTypeEnum.PASSPORT" >PASAPORTE</option>
 
                    
@@ -170,13 +170,16 @@
                 required 
                 pattern="^([0-9]{2}-)?[0-9]{8}-[0-9]$"
                 [ngClass]="{
-                    'is-invalid': cuilModel.invalid && cuilModel.touched, 
-                    'is-valid': cuilModel.valid && cuilModel.touched
+                    'is-invalid': (cuilModel.invalid && cuilModel.touched)||(!isValidCuil), 
+                    'is-valid': (cuilModel.valid && cuilModel.touched)||(isValidCuil)
                 }"
-               (input)="cuilModel.valid ? validateCuil(form) : null"
+               (input)="cuilModel.valid ? validateCuil() : null"
             >
             <div *ngIf="cuilModel.invalid && cuilModel.touched" class="invalid-feedback">
                 "La entrada no es válida. Asegúrate que cumpla con el formato estipulado."
+             </div>
+             <div *ngIf=" !isValidCuil" class="invalid-feedback">
+                "El CUIL ingresado ya existe en el sistema."
              </div>
             </div>
         </div>
@@ -419,8 +422,8 @@
 
      <div class="col-md-6">
            <div class="row">
-             <label for="codigo-postal" class="col-form-label col-md-4">Código Postal:</label>
-                <div class="col-md-8">
+             <label for="codigo-postal" class="col-form-label col-md-3">Código P :</label>
+                <div class="col-md-9">
                 <input type="text" class="form-control" id="codigo-postal" name="codigo-postal" [(ngModel)]="codigoPostal"
                 #codigoPostaModel="ngModel"
                 required 
@@ -486,7 +489,7 @@
                <label class="col-form-label col-md-3" for="salario">Salario:</label>
                <div class="col-md-9">
                 <input type="number" 
-                       class="form-control" 
+                       class="form-control text-end" 
                        id="salario" 
                        name="salario" 
                        [(ngModel)]="salario" 

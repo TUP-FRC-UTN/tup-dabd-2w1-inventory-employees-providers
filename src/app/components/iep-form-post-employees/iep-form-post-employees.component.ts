@@ -35,11 +35,11 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   validateDni$:Observable<any> = new Observable<any>();
   validateCuil$:Observable<any>=new Observable<any>();
 
-  lunes:boolean=false;
-  martes:boolean=false;
-  miercoles:boolean=false;
-  jueves:boolean=false;
-  viernes:boolean=false;
+  lunes:boolean=true;
+  martes:boolean=true;
+  miercoles:boolean=true;
+  jueves:boolean=true;
+  viernes:boolean=true;
   sabado:boolean=false;
   domingo:boolean=false;
 
@@ -49,7 +49,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   nombre: string = '';
   apellido: string = '';
   cuil: string = '';
-  documentType:DocumentTypeEnum|undefined;
+  documentType:DocumentTypeEnum=DocumentTypeEnum.DNI;
   dni?: string;
   telefono?: number;
   mail: string = '';
@@ -57,11 +57,11 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   numeroCalle: number = 0;
   piso: number = 0;
   dpto: string = '';
-  codigoPostal: string = '';
+  codigoPostal: string = '5000';
   salario?: number;
-  horaSalida: string = '';
-  horaEntrada: string = '';
-  startTimeContract?: Date;
+  horaSalida: string = '17:00';
+  horaEntrada: string = '08:00';
+  startTimeContract: string = new Date().toISOString().split('T')[0];
 
  
 
@@ -82,7 +82,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   cargos:Charge[]=[];
 
   cargoSelected?:Charge
-  provinciaSelect? : Provincia ;
+  provinciaSelect? : Provincia =this.provincias.find(provincia => provincia.nombre === 'Cordoba');
   localidadSelect?:Ciudad ;
   
   postDto:PostEmployeeDto = new PostEmployeeDto();
@@ -114,7 +114,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   }
 
 
-  public validateCuil(form:NgForm){
+  public validateCuil(){
     console.log("pre validando"+this.cuil)
     if(this.cuil!=null&&this.cuil!=undefined ){
 
@@ -125,7 +125,6 @@ export class IEPFormPostEmployeesComponent implements OnInit {
             console.log("respuestaa"+response)
             this.isValidCuil = !response;
             console.log(this.isValidCuil)
-            console.log(form.valid)
 
 
 
@@ -212,7 +211,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
             if(this.salario==null||this.salario==undefined){this.postDto.salary=0}
             else{   this.postDto.salary=this.salario}
 
-            this.postDto.contractStartTime=this.startTimeContract
+            this.postDto.contractStartTime=new Date(this.startTimeContract)
             this.postDto.startTime=this.horaEntrada
             this.postDto.endTime=this.horaSalida
             this.postDto.supplierId=this.selectedSupplier?.id
@@ -281,6 +280,9 @@ export class IEPFormPostEmployeesComponent implements OnInit {
     this.serviceCombos.getProvinces().subscribe({
       next: (provinciass) => {
         this.provincias = provinciass;
+        this.provinciaSelect=this.provincias.find(provincia => provincia.nombre === 'Cordoba');
+        this.loadLocalidades();
+        this.localidadSelect=this.localidades.find(x =>x.nombre==='Cordoba')
       },
     });
   }
