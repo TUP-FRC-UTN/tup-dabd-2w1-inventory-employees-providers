@@ -83,9 +83,9 @@
 
 
 
+<section class="py-5">
 
-
-<div class="container mt-5">
+  <div class="container p-3 border border-2 rounded shadow-lg">
 <div class="row form">
   <form class="custom-form" #myForm="ngForm" (ngSubmit)="onSubmit(myForm)">
     <div class="mb-3 row">
@@ -253,9 +253,6 @@
 
     <div class="mb-3 mt-4 row justify-content-end">
       <div class="col-auto">
-        <button type="button" style="width: 100%;" class="btn btn-secondary" (click)="goBack()">Volver</button>
-      </div>
-      <div class="col-auto">
         <button [disabled]="!myForm.valid" type="submit" class="btn btn-primary" style="width: 100%;">Registrar</button>
       </div>
     </div>
@@ -264,3 +261,4 @@
   </form>
 </div>
 </div>
+</section>

@@ -1,5 +1,8 @@
-<div class="container mt-5 col-md-8 ">
-    <form #form="ngForm" (ngSubmit)="onSubmit(form)" class="form-container border rounded border shadow p-4">
+<section class="py-3">
+ <!--   <div class="container p-3 border border-2 rounded shadow-lg">-->
+
+<div class="container mt-5 col-md-8 p-3 border border-2">
+    <form #form="ngForm" (ngSubmit)="onSubmit(form)" class="form border">
 
 <!-- Modal de Información -->
 <div class="modal" *ngIf="isInfoModalVisible" (click)="closeInfoModal()">
@@ -26,7 +29,7 @@
                     </li>
                     <li>
                         <strong>Datos de contrato:</strong> Se piden los datos para constatar la modalidad de trabajo, puede ser 
-                        <em>Tercerizado <span style="color: green;">✅</span>,o NO Tercerizado <span style="color: red;">❌</span></em>, lafechade inicio de contrato debe ser igual o posterior a la fecha actual 
+                        <em>Tercierizado <span style="color: green;">✅</span>,o NO Tercerizado <span style="color: red;">❌</span></em>, lafechade inicio de contrato debe ser igual o posterior a la fecha actual 
                       </li>
 
                       <li>
@@ -670,3 +673,4 @@
 
     </form>
 </div>
+</section>

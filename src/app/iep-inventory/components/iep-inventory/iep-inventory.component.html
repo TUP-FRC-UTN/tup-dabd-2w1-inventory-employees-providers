@@ -1,13 +1,13 @@
 <!-- Estilos CSS generales para el documento -->
-<style>
 
-</style>
+<section class="py-5">
 
+  <div class="container p-3 border border-2 rounded shadow-lg">
+  
 <!-- Título del documento -->
 
 <body>
   <form class="form">
-    <div class="container">
 
       <!-- Modal para información adicional sobre el inventario -->
       <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -161,18 +161,6 @@
       </div>
 
       <!-- Botones de navegación: Volver y agregar nuevo producto -->
-      <div class="row volver">
-        <div class="col text-end">
-          <!-- Botón de "Volver" -->
-          <button class="btn btn-secondary me-2" (click)="irMenu()">
-            Volver</button><!-- Botón de "Nuevo Producto" -->
-          <button class="btn btn-outline-primary" (click)="irAgregarProducto()" data-bs-toggle="modal"
-            data-bs-target="#nuevoProductoModal">
-            Nuevo
-          </button>
-        </div>
-      </div>
-    </div>
   </form>
 </body>
 
@@ -201,6 +189,8 @@
 </div>
 
 <!-- Boton + Flotante -->
-<button class="floating-btn btn btn-primary">
+<button class="floating-btn btn btn-primary" (click)="irAgregarProducto()">
   <span class="bi-plus-lg"></span>
 </button>
+</div>
+</section>
