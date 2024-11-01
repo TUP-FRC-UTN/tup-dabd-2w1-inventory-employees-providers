@@ -3,7 +3,6 @@
 <div class="container p-3 border border-2 rounded shadow-lg">
 
   <!-- Botones de exportación alineados a la derecha -->
-  <div class="row mb-3">
     <div class="col-md-12 d-flex justify-content-end">
       <button class="btn btn-success me-2" (click)="exportToExcel()">
         <i class="fa-solid fa-file-excel"></i>
@@ -12,9 +11,8 @@
         <i class="fas fa-file-pdf"></i>
       </button>
     </div>
-  </div>
 
-  <div class="row mb-3 align-items-center">
+  <div class="row align-items-center">
     <!-- Modal de Información -->
     <div class="modal-overlay" *ngIf="showInfoModal" (click)="closeInfoModal()"></div>
     <div class="modal fade" tabindex="-1" [class.show]="showInfoModal" [ngStyle]="{'display': showInfoModal ? 'block' : 'none'}">
@@ -36,7 +34,9 @@
         </div>
       </div>
     </div>
-
+<div class="row">
+  
+</div>
     <!-- Contenedor de búsqueda por nombre o desempeño -->
     <div class="col-md-4 d-flex align-items-center mb-3">
       <label for="searchTerm" class="form-label me-2">Buscar:</label>
