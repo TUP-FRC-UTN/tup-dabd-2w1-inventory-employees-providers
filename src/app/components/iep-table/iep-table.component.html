@@ -39,23 +39,23 @@
 
     <!-- Botón para mostrar/ocultar filtros -->
     <div class="col-mb-3">
-      <button class="btn btn-secondary" (click)="toggleFilters()">
+      <button class="btn btn-primary" (click)="toggleFilters()">
         <i class="bi bi-funnel-fill"></i></button>
     </div>
 
     <!-- Botón para limpiar filtros -->
     <div class="col-mb-3 ms-2">
-      <button class="btn btn-primary" (click)="cleanColumnFilters()">
+      <button class="btn btn-secondary" (click)="cleanColumnFilters()">
         <i class="bi bi-trash"></i></button>
     </div>
 
     <!-- Botones para exportar datos a PDF y Excel -->
     <div class="d-flex align-items-center ms-2">
       <button class="btn btn-success" (click)="exportToExcel()" title="Exportar a Excel">
-        <i class="fa-solid fa-file-excel"></i>
+        <i class="fa-solid bi-file-earmark-excel"></i>
       </button>
       <button class="btn btn-danger ms-2" (click)="exportToPdf()" title="Exportar a PDF">
-        <i class="fas fa-file-pdf"></i>
+        <i class="fas bi-file-earmark-pdf"></i>
       </button>
     </div>
   </div>
