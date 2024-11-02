@@ -1,8 +1,6 @@
 <section class="py-5">
 
   <div class="container p-3 border border-2 rounded shadow-lg">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-  </div>
 
   <!-- Modal de Información -->
   <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -81,9 +79,9 @@
   </div>
 
 <!-- Sección: Opciones de Búsqueda y Acciones -->
-<div class="d-flex mb-3 justify-content-between align-items-center">
+<div class="d-flex  justify-content-between align-items-center">
   <!-- Contenedor Izquierdo: Campo de Búsqueda y ComboBox -->
-  <div class="d-flex align-items-center">
+  <div class="d-flex mb-3 align-items-center">
     <!-- Campo de Búsqueda -->
     <input type="text" id="filterInput" class="form-control me-3" placeholder="Buscar"
       (input)="applyFilter($event)" />
@@ -139,21 +137,6 @@
     </table>
   </div>
 
-  <!-- Sección: Botones de Acción -->
-  <div class="d-flex justify-content-end">
-      <button id="warehouseButton" class="btn btn-primary me-2" data-bs-toggle="modal"
-      data-bs-target="#warehouseModal" 
-      [disabled]="selectedIds.length===0">
-      Registrar Movimiento
-  </button>
-
-    <button id="deleteButton" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
-      [disabled]="selectedIds.length === 0">
-      Eliminar
-    </button>
-
-   
-  </div>
 </div>
 
 <!-- Modal para registrar Movimiento de Inventario -->
@@ -364,5 +347,16 @@
     </div>
   </div>
 </div>
+<!-- Boton + Flotante -->
+<button class="floating-btn btn btn-danger" style="bottom: 90px;"
+data-bs-toggle="modal"  [disabled]="selectedIds.length === 0"
+data-bs-target="#confirmDeleteModal">
+  <span class="bi-x-circle-fill"></span>
+</button>
+
+<button class="floating-btn btn btn-primary" data-bs-toggle="modal"
+data-bs-target="#warehouseModal"  [disabled]="selectedIds.length === 0">
+  <span class="bi-arrow-left-right"></span>
+</button>
 
 </section>

@@ -93,7 +93,10 @@
         <div class="input-group form-group">
           <label for="inputName" class="col-form-label" style="margin-right: 10px;">Nombre</label>
           <input type="text" class="form-control" id="name" name="name" [(ngModel)]="dto.name" #name="ngModel"
-            minlength="3" required>
+            minlength="3" [ngClass]="{
+              'is-invalid': name.invalid && name.touched, 
+              'is-valid': name.valid && name.touched
+          }" required>
         </div>
         <div class="error-container">
           @if(name.invalid && name.touched) {
@@ -109,7 +112,11 @@
         <div class="input-group form-group">
           <label for="categories" class="col-form-label">Categoría</label>
           <select class="form-select" id="categories" style="border-radius: 0.25rem;"
-          name="category" [(ngModel)]="dto.category_id" #category="ngModel" min="1"
+          name="category"  [ngClass]="{
+            'is-invalid': category.invalid && category.touched, 
+            'is-valid': category.valid && category.touched
+        }"
+           [(ngModel)]="dto.category_id" #category="ngModel" min="1"
             required>
             @if(categories$|async) {
               @for (c of categories; track $index) {
@@ -143,7 +150,12 @@
       <div class="form-floating mb-3 ">
         <textarea class="form-control" 
         placeholder="" id="floatingTextarea" style="height: 150px"  
-        [(ngModel)]="dto.description" name="descr" #descr="ngModel" minlength="5" required></textarea>
+        [(ngModel)]="dto.description" 
+         name="descr" #descr="ngModel"  [ngClass]="{
+          'is-invalid': descr.invalid && descr.touched, 
+          'is-valid': descr.valid && descr.touched
+      }"  
+         minlength="5" required></textarea>
         <label for="floatingTextarea">Descripción</label>
         <div class="error-container">
           @if(descr.invalid && descr.touched) {
@@ -161,7 +173,11 @@
         <label for="inputPrice" class="col-form-label">Precio Unitario</label>
         <input   type="number" class="form-control text-end" 
         aria-label="Amount" #unit="ngModel" [(ngModel)]="dto.unit_price"
-        name="unit" min="0">
+        name="unit" min="0"  [ngClass]="{
+          'is-invalid': unit.invalid && unit.touched, 
+          'is-valid': unit.valid && unit.touched
+      }" 
+        >
         <span class="input-group-text">$</span>
       </div>
       <div class="error-container">
@@ -174,7 +190,11 @@
       <div class="col-6">
         <div class="form-group input-group">
           <label for="state" class="col-form-label">Estado</label>
-        <select (click)="myForm.invalid" class="form-select"  id="" name="state" #state="ngModel" 
+        <select (click)="myForm.invalid"  [ngClass]="{
+          'is-invalid': state.invalid && state.touched, 
+          'is-valid': state.valid && state.touched
+      }" 
+        class="form-select"  id="" name="state" #state="ngModel" 
         [(ngModel)]="dto.state_id" [value]="0" required>
           <option value="1">Disponible</option>
           <option value="2">En uso</option>
@@ -191,7 +211,11 @@
         <div class="input-group mb-3 form-group">
         <label for="supplier" class="col-form-label">Proveedor</label>
           <select class="form-select" id="supplier" name="supplier" style="border-radius: 0.25rem;"
-          [(ngModel)]="dto.supplier_id" #supplier="ngModel" min="1" required>
+          [(ngModel)]="dto.supplier_id" #supplier="ngModel"   [ngClass]="{
+            'is-invalid': supplier.invalid && supplier.touched, 
+            'is-valid': supplier.valid && supplier.touched
+        }" 
+          min="1" required>
             @if(providers$|async) {
               @for (p of providers; track $index) {
                 <option value="{{ p.id }}">{{ p.name }}</option>
@@ -224,7 +248,10 @@
         <div class="input-group form-group">
           <label for="inputStock" class="col-form-label">Stock Inicial</label>
           <input type="number" name="stock" class="form-control text-end" 
-          [(ngModel)]="dto.amount" 
+          [(ngModel)]="dto.amount"   [ngClass]="{
+            'is-invalid': stock.invalid && stock.touched, 
+            'is-valid': stock.valid && stock.touched
+        }" 
           id="inputStock" #stock="ngModel"  min="1" required>
         
       </div>
@@ -244,9 +271,19 @@
         <label for="inputMinStock" class="col-form-label">Stock insuficiente</label>
         <input #min="ngModel" min="1" type="number" name="min" 
         [(ngModel)]="dto.min_amount_warning" class="form-control text-end" 
-        id="inputMinStock">
+        id="inputMinStock"   [ngClass]="{
+          'is-invalid': min.invalid && min.touched, 
+          'is-valid': min.valid && min.touched
+      }" >
       </div>
       <div class="error-container">
+        @if(min.invalid && min.touched) {
+          @if (min.errors?.['min']) {
+            <div class="text-danger">La cantidad de stock debe ser mayor a 0</div>
+          }@else {
+            <div class="text-danger">Este campo es requerido</div>
+          }
+        }
       </div>
     </div>
     </div>

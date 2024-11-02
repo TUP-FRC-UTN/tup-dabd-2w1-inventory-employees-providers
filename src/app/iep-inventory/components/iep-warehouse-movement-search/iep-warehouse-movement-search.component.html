@@ -3,21 +3,32 @@
 
     <div class="container p-3 border border-2 rounded shadow-lg">
     <div class="row">
+        
+    <!-- Fila para los botones de exportación alineados a la derecha -->
+    <div class="row mb-2">
+        <div class="col d-flex justify-content-end">
+            <button class="btn btn-success me-2" (click)="exportToExcel()">
+                <i class="fa-solid fa-file-excel"></i>
+            </button>
+            <button class="btn btn-danger" (click)="exportToPdf()">
+                <i class="fas fa-file-pdf"></i>
+            </button>
+        </div>
+    </div>
         <div class="col-12 col-sm-6 col-md-3">
             <div class="mb-3">
-                <label for="createdDate" class="form-label">Del día</label>
-                <input type="date" class="form-control" id="createdDate" [(ngModel)]="searchParams.createdDate">
+                <input type="date" class="form-control" id="createdDate" placeholder="Fecha"
+                [(ngModel)]="searchParams.createdDate">
             </div>
         </div>
         <div class="col-12 col-sm-6 col-md-3">
             <div class="mb-3">
-                <label for="applicantOrResponsible" class="form-label">Solicitante / Responsable</label>
-                <input type="text" class="form-control" id="applicantOrResponsible" [(ngModel)]="searchParams.applicantOrResponsible">
+                <input type="text" class="form-control" id="applicantOrResponsible" placeholder="Solicitante"
+                [(ngModel)]="searchParams.applicantOrResponsible">
             </div>
         </div>
         <div class="col-12 col-sm-6 col-md-3">
             <div class="mb-3">
-                <label for="productId" class="form-label">Producto</label>
                 <select id="productId" class="form-select" [(ngModel)]="searchParams.productId">
                     <option value="">Todos</option>
                     @for (product of products; track $index) {
@@ -28,7 +39,6 @@
         </div>
         <div class="col-12 col-sm-6 col-md-3">
             <div class="mb-3">
-                <label for="movementType" class="form-label">Tipo</label>
                 <select id="movementType" class="form-select" [(ngModel)]="searchParams.movementType">
                     <option value="">Todos</option>
                     <option value="RETURN">Devolución</option>
@@ -49,17 +59,6 @@
         </div>
     </div>
 
-    <!-- Fila para los botones de exportación alineados a la derecha -->
-    <div class="row mb-2">
-        <div class="col d-flex justify-content-end">
-            <button class="btn btn-success me-2" (click)="exportToExcel()">
-                <i class="fa-solid fa-file-excel"></i>
-            </button>
-            <button class="btn btn-danger" (click)="exportToPdf()">
-                <i class="fas fa-file-pdf"></i>
-            </button>
-        </div>
-    </div>
 
     <table id="movementsTable" class="table table-striped mt-4">
         
@@ -92,4 +91,3 @@
         </div>
       </div>
 </div>
-</section>
