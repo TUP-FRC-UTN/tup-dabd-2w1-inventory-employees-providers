@@ -1,4 +1,6 @@
-<div class="container mt-5">
+<section class="py-5">
+
+    <div class="container p-3 border border-2 rounded shadow-lg">
     <!-- Modal de Información -->
     <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -46,11 +48,12 @@
         </div>
     </div>
 
-    <div class="row mt-3 filtros" *ngIf="ventana === 'Informacion'">
+    <div class="row filtros" *ngIf="ventana === 'Informacion'" style="align-items: center;">
         <!-- Campo de búsqueda y selector de cargos -->
         <div class="col-md-2">
             <div class="row">
-                <button class="btn btn-secondary" (click)="loadAsistencias()">Ver asistencias</button>
+                <button class="btn btn-secondary" style="margin-left: 7px;"
+                (click)="loadAsistencias()">Ver asistencias</button>
             </div>
         </div>
         <div class="col-md-3">
@@ -75,8 +78,8 @@
     </div>
     
    <!-- Filtros para Desempeño y Asistencias -->
-   <div class="row filtros" *ngIf="ventana === 'Desempeño' || ventana === 'Asistencias'">
-        <div class="col-2">
+   <div class="row filtros mb-3" *ngIf="ventana === 'Desempeño' || ventana === 'Asistencias'">
+        <div class="col-2" style="margin-left: 7px;">
             <div class="row">
                 <button class="btn btn-secondary" (click)="loadEmpleados()">Ver info gral.</button>  
             </div>
