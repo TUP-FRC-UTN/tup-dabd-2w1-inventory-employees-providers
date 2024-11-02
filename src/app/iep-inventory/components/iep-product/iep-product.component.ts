@@ -95,11 +95,18 @@ export class IepProductComponent {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
+     
       if (this.dto.supplier_id == null || this.dto.supplier_id === 0) {
         this.dto.supplier_id = undefined;
       }
       if(this.dto.unit_price == null || this.dto.unit_price === 0) {
         this.dto.unit_price = 0;
+      }
+      if(this.dto.min_amount_warning == null || this.dto.min_amount_warning === 0) {
+        this.dto.min_amount_warning = 0;
+      }
+      if(this.dto.reusable == null|| this.dto.reusable === undefined) {
+        this.dto.reusable = false;
       }
       this.abrirModal = true;
       this.createProduct$ = this.productService.createProduct(this.dto, 1);

@@ -112,11 +112,10 @@
         <div class="input-group form-group">
           <label for="categories" class="col-form-label">Categoría</label>
           <select class="form-select" id="categories" style="border-radius: 0.25rem;"
-          name="category"  [ngClass]="{
+         id="category" name="category"  [(ngModel)]="dto.category_id" #category="ngModel" min="1"  [ngClass]="{
             'is-invalid': category.invalid && category.touched, 
             'is-valid': category.valid && category.touched
         }"
-           [(ngModel)]="dto.category_id" #category="ngModel" min="1"
             required>
             @if(categories$|async) {
               @for (c of categories; track $index) {
@@ -135,9 +134,6 @@
               }
             }
           </select>
-          <button routerLink="modal-select" routerLinkActive="router-link-active"
-          class="btn btn-outline-secondary" type="button" id="button-addon2" data-bs-toggle="modal" data-bs-target="#categoriaModal"
-          (click)="openModal()">+</button>
         </div>
         <div class="error-container">
           @if(category.invalid && category.touched) {
@@ -150,11 +146,11 @@
       <div class="form-floating mb-3 ">
         <textarea class="form-control" 
         placeholder="" id="floatingTextarea" style="height: 150px"  
-        [(ngModel)]="dto.description" 
+       
          name="descr" #descr="ngModel"  [ngClass]="{
           'is-invalid': descr.invalid && descr.touched, 
           'is-valid': descr.valid && descr.touched
-      }"  
+      }"   [(ngModel)]="dto.description" 
          minlength="5" required></textarea>
         <label for="floatingTextarea">Descripción</label>
         <div class="error-container">

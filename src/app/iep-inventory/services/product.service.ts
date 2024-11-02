@@ -6,6 +6,7 @@ import { DtoProducto } from '../models/dto-producto';
 import { ProductCategory } from '../models/product-category';
 import { Producto } from '../models/producto';
 import { ProductXDetailDto } from '../models/product-xdetail-dto';
+import { createProductDTO } from '../models/create-product-dto';
 @Injectable({
   providedIn: 'root',
 })
