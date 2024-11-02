@@ -10,6 +10,8 @@ import { EmpListadoAsistencias } from '../../Models/emp-listado-asistencias';
 import { EmployeePerformance } from '../../Models/listado-desempeño';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
 
 declare var $: any;
 declare var DataTable: any;
@@ -68,75 +70,60 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
   applyFilters2(): void {
     if (this.table) {
-      this.table.clear();
+        this.table.clear();
 
-      const filteredData = this.Empleados.filter(empleado => {
-        // Filtro por apellido y nombre
-        const nameMatch = !this.filters.apellidoNombre || 
-          empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre);
+        const filteredData = this.Empleados.filter(empleado => {
+            // Filtro por apellido y nombre
+            const nameMatch = !this.filters.apellidoNombre || 
+                empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre);
 
-        // Filtro por documento
-        const documentMatch = !this.filters.documento || 
-          empleado.document.toString().toLowerCase().includes(this.filters.documento);
+            // Filtro por documento
+            const documentMatch = !this.filters.documento || 
+                empleado.document.toString().toLowerCase().includes(this.filters.documento);
 
-        // Filtro por rango de salario
-        const salaryMatch = empleado.salary >= this.filters.salarioMin && 
-          empleado.salary <= this.filters.salarioMax;
+            // Filtro por rango de salario
+            const salaryMatch = empleado.salary >= this.filters.salarioMin && 
+                empleado.salary <= this.filters.salarioMax;
 
-        // Aplicar todos los filtros en conjunto
-        return nameMatch && documentMatch && salaryMatch;
-      });
+            // Filtro por posición
+            const positionMatch = !this.positionFilter || 
+                empleado.position === this.positionFilter;
 
-      // Mantener los filtros existentes de búsqueda y posición
-      const finalFilteredData = filteredData.filter(empleado => {
-        if (!this.searchFilter && !this.positionFilter) {
-          return true;
-        }
-
-        const searchTerms = this.searchFilter.toLowerCase().split(' ');
-        const searchMatch = !this.searchFilter || searchTerms.every(term => {
-          const fullName = empleado.fullName.toLowerCase();
-          const document = empleado.document.toString().toLowerCase();
-          const salary = empleado.salary.toString();
-
-          return fullName.includes(term) ||
-            document.includes(term) ||
-            salary.includes(term);
+            // Aplicar todos los filtros en conjunto
+            return nameMatch && documentMatch && salaryMatch && positionMatch;
         });
 
-        const positionMatch = !this.positionFilter ||
-          empleado.position === this.positionFilter;
-
-        return searchMatch && positionMatch;
-      });
-
-      this.table.rows.add(finalFilteredData).draw();
+        this.table.rows.add(filteredData).draw();
     }
-  }
+}
 
-  cleanColumnFilters(): void {
-    // Limpiar los valores de los filtros
-    this.filters = {
+
+cleanColumnFilters(): void {
+  // Limpiar los valores de los filtros
+  this.filters = {
       apellidoNombre: '',
       documento: '',
       salarioMin: 0,
       salarioMax: Number.MAX_VALUE
-    };
+  };
 
-    // Limpiar los inputs
-    const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
-    inputs.forEach(input => {
-      input.value = '';
-    });
+  // Limpiar los inputs
+  const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
+  inputs.forEach(input => {
+      input.value = ''; // Clear input values
+      input.dispatchEvent(new Event('input')); // Trigger input event to update the model
+  });
 
-    const selects = document.querySelectorAll('.filtros select') as NodeListOf<HTMLSelectElement>;
-    selects.forEach(select => {
-      select.value = '';
-    });
+  const selects = document.querySelectorAll('.filtros select') as NodeListOf<HTMLSelectElement>;
+  selects.forEach(select => {
+      select.value = ''; // Clear select values
+      select.dispatchEvent(new Event('change')); // Trigger change event to update the model
+  });
 
-    // Recargar la tabla con todos los datos
-    this.applyFilters2();
-  }
+  // Recargar la tabla con todos los datos
+  this.applyFilters2(); // Refresh the displayed list to show all employees
+}
+
   filteredEmpleados: EmpListadoEmpleados[] = [];
 
 
@@ -181,11 +168,85 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     this.bindEditButtons();
   }
 
+  getFormattedDate(): string {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses de 0 a 11
+    const year = today.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+  
   exportToPdf(): void {
+    const doc = new jsPDF();
+
+  if (this.ventana === 'Informacion') {
+    // Extrae datos de la tabla de empleados
+    const dataToExport = this.Empleados.map((empleado) => [
+      empleado.fullName,
+      empleado.document,
+      empleado.position,
+      empleado.salary,
+    ]);
+
+    doc.setFontSize(16);
+    doc.text('Lista de Empleados', 10, 10);
+    (doc as any).autoTable({
+      head: [['Nombre', 'Documento', 'Posición', 'Salario']],
+      body: dataToExport,
+      startY: 20,
+    });
+  } else if (this.ventana === 'Asistencias') {
+    // Extrae datos de la tabla de asistencias
+    const dataToExport = this.Asistencias.map((asistencia) => [
+      asistencia.employeeName,
+      asistencia.date,
+      asistencia.arrivalTime,
+      asistencia.departureTime,
+      asistencia.state,
+    ]);
+
+    doc.setFontSize(16);
+    doc.text('Lista de Asistencias', 10, 10);
+    (doc as any).autoTable({
+      head: [['Nombre del Empleado', 'Fecha', 'Hora de Llegada', 'Hora de Salida', 'Estado']],
+      body: dataToExport,
+      startY: 20,
+    });
+  }
+
+  doc.save(`Lista_${this.ventana}_${this.getFormattedDate()}.pdf`);
   }
 
   exportToExcel(): void {
+    let dataToExport: any[] = []; // Define un array vacío por defecto
+  
+    if (this.ventana === 'Informacion') {
+      // Extrae datos de la tabla de empleados
+      dataToExport = this.Empleados.map((empleado) => ({
+        'Nombre': empleado.fullName,
+        'Documento': empleado.document,
+        'Posición': empleado.position,
+        'Salario': empleado.salary,
+      }));
+    } else if (this.ventana === 'Asistencias') {
+      // Extrae datos de la tabla de asistencias
+      dataToExport = this.Asistencias.map((asistencia) => ({
+        'Nombre del Empleado': asistencia.employeeName,
+        'Fecha': asistencia.date,
+        'Hora de Llegada': asistencia.arrivalTime,
+        'Hora de Salida': asistencia.departureTime,
+        'Estado': asistencia.state,
+      }));
+    }
+  
+    // Aquí se asegura de que dataToExport nunca sea undefined
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, `Lista de ${this.ventana}`);
+    
+    XLSX.writeFile(workbook, `Lista_${this.ventana}_${this.getFormattedDate()}.xlsx`);
   }
+  
 
 
   onSearchFilterChange(event: Event): void {

@@ -435,6 +435,14 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       textInputs.forEach(input => (input as HTMLInputElement).value = '');
     this.aplicarFiltros();
   }
+  getFormattedDate(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${day}-${month}-${year}`;
+  }
 
   generarPdf(): void {
     const doc = new jsPDF();
@@ -470,7 +478,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     // Guardar archivo PDF
-    doc.save('Lista_Productos.pdf');
+    const formattedDate = this.getFormattedDate();
+    doc.save(`Lista_Productos_${formattedDate}.pdf`);
   }
 
   // Método auxiliar para obtener la última fecha de ingreso
@@ -505,7 +514,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Productos');
 
     // Guardar archivo Excel
-    XLSX.writeFile(workbook, 'Lista_Productos.xlsx');
+    const formattedDate = this.getFormattedDate();
+    XLSX.writeFile(workbook, `Lista_Productos_${formattedDate}.xlsx`);
   }
 
   irMenu() {

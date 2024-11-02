@@ -31,6 +31,15 @@ export class IepSupplierListComponent implements AfterViewInit {
 
   constructor(private supplierService: SuppliersService, private router: Router) { }
 
+  getFormattedDate(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${day}-${month}-${year}`;
+  }
+
   exportToPdf(): void {
     const doc = new jsPDF();
     doc.setFontSize(16);
@@ -54,7 +63,8 @@ export class IepSupplierListComponent implements AfterViewInit {
       startY: 20,
     });
 
-    doc.save('Lista_Proveedores.pdf');
+    const formattedDate = this.getFormattedDate();
+    doc.save(`Lista_Proveedores_${formattedDate}.pdf`);
   }
 
   exportToExcel(): void {
@@ -74,7 +84,8 @@ export class IepSupplierListComponent implements AfterViewInit {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Proveedores');
 
-    XLSX.writeFile(workbook, 'Lista_Proveedores.xlsx');
+    const formattedDate = this.getFormattedDate();
+    XLSX.writeFile(workbook, `Lista_Proveedores_${formattedDate}.xlsx`);
   }
 
 

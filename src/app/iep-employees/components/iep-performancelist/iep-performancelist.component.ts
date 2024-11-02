@@ -250,6 +250,14 @@ export class IepPerformancelistComponent implements OnInit {
     this.showDetailsModal = false;
   }
   
+  getFormattedDate(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${day}-${month}-${year}`;
+  }
 
   // Funciones de exportación
   exportToPdf(): void {
@@ -277,7 +285,8 @@ export class IepPerformancelistComponent implements OnInit {
       startY: 20,
     });
   
-    doc.save('Lista_Desempeños_Filtrados.pdf');
+    const formattedDate = this.getFormattedDate();
+    doc.save(`Lista_Desempeños_Filtrados_${formattedDate}.pdf`);
   }
   
   exportToExcel(): void {
@@ -298,6 +307,8 @@ export class IepPerformancelistComponent implements OnInit {
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Desempeños Filtrados');
-    XLSX.writeFile(workbook, 'Lista_Desempeños_Filtrados.xlsx');
+
+    const formattedDate = this.getFormattedDate();
+    XLSX.writeFile(workbook, `Lista_Desempeños_Filtrados_${formattedDate}.xlsx`);
   }
 }
