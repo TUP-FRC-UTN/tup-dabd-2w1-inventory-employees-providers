@@ -1,7 +1,7 @@
-import { CreateProductDTO } from './create-product-dto';
-
-describe('CreateProductDTO', () => {
+import { createProductDTO } from './create-product-dto';
+import { CreateProductDtoClass } from './create-product-dto-class';
+describe('createProductDTO', () => {
   it('should create an instance', () => {
-    expect(new CreateProductDTO()).toBeTruthy();
+    expect(new CreateProductDtoClass).toBeTruthy();
   });
 });

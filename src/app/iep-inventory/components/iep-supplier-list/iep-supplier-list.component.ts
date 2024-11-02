@@ -207,7 +207,7 @@ export class IepSupplierListComponent implements AfterViewInit {
         },
         error: (error) => {
           console.error('Error al eliminar el proveedor', error);
-          alert('Ocurrió un error al intentar dar de baja al proveedor.');
+          
           this.deleteModal.hide();
         }
       });
