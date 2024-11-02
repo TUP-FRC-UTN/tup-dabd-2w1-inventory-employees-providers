@@ -44,39 +44,24 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 
-    <!-- Combobox para la navegación entre diferentes ventanas: Información, Asistencias, y Desempeño -->
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="navbarDropdown" data-bs-toggle="dropdown"
-            aria-expanded="false">
-            {{ ventana || 'Seleccionar Ventana' }}
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li>
-                <button class="dropdown-item" (click)="loadEmpleados()" [disabled]="ventana == 'Informacion'">
-                    Información
-                </button>
-            </li>
-            <li>
-                <button class="dropdown-item" (click)="loadAsistencias()" [disabled]="ventana == 'Asistencias'">
-                    Asistencias
-                </button>
-            </li>
-        </ul>
-    </div>
-
-    <div class="row mt-3" *ngIf="ventana === 'Informacion'">
+    <div class="row mt-3 filtros" *ngIf="ventana === 'Informacion'">
         <!-- Campo de búsqueda y selector de cargos -->
-        <div class="col-md-10 d-flex">
+        <div class="col-md-2">
+            <div class="row">
+                <button class="btn btn-secondary" (click)="loadAsistencias()">Ver asistencias</button>
+            </div>
+        </div>
+        <div class="col-md-3">
             <input type="text" id="inputFiltroNombre" class="form-control m-2" placeholder="Buscar" (input)="onSearchFilterChange($event)" />
-            
+        </div>        
+        <div class="col-md-3">
             <select class="form-select m-2" id="comboFiltroCargo" (change)="onPositionFilterChange($event)">
                 <option value="">Todos los cargos</option>
             </select>
         </div>
+        <div class="col"></div>
     
         <!-- Botones de exportación alineados a la derecha del selector -->
         <div class="col-md-2 d-flex align-items-center justify-content-end">
@@ -89,18 +74,20 @@
         </div>
     </div>
     
-
-
-
    <!-- Filtros para Desempeño y Asistencias -->
-   <div class="row filtros" *ngIf="ventana === 'Desempeño' || ventana === 'Asistencias'">   
+   <div class="row filtros" *ngIf="ventana === 'Desempeño' || ventana === 'Asistencias'">
+        <div class="col-2">
+            <div class="row">
+                <button class="btn btn-secondary" (click)="loadEmpleados()">Ver info gral.</button>  
+            </div>
+        </div>
         <!-- Contenedor de búsqueda por nombre del empleado -->
-        <div class="col-3 d-flex">
+        <div class="col-2">
             <input type="text"  id="searchTerm" placeholder="Nombre" class="form-control"
             [(ngModel)]="nombreFiltrado" (ngModelChange)="filterByDate()">
         </div>
         <!-- Filtro de estado  -->
-        <div class="col-2 d-flex">
+        <div class="col-2">
             <select class="form-select" id="" [(ngModel)]="estadoFiltrado" (ngModelChange)="filterByDate()">
                 <option value="" selected>Estado</option>
                 <option value="PRESENTE">PRESENTE</option>
@@ -110,33 +97,29 @@
             </select>
         </div>
         <!-- Filtros por fecha -->
-        <div class="col-2 d-flex">
+        <div class="col-2">
             <input type="date" id="startDate" class="form-control" [(ngModel)]="startDate"
             (change)="onStartDateChange()"/>
         </div>
-        <div class="col-2 d-flex">
+        <div class="col-2">
             <input type="date" id="endDate" class="form-control" [(ngModel)]="endDate"
             (change)="onEndDateChange()"/>
         </div>
-        <!-- Boton para limpiar los filtros -->
-        <div class="col-1 ">
+        
+        
+        <!-- Tabla de productos y botones para generar PDF o Excel -->
+        <div class="col text-end">
+            <!-- Boton para limpiar los filtros -->
             <button class="btn btn-primary ms-auto" (click)="limpiarFiltro()">
                 <i class="bi bi-trash"></i>
             </button>
-        </div>
-        <div class="col-1">
-            
-        </div>
-        <!-- Tabla de productos y botones para generar PDF o Excel -->
-        <div class="col text-end">
-        <button class="btn btn-success ms-auto">
-            <i class="bi bi-file-earmark-excel"></i>
-        </button>
-        <button class="btn btn-danger ms-2">
-            <i class="bi bi-file-earmark-pdf"></i>
-        </button>
-        </div>
-        
+            <button class="btn btn-success ms-auto">
+                <i class="bi bi-file-earmark-excel"></i>
+            </button>
+            <button class="btn btn-danger ms-2">
+                <i class="bi bi-file-earmark-pdf"></i>
+            </button>
+        </div>    
     </div>
 
     <!-- Tabla de empleados con cabecera de columnas -->
