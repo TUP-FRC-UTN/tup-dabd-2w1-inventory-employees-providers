@@ -14,14 +14,14 @@ import { WarehouseTypePipe } from '../../pipes/warehouse-type.pipe';
 @Component({
   selector: 'app-iep-warehouse-movement-search',
   standalone: true,
-  imports: [CommonModule, FormsModule,WarehouseTypePipe],
+  imports: [CommonModule, FormsModule, WarehouseTypePipe],
   templateUrl: './iep-warehouse-movement-search.component.html',
   styleUrls: ['./iep-warehouse-movement-search.component.css']
 })
 export class IepWarehouseMovementSearchComponent implements AfterViewInit, AfterViewChecked {
   movements: WarehouseMovement[] = [];
-  products:DtoProducto[]=[];
-  selectedMovement:WarehouseMovement | undefined;
+  products: DtoProducto[] = [];
+  selectedMovement: WarehouseMovement | undefined;
   dataTableInstance: any;
   tableInitialized = false;
 
@@ -34,7 +34,7 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
     detailCount: undefined
   };
 
-  constructor(private warehouseMovementService: WarehouseMovementService,private productService: ProductService ) {}
+  constructor(private warehouseMovementService: WarehouseMovementService, private productService: ProductService) { }
 
   exportToPdf(): void {
     const doc = new jsPDF();
@@ -78,22 +78,22 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Movimientos');
 
     XLSX.writeFile(workbook, 'Lista_Movimientos.xlsx');
-}
+  }
 
 
   ngOnInit() {
-    this.searchMovements(); 
+    this.searchMovements();
     this.productService.productGet().subscribe((products) => {
       this.products = products;
     })
   }
 
   ngAfterViewInit(): void {
-   
+
   }
 
   ngAfterViewChecked(): void {
-   
+
     if (this.movements.length > 0 && !this.tableInitialized) {
       this.initializeDataTable();
     }
@@ -104,27 +104,21 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
       this.dataTableInstance = $('#movementsTable').DataTable({
         data: this.movements,
         dom:
-        '<"mb-3"t>' +                           //Tabla
-        '<"d-flex justify-content-between"lp>', //Paginacion
+          '<"mb-3"t>' +                           //Tabla
+          '<"d-flex justify-content-between"lp>', //Paginacion
         columns: [
           {
             data: 'date',
             title: 'Fecha y Hora',
 
-            
-
-
-
-
-
-           render: (data: string) => {
+            render: (data: string) => {
               if (!data) return '';
               const date = new Date(data);
               if (isNaN(date.getTime())) return '';
               return this.formatearFecha(date)
-            } 
+            }
           },
-          
+
           { data: 'applicant', title: 'Solicitante' },
           {
             data: 'detailProducts',
@@ -138,7 +132,7 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
             data: 'movement_type',
             title: 'Tipo',
             render: (data: string) => {
-              switch(data) {
+              switch (data) {
                 case 'RETURN':
                   return 'Devolución';
                 case 'LOAN':
@@ -162,12 +156,12 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
         pageLength: 10,
         lengthChange: true,
         searching: false,
-        destroy: true, 
+        destroy: true,
         language: {
           search: "Buscar:",
           info: "Mostrando _START_ a _END_ de _TOTAL_ movimientos",
           lengthMenu:
-          `<select class="form-select">
+            `<select class="form-select">
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
@@ -176,10 +170,10 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
         }
       });
 
-      
+
       $('#movementsTable tbody').on('click', '.btn-ver-mas', (event) => {
         const id = $(event.currentTarget).data('id');
-        this.openModal(id);  
+        this.openModal(id);
       });
 
       this.tableInitialized = true;
@@ -195,21 +189,21 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
     const minutos = String(fecha.getMinutes()).padStart(2, '0');
     return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
   }
-  
+
   updateDataTable(newMovements: WarehouseMovement[]): void {
     if (this.dataTableInstance) {
       this.dataTableInstance.clear();
       this.dataTableInstance.rows.add(newMovements);
       this.dataTableInstance.draw();
     } else {
-      this.initializeDataTable(); 
+      this.initializeDataTable();
     }
   }
 
   searchMovements() {
     this.warehouseMovementService.searchMovements(this.searchParams).subscribe((movements) => {
       this.movements = movements;
-      this.updateDataTable(movements); 
+      this.updateDataTable(movements);
     });
   }
 
@@ -217,7 +211,7 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
     this.movements.forEach((movement) => {
       if (movement.id === id) {
         this.selectedMovement = movement;
-        
+
       }
     })
   }

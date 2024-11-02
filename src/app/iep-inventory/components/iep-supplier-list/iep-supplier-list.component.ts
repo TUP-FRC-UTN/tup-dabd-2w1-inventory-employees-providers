@@ -96,6 +96,7 @@ export class IepSupplierListComponent implements AfterViewInit {
   }
 
   initializeDataTable(): void {
+    const self = this; // Guardar referencia al componente
     $(document).ready(() => {
       this.dataTableInstance = $('#suppliersTable').DataTable({
         dom:
@@ -136,8 +137,8 @@ export class IepSupplierListComponent implements AfterViewInit {
                     &#8942;
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item edit-btn" href="#" data-id="${data.id}">Editar</a></li>
-                    <li><a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${data.id}">Eliminar</a></li>
+                    <li><a class="dropdown-item edit-btn" href="#" data-supplier-id="${data.id}">Editar</a></li>
+                    <li><a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" data-supplier-id="${data.id}">Eliminar</a></li>
                   </ul>
                 </div>`;
             }
@@ -160,24 +161,37 @@ export class IepSupplierListComponent implements AfterViewInit {
           },
 
           emptyTable: "No hay datos disponibles en la tabla",
+        },
+        drawCallback: function() {
+          // Agregar event listeners después de cada redibujado de la tabla
+          $('.edit-supplier').off('click').on('click', function(e) {
+            e.preventDefault();
+            const supplierId = $(this).data('supplier-id');
+            self.updateSupplier(supplierId);
+          });
+  
+          $('.delete-supplier').off('click').on('click', function(e) {
+            e.preventDefault();
+            const supplierId = $(this).data('supplier-id');
+            if (confirm('¿Está seguro de que desea eliminar este proveedor?')) {
+              self.deleteSupplier(supplierId);
+            }
+          });
         }
       });
-
-
-      // Actualizar los event listeners
-      $('#suppliersTable tbody').on('click', '.delete-btn', (event) => {
-        event.preventDefault(); // Prevenir navegación por defecto
-        const id = $(event.currentTarget).data('id');
-        this.setSupplierToDelete(id);
-      });
-
-      $('#suppliersTable tbody').on('click', '.edit-btn', (event) => {
-        event.preventDefault(); // Prevenir navegación por defecto
-        const id = $(event.currentTarget).data('id');
-        this.updateSupplier(id);
-      });
-
       this.tableInitialized = true;
+    });
+  }
+
+  loadSuppliers(): void {
+    this.supplierService.searchSuppliers(null, null, null, false).subscribe(data => {
+      this.suppliers = data;
+      this.filteredSuppliers = data;
+      if (!this.tableInitialized) {
+        this.initializeDataTable();
+      } else {
+        this.updateDataTable(data);
+      }
     });
   }
 
@@ -191,6 +205,7 @@ export class IepSupplierListComponent implements AfterViewInit {
 
   setSupplierToDelete(id: number): void {
     this.selectedSupplierId = id;
+    this.confirmDelete();
   }
 
   confirmDelete(): void {
@@ -217,24 +232,18 @@ export class IepSupplierListComponent implements AfterViewInit {
     this.router.navigate(['/supplier-update', id]);
     //}
   }
-
   deleteSupplier(id: number): void {
-    //const isConfirmed = window.confirm('¿Seguro que desea dar de baja al proveedor seleccionado?');
-    //if (isConfirmed) {
-    this.supplierService.deleteSupplier(id).subscribe(
-      response => {
-        //alert('¡Proveedor dado de baja correctamente!');
-        console.log(response);
-        // Actualizar la lista de proveedores después de eliminar
-        this.suppliers = this.suppliers.filter(supplier => supplier.id !== id);
-        this.updateDataTable(this.suppliers);
+    this.supplierService.deleteSupplier(id).subscribe({
+      next: () => {
+        this.loadSuppliers(); // Recargar la lista después de eliminar
       },
-      error => {
+      error: (err) => {
+        console.error('Error al eliminar el proveedor:', err);
         alert('Ocurrió un error al intentar dar de baja al proveedor.');
       }
-    );
-    //}
+    });
   }
+
 
   goBack() {
     window.history.back();
