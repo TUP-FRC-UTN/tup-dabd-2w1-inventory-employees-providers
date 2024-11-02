@@ -22,6 +22,8 @@ interface EmployeeFilters {
   salarioMax: number;
 }
 
+
+
 @Component({
   selector: 'app-iep-list-employees',
   standalone: true,
@@ -30,6 +32,8 @@ interface EmployeeFilters {
   styleUrls: ['./iep-list-employees.component.css'],
 })
 export class IepListEmployeesComponent implements OnInit, OnDestroy {
+
+  
 
   private filters: EmployeeFilters = {
     apellidoNombre: '',
