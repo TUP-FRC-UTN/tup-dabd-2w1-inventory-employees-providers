@@ -19,10 +19,12 @@ declare var DataTable: any;
 // Interfaz para los filtros
 interface EmployeeFilters {
   apellidoNombre: string;
+  position: string; // Cargo del empleado
   documento: string;
   salarioMin: number;
   salarioMax: number;
 }
+
 
 @Component({
   selector: 'app-iep-list-employees',
@@ -33,8 +35,47 @@ interface EmployeeFilters {
 })
 export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
+  applyFilters(): void {
+    if (this.table) {
+      this.table.clear();
+
+      const filteredData = this.Empleados.filter(empleado => {
+        // Filtro por apellido y nombre
+        const nameMatch = !this.filters.apellidoNombre ||
+          empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre.toLowerCase());
+
+        // Filtro por documento
+        const documentMatch = !this.filters.documento ||
+          empleado.document.toString().toLowerCase().includes(this.filters.documento.toLowerCase());
+
+        // Filtro por rango de salario
+        const salaryMatch = empleado.salary >= this.filters.salarioMin &&
+          empleado.salary <= this.filters.salarioMax;
+
+        // Filtro de búsqueda general (searchFilter)
+        const searchTerms = this.searchFilter ? this.searchFilter.toLowerCase().split(' ') : [];
+        const searchMatch = !this.searchFilter || searchTerms.every(term =>
+          empleado.fullName.toLowerCase().includes(term) ||
+          empleado.document.toString().toLowerCase().includes(term) ||
+          empleado.salary.toString().includes(term)
+        );
+
+        // Filtro por posición
+        const positionMatch = !this.positionFilter ||
+          empleado.position === this.positionFilter;
+
+        // Aplicar todos los filtros en conjunto
+        return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch;
+      });
+
+      this.table.rows.add(filteredData).draw();
+    }
+  }
+
+
   private filters: EmployeeFilters = {
     apellidoNombre: '',
+    position: '', // Cargo del empleado
     documento: '',
     salarioMin: 0,
     salarioMax: Number.MAX_VALUE
@@ -42,83 +83,54 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
   applyColumnFilter(event: Event, field: string): void {
     const value = (event.target as HTMLInputElement).value.toLowerCase();
-    
+
     if (field === 'apellidoNombre') {
       this.filters.apellidoNombre = value;
     } else if (field === 'documento') {
       this.filters.documento = value;
     }
-    
-    this.applyFilters2();
+
+    this.applyFilters();
   }
 
   applyAmountFilter(type: string, event: Event): void {
     const value = Number((event.target as HTMLInputElement).value) || 0;
-    
+
     if (type === 'min') {
       this.filters.salarioMin = value;
     } else if (type === 'max') {
       this.filters.salarioMax = value || Number.MAX_VALUE;
     }
-    
-    this.applyFilters2();
+
+    this.applyFilters();
   }
 
-  applyFilters2(): void {
-    if (this.table) {
-        this.table.clear();
-
-        const filteredData = this.Empleados.filter(empleado => {
-            // Filtro por apellido y nombre
-            const nameMatch = !this.filters.apellidoNombre || 
-                empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre);
-
-            // Filtro por documento
-            const documentMatch = !this.filters.documento || 
-                empleado.document.toString().toLowerCase().includes(this.filters.documento);
-
-            // Filtro por rango de salario
-            const salaryMatch = empleado.salary >= this.filters.salarioMin && 
-                empleado.salary <= this.filters.salarioMax;
-
-            // Filtro por posición
-            const positionMatch = !this.positionFilter || 
-                empleado.position === this.positionFilter;
-
-            // Aplicar todos los filtros en conjunto
-            return nameMatch && documentMatch && salaryMatch && positionMatch;
-        });
-
-        this.table.rows.add(filteredData).draw();
-    }
-}
-
-
-cleanColumnFilters(): void {
-  // Limpiar los valores de los filtros
-  this.filters = {
+  cleanColumnFilters(): void {
+    // Limpiar los valores de los filtros
+    this.filters = {
       apellidoNombre: '',
+      position: '', // Cargo del empleado
       documento: '',
       salarioMin: 0,
       salarioMax: Number.MAX_VALUE
-  };
+    };
 
-  // Limpiar los inputs
-  const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
-  inputs.forEach(input => {
+    // Limpiar los inputs
+    const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
+    inputs.forEach(input => {
       input.value = ''; // Clear input values
       input.dispatchEvent(new Event('input')); // Trigger input event to update the model
-  });
+    });
 
-  const selects = document.querySelectorAll('.filtros select') as NodeListOf<HTMLSelectElement>;
-  selects.forEach(select => {
+    const selects = document.querySelectorAll('.filtros select') as NodeListOf<HTMLSelectElement>;
+    selects.forEach(select => {
       select.value = ''; // Clear select values
       select.dispatchEvent(new Event('change')); // Trigger change event to update the model
-  });
+    });
 
-  // Recargar la tabla con todos los datos
-  this.applyFilters2(); // Refresh the displayed list to show all employees
-}
+    // Recargar la tabla con todos los datos
+    this.applyFilters(); // Refresh the displayed list to show all employees
+  }
 
   filteredEmpleados: EmpListadoEmpleados[] = [];
 
@@ -155,8 +167,6 @@ cleanColumnFilters(): void {
 
   ) { }
 
-
-
   ngOnInit(): void {
     this.loadEmpleados();
     this.initializeDates();
@@ -171,51 +181,51 @@ cleanColumnFilters(): void {
     const year = today.getFullYear();
     return `${day}/${month}/${year}`;
   }
-  
+
   exportToPdf(): void {
     const doc = new jsPDF();
 
-  if (this.ventana === 'Informacion') {
-    // Extrae datos de la tabla de empleados
-    const dataToExport = this.Empleados.map((empleado) => [
-      empleado.fullName,
-      empleado.document,
-      empleado.position,
-      empleado.salary,
-    ]);
+    if (this.ventana === 'Informacion') {
+      // Extrae datos de la tabla de empleados
+      const dataToExport = this.Empleados.map((empleado) => [
+        empleado.fullName,
+        empleado.document,
+        empleado.position,
+        empleado.salary,
+      ]);
 
-    doc.setFontSize(16);
-    doc.text('Lista de Empleados', 10, 10);
-    (doc as any).autoTable({
-      head: [['Nombre', 'Documento', 'Posición', 'Salario']],
-      body: dataToExport,
-      startY: 20,
-    });
-  } else if (this.ventana === 'Asistencias') {
-    // Extrae datos de la tabla de asistencias
-    const dataToExport = this.Asistencias.map((asistencia) => [
-      asistencia.employeeName,
-      asistencia.date,
-      asistencia.arrivalTime,
-      asistencia.departureTime,
-      asistencia.state,
-    ]);
+      doc.setFontSize(16);
+      doc.text('Lista de Empleados', 10, 10);
+      (doc as any).autoTable({
+        head: [['Nombre', 'Documento', 'Posición', 'Salario']],
+        body: dataToExport,
+        startY: 20,
+      });
+    } else if (this.ventana === 'Asistencias') {
+      // Extrae datos de la tabla de asistencias
+      const dataToExport = this.Asistencias.map((asistencia) => [
+        asistencia.employeeName,
+        asistencia.date,
+        asistencia.arrivalTime,
+        asistencia.departureTime,
+        asistencia.state,
+      ]);
 
-    doc.setFontSize(16);
-    doc.text('Lista de Asistencias', 10, 10);
-    (doc as any).autoTable({
-      head: [['Nombre del Empleado', 'Fecha', 'Hora de Llegada', 'Hora de Salida', 'Estado']],
-      body: dataToExport,
-      startY: 20,
-    });
-  }
+      doc.setFontSize(16);
+      doc.text('Lista de Asistencias', 10, 10);
+      (doc as any).autoTable({
+        head: [['Nombre del Empleado', 'Fecha', 'Hora de Llegada', 'Hora de Salida', 'Estado']],
+        body: dataToExport,
+        startY: 20,
+      });
+    }
 
-  doc.save(`Lista_${this.ventana}_${this.getFormattedDate()}.pdf`);
+    doc.save(`Lista_${this.ventana}_${this.getFormattedDate()}.pdf`);
   }
 
   exportToExcel(): void {
     let dataToExport: any[] = []; // Define un array vacío por defecto
-  
+
     if (this.ventana === 'Informacion') {
       // Extrae datos de la tabla de empleados
       dataToExport = this.Empleados.map((empleado) => ({
@@ -234,15 +244,15 @@ cleanColumnFilters(): void {
         'Estado': asistencia.state,
       }));
     }
-  
+
     // Aquí se asegura de que dataToExport nunca sea undefined
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, `Lista de ${this.ventana}`);
-    
+
     XLSX.writeFile(workbook, `Lista_${this.ventana}_${this.getFormattedDate()}.xlsx`);
   }
-  
+
 
 
   onSearchFilterChange(event: Event): void {
@@ -283,36 +293,6 @@ cleanColumnFilters(): void {
     const select = event.target as HTMLSelectElement;
     this.positionFilter = select.value;
     this.applyFilters();
-  }
-
-  private applyFilters(): void {
-    if (this.table) {
-      this.table.clear();
-
-      const filteredData = this.Empleados.filter(empleado => {
-        if (!this.searchFilter && !this.positionFilter) {
-          return true;
-        }
-
-        const searchTerms = this.searchFilter.toLowerCase().split(' ');
-        const searchMatch = !this.searchFilter || searchTerms.every(term => {
-          const fullName = empleado.fullName.toLowerCase();
-          const document = empleado.document.toString().toLowerCase();
-          const salary = empleado.salary.toString();
-
-          return fullName.includes(term) ||
-            document.includes(term) ||
-            salary.includes(term);
-        });
-
-        const positionMatch = !this.positionFilter ||
-          empleado.position === this.positionFilter;
-
-        return searchMatch && positionMatch;
-      });
-
-      this.table.rows.add(filteredData).draw();
-    }
   }
 
   setInitialDates(): void {
@@ -582,9 +562,6 @@ cleanColumnFilters(): void {
       self.editarEmpleado(id); // Llama al método editarEmpleado
     });
   }
-
-
-
 
   private initializeAsistenciasTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
