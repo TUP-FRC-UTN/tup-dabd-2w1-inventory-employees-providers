@@ -14,6 +14,14 @@ import { ListadoDesempeñoService } from '../../services/listado-desempeño.serv
 declare var $: any;
 declare var DataTable: any;
 
+// Interfaz para los filtros
+interface EmployeeFilters {
+  apellidoNombre: string;
+  documento: string;
+  salarioMin: number;
+  salarioMax: number;
+}
+
 @Component({
   selector: 'app-iep-list-employees',
   standalone: true,
@@ -23,67 +31,112 @@ declare var DataTable: any;
 })
 export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
-  
-  filteredEmpleados: EmpListadoEmpleados[] = [];
-
-  private columnFilters: { [key: string]: string } = {
+  private filters: EmployeeFilters = {
     apellidoNombre: '',
     documento: '',
+    salarioMin: 0,
+    salarioMax: Number.MAX_VALUE
   };
-  private amountFilters: { min: number | null; max: number | null } = {
-    min: null,
-    max: null,
-  };
+
+  applyColumnFilter(event: Event, field: string): void {
+    const value = (event.target as HTMLInputElement).value.toLowerCase();
+    
+    if (field === 'apellidoNombre') {
+      this.filters.apellidoNombre = value;
+    } else if (field === 'documento') {
+      this.filters.documento = value;
+    }
+    
+    this.applyFilters2();
+  }
+
+  applyAmountFilter(type: string, event: Event): void {
+    const value = Number((event.target as HTMLInputElement).value) || 0;
+    
+    if (type === 'min') {
+      this.filters.salarioMin = value;
+    } else if (type === 'max') {
+      this.filters.salarioMax = value || Number.MAX_VALUE;
+    }
+    
+    this.applyFilters2();
+  }
+
+  applyFilters2(): void {
+    if (this.table) {
+      this.table.clear();
+
+      const filteredData = this.Empleados.filter(empleado => {
+        // Filtro por apellido y nombre
+        const nameMatch = !this.filters.apellidoNombre || 
+          empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre);
+
+        // Filtro por documento
+        const documentMatch = !this.filters.documento || 
+          empleado.document.toString().toLowerCase().includes(this.filters.documento);
+
+        // Filtro por rango de salario
+        const salaryMatch = empleado.salary >= this.filters.salarioMin && 
+          empleado.salary <= this.filters.salarioMax;
+
+        // Aplicar todos los filtros en conjunto
+        return nameMatch && documentMatch && salaryMatch;
+      });
+
+      // Mantener los filtros existentes de búsqueda y posición
+      const finalFilteredData = filteredData.filter(empleado => {
+        if (!this.searchFilter && !this.positionFilter) {
+          return true;
+        }
+
+        const searchTerms = this.searchFilter.toLowerCase().split(' ');
+        const searchMatch = !this.searchFilter || searchTerms.every(term => {
+          const fullName = empleado.fullName.toLowerCase();
+          const document = empleado.document.toString().toLowerCase();
+          const salary = empleado.salary.toString();
+
+          return fullName.includes(term) ||
+            document.includes(term) ||
+            salary.includes(term);
+        });
+
+        const positionMatch = !this.positionFilter ||
+          empleado.position === this.positionFilter;
+
+        return searchMatch && positionMatch;
+      });
+
+      this.table.rows.add(finalFilteredData).draw();
+    }
+  }
 
   cleanColumnFilters(): void {
-    this.columnFilters = {
+    // Limpiar los valores de los filtros
+    this.filters = {
       apellidoNombre: '',
       documento: '',
-    };
-    this.amountFilters = {
-      min: null,
-      max: null,
+      salarioMin: 0,
+      salarioMax: Number.MAX_VALUE
     };
 
-    // Limpiar los campos de entrada
-    const inputs = document.querySelectorAll('input[type="text"]');
-    inputs.forEach(input => (input as HTMLInputElement).value = '');
+    // Limpiar los inputs
+    const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
+    inputs.forEach(input => {
+      input.value = '';
+    });
 
-    // Resetear otros filtros
-    this.searchFilter = '';
-    this.positionFilter = '';
+    const selects = document.querySelectorAll('.filtros select') as NodeListOf<HTMLSelectElement>;
+    selects.forEach(select => {
+      select.value = '';
+    });
 
     // Recargar la tabla con todos los datos
     this.applyFilters2();
   }
+  filteredEmpleados: EmpListadoEmpleados[] = [];
 
-  // Implementación del método para filtrar por monto (salario)
-  applyAmountFilter(type: string, event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const value = input.value ? parseFloat(input.value) : null;
 
-    if (type === 'min') {
-      this.amountFilters.min = value;
-    } else {
-      this.amountFilters.max = value;
-    }
-
-    this.applyFilters2();
-  }
-
-  // Implementación del método para filtrar por columna
-  applyColumnFilter(event: Event, column: string): void {
-    const input = event.target as HTMLInputElement;
-    this.columnFilters[column] = input.value.toLowerCase();
-    this.applyFilters2();
-  }
-
-  // Modificación del método applyFilters existente
-  private applyFilters2(): void {
-
-  }
-
-  filtersVisible = true; // Indica si los filtros están visibles o no
+  filtersVisible = false; // Indica si los filtros están visibles o no
 
   toggleFilters(): void {
     this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros

@@ -136,23 +136,23 @@
 
 
         <!-- Filtros para todas las columnas en la pestaña información -->
-        <div class="row filtros mb-1" *ngIf="ventana === 'Informacion'">
-            <div class="col-md-2">
+        <div class="row filtros mb-2" *ngIf="ventana === 'Informacion' && filtersVisible">
+            <div class="col-md-4">
                 <input type="text" placeholder="Apellido y Nombre" (input)="applyColumnFilter($event, 'apellidoNombre')"
                     class="form-control" />
             </div>
-            <div class="col-md-2">
+            <div class="col-md-4">
                 <input type="text" placeholder="Documento" (input)="applyColumnFilter($event, 'documento')"
-                    class="form-control" />
+                    class="form-control text-end" />
             </div>
             <div class="col-md-2">
-                <input type="text" placeholder="Salario" (input)="applyAmountFilter('min', $event)"
-                    class="form-control" />
+                <input type="text" placeholder="Salario Mínimo" (input)="applyAmountFilter('min', $event)"
+                    class="form-control text-end" />
             </div>
 
             <div class="col-md-2">
-                <input type="text" placeholder="Salario" (input)="applyAmountFilter('max', $event)"
-                    class="form-control" />
+                <input type="text" placeholder="Salario Máximo" (input)="applyAmountFilter('max', $event)"
+                    class="form-control text-end" />
             </div>
         </div>
 
