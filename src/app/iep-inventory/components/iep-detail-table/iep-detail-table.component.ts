@@ -24,8 +24,26 @@ import { DetailServiceService } from '../../services/detail-service.service';
   styleUrls: ['./iep-detail-table.component.css'],
 })
 export class IepDetailTableComponent implements OnInit, OnDestroy {
+
+  cleanColumnFilters() {
+    throw new Error('Method not implemented.');
+  }
+  filtersVisible: boolean = false;
+  filteredDetails: Details[] = []; // Nueva lista para elementos filtrados  
+  selectedState: string = ''; // Método para aplicar filtro por estado
+
+  toggleFilters(): void {
+    this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+  }
+
+  applyPriceFilter(arg0: string, $event: Event) {
+    throw new Error('Method not implemented.');
+  }
+  applyColumnFilter($event: Event, arg1: string) {
+    throw new Error('Method not implemented.');
+  }
+
   details: Details[] = [];
-  filteredDetails: Details[] = []; // Nueva lista para elementos filtrados
   private table: any;
   justificativo: string = '';
   selectedIds: number[] = [];
@@ -33,16 +51,16 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
   currentSearchTerm: string = ''; // Almacena el término de búsqueda actual
 
   //////
-  idUser:number=1;
-  reincorporationDate=false;
+  idUser: number = 1;
+  reincorporationDate = false;
   selectedDetailstoShow: Details[] = [];
   loading: boolean = false;
   confirmPost: boolean = false;
   employees: EmpListadoEmpleados[] = [];
-  dtoCreate: IepCreateWarehouseMovementDTO=new IepCreateWarehouseMovementDTO();
-  createMovement$: Observable<any>= new Observable<any>();
+  dtoCreate: IepCreateWarehouseMovementDTO = new IepCreateWarehouseMovementDTO();
+  createMovement$: Observable<any> = new Observable<any>();
   errorMessage: string | undefined;
-  errorPost:boolean=false;
+  errorPost: boolean = false;
   optionsToMovement: string[] = [];
 
 
@@ -52,7 +70,7 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
     const day = date.getDate().toString().padStart(2, '0');
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
-    
+
     // Create a new date object with local timezone
     const formattedDate = new Date(`${year}-${month}-${day}T${hours}:${minutes}`);
     return formattedDate;
@@ -63,30 +81,30 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
   constructor(private detailService: DetailServiceService,
     private employeesService: EmpListadoEmpleadosService,
     private warehouseService: WarehouseMovementService,
-    private router:Router
+    private router: Router
   ) { }
 
   applyStateFilter(event: any): void {
     const selectedState = event.target.value;
-    
+
     // Filtrar por estado y aplicar el filtro de búsqueda al mismo tiempo
     this.filteredDetails = this.details.filter(detail => {
       const matchesState = selectedState ? detail.state === selectedState : true;
       const matchesSearch = detail.description.toLowerCase().includes(this.currentSearchTerm.toLowerCase()) ||
-                            detail.supplierName.toLowerCase().includes(this.currentSearchTerm.toLowerCase()) ||
-                            detail.state.toLowerCase().includes(this.currentSearchTerm.toLowerCase());
+        detail.supplierName.toLowerCase().includes(this.currentSearchTerm.toLowerCase()) ||
+        detail.state.toLowerCase().includes(this.currentSearchTerm.toLowerCase());
       return matchesState && matchesSearch;
     });
-  
+
     // Actualizar la tabla con los elementos filtrados
     this.table.clear().rows.add(this.filteredDetails).draw();
   }
-  
 
-  
-  changeSelectEmployees(): void{
+
+
+  changeSelectEmployees(): void {
     console.log('Empleado seleccionado:', this.dtoCreate.employee_id);
-    this.dtoCreate.applicant = this.employees.find(emp => emp.id === this.dtoCreate.employee_id)?.fullName ;
+    this.dtoCreate.applicant = this.employees.find(emp => emp.id === this.dtoCreate.employee_id)?.fullName;
   }
 
   loadEmployees(): void {
@@ -101,46 +119,45 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSubmit(form: NgForm) 
-  {
+  onSubmit(form: NgForm) {
     this.loading = true;
     this.confirmPost = false;
-    this.errorPost=false;
-    if(form.valid){
+    this.errorPost = false;
+    if (form.valid) {
       this.dtoCreate.id_details = this.selectedIds;
       this.dtoCreate.responsible = 'Encargado de Inventario';
       console.log(".............");
       console.log(this.dtoCreate);
-      this.createMovement$ = this.warehouseService.postWarehouseMovement(this.dtoCreate,this.idUser)
+      this.createMovement$ = this.warehouseService.postWarehouseMovement(this.dtoCreate, this.idUser)
         .pipe(catchError((err) => {
-          if(err.error.message=="Required request parameter 'idLastUpdatedUser' for method parameter type Integer is not present"){
+          if (err.error.message == "Required request parameter 'idLastUpdatedUser' for method parameter type Integer is not present") {
             this.errorMessage = 'No se ha especificado el usuario que realiza el movimiento';
           }
-          if(err.error.message=="404 Item not available to loan"){
+          if (err.error.message == "404 Item not available to loan") {
             this.errorMessage = 'El producto no está disponible para préstamo';
           }
-          if(err.error.message=='404 Item already available'){
+          if (err.error.message == '404 Item already available') {
             this.errorMessage = 'El producto ya está disponible';
           }
-          if(err.error.message=='404 Item already in maintenance'){
+          if (err.error.message == '404 Item already in maintenance') {
             this.errorMessage = 'El producto ya está en mantenimiento';
           }
-          this.errorPost=true;
+          this.errorPost = true;
           console.error('Error al registrar movimiento de almacén:', err);
           console.log(err.error.message);
           return [];
         }
         ));
-    }else{
+    } else {
       console.log("Formulario inválido");
     }
     this.loading = false;
-    if(this.createMovement$){
+    if (this.createMovement$) {
       this.confirmPost = true;
     }
   }
 
-  cleanDTO(): void{
+  cleanDTO(): void {
     this.dtoCreate = new IepCreateWarehouseMovementDTO();
     this.dtoCreate.date = new Date().toISOString().slice(0, 16);
     this.dtoCreate.reinstatement_datetime = new Date().toISOString().slice(0, 16);
@@ -154,7 +171,7 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
     this.loadDetails();
   }
 
- 
+
 
   onChangeEmployee(): void {
     var applicantString;
@@ -181,16 +198,16 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
     this.dtoCreate.responsible = 'Encargado de Inventario';
     const modalElement = document.getElementById('warehouseModal');
     const modalDeleteElement = document.getElementById('confirmDeleteModal');
-  // Agregar listener para clics en el backdrop
+    // Agregar listener para clics en el backdrop
     document.addEventListener('click', (event: any) => {
-    if (event.target === modalElement || event.target === modalDeleteElement) {
-      // El clic fue en el backdrop
-      console.log('Clic en el backdrop');
-      this.confirmPost=false;
-      this.cleanDTO();
-      // o cualquier otro método
-    }
-  });
+      if (event.target === modalElement || event.target === modalDeleteElement) {
+        // El clic fue en el backdrop
+        console.log('Clic en el backdrop');
+        this.confirmPost = false;
+        this.cleanDTO();
+        // o cualquier otro método
+      }
+    });
   }
 
   initializeModal(): void {
@@ -203,13 +220,13 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
 
     this.detailService.getDetails().subscribe({
       next: (details) => {
-        if(this.details.length==0){
+        if (this.details.length == 0) {
           this.details = details;
-          this.filteredDetails = details; 
+          this.filteredDetails = details;
           this.initializeDataTable();
-        }else{
+        } else {
           this.details = details;
-          this.filteredDetails = details; 
+          this.filteredDetails = details;
           this.updateDataTable();
         }
         // Inicializa el filtro con todos los elementos
@@ -220,7 +237,7 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
     });
   }
 
-   applyFilter(event: any): void {
+  applyFilter(event: any): void {
     const searchTerm = event.target.value.toLowerCase();
     this.filteredDetails = this.details.filter(detail =>
       detail.description.toLowerCase().includes(searchTerm) ||
@@ -246,8 +263,8 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
 
     this.table = $('#productTable').DataTable({
       dom:
-      '<"mb-3"t>' +                           
-      '<"d-flex justify-content-between"lp>', 
+        '<"mb-3"t>' +
+        '<"d-flex justify-content-between"lp>',
       //dom: '<"d-flex justify-content-between align-items-center mb-3"<"d-flex align-items-center gap-2"f><"select-all-wrapper">>rt<"d-flex justify-content-end"p>',
       //dom: '<"d-flex justify-content-between align-items-center mb-3"f<"select-all-wrapper">>rt<"d-flex justify-content-end"p>', // Paginación a la derecha
       /*       layout: {

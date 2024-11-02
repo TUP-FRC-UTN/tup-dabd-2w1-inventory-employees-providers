@@ -6,13 +6,19 @@
       <div class="col-sm-6">
         <div class="mb-3">
           <label class="form-label">Razon social</label>
-          <input type="text" formControlName="name" class="form-control" />
+          <input type="text" formControlName="name" class="form-control" [ngClass]="{ 'is-invalid': hasError('name', 'required') }" />
+          <div *ngIf="hasError('name','required')" class="text-danger">
+            <span>La razon social es requerida</span>
+          </div>
         </div>
       </div>
       <div class="col-sm-6">
         <div class="mb-3">
           <label class="form-label">Obra social</label>
-          <input type="text" formControlName="healthInsurance" class="form-control" />
+          <input type="text" formControlName="healthInsurance" class="form-control"  [ngClass]="{ 'is-invalid': hasError('healthInsurance', 'required') }" />
+          <div *ngIf="hasError('healthInsurance','required')" class="text-danger">
+            <span>La obra social requerida</span>
+          </div>
         </div>
       </div>
     </div>
@@ -20,13 +26,24 @@
       <div class="col-sm-6">
         <div class="mb-3">
           <label class="form-label">Telefono</label>
-          <input type="text" formControlName="phoneNumber" class="form-control" />
+          <input type="text" formControlName="phoneNumber" class="form-control"[ngClass]="{
+            'is-invalid': hasError('phoneNumber', 'required') || hasError('phoneNumber', 'pattern')
+          }" />
+          <div *ngIf="hasError('phoneNumber','required')" class="text-danger">
+            <span>El telefono es requerido</span>
+          </div>
+          <div *ngIf="hasError('phoneNumber', 'pattern')" class="text-danger">
+            <span>Solo se permiten números en el teléfono.</span>
+          </div>
         </div>
       </div>
       <div class="col-sm-6">
         <div class="mb-3">
           <label class="form-label">Email</label>
-          <input type="email" formControlName="email" class="form-control" />
+          <input type="email" formControlName="email" class="form-control"   [ngClass]="{ 'is-invalid': hasError('healthInsurance', 'required') }"/>
+          <div *ngIf="hasError('email','required')" class="text-danger">
+            <span>El email es requerido</span>
+          </div>
         </div>
       </div>
     </div>
@@ -45,7 +62,10 @@
       <div class="col-sm-6">
         <div class="mb-3">
           <label class="form-label">Direccion</label>
-          <input type="text" formControlName="address" class="form-control" />
+          <input type="text" formControlName="address" class="form-control"  [ngClass]="{ 'is-invalid': hasError('healthInsurance', 'required') }" />
+          <div *ngIf="hasError('address','required')" class="text-danger">
+            <span>La direccion es requerido</span>
+          </div>
         </div>
       </div>
     </div>
@@ -53,13 +73,15 @@
       <div class="col">
         <div class="mb-3">
           <label class="form-label">Descripcion</label>
-          <textarea formControlName="description" class="form-control" rows="3"></textarea>
+          <textarea formControlName="description" class="form-control" rows="3" ></textarea>
+          
         </div>
       </div>
     </div>
     <div class="row">
       <div class="col">
-        <button type="submit" class="btn btn-secondary" routerLink="/suppliers">Volver</button>
+        <button class="btn btn-secondary" routerLink="/home/suppliers">Volver</button>
+
 
       </div>
       <div class="col text-end">

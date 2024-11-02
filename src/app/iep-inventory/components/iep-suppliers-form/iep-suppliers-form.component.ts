@@ -3,11 +3,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { SuppliersService } from '../../services/suppliers.service';
 import { Router, RouterModule } from '@angular/router';
 import { iepBackButtonComponent } from '../../../common-components/iep-back-button/iep-back-button.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-iep-suppliers-form',
   standalone: true,
-  imports: [iepBackButtonComponent,ReactiveFormsModule,RouterModule],
+  imports: [iepBackButtonComponent,ReactiveFormsModule,RouterModule,CommonModule],
   templateUrl: './iep-suppliers-form.component.html',
   styleUrl: './iep-suppliers-form.component.css'
 })
@@ -40,5 +41,15 @@ export class IepSuppliersFormComponent {
         
       });
     }
+  }
+
+
+  hasError(controlName: string, errorType: string): boolean {
+    const control = this.proveedorForm.get(controlName);
+    return control ? control.hasError(errorType) && (control.touched || control.dirty) : false;
+  }
+
+  goBack() {
+    this.router.navigate(['/suppliers']);
   }
 }

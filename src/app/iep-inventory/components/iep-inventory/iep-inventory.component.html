@@ -3,10 +3,10 @@
 <section class="py-5">
 
   <div class="container p-3 border border-2 rounded shadow-lg">
-  
-<!-- Título del documento -->
 
-  <form class="form">
+    <!-- Título del documento -->
+
+    <form class="form">
 
       <!-- Modal para información adicional sobre el inventario -->
       <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -58,7 +58,7 @@
       </div>
 
       <!-- Botones para generar PDF o Excel -->
-      <div class="row">
+      <div class="row mb-2">
 
         <!-- Sección de filtros y botones de exportación -->
         <div class="d-flex mb-3 justify-content-between align-items-center">
@@ -160,35 +160,35 @@
       </div>
 
       <!-- Botones de navegación: Volver y agregar nuevo producto -->
-  </form>
+    </form>
 
 
 
-<!-- Modal para aumento de stock -->
-<div class="modal fade" [class.show]="showAumentoStockModal" [style.display]="showAumentoStockModal ? 'block' : 'none'"
-  id="aumentoStockModal" tabindex="-1" aria-labelledby="aumentoStockModalLabel"
-  [attr.aria-modal]="showAumentoStockModal" [attr.aria-hidden]="!showAumentoStockModal"
-  (click)="handleModalBackdropClick($event)">
-  <div class="modal-dialog modal-lg" style="max-width: 75%;" (click)="$event.stopPropagation()">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Agregar Aumento de Stock</h5>
-        <button type="button" class="btn-close" (click)="cerrarModalAumentoStock()" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <app-iep-stock-increase *ngIf="showAumentoStockModal"></app-iep-stock-increase>
+    <!-- Modal para aumento de stock -->
+    <div class="modal fade" [class.show]="showAumentoStockModal"
+      [style.display]="showAumentoStockModal ? 'block' : 'none'" id="aumentoStockModal" tabindex="-1"
+      aria-labelledby="aumentoStockModalLabel" [attr.aria-modal]="showAumentoStockModal"
+      [attr.aria-hidden]="!showAumentoStockModal" (click)="handleModalBackdropClick($event)">
+      <div class="modal-dialog modal-lg" style="max-width: 75%;" (click)="$event.stopPropagation()">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Agregar Aumento de Stock</h5>
+            <button type="button" class="btn-close" (click)="cerrarModalAumentoStock()" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <app-iep-stock-increase *ngIf="showAumentoStockModal"></app-iep-stock-increase>
+          </div>
+        </div>
       </div>
     </div>
+
+    <div class="modal-backdrop fade" [class.show]="showNuevoProductoModal || showAumentoStockModal"
+      *ngIf="showNuevoProductoModal || showAumentoStockModal" (click)="handleModalBackdropClick($event)">
+    </div>
+
+    <!-- Boton + Flotante -->
+    <button class="floating-btn btn btn-primary" (click)="irAgregarProducto()">
+      <span class="bi-plus-lg"></span>
+    </button>
   </div>
-</div>
-
-<div class="modal-backdrop fade" [class.show]="showNuevoProductoModal || showAumentoStockModal"
-  *ngIf="showNuevoProductoModal || showAumentoStockModal" (click)="handleModalBackdropClick($event)">
-</div>
-
-<!-- Boton + Flotante -->
-<button class="floating-btn btn btn-primary" (click)="irAgregarProducto()">
-  <span class="bi-plus-lg"></span>
-</button>
-</div>
 </section>
