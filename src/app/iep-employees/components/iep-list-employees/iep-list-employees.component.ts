@@ -19,11 +19,11 @@ declare var DataTable: any;
 // Interfaz para los filtros
 interface EmployeeFilters {
   apellidoNombre: string;
+  position: string; // Cargo del empleado
   documento: string;
   salarioMin: number;
   salarioMax: number;
 }
-
 
 
 @Component({
@@ -35,10 +35,47 @@ interface EmployeeFilters {
 })
 export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
-  
+  applyFilters(): void {
+    if (this.table) {
+        this.table.clear();
+
+        const filteredData = this.Empleados.filter(empleado => {
+            // Filtro por apellido y nombre
+            const nameMatch = !this.filters.apellidoNombre || 
+                empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre.toLowerCase());
+
+            // Filtro por documento
+            const documentMatch = !this.filters.documento || 
+                empleado.document.toString().toLowerCase().includes(this.filters.documento.toLowerCase());
+
+            // Filtro por rango de salario
+            const salaryMatch = empleado.salary >= this.filters.salarioMin && 
+                empleado.salary <= this.filters.salarioMax;
+
+            // Filtro de búsqueda general (searchFilter)
+            const searchTerms = this.searchFilter ? this.searchFilter.toLowerCase().split(' ') : [];
+            const searchMatch = !this.searchFilter || searchTerms.every(term => 
+                empleado.fullName.toLowerCase().includes(term) ||
+                empleado.document.toString().toLowerCase().includes(term) ||
+                empleado.salary.toString().includes(term)
+            );
+
+            // Filtro por posición
+            const positionMatch = !this.positionFilter || 
+                empleado.position === this.positionFilter;
+
+            // Aplicar todos los filtros en conjunto
+            return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch;
+        });
+
+        this.table.rows.add(filteredData).draw();
+    }
+}
+
 
   private filters: EmployeeFilters = {
     apellidoNombre: '',
+    position: '', // Cargo del empleado
     documento: '',
     salarioMin: 0,
     salarioMax: Number.MAX_VALUE
@@ -53,7 +90,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       this.filters.documento = value;
     }
     
-    this.applyFilters2();
+    this.applyFilters();
   }
 
   applyAmountFilter(type: string, event: Event): void {
@@ -65,7 +102,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       this.filters.salarioMax = value || Number.MAX_VALUE;
     }
     
-    this.applyFilters2();
+    this.applyFilters();
   }
 
   applyFilters2(): void {
@@ -102,6 +139,7 @@ cleanColumnFilters(): void {
   // Limpiar los valores de los filtros
   this.filters = {
       apellidoNombre: '',
+      position:  '', // Cargo del empleado
       documento: '',
       salarioMin: 0,
       salarioMax: Number.MAX_VALUE
@@ -121,7 +159,7 @@ cleanColumnFilters(): void {
   });
 
   // Recargar la tabla con todos los datos
-  this.applyFilters2(); // Refresh the displayed list to show all employees
+  this.applyFilters(); // Refresh the displayed list to show all employees
 }
 
   filteredEmpleados: EmpListadoEmpleados[] = [];
@@ -289,7 +327,7 @@ cleanColumnFilters(): void {
     this.applyFilters();
   }
 
-  private applyFilters(): void {
+  private applyFilters3(): void {
     if (this.table) {
       this.table.clear();
 
