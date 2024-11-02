@@ -15,6 +15,7 @@ import { IepPutEmployeesComponent } from './iep-employees/components/iep-put-emp
 import { IepSupplierListComponent } from './iep-inventory/components/iep-supplier-list/iep-supplier-list.component';
 import { IepSupplierUpdateComponent } from './iep-inventory/components/iep-supplier-update/iep-supplier-update.component';
 import { IepSuppliersFormComponent } from './iep-inventory/components/iep-suppliers-form/iep-suppliers-form.component';
+import { IepCategoriesListComponent } from './iep-inventory/components/iep-categories-list/iep-categories-list.component';
 export const routes: Routes = [
     {
         path: "", redirectTo: "/home", pathMatch: "full" 
@@ -42,7 +43,7 @@ export const routes: Routes = [
                 {
                     path: 'inventory-detail',     // MARTIN
                     component: IepDetailTableComponent,
-                    title: 'Detalle de inventario'
+                    title: 'Items de inventario'
                 },
                 {
                     path: 'modification-stock-list',     // ENZO
@@ -62,14 +63,13 @@ export const routes: Routes = [
                 {
                     path: 'warehouse-movements',
                     component: IepWarehouseMovementSearchComponent,
-                    title: 'Ver almacenes'
+                    title: 'Movimientos de inventario'
                 },
                 {
                     path: 'performance',
                     component: IepPerformancelistComponent,
-                    title: 'desempeño'
+                    title: 'Desempeño de empleados'
                 },
-            
                 {
                     path: "suppliers",
                     component: IepSupplierListComponent,
@@ -97,12 +97,14 @@ export const routes: Routes = [
                     title: 'Gestión de Cargos'
                 },
                 {
-                    
                   path: 'employee/update/:id',  // TOMAS H
                   component:IepPutEmployeesComponent,
                   title: 'Modificar empleado'
-                    
-            
+                },
+                {
+                    path: 'categories-list', 
+                    component:IepCategoriesListComponent,
+                    title: 'Categorías de productos'
                 }
             ]
     }

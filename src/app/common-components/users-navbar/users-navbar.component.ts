@@ -67,6 +67,12 @@ export class UsersNavbarComponent {
           title: "Proveedores",
           route: "home/suppliers",
           roles: ["SuperAdmin", "Admin","Encargado de inventario"]
+        },
+        {
+          icon: "bi-tags-fill",
+          title: "Cateogorías de productos",
+          route: "home/categories-list",
+          roles: ["SuperAdmin", "Admin","Encargado de inventario"]
         }
         ]
       },

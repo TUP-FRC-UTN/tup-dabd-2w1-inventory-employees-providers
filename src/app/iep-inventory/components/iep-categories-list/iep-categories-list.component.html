@@ -1,0 +1,83 @@
+<section class="py-5">
+
+  <div class="container p-3 border border-2 rounded shadow-lg">
+  <div class="">
+    <div class="">
+      <!-- Fila de opciones (Filtro, Exportar, Nuevo) -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- Filtro de búsqueda a la izquierda -->
+        <div class="col-md-4">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Buscar...">
+          </div>
+        </div>
+
+        <!-- Botones a la derecha -->
+        <div>
+          <button class="btn btn-success me-2" (click)="exportToExcel()">
+            <i class="fa-solid fa-file-excel"></i>
+          </button>
+          <button class="btn btn-danger me-2" (click)="exportToPdf()">
+            <i class="fas fa-file-pdf"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla de cargos -->
+      <table id="cargosTable" class="table table-striped">
+        <thead>
+          <tr>
+            <th>Cargo</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- Modal de Confirmación de Eliminación -->
+  <div *ngIf="isConfirmDeleteModalOpen" class="modal" 
+    style="display: block;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmación de Eliminación</h5>
+          <button type="button" class="btn-close" ></button>
+        </div>
+        <div class="modal-body">
+          <p>¿Está seguro que desea eliminar este cargo?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger">
+            Eliminar
+          </button>
+          <button type="button" class="btn btn-secondary">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Error -->
+  <div *ngIf="isErrorModalOpen" class="modal" style="display: block;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Error</h5>
+          <button type="button" class="btn-close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Mensaje de Error aca -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+<!-- Boton + Flotante -->
+<button class="floating-btn btn btn-primary">
+  <span class="bi-plus-lg"></span>
+</button>
