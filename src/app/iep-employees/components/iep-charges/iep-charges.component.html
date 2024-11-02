@@ -1,7 +1,5 @@
-<section class="py-5">
-
+<div class="py-5">
   <div class="container p-3 border border-2 rounded shadow-lg">
-  <div class="">
     <div class="">
       <!-- Fila de opciones (Filtro, Exportar, Nuevo) -->
       <div class="d-flex justify-content-between align-items-center mb-3">
@@ -11,7 +9,6 @@
             <input type="text" class="form-control" placeholder="Buscar..." [(ngModel)]="searchTerm" 
                    (input)="filterData($event)">
           </div>
-          
         </div>
 
         <!-- Botones a la derecha -->
@@ -41,114 +38,112 @@
     </div>
   </div>
 
-  
-  <!-- Modal para Nuevo/Editar Cargo -->
-<div class="modal fade" id="modalCargo" tabindex="-1" aria-labelledby="cargoModalLabel" [class.show]="isModalOpen"
-[ngStyle]="{ display: isModalOpen ? 'block' : 'none' }">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="cargoModalLabel">{{ modoEdicion ? 'Modificar Cargo' : 'Nuevo Cargo' }}</h5>
-        <button type="button" class="btn-close" (click)="closeInfoModal()" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!-- Formulario del modal -->
-        <form [formGroup]="cargoForm" (ngSubmit)="onSubmit()">
-          <div class="mb-3">
-            <label for="charge" class="form-label">Cargo</label>
-            <input type="text" class="form-control" id="charge" formControlName="charge" placeholder="Ingrese el cargo">
-            <div *ngIf="cargoForm.get('charge')?.invalid && cargoForm.get('charge')?.touched" class="text-danger">
-              <small>El cargo es requerido y debe contener solo letras y espacios</small>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="description" class="form-label">Descripción</label>
-            <textarea class="form-control" id="description" formControlName="description" rows="3" placeholder="Ingrese la descripción del cargo"></textarea>
-            <div *ngIf="cargoForm.get('description')?.invalid && cargoForm.get('description')?.touched" class="text-danger">
-              <small>La descripción es requerida</small>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeInfoModal()">Cancelar</button>
-            <button type="submit" class="btn btn-primary" [disabled]="cargoForm.invalid">{{ modoEdicion ? 'Actualizar' : 'Crear' }}</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Fondo oscuro del modal -->
-<div *ngIf="isModalOpen" class="modal-backdrop"></div>
-
-<!-- Modal de Información -->
-<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Información sobre la Página</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <!-- Modal de Información -->
+  <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Información sobre la Página</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      <div class="modal-body">
-        <p>En este modal, puedes gestionar los cargos del sistema. A continuación, se detallan las funcionalidades:</p>
-        <ul>
-          <li><strong>Agregar Cargo:</strong> Introduce los detalles del nuevo cargo en el formulario para añadirlo al sistema.</li>
+        <div class="modal-body">
+          <p>En esta página, puedes gestionar el desempeño de empleados del sistema. 
+            A continuación, se detallan las secciones y funcionalidades disponibles:</p>
+          <ul>
+            <li><strong>Agregar Cargo:</strong> Introduce los detalles del nuevo cargo en el formulario para añadirlo al sistema.</li>
           <li><strong>Modificar Cargo:</strong> Selecciona un cargo existente, realiza las modificaciones necesarias y guarda los cambios.</li>
           <li><strong>Eliminar Cargo:</strong> Selecciona un cargo que deseas eliminar del sistema.</li>
           <li><strong>Consultar Cargos:</strong> Busca cargos por nombre o descripción utilizando el campo de búsqueda.</li>
-        </ul>
-        <p class="text-danger mt-3"><strong>Nota:</strong> Asegúrate de que los campos estén completos antes de proceder con las operaciones.</p>
+          </ul>
+          <p class="text-danger mt-3"><strong>Nota:</strong> Asegúrate de que los campos estén completos antes de proceder con las operaciones.</p>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Modal para Crear Cargo -->
+  <div class="modal fade" id="createChargeModal" tabindex="-1" [class.show]="isCreateModalOpen" 
+       [style.display]="isCreateModalOpen ? 'block' : 'none'">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Nuevo Cargo</h5>
+          <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="cargoForm" (ngSubmit)="onSubmitCreate()">
+            <div class="mb-3">
+              <label for="charge" class="form-label">Cargo</label>
+              <input type="text" class="form-control" id="charge" formControlName="charge" 
+                     placeholder="Ingrese el cargo">
+              <div *ngIf="cargoForm.get('charge')?.invalid && cargoForm.get('charge')?.touched" 
+                   class="text-danger">
+                <small>El cargo es requerido</small>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Descripción</label>
+              <textarea class="form-control" id="description" formControlName="description" 
+                        rows="3" placeholder="Ingrese la descripción del cargo"></textarea>
+              <div *ngIf="cargoForm.get('description')?.invalid && cargoForm.get('description')?.touched" 
+                   class="text-danger">
+                <small>La descripción es requerida</small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="closeCreateModal()">Cancelar</button>
+              <button type="submit" class="btn btn-primary" [disabled]="cargoForm.invalid">Crear</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Editar Cargo -->
+  <div class="modal fade" id="editChargeModal" tabindex="-1" [class.show]="isEditModalOpen"
+       [style.display]="isEditModalOpen ? 'block' : 'none'">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Modificar Cargo</h5>
+          <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="cargoForm" (ngSubmit)="onSubmitEdit()">
+            <div class="mb-3">
+              <label for="editCharge" class="form-label">Cargo</label>
+              <input type="text" class="form-control" id="editCharge" formControlName="charge" 
+                     placeholder="Ingrese el cargo">
+              <div *ngIf="cargoForm.get('charge')?.invalid && cargoForm.get('charge')?.touched" 
+                   class="text-danger">
+                <small>El cargo es requerido</small>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="editDescription" class="form-label">Descripción</label>
+              <textarea class="form-control" id="editDescription" formControlName="description" 
+                        rows="3" placeholder="Ingrese la descripción del cargo"></textarea>
+              <div *ngIf="cargoForm.get('description')?.invalid && cargoForm.get('description')?.touched" 
+                   class="text-danger">
+                <small>La descripción es requerida</small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancelar</button>
+              <button type="submit" class="btn btn-primary" [disabled]="cargoForm.invalid">Actualizar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Backdrops -->
+  <div class="modal-backdrop fade show" *ngIf="isCreateModalOpen || isEditModalOpen"></div>
+
+  <!-- Botón Flotante -->
+  <button class="floating-btn btn btn-primary" (click)="openCreateModal()">
+    <span class="bi-plus-lg"></span>
+  </button>
 </div>
-
-  <!-- Modal de Confirmación de Eliminación -->
-  <div *ngIf="isConfirmDeleteModalOpen" class="modal" [ngClass]="{'show': isConfirmDeleteModalOpen}"
-    style="display: block;">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirmación de Eliminación</h5>
-          <button type="button" class="btn-close" (click)="isConfirmDeleteModalOpen = false"></button>
-        </div>
-        <div class="modal-body">
-          <p>¿Está seguro que desea eliminar este cargo?</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger"
-            (click)="selectedCargo && selectedCargo.id !== undefined && eliminarCargo(selectedCargo.id)">
-            Eliminar
-          </button>
-          <button type="button" class="btn btn-secondary" (click)="isConfirmDeleteModalOpen = false">Cancelar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal de Error -->
-  <div *ngIf="isErrorModalOpen" class="modal" [ngClass]="{'show': isErrorModalOpen}" style="display: block;">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title text-danger">Error</h5>
-          <button type="button" class="btn-close" (click)="isErrorModalOpen = false"></button>
-        </div>
-        <div class="modal-body">
-          <p>{{ errorMessage }}</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="isErrorModalOpen = false">Cerrar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-<!-- Botón Flotante -->
-<button 
-  class="floating-btn btn btn-primary" 
-  data-bs-toggle="modal" 
-  data-bs-target="#modalCargo"
->
-  <span class="bi-plus-lg"></span>
-</button>

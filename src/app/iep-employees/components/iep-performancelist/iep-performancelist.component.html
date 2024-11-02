@@ -47,24 +47,25 @@
     </div>
 
     <!-- Fila de selectores adicionales (Tipo de Desempeño y Observaciones) -->
-    <div class="row mb-3" *ngIf="showFilters"> <!-- Mostrar/ocultar esta fila según el estado de los filtros -->
-      <div class="col-md-12 d-flex align-items-center">
-        <!-- Selector de Tipo de Desempeño -->
-        <div class="col-md-4 d-flex align-items-center">
-          <select id="performanceType" [(ngModel)]="selectedPerformanceType" (change)="filterData()"
-            class="form-control">
-            <option value="">Seleccione Tipo</option>
-            <option *ngFor="let type of performanceTypes" [value]="type">{{ type }}</option>
-          </select>
-        </div>
-
-        <!-- Selector de Cantidad de Observaciones -->
-        <div class="col-md-4 d-flex align-items-center">
-          <input type="number" id="observationCount" [(ngModel)]="selectedObservationCount" (input)="filterData()"
-            class="form-control" placeholder="Observaciones">
-        </div>
-      </div>
+<div class="row mb-3" *ngIf="showFilters"> <!-- Mostrar/ocultar esta fila según el estado de los filtros -->
+  <div class="col-md-12 d-flex align-items-center">
+    <!-- Selector de Tipo de Desempeño -->
+    <div class="col-md-4 d-flex align-items-center me-3"> <!-- Agregada clase me-3 para margen a la derecha -->
+      <select id="performanceType" [(ngModel)]="selectedPerformanceType" (change)="filterData()"
+        class="form-control">
+        <option value="">Seleccione Tipo</option>
+        <option *ngFor="let type of performanceTypes" [value]="type">{{ type }}</option>
+      </select>
     </div>
+
+    <!-- Selector de Cantidad de Observaciones -->
+    <div class="col-md-4 d-flex align-items-center">
+      <input type="number" id="observationCount" [(ngModel)]="selectedObservationCount" (input)="filterData()"
+        class="form-control" placeholder="Observaciones">
+    </div>
+  </div>
+</div>
+
 
     <!-- Modal de Información -->
     <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
