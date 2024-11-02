@@ -48,12 +48,23 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro con opacidad */
-  z-index: 1040; /* Asegúrate de que el z-index esté por debajo del modal */
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050; /* Asegúrate de que esté encima de otros elementos */
 }
 
 .modal {
-  z-index: 1050; /* Asegúrate de que el modal esté por encima de la superposición */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: none; /* Oculta el modal por defecto */
 }
+
+.modal.show {
+  opacity: 1;
+  display: block; /* Muestra el modal cuando se agrega la clase 'show' */
+}
+

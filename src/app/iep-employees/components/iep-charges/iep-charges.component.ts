@@ -7,6 +7,7 @@ import { ChargeService } from '../../services/charge.service';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-iep-cargos',
@@ -23,7 +24,8 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
   private table: any;
   isModalVisible = false;
   isConfirmModalVisible = false;
-  isModalOpen = false;
+  isModalOpen: boolean = false;
+  showInfoModal:boolean= false;
   isConfirmDeleteModalOpen = false;
   isErrorModalOpen = false;
   errorMessage = '';
@@ -78,11 +80,7 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.loadCargos();
   }
 
-  ngAfterViewInit(): void {
-    this.initializeDataTable();
-
-  }
-
+  
   filterData(event: any): void {
     const searchTerm = event.target.value.toLowerCase().trim();
     
@@ -182,10 +180,10 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
       const id = parseInt($(event.currentTarget).data('id'), 10);
       const cargo = this.cargos.find(c => c.id === id);
       if (cargo) {
-        this.abrirModalEditar(cargo);
+        this.abrirModalEditar(cargo); // Abre el modal en modo edición
       }
     });
-
+  
     this.table.on('click', '.delete-btn', (event: { preventDefault: () => void; currentTarget: any; }) => {
       event.preventDefault();
       const id = parseInt($(event.currentTarget).data('id'), 10);
@@ -195,82 +193,12 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
   }
+  
 
-  abrirModalConfirmarEliminacion(cargo: ChargeResponse): void {
-    this.selectedCargo = cargo;
-    this.isConfirmDeleteModalOpen = true;
-  }
-
-  abrirModalNuevo(): void {
-    this.modoEdicion = false;
-    this.selectedCargo = null;
-    this.cargoForm.reset();
-    this.isModalOpen = true;
-  }
-
-  abrirModalEditar(cargo: any): void {
-    this.modoEdicion = true;
-    this.selectedCargo = cargo;
-    this.cargoForm.patchValue(cargo);
-    this.isModalOpen = true;
-  }
-
-  onSubmit(): void {
-    if (this.cargoForm.valid) {
-      const chargeValue = this.cargoForm.get('charge')?.value;
-
-      this.cargoService.getAllCargos().subscribe(cargos => {
-        const exists = cargos.some(cargo => cargo.charge === chargeValue && cargo.id !== this.selectedCargo?.id);
-
-        if (exists) {
-          this.errorMessage = `El cargo "${chargeValue}" ya existe. Por favor, elige otro nombre.`;
-          this.isErrorModalOpen = true;
-          return;
-        }
-
-        if (this.modoEdicion) {
-          if (this.selectedCargo) {
-            this.cargoService.updateCargo(this.selectedCargo.id, this.cargoForm.value).subscribe(() => {
-              this.loadCargos();
-              this.isModalOpen = false;
-            });
-          }
-        } else {
-          this.cargoService.createCargo(this.cargoForm.value).subscribe(() => {
-            this.loadCargos();
-            this.isModalOpen = false;
-          });
-        }
-      });
-    }
-  }
 
   markAllControlsAsTouched(): void {
     Object.keys(this.cargoForm.controls).forEach(key => {
       this.cargoForm.get(key)?.markAsTouched();
-    });
-  }
-
-  onCancel(): void {
-    this.isModalOpen = false;
-    this.cargoForm.reset();
-    this.selectedCargo = null;
-    this.modoEdicion = false;
-    this.isConfirmDeleteModalOpen = false;
-  }
-
-  eliminarCargo(id: number): void {
-    if (!id) return;
-
-    this.cargoService.updateStatus(id).subscribe({
-      next: () => {
-        this.isConfirmDeleteModalOpen = false;
-        this.selectedCargo = null;
-        this.loadCargos();
-      },
-      error: (err) => {
-        console.error('Error al eliminar cargo:', err);
-      }
     });
   }
 
@@ -279,5 +207,215 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
       this.table.destroy();
     }
   }
+
+  resetFilters() {
+    this.searchTerm = ''; // Limpiar el término de búsqueda
+    this.filteredData = [...this.cargos]; // Restaurar los datos completos
+    this.refreshDataTable(); // Refrescar la tabla para mostrar todos los registros
+  }
+  
+  ngAfterViewInit(): void {
+    this.initializeDataTable();
+    
+    // Escuchar eventos del modal
+    const modalElement = document.getElementById('modalCargo');
+    if (modalElement) {
+      modalElement.addEventListener('show.bs.modal', () => {
+        this.modoEdicion = false;
+        this.selectedCargo = null;
+        this.cargoForm.reset();
+      });
+  
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.cargoForm.reset();
+        this.selectedCargo = null;
+        this.modoEdicion = false;
+      });
+    }
+  }
+
+abrirModalConfirmarEliminacion(cargo: ChargeResponse): void {
+  Swal.fire({
+    title: '¿Está seguro?',
+    text: '¿Desea eliminar este cargo?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6'
+  }).then((result) => {
+    if (result.isConfirmed && cargo.id) {
+      this.eliminarCargo(cargo.id);
+    }
+  });
+}
+
+eliminarCargo(id: number): void {
+  if (!id) return;
+
+  this.cargoService.updateStatus(id).subscribe({
+    next: () => {
+      this.cerrarModal();  // Cerrar el modal antes de mostrar el SweetAlert
+      Swal.fire({
+        title: '¡Eliminado!',
+        text: 'El cargo ha sido eliminado correctamente.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      this.loadCargos();
+    },
+    error: (err) => {
+      Swal.fire({
+        title: 'Error',
+        text: 'Ocurrió un error al eliminar el cargo.',
+        icon: 'error'
+      });
+      console.error('Error al eliminar cargo:', err);
+    }
+  });
+}
+
+
+onSubmit(): void {
+  if (this.cargoForm.valid) {
+    const chargeValue = this.cargoForm.get('charge')?.value;
+
+    this.cargoService.getAllCargos().subscribe(cargos => {
+      const exists = cargos.some(cargo => 
+        cargo.charge === chargeValue && cargo.id !== this.selectedCargo?.id
+      );
+
+      if (exists) {
+        this.cerrarModal();  // Cerrar el modal antes de mostrar el SweetAlert
+        Swal.fire({
+          title: 'Error',
+          text: `El cargo "${chargeValue}" ya existe. Por favor, elige otro nombre.`,
+          icon: 'error'
+        });
+        return;
+      }
+
+      if (this.modoEdicion) {
+        if (this.selectedCargo) {
+          this.cargoService.updateCargo(this.selectedCargo.id, this.cargoForm.value).subscribe({
+            next: () => {
+              this.loadCargos();
+              this.cerrarModal();  // Cerrar el modal antes de mostrar el SweetAlert
+              Swal.fire({
+                title: '¡Actualizado!',
+                text: 'El cargo ha sido actualizado correctamente.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+              });
+            },
+            error: (err) => {
+              Swal.fire({
+                title: 'Error',
+                text: 'Ocurrió un error al actualizar el cargo.',
+                icon: 'error'
+              });
+            }
+          });
+        }
+      } else {
+        this.cargoService.createCargo(this.cargoForm.value).subscribe({
+          next: () => {
+            this.loadCargos();
+            this.cerrarModal();  // Cerrar el modal antes de mostrar el SweetAlert
+            Swal.fire({
+              title: '¡Creado!',
+              text: 'El cargo ha sido creado correctamente.',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          },
+          error: (err) => {
+            Swal.fire({
+              title: 'Error',
+              text: 'Ocurrió un error al crear el cargo.',
+              icon: 'error'
+            });
+          }
+        });
+      }
+    });
+  } else {
+    this.markAllControlsAsTouched();
+  }
+}
+
+onModificarCargo(): void {
+  if (this.cargoForm.valid) {
+    if (this.selectedCargo) {
+      this.cargoService.updateCargo(this.selectedCargo.id, this.cargoForm.value).subscribe({
+        next: () => {
+          this.loadCargos();  // Recargar la lista de cargos
+          this.cerrarModal();  // Cerrar el modal
+          Swal.fire({
+            title: '¡Actualizado!',
+            text: 'El cargo ha sido modificado correctamente.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        },
+        error: (err) => {
+          Swal.fire({
+            title: 'Error',
+            text: 'Ocurrió un error al modificar el cargo.',
+            icon: 'error'
+          });
+        }
+      });
+    }
+  } else {
+    this.markAllControlsAsTouched();
+  }
+}
+
+
+cerrarModal(): void {
+  this.isModalOpen = false;
+  this.cargoForm.reset();
+  this.selectedCargo = null;
+  this.modoEdicion = false;
+
+  // Eliminar la clase modal-open de body y el overlay
+  document.body.classList.remove('modal-open');
+  const modalBackdrop = document.querySelector('.modal-backdrop');
+  if (modalBackdrop) {
+    modalBackdrop.remove();
+  }
+}
+
+closeInfoModal(): void{
+  this.showInfoModal = false;
+}
+
+abrirModalNuevo(): void {
+  this.modoEdicion = false; // Modo de creación
+  this.selectedCargo = null; // Sin cargo seleccionado
+  this.cargoForm.reset(); // Resetea el formulario
+  this.isModalOpen = true; // Muestra el modal
+  document.body.classList.add('modal-open'); // Añade fondo oscuro
+}
+
+abrirModalEditar(cargo: ChargeResponse): void {
+  this.modoEdicion = true; // Modo de edición
+  this.selectedCargo = cargo; // Carga el cargo seleccionado para edición
+  this.cargoForm.patchValue(cargo); // Rellena el formulario con los datos del cargo
+  this.isModalOpen = true; // Muestra el modal
+  document.body.classList.add('modal-open');
+}
+
+onCancel(): void {
+  this.cerrarModal();
+}
+
+
 }
 
