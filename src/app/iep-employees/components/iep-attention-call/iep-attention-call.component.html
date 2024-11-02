@@ -11,13 +11,9 @@
           class="form-control"
           [class.is-invalid]="wakeUpCallForm.get('fecha')?.invalid && (wakeUpCallForm.get('fecha')?.touched || formSubmitted)"
           [class.is-valid]="wakeUpCallForm.get('fecha')?.valid && wakeUpCallForm.get('fecha')?.touched"
-        
         />
-        <div class="valid-feedback">
-          <i class="bi bi-check-lg"></i> Fecha válida
-        </div>
         <div class="invalid-feedback">
-          <i class="bi bi-exclamation-circle"></i> La fecha es requerida
+          <i class="bi bi-exclamation-circle"></i> La fecha es requerida y no debe ser futura
         </div>
       </div>
     </div>
@@ -25,25 +21,12 @@
     <!-- Búsqueda de Empleado -->
     <div class="mb-3 position-relative">
       <label class="form-label">Buscar Empleado</label>
-      <div class="input-group has-validation">
-        <span class="input-group-text">
-          <i class="bi bi-search"></i>
-        </span>
-        <input 
-          type="text" 
-          formControlName="searchTerm" 
-          placeholder="Ingrese al menos 3 letras" 
-          class="form-control"
-          [class.is-invalid]="wakeUpCallForm.get('searchTerm')?.invalid && wakeUpCallForm.get('searchTerm')?.touched"
-          [class.is-valid]="wakeUpCallForm.get('searchTerm')?.valid && wakeUpCallForm.get('searchTerm')?.value?.length >= 3"
-        />
-        <div class="valid-feedback">
-          <i class="bi bi-check-lg"></i> Búsqueda válida
-        </div>
-        <div class="invalid-feedback">
-          <i class="bi bi-exclamation-circle"></i> Ingrese al menos 3 caracteres para buscar
-        </div>
-      </div>
+      <input 
+        type="text" 
+        formControlName="searchTerm" 
+        placeholder="Ingrese al menos 3 letras" 
+        class="form-control"
+      />
     </div>
 
     <!-- Lista de Empleados -->
@@ -71,9 +54,6 @@
       <div class="invalid-feedback d-block" *ngIf="selectedEmployeeIds.size === 0 && formSubmitted">
         <i class="bi bi-exclamation-circle"></i> Debe seleccionar al menos un empleado
       </div>
-      <div class="valid-feedback" *ngIf="selectedEmployeeIds.size > 0">
-        <i class="bi bi-check-lg"></i> Empleados seleccionados correctamente
-      </div>
     </div>
 
     <!-- Desempeño -->
@@ -92,9 +72,6 @@
       <div class="invalid-feedback d-block" *ngIf="wakeUpCallForm.get('desempeno')?.invalid && (wakeUpCallForm.get('desempeno')?.touched || formSubmitted)">
         <i class="bi bi-exclamation-circle"></i> Seleccione un nivel de desempeño
       </div>
-      <div class="valid-feedback" *ngIf="wakeUpCallForm.get('desempeno')?.valid && wakeUpCallForm.get('desempeno')?.touched">
-        <i class="bi bi-check-lg"></i> Desempeño seleccionado
-      </div>
     </div>
 
     <!-- Observaciones -->
@@ -108,30 +85,60 @@
         [class.is-invalid]="wakeUpCallForm.get('observaciones')?.invalid && (wakeUpCallForm.get('observaciones')?.touched || formSubmitted)"
         [class.is-valid]="wakeUpCallForm.get('observaciones')?.valid && wakeUpCallForm.get('observaciones')?.touched"
       ></textarea>
-      <div class="valid-feedback">
-        <i class="bi bi-check-lg"></i> Observaciones válidas
-      </div>
       <div class="invalid-feedback">
         <i class="bi bi-exclamation-circle"></i> Las observaciones son requeridas
       </div>
     </div>
 
-    <!-- Mensajes de Alerta -->
-    <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="showConfirmation">
-      <i class="bi bi-check-circle me-2"></i>{{ confirmationMessage }}
-      <button type="button" class="btn-close" (click)="showConfirmation = false"></button>
-    </div>
-
-    <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="showError">
-      <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMessage }}
-      <button type="button" class="btn-close" (click)="showError = false"></button>
-    </div>
-
-    <!-- Botones -->
+    <!-- Botón de Envío -->
     <div class="d-flex justify-content-end gap-2 mt-4">
-      <button type="submit" class="btn btn-primary" [disabled]="wakeUpCallForm.invalid && formSubmitted">
+      <button type="submit" class="btn btn-primary" [disabled]="wakeUpCallForm.invalid">
         <i class="bi bi-check-lg me-2"></i>Confirmar
       </button>
     </div>
   </form>
+
+  <!-- Modal de Confirmación -->
+  <div *ngIf="showConfirmation" class="modal fade show" tabindex="-1" style="display: block;" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmación</h5>
+          <button type="button" class="btn-close" (click)="closeConfirmationModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-success" role="alert">
+            <i class="bi bi-check-circle me-2"></i>{{ confirmationMessage }}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" (click)="closeConfirmationModal()">
+            <i class="bi bi-check-lg me-2"></i>Aceptar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Error -->
+  <div *ngIf="showError" class="modal fade show" tabindex="-1" style="display: block;" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Error</h5>
+          <button type="button" class="btn-close" (click)="closeErrorModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMessage }}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeErrorModal()">
+            <i class="bi bi-x-lg me-2"></i>Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

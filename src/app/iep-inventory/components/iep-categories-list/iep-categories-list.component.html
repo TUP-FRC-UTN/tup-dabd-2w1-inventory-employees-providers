@@ -50,39 +50,36 @@
 
 
 <!-- Modal para Categorias -->
-<div class="modal fade" id="categoriaModal" role="dialog" aria-labelledby="categoriaModal" style="width: 100%;" aria-hidden="">
-  <div class="modal-dialog" style="width: 100%;">
+<div class="modal fade" id="categoriaModal" tabindex="-1" role="dialog" aria-labelledby="categoriaModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Categorias</h5>
+        <h5 class="modal-title" id="categoriaModalLabel">Categorias</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form action="" #modalCategoryForm="ngForm">
+        <form action="" #modalCategoryForm="ngForm" (ngSubmit)="updateCategory()">
           <div class="row">
-            <div class="col-12">
-              <div class="input-group mb-3">
-                <label for="category text-start" class="col-form-label">Categoría</label>
-                <select class="form-select" id="categoryModal" style="border-radius: 0.25rem;"
-                #categoryToEdit="ngModel"  [(ngModel)]="categoryToEdit"  name="categoryToEdit"  required>
-                   required>
-                   @for(c of categories;track $index){
+            <div class="">
+              <div class="input-group d-flex mb-3">
+                @if(categoryToEdit){
+                 <!-- <label for="category" class="col-form-label" style="margin-right: 18px;">Categoría</label>
+                  <select class="form-select" id="categoryModal" style="border-radius: 0.25rem;"
+                 [(ngModel)]="idCategoryToEdit" #categoryToEditS="ngModel"  name="categoryToEdit"  required>
+                  @for(c of categories;track $index){
                     <option value="{{c.id}}">{{c.category}}</option>
-                   }
-                </select>
+                  }
+                </select>-->
+                <label for="category" class="" style="margin-right: 18px;">Categoría a editar: {{categoryToEdit.category}}</label>
+                }
               </div>
             </div>
           </div>
-
-          <div class="mb-3 mt-1 form-check  ml-2">
-            <input type="checkbox" name="reusable" class="form-check-input" id="exampleCheck1" >
-            <label class="form-check-label" for="exampleCheck1">Nuevo</label>
-          </div>
-
           <div class="row">
-            <div class="input-group form-group">
+            <div class="input-group d-flex form-group mb-2">
               <label for="inputName" class="col-form-label" style="margin-right: 10px;">Descripción</label>
-              <input type="text" class="form-control"   name="newCategory"
+              <input type="text" class="form-control" #descr="ngModel" 
+              [(ngModel)]="descrCategoryToEdit" name="newCategory"
                 minlength="3" required>
             </div>
           </div>

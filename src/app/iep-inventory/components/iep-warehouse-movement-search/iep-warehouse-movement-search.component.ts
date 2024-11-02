@@ -19,6 +19,27 @@ import { WarehouseTypePipe } from '../../pipes/warehouse-type.pipe';
   styleUrls: ['./iep-warehouse-movement-search.component.css']
 })
 export class IepWarehouseMovementSearchComponent implements AfterViewInit, AfterViewChecked {
+  applyColumnFilter($event: Event, arg1: string) {
+    throw new Error('Method not implemented.');
+  }
+  applyFilter($event: Event) {
+    throw new Error('Method not implemented.');
+  }
+  cleanColumnFilters() {
+    throw new Error('Method not implemented.');
+  }
+  onEndDateChange() {
+    throw new Error('Method not implemented.');
+  }
+  onStartDateChange() {
+    throw new Error('Method not implemented.');
+  }
+  filtersVisible = true; // Controla la visibilidad de los filtros
+
+  toggleFilters(): void {
+    this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+  }
+
   movements: WarehouseMovement[] = [];
   products: DtoProducto[] = [];
   selectedMovement: WarehouseMovement | undefined;
@@ -27,7 +48,7 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
 
   // Parámetros de búsqueda que se enlazan al formulario
   searchParams: GetWarehouseMovementRequest = {
-    createdDate: undefined,
+    createdDate: new Date().toISOString().split('T')[0], // Fecha actual
     applicantOrResponsible: undefined,
     productId: undefined,
     movementType: undefined,

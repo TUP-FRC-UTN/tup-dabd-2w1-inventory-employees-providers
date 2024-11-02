@@ -9,60 +9,65 @@ import { MovementRecord } from '../Models/llamado-atencion';
   providedIn: 'root',
 })
 export class LlamadoAtencionService {
-  private readonly EMPLOYEE_BASE_URL: string = 'http://localhost:8080';
+  // Base URLs
+  private readonly BASE_URL: string = 'http://localhost:8080/';
+  private readonly MOCK_API_URL: string = 'https://mocki.io/v1/';
 
-  private readonly WAKE_UP_CALLS_URL: string = `${this.EMPLOYEE_BASE_URL}/wakeUpCalls`;
+  // Wake Up Calls endpoints
+  private readonly WAKE_UP_CALLS_URL: string = `${this.BASE_URL}wakeUpCalls`;
+  private readonly WAKE_UP_CALLS_CREATE: string = `${this.WAKE_UP_CALLS_URL}/crear`;
+  private readonly WAKE_UP_CALLS_CREATE_GROUP: string = `${this.WAKE_UP_CALLS_URL}/crear/grupo`;
 
-  private movementsUrl = 'https://mocki.io/v1/dc644c6b-deab-431a-83d9-3d232a1dff05';
+  // Employees endpoints
+  private readonly EMPLOYEES_URL: string = `${this.BASE_URL}employees`;
+  private readonly EMPLOYEES_GET_ALL: string = `${this.EMPLOYEES_URL}/allEmployees`;
 
-  constructor(private http: HttpClient) { }
+  // Movements endpoints
+  private readonly MOVEMENTS_MOCK: string = `${this.MOCK_API_URL}dc644c6b-deab-431a-83d9-3d232a1dff05`;
 
-  crearWakeUpCall(
-    request: RequestWakeUpCallDTO
-  ): Observable<ResponseWakeUpCallDTO> {
-    return this.http
-      .post<ResponseWakeUpCallDTO>(`${this.WAKE_UP_CALLS_URL}/crear`, request)
-      .pipe(catchError(this.handleError));
+  constructor(private http: HttpClient) {}
+
+  crearWakeUpCall(request: RequestWakeUpCallDTO): Observable<ResponseWakeUpCallDTO> {
+    return this.http.post<ResponseWakeUpCallDTO>(this.WAKE_UP_CALLS_CREATE, request)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          return throwError(() => error);
+        })
+      );
   }
 
-  crearWakeUpCallGrupo(
-    request: RequestWakeUpCallGroupDTO
-  ): Observable<ResponseWakeUpCallDTO[]> {
-    return this.http
-      .post<ResponseWakeUpCallDTO[]>(
-        `${this.WAKE_UP_CALLS_URL}/crear/grupo`,
-        request
-      )
-      .pipe(catchError(this.handleError));
+  crearWakeUpCallGrupo(request: RequestWakeUpCallGroupDTO): Observable<ResponseWakeUpCallDTO[]> {
+    return this.http.post<ResponseWakeUpCallDTO[]>(this.WAKE_UP_CALLS_CREATE_GROUP, request)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          return throwError(() => error);
+        })
+      );
   }
 
   getAllEmployees(): Observable<EmployeeGetResponseDTO[]> {
-    return this.http
-      .get<EmployeeGetResponseDTO[]>(
-        `${this.EMPLOYEE_BASE_URL}/employees/allEmployees`
-      )
+    return this.http.get<EmployeeGetResponseDTO[]>(this.EMPLOYEES_GET_ALL)
       .pipe(catchError(this.handleError));
   }
 
   getMovements(date: string): Observable<string[]> {
-    return this.http.get<MovementRecord[]>(this.movementsUrl).pipe(
-      map((movements) => {
+    return this.http.get<MovementRecord[]>(this.MOVEMENTS_MOCK).pipe(
+      map(movements => {
         const selectedDate = date.split('T')[0];
-        const filteredMovements = movements.filter((movement) =>
+        const filteredMovements = movements.filter(movement =>
           movement.movementDatetime.startsWith(selectedDate)
         );
 
         const employeeMovements = new Map<string, string[]>();
-        filteredMovements.forEach((movement) => {
+        filteredMovements.forEach(movement => {
           const employeeTypes = employeeMovements.get(movement.document) || [];
           employeeTypes.push(movement.movementType);
           employeeMovements.set(movement.document, employeeTypes);
         });
 
         return Array.from(employeeMovements.entries())
-          .filter(
-            ([_, types]) =>
-              types.includes('ENTRADA') && types.includes('SALIDA')
+          .filter(([_, types]) =>
+            types.includes('ENTRADA') && types.includes('SALIDA')
           )
           .map(([document]) => document);
       })

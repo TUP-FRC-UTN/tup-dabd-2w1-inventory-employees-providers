@@ -10,6 +10,7 @@ import { SuppliersService } from '../../services/suppliers.service';
 import Swal from 'sweetalert2';
 import { CreateProductDtoClass } from '../../models/create-product-dto-class';
 import { CategoriaService } from '../../services/categoria.service';
+import { CreateCategoryDto } from '../../models/create-category-dto';
 
 @Component({
   selector: 'app-product',
@@ -99,11 +100,11 @@ export class IepProductComponent {
       if (this.dto.supplier_id == null || this.dto.supplier_id === 0) {
         this.dto.supplier_id = undefined;
       }
-      if(this.dto.unit_price == null || this.dto.unit_price === 0) {
-        this.dto.unit_price = 0;
+      if(this.dto.unitPrice == null || this.dto.unitPrice === 0) {
+        this.dto.unitPrice = 0;
       }
-      if(this.dto.min_amount_warning == null || this.dto.min_amount_warning === 0) {
-        this.dto.min_amount_warning = 0;
+      if(this.dto.minAmountWarning == null || this.dto.minAmountWarning === 0) {
+        this.dto.minAmountWarning = 0;
       }
       if(this.dto.reusable == null|| this.dto.reusable === undefined) {
         this.dto.reusable = false;

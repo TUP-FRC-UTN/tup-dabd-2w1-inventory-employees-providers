@@ -36,7 +36,7 @@ month: number;
 totalObservations: number;
 performanceType: string;
 }
-
+ 
 export interface WakeUpCallDetail {
   id: number;
   employeeId: number;
@@ -47,5 +47,5 @@ export interface WakeUpCallDetail {
   createdUser: number;
   lastUpdateDate: number[];
   lastUpdateUser: number;
-}
+} 
   
