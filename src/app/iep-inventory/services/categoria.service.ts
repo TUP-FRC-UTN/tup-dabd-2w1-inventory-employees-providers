@@ -21,13 +21,24 @@ export class CategoriaService {
     (`${this.CATEGORY_URL}`);
   }
 
-  postCategory(createCategoryDto:CreateCategoryDto):Observable<any>{
-    return this.client.post(this.CATEGORY_URL,createCategoryDto);
+  postCategory(dto:string,idUser: number):Observable<any>{
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const params = new HttpParams().set('lastUpdatedUser', idUser.toString())
+    .set('category', dto);
+    const json = JSON.stringify(dto);
+    console.log(json);
+    return this.client.post<any>(this.CATEGORY_URL, json, { headers, params }); 
   }
 
-  /*http://localhost:8081/category?lastUpdatedUser=1*/ 
   deleteCategory(id:number,idUser:number):Observable<any>{
     const dto: PutCategoryDTO = {id:id,category:''};
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const params = new HttpParams().set('lastUpdatedUser', idUser.toString());
+    const json = JSON.stringify(dto);
+    return this.client.put<any>(this.CATEGORY_URL, json, { headers, params });  
+  }
+
+  putCategory(dto:PutCategoryDTO,idUser: number):Observable<any>{  
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     const params = new HttpParams().set('lastUpdatedUser', idUser.toString());
     const json = JSON.stringify(dto);

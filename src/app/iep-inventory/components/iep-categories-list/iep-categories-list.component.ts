@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { jsPDF } from 'jspdf';
+import { PutCategoryDTO } from '../../models/putCategoryDTO';
 import { CategoriaService } from '../../services/categoria.service';
 import { ProductCategory } from '../../models/product-category';
 import { CommonModule } from '@angular/common';
@@ -7,6 +8,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { UsersMockIdService } from '../../../common-services/users-mock-id.service';
+declare var bootstrap: any; // Añadir esta declaración al principio
 @Component({
   selector: 'app-iep-categories-list',
   templateUrl: './iep-categories-list.component.html',
@@ -21,7 +23,12 @@ export class IepCategoriesListComponent implements OnInit {
   private table: any;
   filteredData: ProductCategory[] = [];
   categoryToDelete: number | null = null;
-  categoryToEdit: number | null = null;
+  idCategoryToEdit: number | null = null;
+  categoryToEdit: ProductCategory | undefined;
+  descrCategoryToEdit: string = '';
+  categoryToCreate: string = '';
+  
+
   idUser: number=0;
   constructor(categoryService: CategoriaService,usersMockService: UsersMockIdService) { 
     this.usersMockService = usersMockService;
@@ -142,6 +149,7 @@ export class IepCategoriesListComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.deleteCategory();
+
       }
     });
   }
@@ -153,6 +161,61 @@ export class IepCategoriesListComponent implements OnInit {
       confirmButtonText: 'Aceptar',
     }).then(() => {
       this.loadCategories();
+      this.closeModal();
+    });
+  }
+
+  showFailureDeleteAlert() {
+    Swal.fire({
+      title: 'Error al eliminar categoría',
+      icon: 'error',
+      confirmButtonText: 'Aceptar',
+    }).then(() => {
+      this.closeModal();
+    });
+  }
+
+  showFailureCreateAlert() {
+    Swal.fire({
+      title: 'Error al crear categoría',
+      icon: 'error',
+      confirmButtonText: 'Aceptar',
+    }).then(() => {
+      this.closeModal();
+    });
+  }
+
+  showSuccessEditAlert() {
+    Swal.fire({
+      title: 'Categoría editada',
+      icon: 'success',
+      confirmButtonText: 'Aceptar',
+    }).then(() => {
+      this.loadCategories();
+      this.closeModal();
+
+    });
+  }
+
+  showFailureEditAlert() {
+    Swal.fire({
+      title: 'Error al editar categoría',
+      icon: 'error',
+      confirmButtonText: 'Aceptar',
+    }).then(() => {
+      this.closeModal();
+    });
+  }
+
+  showSuccessCreateAlert() {
+    Swal.fire({
+      title: 'Categoría creada',
+      icon: 'success',
+      confirmButtonText: 'Aceptar',
+    }).then(() => {
+      this.loadCategories();
+      this.closeModal();
+
     });
   }
 
@@ -172,6 +235,37 @@ export class IepCategoriesListComponent implements OnInit {
         console.error('Error al eliminar categoría:', error);
       },
     });
+  }
+
+  updateCategory() {
+    if (this.idCategoryToEdit === null || !this.categoryToEdit) {
+      this.categoryService.postCategory(
+        this.descrCategoryToEdit,this.usersMockService.getMockId()).subscribe({
+        next: (response) => {
+          console.log('Pasa:', response);
+          this.showSuccessCreateAlert();
+          this.loadCategories();
+        },
+        error: (error) => {
+          console.error('Error al registrar categoría:', error);
+          this.showFailureCreateAlert();
+        },
+      });
+    }else{
+      const dto: PutCategoryDTO = 
+      {id:this.idCategoryToEdit,category:this.descrCategoryToEdit};
+      this.categoryService.putCategory(dto,this.usersMockService.getMockId()).subscribe({
+        next: (response) => {
+          console.log('Pasa:', response);
+          this.showSuccessEditAlert();
+          this.loadCategories();
+        },
+        error: (error) => {
+          this.showFailureEditAlert();
+          console.error('Error al registrar categoría:', error);
+        },
+      });
+    }
   }
 
   setupTableListeners() {
@@ -195,9 +289,50 @@ export class IepCategoriesListComponent implements OnInit {
   }
 
   setCategoryToEdit(id: number) {
-    this.categoryToEdit = id;
-    console.log('Editar categoría:', this.categoryToEdit);
+    this.idCategoryToEdit = id;
+    this.categoryToEdit = this.categories.find(cat => cat.id === id);
+    this.descrCategoryToEdit = this.categoryToEdit?.category || '';
+    console.log('Editar categoría:', this.idCategoryToEdit);
+    console.log('Categoría:', this.categoryToEdit);
   }
+  
+  private closeModal() {
+    const modalElement = document.getElementById('categoriaModal');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      if (modal) {
+        modal.hide();
+      }
+      
+      // Limpieza completa del modal y sus efectos
+      setTimeout(() => {
+        // Remover clases del body
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('padding-right');
+        document.body.style.removeProperty('overflow');
+        
+        // Remover todos los backdrops
+        const backdrops = document.getElementsByClassName('modal-backdrop');
+        while (backdrops.length > 0) {
+          backdrops[0].remove();
+        }
+
+        // Limpiar el modal
+        modalElement.classList.remove('show');
+        modalElement.style.display = 'none';
+        modalElement.setAttribute('aria-hidden', 'true');
+        modalElement.removeAttribute('aria-modal');
+        modalElement.removeAttribute('role');
+        
+        // Remover cualquier estilo inline que Bootstrap pueda haber añadido
+        const allModals = document.querySelectorAll('.modal');
+        allModals.forEach(modal => {
+          (modal as HTMLElement).style.display = 'none';
+        });
+      }, 100);
+    }
+  }
+
 
 
 
