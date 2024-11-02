@@ -9,6 +9,7 @@ import { RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { UsersMockIdService } from '../../../common-services/users-mock-id.service';
 import { ProductService } from '../../services/product.service';
+import * as XLSX from 'xlsx';
 declare var bootstrap: any; // Añadir esta declaración al principio
 @Component({
   selector: 'app-iep-categories-list',
@@ -38,6 +39,43 @@ export class IepCategoriesListComponent implements OnInit {
     this.usersMockService = usersMockService;
     this.categoryService = categoryService;
     this.productService = productService
+  }
+
+  exportToPdf(): void {
+    const doc = new jsPDF();
+    
+    // Extrae datos de la lista de categorías
+    const dataToExport = this.categories.map((category) => [
+      category.id,
+      category.category,
+    ]);
+
+    doc.setFontSize(16);
+    doc.text('Lista de Categorías', 10, 10);
+    (doc as any).autoTable({
+      head: [['ID', 'Categoría']],
+      body: dataToExport,
+      startY: 20,
+    });
+
+    doc.save(`Lista_Categorías_${this.getFormattedDate()}.pdf`);
+  }
+
+  // Método para exportar a Excel
+  exportToExcel(): void {
+    const worksheet = XLSX.utils.json_to_sheet(this.categories);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Categorías');
+    
+    XLSX.writeFile(workbook, `Lista_Categorías_${this.getFormattedDate()}.xlsx`);
+  }
+
+  getFormattedDate(): string {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    return `${day}/${month}/${year}`;
   }
 
   ngOnInit() {

@@ -18,16 +18,18 @@
         
 
         <!-- Botones para exportar datos a PDF y Excel -->
-        <div class="d-flex  ms-2">
+        <div class="d-flex ms-2">
           <button class="btn btn-secondary" (click)="cleanFilters()">
-              <i class="bi bi-trash"></i></button>
-          <button class="btn btn-success ms-2"  title="Exportar a Excel">
+            <i class="bi bi-trash"></i>
+          </button>
+          <button class="btn btn-success ms-2" title="Exportar a Excel" (click)="exportToExcel()">
             <i class="fa-solid bi-file-earmark-excel"></i>
           </button>
-          <button class="btn btn-danger ms-2" title="Exportar a PDF">
+          <button class="btn btn-danger ms-2" title="Exportar a PDF" (click)="exportToPdf()">
             <i class="fas bi-file-earmark-pdf"></i>
           </button>
-        </div>
+    </div>
+
       </div>
 
       <!-- Tabla de categorías -->
