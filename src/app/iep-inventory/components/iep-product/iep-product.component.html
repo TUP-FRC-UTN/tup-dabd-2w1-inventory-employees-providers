@@ -172,7 +172,7 @@
       <div class="input-group form-group">
         <label for="inputPrice" class="col-form-label">Precio Unitario</label>
         <input   type="number" class="form-control text-end" 
-        aria-label="Amount" #unit="ngModel" [(ngModel)]="dto.unit_price"
+        aria-label="Amount" #unit="ngModel" [(ngModel)]="dto.unitPrice"
         name="unit" min="0"  [ngClass]="{
           'is-invalid': unit.invalid && unit.touched, 
           'is-valid': unit.valid && unit.touched
@@ -195,7 +195,7 @@
           'is-valid': state.valid && state.touched
       }" 
         class="form-select"  id="" name="state" #state="ngModel" 
-        [(ngModel)]="dto.state_id" [value]="0" required>
+        [(ngModel)]="dto.stateId" [value]="0" required>
           <option value="1">Disponible</option>
           <option value="2">En uso</option>
           <option value="3">En mantenimiento</option>
@@ -270,7 +270,7 @@
       <div class="form-group n input-group" >
         <label for="inputMinStock" class="col-form-label">Stock insuficiente</label>
         <input #min="ngModel" min="1" type="number" name="min" 
-        [(ngModel)]="dto.min_amount_warning" class="form-control text-end" 
+        [(ngModel)]="dto.minAmountWarning" class="form-control text-end" 
         id="inputMinStock"   [ngClass]="{
           'is-invalid': min.invalid && min.touched, 
           'is-valid': min.valid && min.touched

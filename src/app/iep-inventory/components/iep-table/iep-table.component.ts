@@ -197,7 +197,21 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
         '<"d-flex justify-content-between"lp>', //Paginacion
       data: this.filteredProductos, // Usar la lista filtrada
       columns: [
-        { data: 'date', title: 'Fecha' }, // Columna de fecha
+        {
+          data: 'date',
+          title: 'Fecha',
+          render: (data, type, row) => {
+            if (type === 'display') {
+              return data; // Mantiene el formato dd/MM/yyyy para mostrar
+            }
+            if (type === 'sort') {
+              // Convierte la fecha dd/MM/yyyy a formato sorteable
+              const [day, month, year] = data.split('/');
+              return `${year}${month}${day}`; // Formato yyyyMMdd para ordenamiento
+            }
+            return data;
+          }
+        },
         { data: 'product', title: 'Producto' }, // Columna de producto
         { data: 'modificationType', title: 'Tipo Movimiento' }, // Columna de tipo de movimiento
         { data: 'supplier', title: 'Proveedor' }, // Columna de proveedor
@@ -459,9 +473,9 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Actualiza el DataTable con todos los productos sin filtrar
     if (this.table) {
-        this.table.clear().rows.add(this.filteredProductos).draw();
+      this.table.clear().rows.add(this.filteredProductos).draw();
     }
-}
+  }
 
 
 }
