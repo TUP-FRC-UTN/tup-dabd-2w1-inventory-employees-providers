@@ -149,7 +149,7 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
             data: null,
             title: 'Acciones',
             render: (data: any) => {
-              return `<button class="btn btn-sm btn-primary btn-ver-mas" data-bs-toggle="modal" data-bs-target="#infoModal" data-id="${data.id}">Ver más</button>`;
+              return `<button class="btn btn-sm btn-info btn-ver-mas" data-bs-toggle="modal" data-bs-target="#infoModal" data-id="${data.id}">Ver más</button>`;
             }
           }
         ],
