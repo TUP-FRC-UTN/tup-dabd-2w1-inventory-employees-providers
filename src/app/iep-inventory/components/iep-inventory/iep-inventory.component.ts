@@ -428,6 +428,11 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.cantMinima = 0;
     this.cantMaxima = 0;
     this.nombre = '';
+      // Limpia los valores de los inputs en el DOM
+      const textInputs = document.querySelectorAll('input.form-control');
+
+      // Limpia cada campo de texto
+      textInputs.forEach(input => (input as HTMLInputElement).value = '');
     this.aplicarFiltros();
   }
 

@@ -168,22 +168,6 @@ export class IepProductComponent {
     this.abrirModal = false;
   }
 
-
-  openModal(): void {
-    /*const dialogRef = this.dialog.open(ModalSelectComponent, {
-      width: '400px'
-    });*/
-  
-   /* dialogRef.componentInstance.categoryAdded.subscribe(() => {
-      this.loadCategories(); 
-    });
-
-    /*dialogRef.afterClosed().subscribe(result => {
-      console.log('El modal se cerró', result);
-      
-    });*/
-  }
-
   goBack() {
     window.history.back();
   }  

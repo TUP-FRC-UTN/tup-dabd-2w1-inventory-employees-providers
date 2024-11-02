@@ -5,7 +5,8 @@ import { ProductCategory } from '../../models/product-category';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-
+import Swal from 'sweetalert2';
+import { UsersMockIdService } from '../../../common-services/users-mock-id.service';
 @Component({
   selector: 'app-iep-categories-list',
   templateUrl: './iep-categories-list.component.html',
@@ -14,18 +15,59 @@ import { RouterModule } from '@angular/router';
   standalone: true
 })
 export class IepCategoriesListComponent implements OnInit {
+  private usersMockService: UsersMockIdService;
   private categoryService: CategoriaService;
   categories: ProductCategory[] = [];
   private table: any;
   filteredData: ProductCategory[] = [];
-
-  constructor(categoryService: CategoriaService) { 
+  categoryToDelete: number | null = null;
+  categoryToEdit: number | null = null;
+  idUser: number=0;
+  constructor(categoryService: CategoriaService,usersMockService: UsersMockIdService) { 
+    this.usersMockService = usersMockService;
     this.categoryService = categoryService;
   }
 
   ngOnInit() {
     this.loadCategories();
   }
+
+  private refreshDataTable(): void {
+    if (this.table) {
+      this.table.clear();
+      this.table.rows.add(this.filteredData);
+      this.table.draw();
+    } else {
+      this.initializeDataTable();
+    }
+  }
+
+  filterData(event: any): void {
+    const searchTerm = event.target.value.toLowerCase().trim();
+    if (!searchTerm) {
+      this.filteredData = [...this.categories];
+    } else {
+      this.filteredData = this.categories.filter(cat => 
+        cat.category.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    this.refreshDataTable();
+  }
+
+  cleanFilters(): void {
+    
+    // Limpia los valores de los inputs en el DOM
+    const textInputs = document.querySelectorAll('input.form-control');
+
+    // Limpia cada campo de texto
+    textInputs.forEach(input => (input as HTMLInputElement).value = '');
+
+    this.filteredData = [...this.categories];
+    this.refreshDataTable();
+
+  }
+
 
   initializeDataTable() {
     // Destruir la tabla si ya existe
@@ -55,7 +97,8 @@ export class IepCategoriesListComponent implements OnInit {
                   &#8942;
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li><a class="dropdown-item edit-btn" href="#" data-id="${row.id}">Editar</a></li>
+                  <li><a class="dropdown-item edit-btn" href="#" 
+                  data-id="${row.id}" data-bs-toggle="modal" data-bs-target="#categoriaModal">Editar</a></li>
                   <li><a class="dropdown-item delete-btn" href="#" data-id="${row.id}">Eliminar</a></li>
                 </ul>
               </div>`;
@@ -83,34 +126,88 @@ export class IepCategoriesListComponent implements OnInit {
       }
     });
 
-    // Configurar los listeners para los botones
     this.setupTableListeners();
+  }
+
+  showConfirmDeleteModal() {
+    Swal.fire({
+      title: '¿Estás seguro de querer eliminar la categoría?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.deleteCategory();
+      }
+    });
+  }
+
+  showSuccessDeleteAlert() {
+    Swal.fire({
+      title: 'Categoría eliminada',
+      icon: 'success',
+      confirmButtonText: 'Aceptar',
+    }).then(() => {
+      this.loadCategories();
+    });
+  }
+
+  deleteCategory() {
+    if (this.categoryToDelete === null || this.categoryToDelete === undefined) {
+      console.error('No se ha seleccionado una categoría para eliminar');
+      return;
+    }
+    this.categoryService.deleteCategory(
+      this.categoryToDelete,this.usersMockService.getMockId()).subscribe({
+      next: (response) => {
+        console.log('Categoría eliminada:', response);
+        this.showSuccessDeleteAlert();
+        this.loadCategories();
+      },
+      error: (error) => {
+        console.error('Error al eliminar categoría:', error);
+      },
+    });
   }
 
   setupTableListeners() {
     $('#categoryTable').on('click', '.edit-btn', (event) => {
       event.preventDefault();
       const id = $(event.currentTarget).data('id');
-      // Implementar lógica de edición
-      console.log('Editar categoría:', id);
+      this.setCategoryToEdit(id);
     });
 
     $('#categoryTable').on('click', '.delete-btn', (event) => {
       event.preventDefault();
       const id = $(event.currentTarget).data('id');
-      // Implementar lógica de eliminación
-      console.log('Eliminar categoría:', id);
+      this.setCategoryToDelete(id);
+      this.showConfirmDeleteModal();
     });
   }
+
+  setCategoryToDelete(id: number) {
+    this.categoryToDelete = id;
+    console.log('Eliminar categoría:', this.categoryToDelete);
+  }
+
+  setCategoryToEdit(id: number) {
+    this.categoryToEdit = id;
+    console.log('Editar categoría:', this.categoryToEdit);
+  }
+
+
 
   loadCategories() {
     this.categoryService.getCategorias().subscribe({
       next: (categories) => {
         this.categories = categories;
         this.filteredData = [...categories];
-        // Inicializar la DataTable después de obtener los datos
         setTimeout(() => {
-          this.initializeDataTable();
+          this.refreshDataTable();
         }, 0);
       },
       error: (error) => {

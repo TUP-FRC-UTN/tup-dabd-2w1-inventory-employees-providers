@@ -6,24 +6,31 @@
       <!-- Fila de opciones (Filtro, Exportar, Nuevo) -->
       <div class="d-flex justify-content-between align-items-center mb-3">
         <!-- Filtro de búsqueda a la izquierda -->
-        <div class="col-md-4">
-          <div class="input-group">
-            <input type="text" class="form-control" placeholder="Buscar...">
+          <div class="col-md-4">
+            <div class="input-group">
+              <input type="text" class="form-control" id="searchTerm"
+              placeholder="Buscar..."  (input)="filterData($event)">
+            </div>
           </div>
-        </div>
+       
 
         <!-- Botones a la derecha -->
-        <div>
-          <button class="btn btn-success me-2" >
-            <i class="fa-solid fa-file-excel"></i>
+        
+
+        <!-- Botones para exportar datos a PDF y Excel -->
+        <div class="d-flex  ms-2">
+          <button class="btn btn-secondary" (click)="cleanFilters()">
+              <i class="bi bi-trash"></i></button>
+          <button class="btn btn-success ms-2"  title="Exportar a Excel">
+            <i class="fa-solid bi-file-earmark-excel"></i>
           </button>
-          <button class="btn btn-danger me-2" >
-            <i class="fas fa-file-pdf"></i>
+          <button class="btn btn-danger ms-2" title="Exportar a PDF">
+            <i class="fas bi-file-earmark-pdf"></i>
           </button>
         </div>
       </div>
 
-      <!-- Tabla de cargos -->
+      <!-- Tabla de categorías -->
       <table id="categoryTable" class="table table-striped">
         <thead>
           <tr>
@@ -35,48 +42,58 @@
     </div>
   </div>
 
-
-  <!-- Modal de Confirmación de Eliminación 
-  <div  class="modal" 
-    style="display: block;">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirmación de Eliminación</h5>
-          <button type="button" class="btn-close" ></button>
-        </div>
-        <div class="modal-body">
-          <p>¿Está seguro que desea eliminar este cargo?</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger">
-            Eliminar
-          </button>
-          <button type="button" class="btn btn-secondary">Cancelar</button>
-        </div>
-      </div>
-    </div>
-  </div>-->
-
-  <!-- Modal de Error 
-  <div  class="modal" style="display: block;">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title text-danger">Error</h5>
-          <button type="button" class="btn-close"></button>
-        </div>
-        <div class="modal-body">
-           Mensaje de Error aca 
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary">Cerrar</button>
-        </div>
-      </div>
-    </div>
-  </div>-->
   
 <!-- Boton + Flotante -->
-<button class="floating-btn btn btn-primary">
+<button class="floating-btn btn btn-primary" data-bs-target="#categoriaModal" data-bs-toggle="modal" (click)="setCategoryToEdit(0)">
   <span class="bi-plus-lg"></span>
 </button>
+
+
+<!-- Modal para Categorias -->
+<div class="modal fade" id="categoriaModal" role="dialog" aria-labelledby="categoriaModal" style="width: 100%;" aria-hidden="">
+  <div class="modal-dialog" style="width: 100%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Categorias</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" #modalCategoryForm="ngForm">
+          <div class="row">
+            <div class="col-12">
+              <div class="input-group mb-3">
+                <label for="category text-start" class="col-form-label">Categoría</label>
+                <select class="form-select" id="categoryModal" style="border-radius: 0.25rem;"
+                #categoryToEdit="ngModel"  [(ngModel)]="categoryToEdit"  name="categoryToEdit"  required>
+                   required>
+                   @for(c of categories;track $index){
+                    <option value="{{c.id}}">{{c.category}}</option>
+                   }
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3 mt-1 form-check  ml-2">
+            <input type="checkbox" name="reusable" class="form-check-input" id="exampleCheck1" >
+            <label class="form-check-label" for="exampleCheck1">Nuevo</label>
+          </div>
+
+          <div class="row">
+            <div class="input-group form-group">
+              <label for="inputName" class="col-form-label" style="margin-right: 10px;">Descripción</label>
+              <input type="text" class="form-control"   name="newCategory"
+                minlength="3" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="">
+              <button type="submit" [disabled]="modalCategoryForm.invalid"
+              class="btn btn-primary" data-bs-dismiss="">Actualizar</button>
+            </div>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
