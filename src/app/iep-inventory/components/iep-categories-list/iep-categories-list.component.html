@@ -14,21 +14,20 @@
 
         <!-- Botones a la derecha -->
         <div>
-          <button class="btn btn-success me-2" (click)="exportToExcel()">
+          <button class="btn btn-success me-2" >
             <i class="fa-solid fa-file-excel"></i>
           </button>
-          <button class="btn btn-danger me-2" (click)="exportToPdf()">
+          <button class="btn btn-danger me-2" >
             <i class="fas fa-file-pdf"></i>
           </button>
         </div>
       </div>
 
       <!-- Tabla de cargos -->
-      <table id="cargosTable" class="table table-striped">
+      <table id="categoryTable" class="table table-striped">
         <thead>
           <tr>
-            <th>Cargo</th>
-            <th>Descripción</th>
+            <th>Categoría</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -37,8 +36,8 @@
   </div>
 
 
-  <!-- Modal de Confirmación de Eliminación -->
-  <div *ngIf="isConfirmDeleteModalOpen" class="modal" 
+  <!-- Modal de Confirmación de Eliminación 
+  <div  class="modal" 
     style="display: block;">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -57,10 +56,10 @@
         </div>
       </div>
     </div>
-  </div>
+  </div>-->
 
-  <!-- Modal de Error -->
-  <div *ngIf="isErrorModalOpen" class="modal" style="display: block;">
+  <!-- Modal de Error 
+  <div  class="modal" style="display: block;">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -68,14 +67,14 @@
           <button type="button" class="btn-close"></button>
         </div>
         <div class="modal-body">
-          <!-- Mensaje de Error aca -->
+           Mensaje de Error aca 
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary">Cerrar</button>
         </div>
       </div>
     </div>
-  </div>
+  </div>-->
   
 <!-- Boton + Flotante -->
 <button class="floating-btn btn btn-primary">

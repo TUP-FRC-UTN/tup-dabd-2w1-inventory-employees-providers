@@ -18,7 +18,7 @@ export class CategoriaService {
 
   getCategorias():Observable<ProductCategory[]> {
     return this.client.get<ProductCategory[]>
-    (`${this.CATEGORY_URL}/getAll`);
+    (`${this.CATEGORY_URL}`);
   }
 
   postCategory(createCategoryDto:CreateCategoryDto):Observable<any>{

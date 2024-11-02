@@ -12,7 +12,7 @@ import { ProductXDetailDto } from '../models/product-xdetail-dto';
 export class ProductService {
   private readonly INVENTORY_BASE_URL: string = 'http://localhost:8081/';
 
-  private readonly CATEGORY_URL_GET_ALL: string = `${this.INVENTORY_BASE_URL}category/getAll`; // Tomas C
+  private readonly CATEGORY_URL_GET_ALL: string = `${this.INVENTORY_BASE_URL}category`; // Tomas C
 
   private readonly PRODUCT_URL: string = `${this.INVENTORY_BASE_URL}product`; // Tomas C
   private readonly PRODUCT_URL_GET: string = `${this.PRODUCT_URL}/get`; // Agus
