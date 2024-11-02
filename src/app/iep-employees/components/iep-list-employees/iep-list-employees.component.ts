@@ -14,6 +14,14 @@ import { ListadoDesempeñoService } from '../../services/listado-desempeño.serv
 declare var $: any;
 declare var DataTable: any;
 
+// Interfaz para los filtros
+interface EmployeeFilters {
+  apellidoNombre: string;
+  documento: string;
+  salarioMin: number;
+  salarioMax: number;
+}
+
 @Component({
   selector: 'app-iep-list-employees',
   standalone: true,
@@ -22,6 +30,118 @@ declare var DataTable: any;
   styleUrls: ['./iep-list-employees.component.css'],
 })
 export class IepListEmployeesComponent implements OnInit, OnDestroy {
+
+  private filters: EmployeeFilters = {
+    apellidoNombre: '',
+    documento: '',
+    salarioMin: 0,
+    salarioMax: Number.MAX_VALUE
+  };
+
+  applyColumnFilter(event: Event, field: string): void {
+    const value = (event.target as HTMLInputElement).value.toLowerCase();
+    
+    if (field === 'apellidoNombre') {
+      this.filters.apellidoNombre = value;
+    } else if (field === 'documento') {
+      this.filters.documento = value;
+    }
+    
+    this.applyFilters2();
+  }
+
+  applyAmountFilter(type: string, event: Event): void {
+    const value = Number((event.target as HTMLInputElement).value) || 0;
+    
+    if (type === 'min') {
+      this.filters.salarioMin = value;
+    } else if (type === 'max') {
+      this.filters.salarioMax = value || Number.MAX_VALUE;
+    }
+    
+    this.applyFilters2();
+  }
+
+  applyFilters2(): void {
+    if (this.table) {
+      this.table.clear();
+
+      const filteredData = this.Empleados.filter(empleado => {
+        // Filtro por apellido y nombre
+        const nameMatch = !this.filters.apellidoNombre || 
+          empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre);
+
+        // Filtro por documento
+        const documentMatch = !this.filters.documento || 
+          empleado.document.toString().toLowerCase().includes(this.filters.documento);
+
+        // Filtro por rango de salario
+        const salaryMatch = empleado.salary >= this.filters.salarioMin && 
+          empleado.salary <= this.filters.salarioMax;
+
+        // Aplicar todos los filtros en conjunto
+        return nameMatch && documentMatch && salaryMatch;
+      });
+
+      // Mantener los filtros existentes de búsqueda y posición
+      const finalFilteredData = filteredData.filter(empleado => {
+        if (!this.searchFilter && !this.positionFilter) {
+          return true;
+        }
+
+        const searchTerms = this.searchFilter.toLowerCase().split(' ');
+        const searchMatch = !this.searchFilter || searchTerms.every(term => {
+          const fullName = empleado.fullName.toLowerCase();
+          const document = empleado.document.toString().toLowerCase();
+          const salary = empleado.salary.toString();
+
+          return fullName.includes(term) ||
+            document.includes(term) ||
+            salary.includes(term);
+        });
+
+        const positionMatch = !this.positionFilter ||
+          empleado.position === this.positionFilter;
+
+        return searchMatch && positionMatch;
+      });
+
+      this.table.rows.add(finalFilteredData).draw();
+    }
+  }
+
+  cleanColumnFilters(): void {
+    // Limpiar los valores de los filtros
+    this.filters = {
+      apellidoNombre: '',
+      documento: '',
+      salarioMin: 0,
+      salarioMax: Number.MAX_VALUE
+    };
+
+    // Limpiar los inputs
+    const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
+    inputs.forEach(input => {
+      input.value = '';
+    });
+
+    const selects = document.querySelectorAll('.filtros select') as NodeListOf<HTMLSelectElement>;
+    selects.forEach(select => {
+      select.value = '';
+    });
+
+    // Recargar la tabla con todos los datos
+    this.applyFilters2();
+  }
+  filteredEmpleados: EmpListadoEmpleados[] = [];
+
+
+  filtersVisible = false; // Indica si los filtros están visibles o no
+
+  toggleFilters(): void {
+    this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+  }
+
   Empleados: EmpListadoEmpleados[] = [];
   Asistencias: EmpListadoAsistencias[] = [];
   filteredAsistencias: EmpListadoAsistencias[] = [];
@@ -64,8 +184,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
 
-
-
   onSearchFilterChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.searchFilter = input.value.toLowerCase();
@@ -76,12 +194,12 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     const comboFiltroCargo = document.getElementById('comboFiltroCargo') as HTMLSelectElement;
     if (comboFiltroCargo) {
       const currentValue = comboFiltroCargo.value; // Guardar el valor actual
-      
+
       // Limpiar opciones existentes excepto la primera
       while (comboFiltroCargo.options.length > 1) {
         comboFiltroCargo.remove(1);
       }
-      
+
       // Agregar las nuevas opciones
       this.uniquePositions.forEach(position => {
         if (position) {
@@ -91,7 +209,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
           comboFiltroCargo.appendChild(option);
         }
       });
-      
+
       // Restaurar el valor seleccionado si existía
       if (currentValue && this.uniquePositions.includes(currentValue)) {
         comboFiltroCargo.value = currentValue;
@@ -120,13 +238,13 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
           const fullName = empleado.fullName.toLowerCase();
           const document = empleado.document.toString().toLowerCase();
           const salary = empleado.salary.toString();
-          
-          return fullName.includes(term) || 
-                 document.includes(term) || 
-                 salary.includes(term);
+
+          return fullName.includes(term) ||
+            document.includes(term) ||
+            salary.includes(term);
         });
 
-        const positionMatch = !this.positionFilter || 
+        const positionMatch = !this.positionFilter ||
           empleado.position === this.positionFilter;
 
         return searchMatch && positionMatch;
@@ -188,13 +306,13 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         this.ventana = 'Informacion';
         // Obtener posiciones únicas
         this.uniquePositions = [...new Set(empleados.map(emp => emp.position))].sort();
-        
+
         // Guardar el filtro actual si existe
         const currentFilter = this.positionFilter;
-        
+
         // Inicializar DataTable
         this.initializeDataTable();
-        
+
         // Actualizar el combobox y restaurar el filtro
         setTimeout(() => {
           this.updatePositionFilter();
@@ -276,8 +394,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         topEnd: null
       },
       dom:
-      '<"mb-3"t>' +                           //Tabla
-      '<"d-flex justify-content-between"lp>', //Paginacion
+        '<"mb-3"t>' +                           //Tabla
+        '<"d-flex justify-content-between"lp>', //Paginacion
       data: this.Empleados,
       columns: [
         {
@@ -290,8 +408,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             return data.toLowerCase();
           }
         },
-        { 
-          data: 'document', 
+        {
+          data: 'document',
           title: 'Documento',
           render: (data: string, type: string) => {
             if (type === 'display') {
@@ -418,42 +536,46 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       columns: [
         { data: 'date', title: 'Fecha' },
         { data: 'employeeName', title: 'Apellido y nombre' },
-        { data: 'state', title: 'Estado', className: 'text-center',
-          render: (data: any) =>{
+        {
+          data: 'state', title: 'Estado', className: 'text-center',
+          render: (data: any) => {
             let color;
-            
-            switch (data){
-              case "PRESENTE": color= "#28a745"; break;
-              case "AUSENTE": color= "#dc3545"; break;
-              case "JUSTIFICADO": color= "#6f42c1"; break;
-              case "TARDE": color= "#ffc107"; break;     
+
+            switch (data) {
+              case "PRESENTE": color = "#28a745"; break;
+              case "AUSENTE": color = "#dc3545"; break;
+              case "JUSTIFICADO": color = "#6f42c1"; break;
+              case "TARDE": color = "#ffc107"; break;
             }
             return `<button class="btn border rounded-pill w-75" 
             style="background-color: ${color}; color: white;">${data}</button>`;
           }
         },
-        { data: 'arrivalTime', title: 'Hora de entrada',
+        {
+          data: 'arrivalTime', title: 'Hora de entrada',
           render: (data: any, type: any, row: any, meta: any) => {
             return row.arrivalTime === null ? "--:--:--" : `${row.arrivalTime}`
           }
         },
-        { data: 'departureTime', title: 'Hora de salida',
+        {
+          data: 'departureTime', title: 'Hora de salida',
           render: (data: any, type: any, row: any, meta: any) => {
             return row.departureTime === null ? "--:--:--" : `${row.departureTime}`
-          } 
+          }
         },
-        { data: null,
+        {
+          data: null,
           title: 'Seleccionar',
           className: 'text-center',
           render: (data: any, type: any, row: any, meta: any) => {
-            const isHidden = row.state === "PRESENTE" || row.state === "TARDE"  ? 'style="display: none;"' : '';
+            const isHidden = row.state === "PRESENTE" || row.state === "TARDE" ? 'style="display: none;"' : '';
             const accion = row.state === "AUSENTE" ? "Justificar" : "Injustificar";
             const nuevoEstado = row.state === "AUSENTE" ? "JUSTIFICADO" : "AUSENTE";
             const checkbox = `<button class="btn border w-75" 
             ${isHidden} data-id="${row.id}" data-nuevoestado="${nuevoEstado}">${accion}</button>`;
-            
+
             const indicator = row.state === "PRESENTE" || row.state === "TARDE" ? '' : checkbox;
-        
+
             return indicator;
           },
         }
@@ -464,27 +586,27 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       const button = $(event.currentTarget);
       const id = button.data('id');
       const nuevoEstado = button.data('nuevoestado');
-  
+
       // Deshabilitar el botón para evitar múltiples clics
       button.prop('disabled', true);
-  
+
       if (id && nuevoEstado) {
-          this.empleadoService.putAttendances(id, nuevoEstado).subscribe({
-              next: (response) => {
-                  console.log('Asistencia actualizada:', response);
-                  this.loadAsistencias();
-              },
-              error: (error) => {
-                  console.error('Error al actualizar asistencia:', error);
-              },
-              complete: () => {
-                  // Habilitar el botón nuevamente si es necesario
-                  button.prop('disabled', false);
-              }
-          });
+        this.empleadoService.putAttendances(id, nuevoEstado).subscribe({
+          next: (response) => {
+            console.log('Asistencia actualizada:', response);
+            this.loadAsistencias();
+          },
+          error: (error) => {
+            console.error('Error al actualizar asistencia:', error);
+          },
+          complete: () => {
+            // Habilitar el botón nuevamente si es necesario
+            button.prop('disabled', false);
+          }
+        });
       } else {
-          // Habilitar el botón nuevamente si no hay id o nuevoEstado
-          button.prop('disabled', false);
+        // Habilitar el botón nuevamente si no hay id o nuevoEstado
+        button.prop('disabled', false);
       }
     });
   }
@@ -663,7 +785,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       })
     }
 
-    if (this.estadoFiltrado !== ""){
+    if (this.estadoFiltrado !== "") {
       this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
         return asistencia.state === this.estadoFiltrado;
       })
@@ -681,7 +803,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     }
   }
 
-  limpiarFiltro(){
+  limpiarFiltro() {
     this.nombreFiltrado = "";
     this.estadoFiltrado = "";
     this.setInitialDates();
