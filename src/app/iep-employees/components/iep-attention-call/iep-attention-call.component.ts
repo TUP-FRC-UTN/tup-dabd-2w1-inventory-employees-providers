@@ -195,7 +195,7 @@ export class IepAttentionCallComponent implements OnInit{
         desempeno: formValues.desempeno,
         observation: formValues.observaciones,
         lastUpdateUser: 1,
-        createdUser: 1
+        created_user :1
       };
   
       this.wakeUpCallService.crearWakeUpCallGrupo(request).subscribe({

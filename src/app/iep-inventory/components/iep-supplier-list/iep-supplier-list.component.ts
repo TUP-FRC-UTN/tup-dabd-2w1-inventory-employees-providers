@@ -165,8 +165,8 @@ export class IepSupplierListComponent implements AfterViewInit {
       });
 
 
-      // Actualizar los event listeners
-      $('#suppliersTable tbody').on('click', '.delete-btn', (event) => {
+       // Actualizar los event listeners
+       $('#suppliersTable tbody').on('click', '.delete-btn', (event) => {
         event.preventDefault();
         const id = $(event.currentTarget).data('id');
         this.setSupplierToDelete(id);
@@ -182,6 +182,8 @@ export class IepSupplierListComponent implements AfterViewInit {
       this.tableInitialized = true;
     });
   }
+
+
 
   updateDataTable(newSuppliers: any[]): void {
     if (this.dataTableInstance) {
@@ -207,7 +209,7 @@ export class IepSupplierListComponent implements AfterViewInit {
         },
         error: (error) => {
           console.error('Error al eliminar el proveedor', error);
-          
+          alert('Ocurrió un error al intentar dar de baja al proveedor.');
           this.deleteModal.hide();
         }
       });
@@ -227,7 +229,7 @@ export class IepSupplierListComponent implements AfterViewInit {
 
     //const confirmUpdate = window.confirm('¿Está seguro de que desea modificar este proveedor?');
     //if (confirmUpdate) {
-    this.router.navigate(['/supplier-update', id]);
+    this.router.navigate(['/home/supplier-update', id]);
     //}
   }
 

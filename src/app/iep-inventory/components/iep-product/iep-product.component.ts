@@ -103,8 +103,8 @@ export class IepProductComponent {
       if(this.dto.unitPrice == null || this.dto.unitPrice === 0) {
         this.dto.unitPrice = 0;
       }
-      if(this.dto.min_amount_warning == null || this.dto.min_amount_warning === 0) {
-        this.dto.min_amount_warning = 0;
+      if(this.dto.minAmountWarning == null || this.dto.minAmountWarning === 0) {
+        this.dto.minAmountWarning = 0;
       }
       if(this.dto.reusable == null|| this.dto.reusable === undefined) {
         this.dto.reusable = false;
