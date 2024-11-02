@@ -11,7 +11,7 @@ export class SuppliersService {
 
   private readonly SUPPLIERS_URL: string = `${this.INVENTORY_BASE_URL}suppliers`;
   private readonly SUPPLIERS_URL_GET_BY_ID: string = `${this.SUPPLIERS_URL}/getbyId/`;
-  private readonly SUPPLIERS_URL_BAJA_LOGICA: string = `${this.SUPPLIERS_URL}/bajalogica/`;
+  private readonly SUPPLIERS_URL_BAJA_LOGICA: string = `${this.SUPPLIERS_URL}/bajalogica`; 
 
   createSupplier(formData: any) {
     return this.http.post(this.SUPPLIERS_URL, formData);

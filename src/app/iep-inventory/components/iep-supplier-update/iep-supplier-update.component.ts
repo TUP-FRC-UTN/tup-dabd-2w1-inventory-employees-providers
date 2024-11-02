@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { ProvidersService } from '../../services/providers.service';
 import { SuppliersService } from '../../services/suppliers.service';
 import { Supplier } from '../../models/suppliers';
@@ -10,7 +10,7 @@ import { error } from 'jquery';
 @Component({
   selector: 'app-iep-supplier-update',
   standalone: true,
-  imports: [CommonModule,ReactiveFormsModule],
+  imports: [CommonModule,ReactiveFormsModule,RouterModule],
   templateUrl: './iep-supplier-update.component.html',
   styleUrl: './iep-supplier-update.component.css'
 })
@@ -98,9 +98,7 @@ export class IepSupplierUpdateComponent implements OnInit{
     }
   }
   
-  back(){
-    this.router.navigate(['/suppliers']);
-  }
+
 
   isFieldInvalid(field: string): boolean {
     const control = this.proveedorForm.get(field);

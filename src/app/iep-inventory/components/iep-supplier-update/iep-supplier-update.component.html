@@ -82,7 +82,7 @@
 
     <div class="row">
       <div class="col">
-        <button type="button" class="btn btn-secondary" (click)="back()">Volver</button>
+        <button type="button" class="btn btn-secondary" [routerLink]="['/home/suppliers']" routerLinkActive="router-link-active" >Volver</button>
       </div>
       <div class="col text-end">
         <button type="submit" class="btn btn-success" [disabled]="proveedorForm.invalid">Modificar</button>
