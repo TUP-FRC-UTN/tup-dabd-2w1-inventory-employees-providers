@@ -27,6 +27,7 @@ export class IepSupplierListComponent implements AfterViewInit {
   selectedSupplierId: number | null = null;
   tableInitialized = false;
   dataTableInstance: any;
+  deleteModal: any;
 
   constructor(private supplierService: SuppliersService, private router: Router) { }
 
@@ -166,9 +167,10 @@ export class IepSupplierListComponent implements AfterViewInit {
 
       // Actualizar los event listeners
       $('#suppliersTable tbody').on('click', '.delete-btn', (event) => {
-        event.preventDefault(); // Prevenir navegación por defecto
+        event.preventDefault();
         const id = $(event.currentTarget).data('id');
         this.setSupplierToDelete(id);
+        this.deleteModal.show(); // Mostrar el modal usando la instancia
       });
 
       $('#suppliersTable tbody').on('click', '.edit-btn', (event) => {
@@ -194,10 +196,21 @@ export class IepSupplierListComponent implements AfterViewInit {
   }
 
   confirmDelete(): void {
-
     if (this.selectedSupplierId !== null) {
-      this.deleteSupplier(this.selectedSupplierId);
-      this.selectedSupplierId = null;
+      this.supplierService.deleteSupplier(this.selectedSupplierId).subscribe({
+        next: (response) => {
+          console.log('Proveedor eliminado:', response);
+          this.suppliers = this.suppliers.filter(supplier => supplier.id !== this.selectedSupplierId);
+          this.updateDataTable(this.suppliers);
+          this.selectedSupplierId = null;
+          this.deleteModal.hide(); // Ocultar el modal después de eliminar
+        },
+        error: (error) => {
+          console.error('Error al eliminar el proveedor', error);
+          alert('Ocurrió un error al intentar dar de baja al proveedor.');
+          this.deleteModal.hide();
+        }
+      });
     }
   }
 
@@ -221,7 +234,7 @@ export class IepSupplierListComponent implements AfterViewInit {
   deleteSupplier(id: number): void {
     //const isConfirmed = window.confirm('¿Seguro que desea dar de baja al proveedor seleccionado?');
     //if (isConfirmed) {
-    this.supplierService.deleteSupplier(id).subscribe(
+    /*this.supplierService.deleteSupplier(id).subscribe(
       response => {
         //alert('¡Proveedor dado de baja correctamente!');
         console.log(response);
@@ -232,6 +245,20 @@ export class IepSupplierListComponent implements AfterViewInit {
       error => {
         alert('Ocurrió un error al intentar dar de baja al proveedor.');
       }
+    );*/
+    this.supplierService.deleteSupplier(id).subscribe({
+      next: (response) => {
+        //alert('¡Proveedor dado de baja correctamente!');
+        console.log(response);
+        // Actualizar la lista de proveedores después de eliminar
+        this.suppliers = this.suppliers.filter(supplier => supplier.id !== id);
+        this.updateDataTable(this.suppliers);
+      },
+      error: (error) => {
+        console.error('Error al eliminar el proveedor', error);
+        alert('Ocurrió un error al intentar dar de baja al proveedor.');
+      }
+    }
     );
     //}
   }
