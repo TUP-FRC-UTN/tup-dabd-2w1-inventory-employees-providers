@@ -106,10 +106,10 @@ export class IepPutEmployeesComponent implements OnInit {
         // Cargar dirección
         if (employee.adressDto) {
           this.calle = employee.adressDto.street || '';
-          this.numeroCalle = employee.adressDto.number_street?.toString() || '';
+          this.numeroCalle = employee.adressDto.numberStreet?.toString() || '';
           this.piso = employee.adressDto.floor?.toString() || '';
           this.dpto = employee.adressDto.apartment || '';
-          this.codigoPostal = employee.adressDto.postal_code || '';
+          this.codigoPostal = employee.adressDto.postalCode || '';
           this.localidadSelect = employee.adressDto.locality || '';
           // La provincia se seleccionará cuando se carguen las provincias
         }
@@ -236,10 +236,10 @@ export class IepPutEmployeesComponent implements OnInit {
         telephoneValue: parseInt(this.telefono),
         adressDto: {
           street: this.calle,
-          number_street: parseInt(this.numeroCalle),
+          numberStreet: parseInt(this.numeroCalle),
           apartment: this.dpto,
           floor: parseInt(this.piso),
-          postal_code: this.codigoPostal,
+          postalCode: this.codigoPostal,
           city: this.provinciaSelect?.nombre,
           locality: this.localidadSelect
         },

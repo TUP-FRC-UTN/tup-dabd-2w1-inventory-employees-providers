@@ -4,7 +4,7 @@ export interface RequestWakeUpCallDTO {
     desempeno: 'LEVE' | 'MODERADO' | 'SEVERO'; // Enum equivalente
     observation: string;
     lastUpdateUser: number;
-    created_user: number;
+    createdUser: number;
   }
   
   export interface RequestWakeUpCallGroupDTO {
@@ -13,7 +13,7 @@ export interface RequestWakeUpCallDTO {
     desempeno: 'LEVE' | 'MODERADO' | 'SEVERO';
     observation: string;
     lastUpdateUser: number;
-    created_user: number;
+    createdUser: number;
   }
   
   export interface ResponseWakeUpCallDTO {
@@ -22,7 +22,7 @@ export interface RequestWakeUpCallDTO {
     desempeno: string;
     observation: string;
     lastUpdateUser: number;
-    created_user: number;
+    createdUser: number;
   }
 
   export interface EmployeeGetResponseDTO {

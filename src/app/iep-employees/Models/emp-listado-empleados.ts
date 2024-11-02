@@ -23,8 +23,8 @@ export interface Employee {
   documentValue: string;
   documentType: string;
   cuil: string;
-  address_id: number;
-  contact_id: number;
+  addressId: number;
+  contactId: number;
   charge: Charge;
   contractStartTime: [number, number, number]; // [Año, Mes, Día]
   salary: number;
