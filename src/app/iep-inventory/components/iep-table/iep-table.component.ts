@@ -283,6 +283,15 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     return `${year}-${month}-${day}`;
   }
 
+  getFormattedDate(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${day}-${month}-${year}`;
+  }
+
   // Método que genera el PDF
   exportToPdf(): void {
     if (!this.filteredProductos.length) {
@@ -353,7 +362,8 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     // Guardar el PDF
-    doc.save('reporte_productos.pdf');
+    const formattedDate = this.getFormattedDate();
+    doc.save(`Reporte_Productos_${formattedDate}.pdf`)
   }
 
   exportToExcel(): void {
@@ -393,7 +403,8 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Historial');
 
     // Guardar el archivo
-    XLSX.writeFile(workbook, 'reporte_productos.xlsx');
+    const formattedDate = this.getFormattedDate();
+    XLSX.writeFile(workbook, `Reporte_Productos_${formattedDate}.xlsx`);
   }
 
   ngOnDestroy(): void {

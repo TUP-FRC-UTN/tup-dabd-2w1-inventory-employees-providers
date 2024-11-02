@@ -57,6 +57,16 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
 
   constructor(private warehouseMovementService: WarehouseMovementService, private productService: ProductService) { }
 
+
+  getFormattedDate(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${day}-${month}-${year}`;
+  }
+
   exportToPdf(): void {
     const doc = new jsPDF();
     doc.setFontSize(16);
@@ -79,7 +89,8 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
       startY: 20,
     });
 
-    doc.save('Lista_Movimientos.pdf');
+    const formattedDate = this.getFormattedDate();
+    doc.save(`Lista_Movimientos_${formattedDate}.pdf`);
   }
 
   exportToExcel(): void {
@@ -98,7 +109,8 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Movimientos');
 
-    XLSX.writeFile(workbook, 'Lista_Movimientos.xlsx');
+    const formattedDate = this.getFormattedDate();
+    XLSX.writeFile(workbook, `Lista_Movimientos_${formattedDate}.xlsx`);
   }
 
 

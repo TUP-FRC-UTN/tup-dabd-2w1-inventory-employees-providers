@@ -518,6 +518,15 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
     this.router.navigate(["inventario"])
   }
 
+  getFormattedDate(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${day}/${month}/${year}`;
+  }
+
   // Método para exportar a Excel
   generateExcel(): void {
     const dataToExport = this.details.map(detail => ({
@@ -536,7 +545,8 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Detalles de Productos');
 
     // Guardar el archivo
-    XLSX.writeFile(workbook, 'Listado_Productos.xlsx');
+    const formattedDate = this.getFormattedDate();
+    XLSX.writeFile(workbook, `Detalle_Inventario_${formattedDate}.xlsx`);
   }
 
   // Método para exportar a PDF
@@ -563,6 +573,7 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
     });
 
     // Guardar el PDF
-    doc.save('Listado_Productos.pdf');
+    const formattedDate = this.getFormattedDate();
+    doc.save(`Detalle_Inventario_${formattedDate}.pdf`);
   }
 }

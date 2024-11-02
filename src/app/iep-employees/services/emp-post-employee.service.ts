@@ -14,7 +14,7 @@ export class EmpPostEmployeeService {
 
   private SUPPLIER_URL: string = `${this.INVENTORY_URL}suppliers`;
 
-  private readonly CHARGES_URL: string = `${this.EMPLOYEE_BASE_URL}charges`;
+  private readonly CHARGES_URL: string = `${this.EMPLOYEE_BASE_URL}charges/active`;
   private readonly EMPLOYEE_URL: string = `${this.EMPLOYEE_BASE_URL}employees`;
   private readonly EMPLOYEE_POST_URL: string = `${this.EMPLOYEE_URL}/post`;
 
