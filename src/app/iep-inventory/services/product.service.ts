@@ -96,14 +96,10 @@ export class ProductService {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     const params = new HttpParams().set('idUser', idUser.toString());
     const json = JSON.stringify(dto);
-
-    console.log(json);
-
     return this.http.post<any>(url, json, { headers, params });
   }
 
   productGet(): Observable<DtoProducto[]> {
-    console.log('aa');
     return this.http.get<DtoProducto[]>(this.PRODUCT_URL_GET);
   }
 
