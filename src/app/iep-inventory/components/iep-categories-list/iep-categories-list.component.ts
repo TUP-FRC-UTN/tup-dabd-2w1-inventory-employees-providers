@@ -259,7 +259,7 @@ export class IepCategoriesListComponent implements OnInit {
 
 
   searchForProductsWithCategory() :any{ 
-    this.productService.getDtoProducts(this.categoryToDelete).subscribe({
+   /* this.productService.getDtoProducts(this.categoryToDelete).subscribe({
       next: (products) => {
         console.log('Productos con categoría:', products);
         if(products.length > 0){
@@ -273,7 +273,8 @@ export class IepCategoriesListComponent implements OnInit {
       error: (error) => {
         console.error('Error al buscar productos por categoría:', error);
       },
-  });
+  });*/
+  this.deleteCategory();
 
   }
 
