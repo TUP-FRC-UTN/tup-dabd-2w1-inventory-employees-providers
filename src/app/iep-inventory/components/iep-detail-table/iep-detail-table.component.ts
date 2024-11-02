@@ -16,6 +16,7 @@ import { WarehouseMovementService } from '../../services/warehouse-movement.serv
 import { catchError, delay, Observable } from 'rxjs';
 import { IepCreateWarehouseMovementDTO } from '../../models/iep-create-warehouse-movement-dto';
 import { DetailServiceService } from '../../services/detail-service.service';
+
 @Component({
   selector: 'app-iep-detail-table',
   standalone: true,
@@ -24,23 +25,92 @@ import { DetailServiceService } from '../../services/detail-service.service';
   styleUrls: ['./iep-detail-table.component.css'],
 })
 export class IepDetailTableComponent implements OnInit, OnDestroy {
+  // Método para limpiar todos los filtros
+  cleanColumnFilters(): void {
+    // Limpiar valores de los inputs
+    const inputs = document.querySelectorAll('input[placeholder]');
+    inputs.forEach(input => (input as HTMLInputElement).value = '');
 
-  cleanColumnFilters() {
-    throw new Error('Method not implemented.');
+    // Resetear select de estado
+    (document.getElementById('estadoSelect') as HTMLSelectElement).value = '';
+
+    // Resetear variables de precio
+    this.minPrice = null;
+    this.maxPrice = null;
+
+    // Resetear la lista filtrada a todos los elementos
+    this.filteredDetails = [...this.details];
+
+    // Actualizar la tabla
+    this.table.clear().rows.add(this.filteredDetails).draw();
   }
+
   filtersVisible: boolean = false;
   filteredDetails: Details[] = []; // Nueva lista para elementos filtrados  
   selectedState: string = ''; // Método para aplicar filtro por estado
 
-  toggleFilters(): void {
-    this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+
+  // Método para aplicar filtro por rango de precio
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+
+  // Método para aplicar todos los filtros
+  private applyAllFilters(): void {
+    this.filteredDetails = this.details.filter(detail => {
+      // Filtro de búsqueda general
+      const searchTerm = this.currentSearchTerm.toLowerCase();
+      const matchesSearch = !searchTerm ||
+        detail.description.toLowerCase().includes(searchTerm) ||
+        detail.supplierName.toLowerCase().includes(searchTerm) ||
+        detail.state.toLowerCase().includes(searchTerm);
+
+      // Filtro por estado
+      const stateFilter = (document.getElementById('estadoSelect') as HTMLSelectElement).value;
+      const matchesState = !stateFilter || detail.state === stateFilter;
+
+      // Filtro por precio
+      const matchesPrice = this.applyPriceFilterLogic(detail.price);
+
+      // Filtros por columnas específicas
+      const productFilter = (document.querySelector('input[placeholder="Descripción"]') as HTMLInputElement)?.value.toLowerCase();
+      const supplierFilter = (document.querySelector('input[placeholder="Proveedor"]') as HTMLInputElement)?.value.toLowerCase();
+
+      const matchesProduct = !productFilter || detail.description.toLowerCase().includes(productFilter);
+      const matchesSupplier = !supplierFilter || detail.supplierName.toLowerCase().includes(supplierFilter);
+
+      // Retorna true solo si cumple con todos los filtros
+      return matchesSearch && matchesState && matchesPrice && matchesProduct && matchesSupplier;
+    });
+
+    // Actualizar la tabla con los resultados filtrados
+    this.table.clear().rows.add(this.filteredDetails).draw();
   }
 
-  applyPriceFilter(arg0: string, $event: Event) {
-    throw new Error('Method not implemented.');
+  // Método para aplicar filtro por rango de precio
+  applyPriceFilter(type: 'min' | 'max', event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+
+    if (type === 'min') {
+      this.minPrice = value ? Number(value) : null;
+    } else {
+      this.maxPrice = value ? Number(value) : null;
+    }
+
+    this.applyAllFilters();
   }
-  applyColumnFilter($event: Event, arg1: string) {
-    throw new Error('Method not implemented.');
+
+  // Método para aplicar filtro por columna
+  applyColumnFilter(event: Event, column: string): void {
+    this.applyAllFilters();
+  }
+
+
+
+  // Método auxiliar para aplicar la lógica del filtro de precio
+  private applyPriceFilterLogic(price: number): boolean {
+    const minPriceMatch = this.minPrice === null || price >= this.minPrice;
+    const maxPriceMatch = this.maxPrice === null || price <= this.maxPrice;
+    return minPriceMatch && maxPriceMatch;
   }
 
   details: Details[] = [];
@@ -63,6 +133,10 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
   errorPost: boolean = false;
   optionsToMovement: string[] = [];
 
+
+  toggleFilters(): void {
+    this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+  }
 
   private formatDateForInput(date: Date): Date {
     const year = date.getFullYear();
@@ -98,6 +172,7 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
 
     // Actualizar la tabla con los elementos filtrados
     this.table.clear().rows.add(this.filteredDetails).draw();
+    this.applyAllFilters();
   }
 
 
