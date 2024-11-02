@@ -8,6 +8,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { UsersMockIdService } from '../../../common-services/users-mock-id.service';
+import { ProductService } from '../../services/product.service';
 declare var bootstrap: any; // Añadir esta declaración al principio
 @Component({
   selector: 'app-iep-categories-list',
@@ -22,17 +23,21 @@ export class IepCategoriesListComponent implements OnInit {
   categories: ProductCategory[] = [];
   private table: any;
   filteredData: ProductCategory[] = [];
-  categoryToDelete: number | null = null;
+  categoryToDelete: number | undefined;
   idCategoryToEdit: number | null = null;
   categoryToEdit: ProductCategory | undefined;
   descrCategoryToEdit: string = '';
   categoryToCreate: string = '';
+  private productService: ProductService;
   
 
   idUser: number=0;
-  constructor(categoryService: CategoriaService,usersMockService: UsersMockIdService) { 
+  constructor(categoryService: CategoriaService,
+    usersMockService: UsersMockIdService,
+    productService: ProductService) { 
     this.usersMockService = usersMockService;
     this.categoryService = categoryService;
+    this.productService = productService
   }
 
   ngOnInit() {
@@ -148,7 +153,7 @@ export class IepCategoriesListComponent implements OnInit {
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.deleteCategory();
+        this.searchForProductsWithCategory();
 
       }
     });
@@ -235,6 +240,41 @@ export class IepCategoriesListComponent implements OnInit {
         console.error('Error al eliminar categoría:', error);
       },
     });
+  }
+
+  showProductsInCategoryAlert(products: any) {
+    Swal.fire({
+      title: 'Productos en categoría',
+      html: `
+        <p>La categoría que intentas eliminar tiene productos asociados.</p>
+        <p>Por favor, elimina los productos antes de continuar.</p>
+        <ul>
+          ${products.map((product: any) => `<li>${product.name}</li>`).join('')}
+        </ul>
+      `,
+      icon: 'warning',
+      confirmButtonText: 'Aceptar',
+    });
+  }
+
+
+  searchForProductsWithCategory() :any{ 
+    this.productService.getDtoProducts(this.categoryToDelete).subscribe({
+      next: (products) => {
+        console.log('Productos con categoría:', products);
+        if(products.length > 0){
+          this.showProductsInCategoryAlert(products);
+          this.closeModal();
+        }else{
+          this.deleteCategory();
+        }
+
+      },
+      error: (error) => {
+        console.error('Error al buscar productos por categoría:', error);
+      },
+  });
+
   }
 
   updateCategory() {
