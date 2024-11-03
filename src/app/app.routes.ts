@@ -15,6 +15,7 @@ import { IepPutEmployeesComponent } from './iep-employees/components/iep-put-emp
 import { IepSupplierListComponent } from './iep-inventory/components/iep-supplier-list/iep-supplier-list.component';
 import { IepSupplierUpdateComponent } from './iep-inventory/components/iep-supplier-update/iep-supplier-update.component';
 import { IepSuppliersFormComponent } from './iep-inventory/components/iep-suppliers-form/iep-suppliers-form.component';
+import { IepChartsEmployeesComponent } from './iep-employees/components/iep-charts-employees/iep-charts-employees.component';
 export const routes: Routes = [
     {
         path: "", redirectTo: "/home", pathMatch: "full" 
@@ -101,8 +102,11 @@ export const routes: Routes = [
                   path: 'employee/update/:id',  // TOMAS H
                   component:IepPutEmployeesComponent,
                   title: 'Modificar empleado'
-                    
-            
+                },
+                {
+                  path: 'employee/charts',
+                  component:IepChartsEmployeesComponent,
+                  title: 'Grafico empleados'  
                 }
             ]
     }

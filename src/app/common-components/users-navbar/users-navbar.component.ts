@@ -98,6 +98,12 @@ export class UsersNavbarComponent {
           title: "Cargos de empleados",
           route: "home/charges",
           roles: ["SuperAdmin", "Admin","Encargado de empleados"]
+        },
+        {
+          icon: "bi-person-badge-fill",
+          title: "Grafico asistencias",
+          route: "home/employee/charts",
+          roles: ["SuperAdmin", "Admin","Encargado de empleados"]
         }
       ]
 
