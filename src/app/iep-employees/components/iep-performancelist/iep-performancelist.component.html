@@ -11,21 +11,46 @@
               class="form-control">
           </div>
 
-          <!-- Selector de Año -->
+          <!-- Dropdown de Año -->
           <div class="col-md-2 d-flex align-items-center">
-            <select id="yearSelect" [(ngModel)]="selectedYear" (change)="filterData()" class="form-control">
-              <option value="">Seleccione Año</option>
-              <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
-            </select>
+            <div class="dropdown w-100">
+              <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownYearSelect"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                Año
+                @if (selectedYears.length > 0) { ({{ selectedYears.length }})}
+              </button>
+              <ul class="dropdown-menu w-100" aria-labelledby="dropdownYearSelect">
+                <li *ngFor="let year of availableYears">
+                  <label class="dropdown-item">
+                    <input type="checkbox" class="form-check-input me-2"
+                      [checked]="selectedYears.includes(year.toString())" (change)="toggleYear(year.toString())">
+                    {{ year }}
+                  </label>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <!-- Selector de Mes -->
+          <!-- Dropdown de Mes -->
           <div class="col-md-2 d-flex align-items-center">
-            <select id="monthSelect" [(ngModel)]="selectedMonth" (change)="filterData()" class="form-control">
-              <option value="">Seleccione Mes</option>
-              <option *ngFor="let month of months; let i = index" [value]="i + 1">{{ month }}</option>
-            </select>
+            <div class="dropdown w-100">
+              <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownMonthSelect"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                Mes
+                @if (selectedMonths.length > 0) { ({{ selectedMonths.length }})}
+              </button>
+              <ul class="dropdown-menu w-100" aria-labelledby="dropdownMonthSelect">
+                <li *ngFor="let month of months; let i = index">
+                  <label class="dropdown-item">
+                    <input type="checkbox" class="form-check-input me-2" [checked]="selectedMonths.includes(month)"
+                      (change)="toggleMonth(month)">
+                    {{ month }}
+                  </label>
+                </li>
+              </ul>
+            </div>
           </div>
+
 
           <!-- Botones de filtro, limpiar y exportación (en la misma fila) -->
           <div class="col-md-4 d-flex justify-content-end align-items-center">
@@ -47,24 +72,36 @@
     </div>
 
     <!-- Fila de selectores adicionales (Tipo de Desempeño y Observaciones) -->
-<div class="row mb-3" *ngIf="showFilters"> <!-- Mostrar/ocultar esta fila según el estado de los filtros -->
-  <div class="col-md-12 d-flex align-items-center">
-    <!-- Selector de Tipo de Desempeño -->
-    <div class="col-md-4 d-flex align-items-center me-3"> <!-- Agregada clase me-3 para margen a la derecha -->
-      <select id="performanceType" [(ngModel)]="selectedPerformanceType" (change)="filterData()"
-        class="form-control">
-        <option value="">Seleccione Tipo</option>
-        <option *ngFor="let type of performanceTypes" [value]="type">{{ type }}</option>
-      </select>
-    </div>
+    <div class="row mb-3" *ngIf="showFilters"> <!-- Mostrar/ocultar esta fila según el estado de los filtros -->
+      <div class="col-md-12 d-flex align-items-center">
+        <!-- Dropdown de Tipo de Desempeño con el evento (change) para filtrar -->
+        <div class="col-md-4 d-flex align-items-center me-3">
+          <div class="dropdown w-100">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownPerformanceType"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Desempeño
+              @if (selectedPerformanceType.length > 0) { ({{ selectedPerformanceType.length }})}
+            </button>
+            <ul class="dropdown-menu w-100" aria-labelledby="dropdownPerformanceType">
+              <li *ngFor="let type of performanceTypes">
+                <label class="dropdown-item">
+                  <input type="checkbox" class="form-check-input me-2"
+                    [checked]="selectedPerformanceType.includes(type)" (change)="togglePerformanceType(type)">
+                  {{ type }}
+                </label>
+              </li>
+            </ul>
+          </div>
+        </div>
 
-    <!-- Selector de Cantidad de Observaciones -->
-    <div class="col-md-4 d-flex align-items-center">
-      <input type="number" id="observationCount" [(ngModel)]="selectedObservationCount" (input)="filterData()"
-        class="form-control" placeholder="Observaciones">
+
+        <!-- Selector de Cantidad de Observaciones -->
+        <div class="col-md-4 d-flex align-items-center">
+          <input type="number" id="observationCount" [(ngModel)]="selectedObservationCount" (input)="filterData()"
+            class="form-control" placeholder="Observaciones">
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
 
     <!-- Modal de Información -->
@@ -109,11 +146,10 @@
       <tbody></tbody>
     </table>
 
-    
+
     <div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeDetailsModal()">
-      <div class="modal fade" aria-labelledby="infoModalLabel" aria-hidden="true" tabindex="-1" 
-           [class.show]="showDetailsModal" 
-           [ngStyle]="{'display': showDetailsModal ? 'block' : 'none'}">
+      <div class="modal fade" aria-labelledby="infoModalLabel" aria-hidden="true" tabindex="-1"
+        [class.show]="showDetailsModal" [ngStyle]="{'display': showDetailsModal ? 'block' : 'none'}">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
@@ -151,7 +187,7 @@
         </div>
       </div>
     </div>
-    
+
 
     <!-- Boton + Flotante -->
     <button class="floating-btn btn btn-primary" (click)="openModal()">
