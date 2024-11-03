@@ -1,140 +1,161 @@
-    
 <section class="py-5">
 
   <div class="container p-3 border border-2 rounded shadow-lg">
 
-  <!-- Sección de filtros y botones de exportación -->
-  <div class="d-flex mb-3 justify-content-between align-items-center">
-    <div class="d-flex align-items-center flex-grow-1">
-      <!-- Campo de Búsqueda -->
-      <div class="col-md-4 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-        <input type="text" id="filterInput" class="form-control" placeholder="Buscar" (input)="applyFilter($event)" />
+    <!-- Sección de filtros y botones de exportación -->
+    <div class="d-flex mb-3 justify-content-between align-items-center">
+      <div class="d-flex align-items-center flex-grow-1">
+        <!-- Campo de Búsqueda -->
+        <div class="col-md-4 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
+          <input type="text" id="filterInput" class="form-control" placeholder="Buscar" (input)="applyFilter($event)" />
+        </div>
+
+        <!-- Campo Desde para seleccionar la fecha de inicio -->
+        <div class="col-md-3 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
+          <input type="date" id="startDate" class="form-control" #startDateInput (change)="onStartDateChange()" />
+        </div>
+
+        <!-- Campo Hasta para seleccionar la fecha de fin -->
+        <div class="col-md-3 mb-3 mb-md-0">
+          <input type="date" id="endDate" class="form-control" #endDateInput (change)="onEndDateChange()" />
+        </div>
       </div>
 
-      <!-- Campo Desde para seleccionar la fecha de inicio -->
-      <div class="col-md-3 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-        <input type="date" id="startDate" class="form-control" #startDateInput (change)="onStartDateChange()" />
+      <!-- Botón para mostrar/ocultar filtros -->
+      <div class="col-mb-3">
+        <button class="btn btn-primary" (click)="toggleFilters()">
+          <i class="bi bi-funnel-fill"></i></button>
       </div>
 
-      <!-- Campo Hasta para seleccionar la fecha de fin -->
-      <div class="col-md-3 mb-3 mb-md-0">
-        <input type="date" id="endDate" class="form-control" #endDateInput (change)="onEndDateChange()" />
+      <!-- Botón para limpiar filtros -->
+      <div class="col-mb-3 ms-2">
+        <button class="btn btn-secondary" (click)="cleanColumnFilters()">
+          <i class="bi bi-trash"></i></button>
+      </div>
+
+      <!-- Botones para exportar datos a PDF y Excel -->
+      <div class="d-flex align-items-center ms-2">
+        <button class="btn btn-success" (click)="exportToExcel()" title="Exportar a Excel">
+          <i class="fa-solid bi-file-earmark-excel"></i>
+        </button>
+        <button class="btn btn-danger ms-2" (click)="exportToPdf()" title="Exportar a PDF">
+          <i class="fas bi-file-earmark-pdf"></i>
+        </button>
       </div>
     </div>
 
-    <!-- Botón para mostrar/ocultar filtros -->
-    <div class="col-mb-3">
-      <button class="btn btn-primary" (click)="toggleFilters()">
-        <i class="bi bi-funnel-fill"></i></button>
-    </div>
-
-    <!-- Botón para limpiar filtros -->
-    <div class="col-mb-3 ms-2">
-      <button class="btn btn-secondary" (click)="cleanColumnFilters()">
-        <i class="bi bi-trash"></i></button>
-    </div>
-
-    <!-- Botones para exportar datos a PDF y Excel -->
-    <div class="d-flex align-items-center ms-2">
-      <button class="btn btn-success" (click)="exportToExcel()" title="Exportar a Excel">
-        <i class="fa-solid bi-file-earmark-excel"></i>
-      </button>
-      <button class="btn btn-danger ms-2" (click)="exportToPdf()" title="Exportar a PDF">
-        <i class="fas bi-file-earmark-pdf"></i>
-      </button>
-    </div>
-  </div>
-
-  <!-- Sección de filtros por columna -->
-  <div *ngIf="filtersVisible" class="row mb-3">
-    <!--       <div class="col-md-2">
+    <!-- Sección de filtros por columna -->
+    <div *ngIf="filtersVisible" class="row mb-3">
+      <!--       <div class="col-md-2">
         <input type="text" placeholder="Fecha" (input)="applyColumnFilter($event, 'date')" class="form-control" />
       </div> -->
-    <div class="col-md-2">
-      <input type="text" placeholder="Producto" (input)="applyColumnFilter($event, 'product')" class="form-control" />
-    </div>
-    <!--       <div class="col-md-2">
+      <div class="col-md-2">
+        <input type="text" placeholder="Producto" (input)="applyColumnFilter($event, 'product')" class="form-control" />
+      </div>
+      <!--       <div class="col-md-2">
         <input type="text" placeholder="Tipo Movimiento" (input)="applyColumnFilter($event, 'modificationType')" class="form-control" />
       </div> -->
-    <div class="col-md-2">
-      <select (change)="applyColumnFilter($event, 'modificationType')" class="form-control">
-        <option value="">Tipo Movimiento</option>
-        <option value="disminución">Disminución</option>
-        <option value="aumento">Aumento</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <input type="text" placeholder="Proveedor" (input)="applyColumnFilter($event, 'supplier')" class="form-control" />
-    </div>
-    <div class="col-md-2">
-      <input type="number" placeholder="Cantidad Mínima" (input)="applyAmountFilter('min', $event)"
-        class="form-control text-end" />
+      <!-- Dropdown de Tipo Movimiento con el evento (change) para filtrar -->
+
+      <div class="col-md-2 dropdown">
+        <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownTipoMovimiento"
+          data-bs-toggle="dropdown" aria-expanded="false">
+          Tipo Movimiento
+          <span class="selected-movimiento"></span>
+        </button>
+        <ul class="dropdown-menu w-100" aria-labelledby="dropdownTipoMovimiento">
+          <li>
+            <label class="dropdown-item">
+              <input type="checkbox" class="form-check-input me-2" name="modificationType" value="Disminución"
+                (change)="applyColumnFilter($event, 'modificationType')">
+              Disminución
+            </label>
+          </li>
+          <li>
+            <label class="dropdown-item">
+              <input type="checkbox" class="form-check-input me-2" name="modificationType" value="Aumento"
+                (change)="applyColumnFilter($event, 'modificationType')">
+              Aumento
+            </label>
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-md-2">
+        <input type="text" placeholder="Proveedor" (input)="applyColumnFilter($event, 'supplier')"
+          class="form-control" />
+      </div>
+      <div class="col-md-2">
+        <input type="number" placeholder="Cantidad Mínima" (input)="applyAmountFilter('min', $event)"
+          class="form-control text-end" />
+      </div>
+
+      <div class="col-md-2">
+        <input type="number" placeholder="Cantidad Máxima" (input)="applyAmountFilter('max', $event)"
+          class="form-control text-end" />
+      </div>
+      <div class="col-md-2">
+        <input type="text" placeholder="Justificativo" (input)="applyColumnFilter($event, 'description')"
+          class="form-control" />
+      </div>
     </div>
 
-    <div class="col-md-2">
-      <input type="number" placeholder="Cantidad Máxima" (input)="applyAmountFilter('max', $event)"
-        class="form-control text-end" />
+    <!-- Tabla que muestra el historial de movimientos de productos -->
+    <div class="table-responsive mt-4">
+      <table id="historialTable" class="table table-striped table-hover display">
+        <thead class="table-light">
+          <tr>
+            <th>Fecha</th>
+            <th>Producto</th>
+            <th>Tipo Movimiento</th>
+            <th>Proveedor</th>
+            <th>Cantidad</th>
+            <th>Justificativo</th>
+            <th>Stock Después</th>
+            <!-- Nueva columna para mostrar el stock después del movimiento -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Los datos se llenarán dinámicamente con DataTables -->
+        </tbody>
+      </table>
     </div>
-    <div class="col-md-2">
-      <input type="text" placeholder="Justificativo" (input)="applyColumnFilter($event, 'description')"
-        class="form-control" />
-    </div>
-  </div>
 
-  <!-- Tabla que muestra el historial de movimientos de productos -->
-  <div class="table-responsive mt-4">
-    <table id="historialTable" class="table table-striped table-hover display">
-      <thead class="table-light">
-        <tr>
-          <th>Fecha</th>
-          <th>Producto</th>
-          <th>Tipo Movimiento</th>
-          <th>Proveedor</th>
-          <th>Cantidad</th>
-          <th>Justificativo</th>
-          <th>Stock Después</th>
-          <!-- Nueva columna para mostrar el stock después del movimiento -->
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Los datos se llenarán dinámicamente con DataTables -->
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Modal de Información que se despliega al hacer clic en el botón de información -->
-  <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="infoModalLabel">
-            Información sobre la Página
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>
-            Esta página muestra el historial de movimientos de productos, permitiéndote realizar las siguientes
-            acciones:
-          </p>
-          <ul>
-            <li><strong>Filtrar el historial por fechas:</strong> Utiliza los campos "Desde" y "Hasta" para especificar
-              el rango de fechas que deseas consultar. Los datos de movimientos se actualizarán automáticamente según
-              tus selecciones.</li>
-            <li><strong>Exportar los datos a Excel o PDF:</strong> Haz clic en los botones de "Exportar a Excel" o
-              "Exportar a PDF" para obtener un archivo con la información visualizada en la tabla. Estos botones estarán
-              habilitados solo si hay datos disponibles para exportar.</li>
-            <li><strong>Visualizar los detalles de cada movimiento de producto:</strong> La tabla te permite ver
-              información específica sobre cada movimiento, incluyendo la fecha, producto, tipo de movimiento,
-              proveedor, cantidad, justificativo y stock después del movimiento.</li>
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            Cerrar
-          </button>
+    <!-- Modal de Información que se despliega al hacer clic en el botón de información -->
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="infoModalLabel">
+              Información sobre la Página
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Esta página muestra el historial de movimientos de productos, permitiéndote realizar las siguientes
+              acciones:
+            </p>
+            <ul>
+              <li><strong>Filtrar el historial por fechas:</strong> Utiliza los campos "Desde" y "Hasta" para
+                especificar
+                el rango de fechas que deseas consultar. Los datos de movimientos se actualizarán automáticamente según
+                tus selecciones.</li>
+              <li><strong>Exportar los datos a Excel o PDF:</strong> Haz clic en los botones de "Exportar a Excel" o
+                "Exportar a PDF" para obtener un archivo con la información visualizada en la tabla. Estos botones
+                estarán
+                habilitados solo si hay datos disponibles para exportar.</li>
+              <li><strong>Visualizar los detalles de cada movimiento de producto:</strong> La tabla te permite ver
+                información específica sobre cada movimiento, incluyendo la fecha, producto, tipo de movimiento,
+                proveedor, cantidad, justificativo y stock después del movimiento.</li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              Cerrar
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
