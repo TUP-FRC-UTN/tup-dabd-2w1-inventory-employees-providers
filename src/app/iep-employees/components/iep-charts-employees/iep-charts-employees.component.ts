@@ -63,7 +63,6 @@ export class IepChartsEmployeesComponent implements OnInit{
     ]
   };
 
-
   width = 800;
   height = 800;
 
@@ -87,6 +86,7 @@ export class IepChartsEmployeesComponent implements OnInit{
     this.asistencias = [];
     const empSubscription = this.empleadosService.getAttendances().subscribe({
       next: (Asistencias) => {
+        this.asistencias = []
         this.asistencias = Asistencias;
         this.filtrar();
         this.cargarAsistencias();
@@ -94,10 +94,11 @@ export class IepChartsEmployeesComponent implements OnInit{
     })
   }
 
-  loadLlamados(){
+  loadLlamados(): void{
     this.llamados = []
     const empSubscription = this.llamadosService.getWakeUpCallDetails().subscribe({
       next: (Llamados) => {
+        this.llamados = [];
         this.llamados = Llamados;
         this.cargarLlamados();
       }
@@ -136,12 +137,12 @@ export class IepChartsEmployeesComponent implements OnInit{
     });
 
     const tiposSinDuplicados: string[] = Array.from(tipos);
+    this.dataCargos = [];
     tiposSinDuplicados.forEach(tipo => {
       const empleadosConTipo = this.empleados.filter(empleado => empleado.position === tipo);
 
       this.dataCargos.push([tipo, empleadosConTipo.length / this.empleados.length * 100])
     });
-    console.log("Tipos: "+tiposSinDuplicados);
   }
   
   cargarLlamados(){
@@ -154,6 +155,7 @@ export class IepChartsEmployeesComponent implements OnInit{
     const añosLlamados: number[] = Array.from(tipos);
     añosLlamados.sort((a, b) => a - b);
 
+    this.dataLlamados = [];
     añosLlamados.forEach(año => {
 
       var l = 0;

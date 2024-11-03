@@ -67,6 +67,12 @@ export class UsersNavbarComponent {
           title: "Proveedores",
           route: "home/suppliers",
           roles: ["SuperAdmin", "Admin","Encargado de inventario"]
+        },
+        {
+          icon: "bi-bar-chart-fill",
+          title: "Grafico inventario",
+          route: "home/inventory/charts",
+          roles: ["SuperAdmin", "Admin","Encargado de inventario"]
         }
         ]
       },
@@ -100,7 +106,7 @@ export class UsersNavbarComponent {
           roles: ["SuperAdmin", "Admin","Encargado de empleados"]
         },
         {
-          icon: "bi-person-badge-fill",
+          icon: "bi-bar-chart-fill",
           title: "Grafico asistencias",
           route: "home/employee/charts",
           roles: ["SuperAdmin", "Admin","Encargado de empleados"]
