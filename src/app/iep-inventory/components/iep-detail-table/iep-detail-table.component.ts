@@ -25,22 +25,60 @@ import { DetailServiceService } from '../../services/detail-service.service';
   styleUrls: ['./iep-detail-table.component.css'],
 })
 export class IepDetailTableComponent implements OnInit, OnDestroy {
+
+  selectedStates: string[] = []; // Cambia de string a array
+
+  // Método para aplicar filtro por estados seleccionados
+applyStateFilter($event: Event, state: string) {
+  const checkbox = $event.target as HTMLInputElement;
+  
+  if (checkbox.checked) {
+    // Añadir estado si está marcado
+    this.selectedStates.push(state);
+  } else {
+    // Remover estado si está desmarcado
+    const index = this.selectedStates.indexOf(state);
+    if (index > -1) {
+      this.selectedStates.splice(index, 1);
+    }
+  }
+  
+  this.applyAllFilters();
+}
   // Método para limpiar todos los filtros
   cleanColumnFilters(): void {
+    // Limpiar estados seleccionados
+    this.selectedStates = [];
+    
+    // Desmarcar todos los checkboxes del dropdown de estado
+    const stateCheckboxes = document.querySelectorAll('input[name="estado"]') as NodeListOf<HTMLInputElement>;
+    stateCheckboxes.forEach(checkbox => {
+      checkbox.checked = false;
+    });
+  
+    // Limpiar el texto seleccionado en el botón del dropdown
+    const selectedStateSpan = document.querySelector('.selected-state') as HTMLSpanElement;
+    if (selectedStateSpan) {
+      selectedStateSpan.textContent = '';
+    }
+  
     // Limpiar valores de los inputs
     const inputs = document.querySelectorAll('input[placeholder]');
     inputs.forEach(input => (input as HTMLInputElement).value = '');
-
+  
     // Resetear select de estado
-    (document.getElementById('estadoSelect') as HTMLSelectElement).value = '';
-
+    const estadoSelect = document.getElementById('estadoSelect') as HTMLSelectElement;
+    if (estadoSelect) {
+      estadoSelect.value = '';
+    }
+  
     // Resetear variables de precio
     this.minPrice = null;
     this.maxPrice = null;
-
+  
     // Resetear la lista filtrada a todos los elementos
     this.filteredDetails = [...this.details];
-
+  
     // Actualizar la tabla
     this.table.clear().rows.add(this.filteredDetails).draw();
   }
@@ -63,27 +101,34 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
         detail.description.toLowerCase().includes(searchTerm) ||
         detail.supplierName.toLowerCase().includes(searchTerm) ||
         detail.state.toLowerCase().includes(searchTerm);
-
-      // Filtro por estado
-      const stateFilter = (document.getElementById('estadoSelect') as HTMLSelectElement).value;
-      const matchesState = !stateFilter || detail.state === stateFilter;
-
+  
+      // Filtro por estado - modificado para manejar múltiples estados
+      const matchesState = this.selectedStates.length === 0 || 
+                          this.selectedStates.includes(detail.state);
+  
       // Filtro por precio
       const matchesPrice = this.applyPriceFilterLogic(detail.price);
-
+  
       // Filtros por columnas específicas
       const productFilter = (document.querySelector('input[placeholder="Descripción"]') as HTMLInputElement)?.value.toLowerCase();
       const supplierFilter = (document.querySelector('input[placeholder="Proveedor"]') as HTMLInputElement)?.value.toLowerCase();
-
+  
       const matchesProduct = !productFilter || detail.description.toLowerCase().includes(productFilter);
       const matchesSupplier = !supplierFilter || detail.supplierName.toLowerCase().includes(supplierFilter);
-
+  
       // Retorna true solo si cumple con todos los filtros
       return matchesSearch && matchesState && matchesPrice && matchesProduct && matchesSupplier;
     });
-
+  
     // Actualizar la tabla con los resultados filtrados
     this.table.clear().rows.add(this.filteredDetails).draw();
+  }
+
+  cleanStateFilters(): void {
+    this.selectedStates = [];
+    const checkboxes = document.querySelectorAll('input[name="estado"]') as NodeListOf<HTMLInputElement>;
+    checkboxes.forEach(checkbox => checkbox.checked = false);
+    this.applyAllFilters();
   }
 
   // Método para aplicar filtro por rango de precio
@@ -158,22 +203,10 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
     private router: Router
   ) { }
 
-  applyStateFilter(event: any): void {
-    const selectedState = event.target.value;
+  estados: string[] = [];
 
-    // Filtrar por estado y aplicar el filtro de búsqueda al mismo tiempo
-    this.filteredDetails = this.details.filter(detail => {
-      const matchesState = selectedState ? detail.state === selectedState : true;
-      const matchesSearch = detail.description.toLowerCase().includes(this.currentSearchTerm.toLowerCase()) ||
-        detail.supplierName.toLowerCase().includes(this.currentSearchTerm.toLowerCase()) ||
-        detail.state.toLowerCase().includes(this.currentSearchTerm.toLowerCase());
-      return matchesState && matchesSearch;
-    });
+  //Método para aplicar filtro por estado para usar los estados seleccionados
 
-    // Actualizar la tabla con los elementos filtrados
-    this.table.clear().rows.add(this.filteredDetails).draw();
-    this.applyAllFilters();
-  }
 
 
 
@@ -321,7 +354,8 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
     );
 
     this.currentSearchTerm = event.target.value.toLowerCase();
-    this.applyStateFilter({ target: { value: (document.getElementById('estadoSelect') as HTMLSelectElement).value } });
+    // this.applyStateFilter({ target: { value: (document.getElementById('estadoSelect') as HTMLSelectElement).value } });
+    this.applyStateFilter({ target: { value: this.selectedState } } as unknown as Event, this.selectedState);
 
     this.table.clear().rows.add(this.filteredDetails).draw(); // Actualiza la tabla con los elementos filtrados
   }
@@ -523,7 +557,7 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
     const day = String(date.getDate()).padStart(2, '0');
-    
+
     return `${day}/${month}/${year}`;
   }
 

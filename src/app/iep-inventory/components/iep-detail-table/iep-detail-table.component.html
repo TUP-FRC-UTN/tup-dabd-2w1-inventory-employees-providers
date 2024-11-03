@@ -89,12 +89,45 @@
           (input)="applyFilter($event)" />
 
         <!-- ComboBox de Estado con el evento (change) para filtrar -->
-        <select id="estadoSelect" class="form-select" style="width: auto;" (change)="applyStateFilter($event)">
+ <!--        <select id="estadoSelect" class="form-select" style="width: auto;" (change)="applyStateFilter($event)">
           <option value="">Seleccionar Estado</option>
           <option value="Disponible">Disponible</option>
           <option value="Mantenimiento">Mantenimiento</option>
           <option value="Prestado">Prestado</option>
-        </select>
+        </select> -->
+
+        <!-- Dropdown de Estado con el evento (change) para filtrar -->
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownEstado"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            Estado
+            <span class="selected-state"></span>
+          </button>
+          <ul class="dropdown-menu w-100" aria-labelledby="dropdownEstado">
+            <li>
+              <label class="dropdown-item">
+                <input type="checkbox" class="form-check-input me-2" name="estado" value="Disponible"
+                  (change)="applyStateFilter($event, 'Disponible')">
+                Disponible
+              </label>
+            </li>
+            <li>
+              <label class="dropdown-item">
+                <input type="checkbox" class="form-check-input me-2" name="estado" value="Mantenimiento"
+                  (change)="applyStateFilter($event, 'Mantenimiento')">
+                Mantenimiento
+              </label>
+            </li>
+            <li>
+              <label class="dropdown-item">
+                <input type="checkbox" class="form-check-input me-2" name="estado" value="Prestado"
+                  (change)="applyStateFilter($event, 'Prestado')">
+                Prestado
+              </label>
+            </li>
+          </ul>
+        </div>
+
       </div>
 
 
