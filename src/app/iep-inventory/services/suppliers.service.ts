@@ -44,6 +44,22 @@ export class SuppliersService {
     });
   }
 
+  // En suppliers.service.ts
+  searchSuppliers2(name: string | null, types: string[] | null, date: any, autorized: boolean) {
+    let params = new HttpParams();
+
+    if (name) params = params.append('name', name);
+    if (types && types.length > 0) {
+      types.forEach(type => {
+        params = params.append('types', type);
+      });
+    }
+    if (date) params = params.append('date', date);
+    params = params.append('autorized', autorized.toString());
+
+    return this.http.get<Supplier[]>(`${this.INVENTORY_BASE_URL}/suppliers/search`, { params });
+  }
+
   getSupplierById(id: number): Observable<any> {
     return this.http.get<any>(this.SUPPLIERS_URL_GET_BY_ID + id);
   }
@@ -57,7 +73,7 @@ export class SuppliersService {
   }
 
   getAll(): Observable<Supplier[]> {
-    return this.http.get<Supplier[]>(this.SUPPLIERS_URL+'/all');
+    return this.http.get<Supplier[]>(this.SUPPLIERS_URL + '/all');
   }
 
   constructor(private http: HttpClient) { }

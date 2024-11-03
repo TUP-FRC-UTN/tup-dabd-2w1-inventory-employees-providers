@@ -64,28 +64,51 @@
                 <input type="text" id="inputFiltroNombre" class="form-control m-2" placeholder="Buscar"
                     (input)="onSearchFilterChange($event)" />
             </div>
-            <div class="col-md-3">
+            <!--             <div class="col-md-3">
                 <select class="form-select m-2" id="comboFiltroCargo" (change)="onPositionFilterChange($event)">
                     <option value="">Todos los cargos</option>
                 </select>
+            </div> -->
+
+            <div class="col-md-3">
+                <div class="dropdown w-100 m-2">
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownCargo"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        Cargos
+                        @if (selectedPositions.length>0) {
+                        ({{selectedPositions.length}})
+                        }
+                    </button>
+                    <ul class="dropdown-menu w-100" aria-labelledby="dropdownCargo">
+                        <li *ngFor="let position of uniquePositions">
+                            <label class="dropdown-item">
+                                <input type="checkbox" class="form-check-input me-2" [value]="position"
+                                    [checked]="selectedPositions.includes(position)"
+                                    (change)="onPositionFilterChange($event, position)">
+                                {{ position }}
+                            </label>
+                        </li>
+                    </ul>
+                </div>
             </div>
+
             <div class="col"></div>
 
-           <!-- Botones de exportación alineados a la derecha del selector -->
-           <div class="col-md-2 d-flex align-items-center justify-content-end">
-            <button class="btn btn-primary me-2" (click)="toggleFilters()">
-                <i class="bi bi-funnel-fill"></i>
-            </button>
-            <button class="btn btn-secondary me-2" (click)="cleanColumnFilters()">
-                <i class="bi bi-trash"></i>
-            </button>
-            <button class="btn btn-success me-2" (click)="exportToExcel()">
-                <i class="fa-solid bi-file-earmark-excel"></i>
-            </button>
-            <button class="btn btn-danger" (click)="exportToPdf()">
-                <i class="fas bi-file-earmark-pdf"></i>
-            </button>
-        </div>
+            <!-- Botones de exportación alineados a la derecha del selector -->
+            <div class="col-md-2 d-flex align-items-center justify-content-end">
+                <button class="btn btn-primary me-2" (click)="toggleFilters()">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+                <button class="btn btn-secondary me-2" (click)="cleanColumnFilters()">
+                    <i class="bi bi-trash"></i>
+                </button>
+                <button class="btn btn-success me-2" (click)="exportToExcel()">
+                    <i class="fa-solid bi-file-earmark-excel"></i>
+                </button>
+                <button class="btn btn-danger" (click)="exportToPdf()">
+                    <i class="fas bi-file-earmark-pdf"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Filtros para Desempeño y Asistencias -->
@@ -134,7 +157,7 @@
             </div>
 
 
-        
+
         </div>
 
 

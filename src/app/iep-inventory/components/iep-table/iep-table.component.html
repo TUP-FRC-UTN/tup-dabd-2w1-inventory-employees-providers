@@ -58,10 +58,14 @@
       <!-- Dropdown de Tipo Movimiento con el evento (change) para filtrar -->
 
       <div class="col-md-2 dropdown">
-        <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownTipoMovimiento"
+        <button class="btn btn-secondary dropdown-toggle text-start" style="width: 200px;" type="button" id="dropdownTipoMovimiento"
           data-bs-toggle="dropdown" aria-expanded="false">
-          Tipo Movimiento
-          <span class="selected-movimiento"></span>
+          <span class="selected-movimiento">
+            Tipo Movimiento
+            @if (selectedMovementTypes.length > 0) {
+              ({{ selectedMovementTypes.length }})
+            }
+          </span>
         </button>
         <ul class="dropdown-menu w-100" aria-labelledby="dropdownTipoMovimiento">
           <li>

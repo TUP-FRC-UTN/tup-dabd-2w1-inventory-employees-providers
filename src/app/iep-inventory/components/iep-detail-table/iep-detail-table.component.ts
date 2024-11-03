@@ -42,7 +42,7 @@ applyStateFilter($event: Event, state: string) {
       this.selectedStates.splice(index, 1);
     }
   }
-  
+  console.log(this.selectedStates.length);
   this.applyAllFilters();
 }
   // Método para limpiar todos los filtros

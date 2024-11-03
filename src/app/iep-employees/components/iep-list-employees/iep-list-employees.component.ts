@@ -60,9 +60,9 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
           empleado.salary.toString().includes(term)
         );
 
-        // Filtro por posición
-        const positionMatch = !this.positionFilter ||
-          empleado.position === this.positionFilter;
+        // Filtro por posición (modificado para múltiples selecciones)
+        const positionMatch = this.selectedPositions.length === 0 || 
+                            this.selectedPositions.includes(empleado.position);
 
         // Aplicar todos los filtros en conjunto
         return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch;
@@ -115,6 +115,9 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       salarioMax: Number.MAX_VALUE
     };
 
+        // Limpiar las posiciones seleccionadas
+        this.selectedPositions = [];
+
     // Limpiar los inputs
     const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
     inputs.forEach(input => {
@@ -157,7 +160,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private searchFilter: string = '';
   private positionFilter: string = '';
-  private uniquePositions: string[] = [];
+  uniquePositions: string[] = [];
 
 
   constructor(
@@ -289,9 +292,17 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     }
   }
 
-  onPositionFilterChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.positionFilter = select.value;
+  selectedPositions: string[] = []; // Array para almacenar las posiciones seleccionadas
+
+  onPositionFilterChange(event: Event, position: string): void {
+    const checkbox = event.target as HTMLInputElement;
+    
+    if (checkbox.checked) {
+      this.selectedPositions.push(position);
+    } else {
+      this.selectedPositions = this.selectedPositions.filter(p => p !== position);
+    }
+    
     this.applyFilters();
   }
 

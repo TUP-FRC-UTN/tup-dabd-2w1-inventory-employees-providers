@@ -129,6 +129,9 @@
                 <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownCategorias"
                   data-bs-toggle="dropdown" aria-expanded="false">
                   Categorías
+                  @if (filters.categoriasSeleccionadas.length > 0) {
+                  ({{filters.categoriasSeleccionadas.length}})
+                  }
                   <span class="selected-count"></span>
                 </button>
                 <ul class="dropdown-menu w-100" aria-labelledby="dropdownCategorias">
@@ -160,6 +163,9 @@
                 <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownReusable"
                   data-bs-toggle="dropdown" aria-expanded="false">
                   Reutilizables
+                  @if (filters.reutilizableSeleccionado.length > 0) {                    
+                  ({{filters.reutilizableSeleccionado.length}})
+                  }
                   <span class="selected-count"></span>
                 </button>
                 <ul class="dropdown-menu w-100" aria-labelledby="dropdownReusable">
@@ -173,7 +179,7 @@
                   <li>
                     <label class="dropdown-item">
                       <input type="checkbox" class="form-check-input me-2" name="reusable" [value]="2"
-                      (change)="onReutilizableChange($event, 2)">
+                        (change)="onReutilizableChange($event, 2)">
                       No
                     </label>
                   </li>
