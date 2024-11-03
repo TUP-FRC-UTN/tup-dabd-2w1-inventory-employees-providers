@@ -63,6 +63,9 @@ export class IepPerformancelistComponent implements OnInit {
 
   toggleFilters() {
     this.showFilters = !this.showFilters; // Alternar entre mostrar/ocultar
+    if(this.showFilters) {
+      this.resetFilters(); // Limpiar los filtros si se ocultan
+    }
   }
 
   ngOnDestroy() {

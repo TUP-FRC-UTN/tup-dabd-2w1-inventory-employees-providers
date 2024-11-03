@@ -8,17 +8,17 @@
             <!-- Campo de Búsqueda -->
             <div class="me-3" style="flex: 1 1 auto;">
                 <input type="text" id="filterInput" class="form-control" placeholder="Buscar"
-                    (input)="applyFilter($event)" />
+                    (change)="applyFilter($event)" />
             </div>
 
             <!-- Campo Desde para seleccionar la fecha de inicio -->
             <div class="me-3" style="flex: 1 1 auto;">
-                <input type="date" id="startDate" class="form-control" #startDateInput (change)="onStartDateChange()" />
+                <input type="date" id="startDate" class="form-control" #startDateInput [(ngModel)]="startDate" (change)="onStartDateChange()" />
             </div>
 
             <!-- Campo Hasta para seleccionar la fecha de fin -->
             <div class="me-3" style="flex: 1 1 auto;">
-                <input type="date" id="endDate" class="form-control" #endDateInput (change)="onEndDateChange()" />
+                <input type="date" id="endDate" class="form-control" #endDateInput [(ngModel)]="endDate" (change)="onEndDateChange()" />
             </div>
 
             <!-- Contenedor de botones alineados a la derecha -->
@@ -49,19 +49,30 @@
 
         <div *ngIf="filtersVisible" class="row mb-3">
 
+            <!-- Filtro por columna Solicitante -->
             <div class="col-md-4">
-                <input type="text" placeholder="Solicitante" (input)="applyColumnFilter($event, 'supplier')"
-                    class="form-control" />
+                <input type="text" placeholder="Solicitante" data-column="applicant"
+                    (change)="applyColumnFilter($event, 'applicant')" class="form-control" />
             </div>
 
+            <!-- Filtro por columna Productos -->
             <div class="col-md-4">
-                <input type="text" placeholder="Producto" (input)="applyColumnFilter($event, 'supplier')"
-                    class="form-control" />
+                <input type="text" placeholder="Productos" data-column="detailProducts"
+                    (change)="applyColumnFilter($event, 'detailProducts')" class="form-control" />
             </div>
 
+            <!-- Filtro por columna tipo de producto -->
             <div class="col-md-4">
-                <input type="text" placeholder="Tipo" (input)="applyColumnFilter($event, 'supplier')"
-                    class="form-control" />
+                <select class="form-select" data-column="movement_type"
+                    (change)="applyColumnFilter($event, 'movement_type')">
+                    <option value="">Tipo de Movimiento</option>
+                    <option value="RETURN">Devolución</option>
+                    <option value="LOAN">Préstamo</option>
+                    <option value="TO_MAINTENANCE">Uso</option>
+                </select>
+                <!--                 <input type="text" placeholder="Tipo de Movimiento" data-column="movement_type" (change)="applyColumnFilter($event, 'movement_type')"
+                    class="form-control" />   -->
+
             </div>
 
         </div>

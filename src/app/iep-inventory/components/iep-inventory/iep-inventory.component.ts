@@ -10,7 +10,6 @@ import $ from 'jquery';
 import 'datatables.net';
 import 'datatables.net-dt';
 import 'datatables.net-bs5';
-import DataTable from 'datatables.net-dt';
 import jsPDF from 'jspdf';
 import { IepStockIncreaseComponent } from '../iep-stock-increase/iep-stock-increase.component';
 import { Details } from '../../models/details';
@@ -32,6 +31,26 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   startDate: string = '';
   endDate: string = '';
 
+  filtrarPorUltimos30Dias(): void {
+    const hoy = new Date();
+    const hace30Dias = new Date(hoy.setDate(hoy.getDate() - 30));
+  
+    this.productosFiltered = this.productosALL.filter(producto => {
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
+        }
+      }
+      if (!lastDate) {
+        return false;
+      }
+  
+      const productDate = new Date(lastDate);
+      return productDate >= hace30Dias;
+    });
+  }
+  
 
   onStartDateChange(): void {
     const startDateInput = document.getElementById('startDate') as HTMLInputElement;
@@ -109,6 +128,9 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   toggleFilters(): void {
     this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+    if (this.filtersVisible) {
+      this.cleanFilters(); // Limpia los filtros al ocultarlos
+    }
   }
 
   private categoriaService = inject(CategoriaService);
@@ -169,6 +191,9 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedProductId: number | null = null;
 
   ngOnInit(): void {
+    this.endDate = new Date().toISOString().split('T')[0];
+    // Inicializar la fecha de inicio con la fecha actual menos 30 dias
+    this.startDate = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
     this.initializeDataTable();
     this.cargarDatos();
     this.cargarProductos();
@@ -182,7 +207,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.productos$.subscribe({
       next: (productos) => {
         this.productosALL = productos;
-        this.aplicarFiltros();
+        this.filtrarPorUltimos30Dias(); // Aplica el filtro automáticamente
+        this.updateDataTable(); // Actualiza la tabla con el filtro aplicado
         this.requestInProcess = false;
       },
       error: (error) => {
@@ -364,7 +390,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       lengthMenu: [10, 25, 50], // Valores para el número de filas],
       searching: false,
       ordering: true,
-      order: [[0, 'desc']],
+      order: [[0, 'asc']],
       autoWidth: false, // Desactivar el ajuste automático de ancho
 
       language: {

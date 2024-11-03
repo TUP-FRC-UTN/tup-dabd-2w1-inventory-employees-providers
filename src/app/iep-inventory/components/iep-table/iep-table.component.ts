@@ -139,7 +139,11 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.productService.getProductos().subscribe({
       next: (productos) => {
         this.productos = this.calculateRunningStock(productos);
-        this.filteredProductos = [...this.productos];
+
+
+      // Llama a filterByDate después de establecer los productos
+      this.filterByDate(); // Aplica el filtro de fechas inicial
+
         if (this.table) {
           this.table.destroy();
         }
@@ -421,6 +425,9 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleFilters(): void {
     this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+    if (this.filtersVisible) {
+      this.cleanColumnFilters(); // Limpia los filtros al ocultarlos
+    }
   }
 
   applyAmountFilter(type: 'min' | 'max', event: Event): void {
