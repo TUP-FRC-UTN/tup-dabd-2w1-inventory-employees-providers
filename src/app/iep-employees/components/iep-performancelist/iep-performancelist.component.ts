@@ -272,15 +272,15 @@ export class IepPerformancelistComponent implements OnInit {
       .toArray();
   
     const dataToExport = filteredData.map((performance: any) => [
-      performance.fullName,
       performance.year,
       this.months[performance.month - 1],
+      performance.fullName,
       performance.totalObservations,
       performance.performanceType,
     ]);
   
     (doc as any).autoTable({
-      head: [['Nombre Completo', 'Año', 'Mes', 'Total Observaciones', 'Tipo de Desempeño']],
+      head: [['Año', 'Mes', 'Empleado', 'Observaciones', 'Desempeño']],
       body: dataToExport,
       startY: 20,
     });
@@ -297,11 +297,11 @@ export class IepPerformancelistComponent implements OnInit {
       .toArray();
   
     const dataToExport = filteredData.map((performance: any) => ({
-      'Nombre Completo': performance.fullName,
       'Año': performance.year,
       'Mes': this.months[performance.month - 1],
-      'Total Observaciones': performance.totalObservations,
-      'Tipo de Desempeño': performance.performanceType,
+      'Empleado': performance.fullName,
+      'Observaciones': performance.totalObservations,
+      'Desempeño': performance.performanceType,
     }));
   
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);

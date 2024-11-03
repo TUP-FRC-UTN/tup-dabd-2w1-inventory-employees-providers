@@ -40,53 +40,66 @@ export class IepSupplierListComponent implements AfterViewInit {
     return `${day}-${month}-${year}`;
   }
 
+  translateSupplierType(type: string): string {
+    switch (type) {
+      case 'OTHER':
+        return 'OTRO';
+      case 'OUTSOURCED_SERVICE':
+        return 'SERVICIO TERCERIZADO';
+      case 'INVENTORY_SUPPLIER':
+        return 'PROVEEDOR DE INVENTARIO';
+      default:
+        return type;
+    }
+  }
+
   exportToPdf(): void {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('Lista de Proveedores', 10, 10);
 
+    // Datos a exportar, mapeando los proveedores con los campos específicos
     const dataToExport = this.suppliers.map((supplier) => [
-      supplier.name,
-      supplier.healthInsurance,
-      supplier.authorized ? 'Sí' : 'No',
-      supplier.address,
-      supplier.supplierType,
-      supplier.description,
-      supplier.email,
-      supplier.phoneNumber,
-      supplier.discontinued ? 'Sí' : 'No',
+      supplier.name,                            
+      this.translateSupplierType(supplier.supplierType),
+      supplier.address,                        
+      supplier.healthInsurance,               
+      supplier.description,                    
+      supplier.phoneNumber,                     
+      supplier.email                           
     ]);
 
+    // Configuración de la tabla en el PDF
     (doc as any).autoTable({
-      head: [['Nombre', 'Seguro de Salud', 'Autorizado', 'Dirección', 'Tipo de Proveedor', 'Descripción', 'Correo Electrónico', 'Número de Teléfono', 'Descontinuado']],
+      head: [['Razón Social', 'Tipo Proveedor', 'Dirección', 'Obra Social', 'Descripción', 'Teléfono', 'Email']],
       body: dataToExport,
       startY: 20,
     });
 
     const formattedDate = this.getFormattedDate();
     doc.save(`Lista_Proveedores_${formattedDate}.pdf`);
-  }
+}
 
-  exportToExcel(): void {
-    const dataToExport = this.suppliers.map((supplier) => ({
-      'Nombre': supplier.name,
-      'Seguro de Salud': supplier.healthInsurance,
-      'Autorizado': supplier.authorized ? 'Sí' : 'No',
-      'Dirección': supplier.address,
-      'Tipo de Proveedor': supplier.supplierType,
-      'Descripción': supplier.description,
-      'Correo Electrónico': supplier.email,
-      'Número de Teléfono': supplier.phoneNumber,
-      'Descontinuado': supplier.discontinued ? 'Sí' : 'No',
-    }));
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Proveedores');
+exportToExcel(): void {
+  const dataToExport = this.suppliers.map((supplier) => ({
+    'Razón Social': supplier.name,               
+    'Tipo Proveedor': this.translateSupplierType(supplier.supplierType),     
+    'Dirección': supplier.address,               
+    'Obra Social': supplier.healthInsurance,   
+    'Descripción': supplier.description,        
+    'Teléfono': supplier.phoneNumber,           
+    'Email': supplier.email                  
+  }));
 
-    const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Proveedores_${formattedDate}.xlsx`);
-  }
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Proveedores');
+
+  const formattedDate = this.getFormattedDate();
+  XLSX.writeFile(workbook, `Lista_Proveedores_${formattedDate}.xlsx`);
+}
+
 
 
   ngAfterViewInit(): void {
