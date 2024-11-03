@@ -25,6 +25,23 @@ type FilterColumn = 'general' | 'applicant' | 'detailProducts' | 'movement_type'
 })
 export class IepWarehouseMovementSearchComponent implements AfterViewInit, AfterViewChecked {
 
+  // En la interface de filters, cambia el tipo de movement_type
+filters: {
+  general: string;
+  startDate: Date | null;
+  endDate: Date | null;
+  applicant: string;
+  detailProducts: string;
+  movement_type: string[];  // Cambiado a array
+} = {
+  general: '',
+  startDate: null,
+  endDate: null,
+  applicant: '',
+  detailProducts: '',
+  movement_type: []  // Inicializado como array vacío
+};
+
   endDate: Date = new Date();
   startDate: Date = new Date(this.endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
 
@@ -104,23 +121,29 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
       endDate: null,
       applicant: '',
       detailProducts: '',
-      movement_type: ''
+      movement_type: []
     };
-
-    // Limpiar inputs
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-      input.value = '';
+  
+    // Limpiar inputs de texto
+    const textInputs = document.querySelectorAll('input[type="text"]');
+    textInputs.forEach(input => {
+      (input as HTMLInputElement).value = '';
     });
-
-    // Limpiar específicamente los inputs de fecha
+  
+    // Limpiar checkboxes
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+      (checkbox as HTMLInputElement).checked = false;
+    });
+  
+    // Limpiar inputs de fecha
     if (this.startDateInput?.nativeElement) {
       this.startDateInput.nativeElement.value = '';
     }
     if (this.endDateInput?.nativeElement) {
       this.endDateInput.nativeElement.value = '';
     }
-
+  
     // Restaurar datos originales
     this.filteredMovements = [...this.movements];
     this.updateDataTable(this.movements);
@@ -148,13 +171,23 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
 
   // Manejador para el filtro por columna
   applyColumnFilter(event: Event, column: FilterColumn): void {
-    const filterValue = (event.target as HTMLInputElement).value.toLowerCase().trim();
-
-    // Asegurarse de que solo asignamos strings a las columnas de string
-    if (column === 'general' || column === 'applicant' || column === 'detailProducts' || column === 'movement_type') {
-      this.filters[column] = filterValue;
-      this.applyFilters();
+    if (column === 'movement_type') {
+      const checkbox = event.target as HTMLInputElement;
+      if (checkbox.checked) {
+        this.filters.movement_type.push(checkbox.value);
+      } else {
+        const index = this.filters.movement_type.indexOf(checkbox.value);
+        if (index > -1) {
+          this.filters.movement_type.splice(index, 1);
+        }
+      }
+    } else {
+      const filterValue = (event.target as HTMLInputElement).value.toLowerCase().trim();
+      if (column === 'general' || column === 'applicant' || column === 'detailProducts') {
+        this.filters[column] = filterValue;
+      }
     }
+    this.applyFilters();
   }
 
   movements: WarehouseMovement[] = [];
@@ -167,21 +200,6 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
 
   // Objeto para mantener el estado de los filtros
   // Y modificar la definición del objeto filters para ser más específica
-  filters: {
-    general: string;
-    startDate: Date | null;
-    endDate: Date | null;
-    applicant: string;
-    detailProducts: string;
-    movement_type: string;
-  } = {
-      general: '',
-      startDate: null,
-      endDate: null,
-      applicant: '',
-      detailProducts: '',
-      movement_type: ''
-    };
 
   constructor(
     private warehouseMovementService: WarehouseMovementService,
@@ -235,31 +253,31 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
   // Método principal para aplicar todos los filtros
   private applyFilters() {
     let result = [...this.movements];
-
-    // Aplicar filtros de fecha primero
+  
+    // Filtros de fecha
     if (this.filters.startDate) {
       result = result.filter(movement => {
         const movementDate = new Date(movement.date);
-        movementDate.setHours(0, 0, 0, 0); // Normalizar la hora para comparación
+        movementDate.setHours(0, 0, 0, 0);
         return this.isSameOrAfterDate(movementDate, this.filters.startDate!);
       });
     }
-
+  
     if (this.filters.endDate) {
       result = result.filter(movement => {
         const movementDate = new Date(movement.date);
-        movementDate.setHours(23, 59, 59, 999); // Normalizar la hora para comparación
+        movementDate.setHours(23, 59, 59, 999);
         return this.isSameOrBeforeDate(movementDate, this.filters.endDate!);
       });
     }
-
-    // Aplicar filtro general
+  
+    // Filtro general
     if (this.filters.general) {
       result = result.filter(movement => {
         const productsString = movement.detailProducts
           .map(product => product.description.toLowerCase())
           .join(' ');
-
+  
         return (
           movement.applicant.toLowerCase().includes(this.filters.general) ||
           movement.responsible.toLowerCase().includes(this.filters.general) ||
@@ -268,14 +286,14 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
         );
       });
     }
-
-    // Aplicar filtros de columna
+  
+    // Filtros de columna específicos
     if (this.filters.applicant) {
       result = result.filter(movement =>
         movement.applicant.toLowerCase().includes(this.filters.applicant)
       );
     }
-
+  
     if (this.filters.detailProducts) {
       result = result.filter(movement => {
         const productsString = movement.detailProducts
@@ -284,13 +302,14 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
         return productsString.includes(this.filters.detailProducts);
       });
     }
-
-    if (this.filters.movement_type) {
+  
+    // Filtro de tipo de movimiento
+    if (this.filters.movement_type.length > 0) {
       result = result.filter(movement =>
-        movement.movement_type.toLowerCase().includes(this.filters.movement_type)
+        this.filters.movement_type.includes(movement.movement_type)
       );
     }
-
+  
     this.filteredMovements = result;
     this.updateDataTable(result);
   }
