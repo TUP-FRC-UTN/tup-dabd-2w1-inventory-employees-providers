@@ -678,13 +678,14 @@
     <div class="modal-content" [ngClass]="{'border-success': success, 'border-error': !success}" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h5 class="modal-title">{{ success ? 'Éxito' : 'Error' }}</h5>
-        <button type="button" class="close" (click)="resetForm(form)">&times;</button>
+
       </div>
       <div class="modal-body">
         {{ success ? successMessage : errorMessage }}
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="resetForm(form)">Cerrar</button>
+        <button *ngIf="success" type="button" class="btn btn-secondary"  (click)="resetForm(form)">Cerrar</button>
+        <button *ngIf="!success" type="button" class="btn btn-secondary" (click)="cerrarModal()">Cerrar</button>
       </div>
     </div>
   </div>

@@ -327,9 +327,36 @@ export class IEPFormPostEmployeesComponent implements OnInit {
     this.showModal=false;
     this.successMessage = '';
     this.success=false;
-  }
+
+    this.lunes=true;
+   this.martes=true;
+   this.miercoles=true;
+   this.jueves=true;
+   this.viernes=true;
+   this.sabado=false;
+   this.domingo=false;
+
+   this.documentTypeEnum=DocumentTypeEnum
+
+   this.userId=0
+   this.nombre = '';
+   this.apellido = '';
+   this.cuil = '';
+   this.documentType=DocumentTypeEnum.DNI;
+   this.piso = 0;
+   this.codigoPostal = '5000';
+   this.salario=0
+   this.horaSalida = '17:00';
+   this. horaEntrada = '08:00';
+   this.startTimeContract = new Date().toISOString().split('T')[0];
 
  
+
+  }
+
+ cerrarModal(){
+  this.showModal=!this.showModal
+ }
 
   ngOnInit(): void {
    this.loadSupplier();
