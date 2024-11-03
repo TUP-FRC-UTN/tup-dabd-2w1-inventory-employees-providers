@@ -19,6 +19,15 @@ import { CategoriaService } from '../../services/categoria.service';
 import { DetailServiceService } from '../../services/detail-service.service';
 import { EstadoService } from '../../services/estado.service';
 
+interface Filters {
+  categoriasSeleccionadas: number[];
+  reutilizableSeleccionado: number[];
+  nombre: string;
+  startDate: string;
+  endDate: string;
+  cantMinima: number;
+  cantMaxima: number;
+}
 
 @Component({
   selector: 'app-iep-inventory',
@@ -29,6 +38,84 @@ import { EstadoService } from '../../services/estado.service';
 })
 export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
+    // Objeto que mantiene el estado de todos los filtros
+    filters: Filters = {
+      categoriasSeleccionadas: [],
+      reutilizableSeleccionado: [],
+      nombre: '',
+      startDate: '',
+      endDate: '',
+      cantMinima: 0,
+      cantMaxima: 0
+    };
+
+     // Método principal de filtrado que combina todos los filtros
+  aplicarFiltrosCombinados(): void {
+    this.productosFiltered = this.productosALL.filter(producto => {
+      // Filtro por nombre
+      const nombreCumple = !this.filters.nombre || 
+        producto.name.toLowerCase().includes(this.filters.nombre.toLowerCase());
+
+      // Filtro por categorías
+      const categoriaCumple = this.filters.categoriasSeleccionadas.length === 0 ||
+        this.filters.categoriasSeleccionadas.includes(producto.category.categoryId);
+
+      // Filtro por reutilizable
+      const reusableCumple = this.filters.reutilizableSeleccionado.length === 0 ||
+        this.filters.reutilizableSeleccionado.includes(producto.reusable ? 1 : 2);
+
+      // Filtro por cantidad
+      const amount = producto.detailProducts.length;
+      const cantMinimaCumple = !this.filters.cantMinima || amount >= this.filters.cantMinima;
+      const cantMaximaCumple = !this.filters.cantMaxima || amount <= this.filters.cantMaxima;
+
+      // Filtro por fecha
+      let fechaCumple = true;
+      if (this.filters.startDate || this.filters.endDate) {
+        let lastDate = this.getLastUpdateDate(producto.detailProducts);
+        if (!lastDate) {
+          fechaCumple = false;
+        } else {
+          const productDate = new Date(lastDate);
+          if (this.filters.startDate) {
+            fechaCumple = fechaCumple && productDate >= new Date(this.filters.startDate);
+          }
+          if (this.filters.endDate) {
+            fechaCumple = fechaCumple && productDate <= new Date(this.filters.endDate);
+          }
+        }
+      }
+
+      return nombreCumple && 
+             categoriaCumple && 
+             reusableCumple && 
+             cantMinimaCumple && 
+             cantMaximaCumple && 
+             fechaCumple;
+    });
+
+    this.updateDataTable();
+    this.actualizarContadores();
+  }
+
+  // Método auxiliar para obtener la última fecha de actualización
+  private getLastUpdateDate(detailProducts: any[]): string {
+    let lastDate = '';
+    for (const detail of detailProducts) {
+      if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+        lastDate = detail.lastUpdatedDatetime;
+      }
+    }
+    return lastDate;
+  }
+
+  // Actualiza los contadores después de aplicar los filtros
+  private actualizarContadores(): void {
+    this.amountAvailable = this.getCountByategoryAndState(1, 'Disponible');
+    this.amountBorrowed = this.getCountByategoryAndState(1, 'Prestado');
+    this.amountBroken = this.getCountByategoryAndState(1, 'Roto');
+  }
+
   // Añade esto en las propiedades de la clase
   categoriasSeleccionadas: number[] = [];
   reutilizableSeleccionado: number[] = [];
@@ -36,20 +123,22 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   // Añade este método para manejar los cambios en los checkboxes
   onCategoriaChange(event: any, categoryId: number): void {
     if (event.target.checked) {
-      this.categoriasSeleccionadas.push(categoryId);
+      this.filters.categoriasSeleccionadas.push(categoryId);
     } else {
-      this.categoriasSeleccionadas = this.categoriasSeleccionadas.filter(id => id !== categoryId);
+      this.filters.categoriasSeleccionadas = this.filters.categoriasSeleccionadas
+        .filter(id => id !== categoryId);
     }
-    this.aplicarFiltros();
+    this.aplicarFiltrosCombinados();
   }
 
   onReutilizableChange(event: any, reusable: number): void {
     if (event.target.checked) {
-      this.reutilizableSeleccionado.push(reusable);
+      this.filters.reutilizableSeleccionado.push(reusable);
     } else {
-      this.reutilizableSeleccionado = this.reutilizableSeleccionado.filter(id => id !== reusable);
+      this.filters.reutilizableSeleccionado = this.filters.reutilizableSeleccionado
+        .filter(id => id !== reusable);
     }
-    this.aplicarFiltros();
+    this.aplicarFiltrosCombinados();
   }
 
 
@@ -80,14 +169,14 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onStartDateChange(): void {
     const startDateInput = document.getElementById('startDate') as HTMLInputElement;
-    this.startDate = startDateInput.value;
-    this.applyDateFilter();
+    this.filters.startDate = startDateInput.value;
+    this.aplicarFiltrosCombinados();
   }
 
   onEndDateChange(): void {
     const endDateInput = document.getElementById('endDate') as HTMLInputElement;
-    this.endDate = endDateInput.value;
-    this.applyDateFilter();
+    this.filters.endDate = endDateInput.value;
+    this.aplicarFiltrosCombinados();
   }
 
   applyDateFilter(): void {
@@ -323,26 +412,25 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Modifica el método cleanFilters() para limpiar también las categorías seleccionadas
   cleanFilters(): void {
-    this.categoriasSeleccionadas = [];
-    this.categoria = 0;
-    this.reutilizableSeleccionado = [];
-    this.cantMinima = 0;
-    this.cantMaxima = 0;
-    this.nombre = '';
+    this.filters = {
+      categoriasSeleccionadas: [],
+      reutilizableSeleccionado: [],
+      nombre: '',
+      startDate: '',
+      endDate: '',
+      cantMinima: 0,
+      cantMaxima: 0
+    };
 
     // Limpia los checkboxes
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach((checkbox: any) => checkbox.checked = false);
 
-    //Limpia los checkboxes de reutilizable
-    const reusableCheckboxes = document.querySelectorAll('input[name="reusable"]');
-    reusableCheckboxes.forEach((checkbox: any) => checkbox.checked = false);
-
     // Limpia los campos de texto
     const textInputs = document.querySelectorAll('input.form-control');
     textInputs.forEach(input => (input as HTMLInputElement).value = '');
 
-    this.aplicarFiltros();
+    this.aplicarFiltrosCombinados();
   }
 
   getCountByategoryAndState(categoryId: number, state: string): number {
