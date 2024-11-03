@@ -3,7 +3,7 @@ export class PostEmployeeDto{
 
   name: string|undefined;
   surname: string|undefined;
-  documenValue: string|undefined;
+  documentValue: string|undefined;
   documentType:DocumentTypeEnum|undefined;
   cuil: string|undefined;
   charge: number|undefined;

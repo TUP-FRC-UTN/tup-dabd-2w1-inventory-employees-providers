@@ -195,7 +195,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
             this.postDto.name=this.nombre;
             this.postDto.surname=this.apellido;
             this.postDto.documentType=this.documentType;   
-            this.postDto.documenValue=this.dni;
+            this.postDto.documentValue=this.dni;
             this.postDto.cuil=this.cuil;
 
             if(this.telefono!=null){
