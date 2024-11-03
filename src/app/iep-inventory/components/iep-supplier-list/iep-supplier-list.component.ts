@@ -10,6 +10,12 @@ import * as XLSX from 'xlsx';
 import { iepBackButtonComponent } from '../../../common-components/iep-back-button/iep-back-button.component';
 import { SupplierTypePipe } from '../../pipes/supplier-type.pipe';
 
+interface SelectedTypes {
+  OUTSOURCED_SERVICE: boolean;
+  INVENTORY_SUPPLIER: boolean;
+  OTHER: boolean;
+}
+
 @Component({
   selector: 'app-iep-supplier-list',
   standalone: true,
@@ -18,8 +24,108 @@ import { SupplierTypePipe } from '../../pipes/supplier-type.pipe';
   styleUrls: ['./iep-supplier-list.component.css']
 })
 export class IepSupplierListComponent implements AfterViewInit {
+
+  selectedTypes: SelectedTypes = {
+    OUTSOURCED_SERVICE: false,
+    INVENTORY_SUPPLIER: false,
+    OTHER: false
+  };
+
+  showFilters: boolean = false;
   suppliers: Supplier[] = [];
   filteredSuppliers: Supplier[] = [];
+
+  // Filtro global
+  globalFilter: string = '';
+
+  // Filtros por columna
+  columnFilters = {
+    name: '',
+    supplierType: '',
+    address: '',
+    healthInsurance: '',
+    description: '',
+    phoneNumber: '',
+    email: ''
+  };
+
+  // Método para limpiar todos los filtros
+  cleanFilters() {
+    this.globalFilter = '';
+    Object.keys(this.columnFilters).forEach(key => {
+      this.columnFilters[key as keyof typeof this.columnFilters] = '';
+    });
+    // Limpiar los tipos seleccionados
+    Object.keys(this.selectedTypes).forEach(key => {
+      this.selectedTypes[key as keyof SelectedTypes] = false;
+    });
+    this.selectedTypeCount = 0;
+    this.filteredSuppliers = [...this.suppliers];
+    this.updateDataTable(this.filteredSuppliers);
+  }
+
+  selectedTypeCount: number = 0;
+  // Método para aplicar todos los filtros
+  applyFilters() {
+    let filteredData = [...this.suppliers];
+
+    // Aplicar filtro global (excluyendo el tipo de proveedor)
+    if (this.globalFilter) {
+      const searchTerm = this.globalFilter.toLowerCase();
+      filteredData = filteredData.filter(supplier => {
+        return Object.entries(supplier).some(([key, value]) => {
+          // Excluir supplierType del filtro global
+          if (key === 'supplierType') return false;
+          return value && value.toString().toLowerCase().includes(searchTerm);
+        });
+      });
+    }
+
+    // Aplicar filtro de tipo de proveedor
+    this.selectedTypeCount = Object.values(this.selectedTypes).filter(Boolean).length;
+    if (this.selectedTypeCount > 0) {
+      filteredData = filteredData.filter(supplier => {
+        return this.selectedTypes[supplier.supplierType as keyof SelectedTypes];
+      });
+    }
+
+    // Aplicar filtros por columna
+    Object.keys(this.columnFilters).forEach(key => {
+      const filterValue = this.columnFilters[key as keyof typeof this.columnFilters];
+      if (filterValue) {
+        filteredData = filteredData.filter(supplier => {
+          const value = supplier[key as keyof Supplier];
+          if (key === 'healthInsurance' && typeof filterValue === 'string') {
+            return value?.toString().includes(filterValue);
+          }
+          return value && value.toString().toLowerCase().includes(filterValue.toLowerCase());
+        });
+      }
+    });
+
+    this.filteredSuppliers = filteredData;
+    this.updateDataTable(filteredData);
+  }
+
+  toggleFilters() {
+    this.showFilters = !this.showFilters;
+  }
+
+  // Método para manejar la búsqueda de proveedores
+  searchSuppliers() {
+    this.applyFilters();
+  }
+
+  ngAfterViewInit(): void {
+    // Cargar la lista inicial de proveedores
+    this.supplierService.searchSuppliers(null, null, null, false).subscribe(data => {
+      this.suppliers = data;
+      this.filteredSuppliers = data;
+      this.updateDataTable(data);
+    });
+    this.initializeDataTable();
+  }
+
   name: string = "";
   type: string = "";
   date: any = null;
@@ -36,7 +142,7 @@ export class IepSupplierListComponent implements AfterViewInit {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
     const day = String(date.getDate()).padStart(2, '0');
-    
+
     return `${day}-${month}-${year}`;
   }
 
@@ -60,13 +166,13 @@ export class IepSupplierListComponent implements AfterViewInit {
 
     // Datos a exportar, mapeando los proveedores con los campos específicos
     const dataToExport = this.suppliers.map((supplier) => [
-      supplier.name,                            
+      supplier.name,
       this.translateSupplierType(supplier.supplierType),
-      supplier.address,                        
-      supplier.healthInsurance,               
-      supplier.description,                    
-      supplier.phoneNumber,                     
-      supplier.email                           
+      supplier.address,
+      supplier.healthInsurance,
+      supplier.description,
+      supplier.phoneNumber,
+      supplier.email
     ]);
 
     // Configuración de la tabla en el PDF
@@ -78,39 +184,26 @@ export class IepSupplierListComponent implements AfterViewInit {
 
     const formattedDate = this.getFormattedDate();
     doc.save(`Lista_Proveedores_${formattedDate}.pdf`);
-}
+  }
 
 
-exportToExcel(): void {
-  const dataToExport = this.suppliers.map((supplier) => ({
-    'Razón Social': supplier.name,               
-    'Tipo Proveedor': this.translateSupplierType(supplier.supplierType),     
-    'Dirección': supplier.address,               
-    'Obra Social': supplier.healthInsurance,   
-    'Descripción': supplier.description,        
-    'Teléfono': supplier.phoneNumber,           
-    'Email': supplier.email                  
-  }));
+  exportToExcel(): void {
+    const dataToExport = this.suppliers.map((supplier) => ({
+      'Razón Social': supplier.name,
+      'Tipo Proveedor': this.translateSupplierType(supplier.supplierType),
+      'Dirección': supplier.address,
+      'Obra Social': supplier.healthInsurance,
+      'Descripción': supplier.description,
+      'Teléfono': supplier.phoneNumber,
+      'Email': supplier.email
+    }));
 
-  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Proveedores');
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Proveedores');
 
-  const formattedDate = this.getFormattedDate();
-  XLSX.writeFile(workbook, `Lista_Proveedores_${formattedDate}.xlsx`);
-}
-
-
-
-  ngAfterViewInit(): void {
-
-    // Cargar la lista inicial de proveedores al cargar la vista
-    this.supplierService.searchSuppliers(null, null, null, false).subscribe(data => {
-      this.suppliers = data;
-      this.filteredSuppliers = data; // Inicializa con todos los proveedores
-      this.updateDataTable(data);
-    });
-    this.initializeDataTable();
+    const formattedDate = this.getFormattedDate();
+    XLSX.writeFile(workbook, `Lista_Proveedores_${formattedDate}.xlsx`);
   }
 
   ngAfterViewChecked(): void {
@@ -189,8 +282,8 @@ exportToExcel(): void {
       });
 
 
-       // Actualizar los event listeners
-       $('#suppliersTable tbody').on('click', '.delete-btn', (event) => {
+      // Actualizar los event listeners
+      $('#suppliersTable tbody').on('click', '.delete-btn', (event) => {
         event.preventDefault();
         const id = $(event.currentTarget).data('id');
         this.setSupplierToDelete(id);
@@ -238,15 +331,6 @@ exportToExcel(): void {
         }
       });
     }
-  }
-
-  searchSuppliers() {
-    this.supplierService.searchSuppliers(this.name, this.type, this.date, this.autorized).subscribe(
-      data => {
-        this.suppliers = data;
-        this.updateDataTable(data);
-      }
-    );
   }
 
   updateSupplier(id: number) {

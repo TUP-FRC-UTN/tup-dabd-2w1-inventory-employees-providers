@@ -2,86 +2,174 @@
 
   <div class="container p-3 border border-2 rounded shadow-lg">
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div class="d-flex flex-grow-1 me-2">
-      <input id="inputFilter" type="string" class="form-control me-2" placeholder="Buscar proveedor" [(ngModel)]="name" (input)="searchSuppliers()" />
-      <select class="form-select" [(ngModel)]="type" (ngModelChange)="searchSuppliers()">
-        <option value="" selected>Seleccione el Proveedor</option>
-        <option value="OUTSOURCED_SERVICE">Servicio externo</option>
-        <option value="INVENTORY_SUPPLIER">Proveedor de Inventario</option>
-        <option value="OTHER">Otro</option>
-      </select>
-    </div>
-    <div>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+
+      <!-- Sección para filtro global -->
+      <div class="d-flex flex-grow-1 me-2">
+        <!-- Campo de búsqueda con tamaño normal -->
+        <input type="text" class="form-control me-2" placeholder="Buscar..." [(ngModel)]="globalFilter"
+          (input)="applyFilters()" style="flex: 2;">
+
+        <!-- Dropdown de Proveedor con el doble de ancho -->
+        <div class="dropdown me-2" style="flex: 1;">
+          <button class="btn btn-secondary dropdown-toggle text-start w-100" type="button" id="dropdownProveedor"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            Proveedor
+            @if (selectedTypeCount > 0) {
+            ({{ selectedTypeCount }})
+            }
+          </button>
+          <ul class="dropdown-menu w-100" aria-labelledby="dropdownProveedor">
+            <li>
+              <label class="dropdown-item">
+                <input type="checkbox" class="form-check-input me-2" [(ngModel)]="selectedTypes.OUTSOURCED_SERVICE"
+                  (change)="searchSuppliers()">
+                Servicio externo
+              </label>
+            </li>
+            <li>
+              <label class="dropdown-item">
+                <input type="checkbox" class="form-check-input me-2" [(ngModel)]="selectedTypes.INVENTORY_SUPPLIER"
+                  (change)="searchSuppliers()">
+                Proveedor de Inventario
+              </label>
+            </li>
+            <li>
+              <label class="dropdown-item">
+                <input type="checkbox" class="form-check-input me-2" [(ngModel)]="selectedTypes.OTHER"
+                  (change)="searchSuppliers()">
+                Otro
+              </label>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+
+      <!-- Botón para mostrar/ocultar filtros -->
+      <button class="btn btn-primary me-2" (click)="toggleFilters()">
+        <i class="bi bi-funnel-fill"></i>
+      </button>
+
+      <!-- Botón para limpiar filtros -->
+      <button class="btn btn-secondary me-2" (click)="cleanFilters()">
+        <i class="bi bi-trash"></i>
+      </button>
+
+      <!-- Botones de exportación a Excel y PDF -->
       <button class="btn btn-success me-2" (click)="exportToExcel()">
         <i class="fa-solid bi-file-earmark-excel"></i>
       </button>
       <button class="btn btn-danger" (click)="exportToPdf()">
         <i class="fas bi-file-earmark-pdf"></i>
       </button>
+
     </div>
+
+
+    <!-- Sección de filtros por columnas -->
+    <div class="container" *ngIf="showFilters">
+      <!-- Fila 1 con 4 inputs -->
+      <!-- Fila 1 con 4 inputs alineados en una sola fila -->
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <input type="text" class="form-control" placeholder="Razon social" [(ngModel)]="columnFilters.name"
+            (input)="applyFilters()">
+        </div>
+
+
+
+        <div class="col-md-4 mb-2">
+          <input type="text" class="form-control" placeholder="Dirección" [(ngModel)]="columnFilters.address"
+            (input)="applyFilters()">
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <input type="text" class="form-control text-end" placeholder="Obra Social"
+            [(ngModel)]="columnFilters.healthInsurance" (input)="applyFilters()">
+        </div>
+      </div>
+
+      <!-- Fila 2 con 3 inputs -->
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <input type="text" class="form-control" placeholder="Descripción" [(ngModel)]="columnFilters.description"
+            (input)="applyFilters()">
+        </div>
+        <div class="col-md-4 mb-2">
+          <input type="text" class="form-control" placeholder="Teléfono" [(ngModel)]="columnFilters.phoneNumber"
+            (input)="applyFilters()">
+        </div>
+        <div class="col-md-4 mb-2">
+          <input type="text" class="form-control" placeholder="Email" [(ngModel)]="columnFilters.email"
+            (input)="applyFilters()">
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Sección de Tabla -->
+    <div class="row mt-1">
+      <div class="col table-responsive">
+        <table class="table table-striped table-bordered" id="suppliersTable">
+          <thead>
+            <tr>
+              <th>Razon social</th>
+              <th>Tipo proveedor</th>
+              <th>Direccion</th>
+              <th>Obra Social</th>
+              <th>Descripcion</th>
+              <th>Telefono</th>
+              <th>Email</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let supplier of filteredSuppliers">
+              <td>{{ supplier.name }}</td>
+              <td>{{ supplier.supplierType | supplierType }}</td>
+              <td>{{ supplier.address }}</td>
+              <td>{{ supplier.healthInsurance }}</td>
+              <td>{{ supplier.description }}</td>
+              <td>{{ supplier.phoneNumber }}</td>
+              <td>{{ supplier.email }}</td>
+              <td>
+                <!-- Aquí irían los botones de acciones como editar y eliminar -->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
-  <div class="row mt-1">
-    <div class="col table-responsive">
-      <table class="table table-striped table-bordered" id="suppliersTable">
-        <thead>
-          <tr>
-            <th>Razon social</th>
-            <th>Tipo proveedor</th>
-            <th>Direccion</th>
-            <th>Obra Social</th>
-            <th>Descripcion</th>
-            <th>Telefono</th>
-            <th>Email</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let supplier of filteredSuppliers">
-            <td>{{ supplier.name }}</td>
-            <td>{{ supplier.supplierType | supplierType }}</td>
-            <td>{{ supplier.address }}</td>
-            <td>{{ supplier.healthInsurance }}</td>
-            <td>{{ supplier.description }}</td>
-            <td>{{ supplier.phoneNumber }}</td>
-            <td>{{ supplier.email }}</td>
-            <td>
-              <!-- Aquí irían los botones de acciones como editar y eliminar -->
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-</div>
-
-<!-- Boton + Flotante 
+  <!-- Boton + Flotante 
   HACER MODAL
 -->
-<!-- Modal de confirmación de eliminación -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        ¿Está seguro que desea dar de baja al proveedor seleccionado?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger" (click)="confirmDelete()" data-bs-dismiss="modal">Eliminar</button>
+  <!-- Modal de confirmación de eliminación -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          ¿Está seguro que desea dar de baja al proveedor seleccionado?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" (click)="confirmDelete()"
+            data-bs-dismiss="modal">Eliminar</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 
 
-<button class="floating-btn btn btn-primary" routerLink="/home/create-supplier">
-  <span class="bi-plus-lg"></span>
-</button>
+  <button class="floating-btn btn btn-primary" routerLink="/home/create-supplier">
+    <span class="bi-plus-lg"></span>
+  </button>
 </section>
