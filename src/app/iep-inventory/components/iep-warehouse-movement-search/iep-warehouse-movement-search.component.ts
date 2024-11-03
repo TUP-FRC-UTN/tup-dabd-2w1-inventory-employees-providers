@@ -383,51 +383,68 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
     return `${day}-${month}-${year}`;
   }
 
+  translateMovementType(type: string): string {
+    switch (type) {
+      case 'RETURN':
+        return 'Devolución';
+      case 'LOAN':
+        return 'Préstamo';
+      case 'TO_MAINTENANCE':
+        return 'Uso';
+      default:
+        return type;
+    }
+  }
+
+  private getProductNameById(productId: number): string {
+    const product = this.products.find((p) => p.id === productId);
+    return product ? product.name : 'Desconocido';
+  }
+  
+
   exportToPdf(): void {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('Lista de Movimientos', 10, 10);
 
+    // Ajustar los datos exportados para que coincidan con la tabla
     const dataToExport = this.movements.map((movement) => [
-      movement.id,
-      new Date(movement.date).toLocaleString('es-ES'), // Formats date as shown in the table
-      movement.applicant,
-      movement.responsible,
-      movement.movement_type,
-      movement.detailProducts.length, // Número de productos en el movimiento
-      movement.employee_id,
-      new Date(movement.reinstatement_datetime).toLocaleString('es-ES') // Formats reinstatement date
+      new Date(movement.date).toLocaleString('es-ES'),   
+      movement.applicant,                               
+      movement.detailProducts.map((product) => this.getProductNameById(product.productId)).join(', '),               
+      this.translateMovementType(movement.movement_type),                            
+      movement.responsible                               
     ]);
 
+    // Configuración de la tabla en el PDF
     (doc as any).autoTable({
-      head: [['ID', 'Fecha', 'Solicitante', 'Responsable', 'Tipo de Movimiento', 'Cantidad de Productos', 'ID Empleado', 'Fecha Reincorporación']],
+      head: [['Fecha y Hora', 'Solicitante', 'Productos', 'Tipo', 'Responsable']],
       body: dataToExport,
       startY: 20,
     });
 
     const formattedDate = this.getFormattedDate();
     doc.save(`Lista_Movimientos_${formattedDate}.pdf`);
-  }
+}
 
-  exportToExcel(): void {
-    const dataToExport = this.movements.map((movement) => ({
-      'ID': movement.id,
-      'Fecha': new Date(movement.date).toLocaleString('es-ES'), // Format date as dd/mm/yyyy hh:mm
-      'Solicitante': movement.applicant,
-      'Responsable': movement.responsible,
-      'Tipo de Movimiento': movement.movement_type,
-      'Cantidad de Productos': movement.detailProducts.length,
-      'ID Empleado': movement.employee_id,
-      'Fecha Reincorporación': new Date(movement.reinstatement_datetime).toLocaleString('es-ES'), // Format reinstatement date
-    }));
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Movimientos');
+exportToExcel(): void {
+  const dataToExport = this.movements.map((movement) => ({
+    'Fecha y Hora': new Date(movement.date).toLocaleString('es-ES'),  
+    'Solicitante': movement.applicant,                               
+    'Productos': movement.detailProducts.map((product) => this.getProductNameById(product.productId)).join(', '),                     
+    'Tipo': this.translateMovementType(movement.movement_type),                                 
+    'Responsable': movement.responsible                              
+  }));
 
-    const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Movimientos_${formattedDate}.xlsx`);
-  }
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Movimientos');
+
+  const formattedDate = this.getFormattedDate();
+  XLSX.writeFile(workbook, `Lista_Movimientos_${formattedDate}.xlsx`);
+}
+
 
 
   ngAfterViewChecked(): void {
