@@ -61,8 +61,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         );
 
         // Filtro por posición (modificado para múltiples selecciones)
-        const positionMatch = this.selectedPositions.length === 0 || 
-                            this.selectedPositions.includes(empleado.position);
+        const positionMatch = this.selectedPositions.length === 0 ||
+          this.selectedPositions.includes(empleado.position);
 
         // Aplicar todos los filtros en conjunto
         return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch;
@@ -115,8 +115,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       salarioMax: Number.MAX_VALUE
     };
 
-        // Limpiar las posiciones seleccionadas
-        this.selectedPositions = [];
+    // Limpiar las posiciones seleccionadas
+    this.selectedPositions = [];
 
     // Limpiar los inputs
     const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
@@ -296,13 +296,13 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
   onPositionFilterChange(event: Event, position: string): void {
     const checkbox = event.target as HTMLInputElement;
-    
+
     if (checkbox.checked) {
       this.selectedPositions.push(position);
     } else {
       this.selectedPositions = this.selectedPositions.filter(p => p !== position);
     }
-    
+
     this.applyFilters();
   }
 
@@ -758,7 +758,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             <div class="row">
               <div class="col-12">
                 <h6>Información adicional</h6>
-                <p><strong>Obra Social:</strong> ${empleado.healthInsurance ? 'Sí' : 'No'}</p>
+                <!-- <p><strong>Obra Social:</strong> ${empleado.healthInsurance ? 'Sí' : 'No'}</p> -->
                 <p><strong>Estado:</strong> ${empleado.active ? 'Activo' : 'Inactivo'}</p>
                 <p><strong>Licencia:</strong> ${empleado.license ? 'Sí' : 'No'}</p>
               </div>

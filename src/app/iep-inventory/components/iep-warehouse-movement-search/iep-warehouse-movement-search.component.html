@@ -117,7 +117,7 @@
                 </div>
                 <div class="modal-body">
 
-                    <p><strong>Fecha:</strong> {{ selectedMovement?.date | date: 'short' }}</p>
+                    <p><strong>Fecha:</strong> {{ selectedMovement?.date | date: 'dd/MM/yyyy HH:mm' }}</p>
                     <p><strong>Solicitante:</strong> {{ selectedMovement?.applicant }}</p>
                     <p><strong>Tipo:</strong> {{ selectedMovement?.movement_type ?? '' | warehouseType }}</p>
                     <p class="mb-0"><strong>Productos:</strong> </p>
