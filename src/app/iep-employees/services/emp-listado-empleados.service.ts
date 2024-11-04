@@ -22,7 +22,7 @@ export class EmpListadoEmpleadosService {
   // Método para obtener los empleados.
   getEmployees(): Observable<EmpListadoEmpleados[]> {
     return this.http.get<EmpListadoEmpleados[]>(
-      `${this.EMPLOYEE_BASE_URL}/employees/allActiveEmployees`
+      `${this.EMPLOYEE_BASE_URL}/employees/allEmployees`
     );
   }
 
