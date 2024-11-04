@@ -4,6 +4,7 @@ export interface EmpListadoEmpleados {
   document: string; // Documento de identidad (DNI o PASSPORT)
   position: string; // Cargo del empleado
   salary: number; // Salario del empleado (en formato de texto)
+  active: boolean; // Estado de actividad del empleado
 }
 
 export interface Charge {

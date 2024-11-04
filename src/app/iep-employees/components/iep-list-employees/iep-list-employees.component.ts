@@ -448,7 +448,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       dom:
         '<"mb-3"t>' +                           //Tabla
         '<"d-flex justify-content-between"lp>', //Paginacion
-      data: this.Empleados,
+      data: this.Empleados,      
+      order: [[4, 'asc']], // Ordenar por fecha de forma descendente
       columns: [
         {
           data: 'fullName',
@@ -492,6 +493,14 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
               }).format(data);
             }
             return data;
+          }
+        },
+        {
+          data: 'active',
+          title: 'Estado',
+          className: 'text-center',
+          render: (data: boolean) => {
+            return data ? 'Activo' : 'Inactivo';
           }
         },
         {
