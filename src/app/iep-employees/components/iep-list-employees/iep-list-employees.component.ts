@@ -33,8 +33,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   modalContent: SafeHtml = '';
   startDate!: string;
   endDate!: string;
-  nombreFiltrado!: string;
-  estadoFiltrado!: string;
+  nombreFiltrado: string  = "";
+  estadoFiltrado: string = "";
   private subscriptions: Subscription[] = [];
   private searchFilter: string = '';
   private positionFilter: string = '';
@@ -637,6 +637,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   filterByDate(): void {
+
     const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
     const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
 
@@ -656,18 +657,19 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         (!endDate || productDate <= endDate)
       );
     });
-
-    if (this.nombreFiltrado.length >= 3) {
+    
+    if (this.nombreFiltrado !== null && this.nombreFiltrado.length >= 3) {
       this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
         return asistencia.employeeName.toUpperCase().includes(this.nombreFiltrado.toUpperCase());
       })
     }
 
-    if (this.estadoFiltrado !== ""){
+    if (this.estadoFiltrado !== ''){
       this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
         return asistencia.state === this.estadoFiltrado;
       })
     }
+
 
     // Actualizar el DataTable
     if (this.table) {
@@ -682,8 +684,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   limpiarFiltro(){
-    this.nombreFiltrado = "";
-    this.estadoFiltrado = "";
+    this.nombreFiltrado = '';
+    this.estadoFiltrado = '';
     this.setInitialDates();
   }
 

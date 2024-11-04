@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ChartType, GoogleChartsModule } from 'angular-google-charts';
 import { ProductService } from '../../services/product.service';
+import { StockAumentoService } from '../../services/stock-aumento.service';
 
 @Component({
   selector: 'app-iep-charts-inventory',
@@ -11,8 +12,10 @@ import { ProductService } from '../../services/product.service';
 })
 export class IepChartsInventoryComponent implements OnInit {
   private productoService = inject(ProductService);
+  private stockHistorial = inject(StockAumentoService);
   
   productos: any[] = []
+  modificaciones: any[] = [];
 
   chartTypeProductos: ChartType = ChartType.ColumnChart;
   dataProductos: any[] = [];
@@ -30,21 +33,12 @@ export class IepChartsInventoryComponent implements OnInit {
     colors: ['#28a745', '#dc3545', '#ffc107']
   };
 
-  chartType: ChartType = ChartType.LineChart;
-  data: any[] = [];
-  columnNames: string[] = ['Categoria'];
-  chartOptions = {
-    title: 'Estado productos',
-    colors: ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF', '#00FFFF',
-          '#FFA500', '#800080', '#008000', '#FFC0CB', '#FFD700', '#A52A2A',
-          '#F08080', '#C0C0C0', '#808080', '#000080', '#800000', '#808000',
-          '#FF4500', '#2E8B57', '#8A2BE2', '#5F9EA0', '#D2691E', '#CD5C5C',
-          '#4B0082', '#FF6347', '#7FFF00', '#FFDAB9', '#B0E0E6', '#98FB98',
-          '#FF69B4', '#F0E68C', '#ADFF2F', '#4682B4', '#D8BFD8', '#DDA0DD',
-          '#F5DEB3', '#FFE4E1', '#FFB6C1', '#20B2AA', '#FF8C00', '#B22222',
-          '#5F9EA0', '#6A5ACD', '#7CFC00', '#FF1493', '#8B4513', '#B8860B',
-          '#A9A9A9', '#00FA9A', '#F0E68C', '#FFD700', '#1E90FF', '#FF7F50',
-          '#DC143C', '#00BFFF', '#4682B4', '#32CD32', '#ADFF2F', '#FF4500']
+  chartTypeHistorial: ChartType = ChartType.LineChart;
+  dataHistorial: any[] = [];
+  columnNamesHistorial = ['Fecha', 'Cantidad'];
+  chartOptionsHistorial = {
+    title: 'Historial productos',
+    colors: ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF', '#00FFFF']
   };
 
   width = 800;
@@ -52,6 +46,7 @@ export class IepChartsInventoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProductos();
+    this.loadHistorial();
   }
 
   loadProductos(){
@@ -64,11 +59,33 @@ export class IepChartsInventoryComponent implements OnInit {
       })
   }
 
+  loadHistorial(){
+    const empSubscription = this.stockHistorial.getModifications().subscribe({
+      next: (Modificacion) =>{
+        this.modificaciones = [];
+        this.modificaciones = Modificacion;
+        this.cargarModificaciones();
+      },
+    })
+  }
+
   cargarProductos(){
     this.dataProductos = [];
+    const categorias: Set<String> = new Set();
     this.productos.forEach(producto => {
+      categorias.add(producto.category.categoryName)
+    });
+    
+    categorias.forEach(categoria => {
+      var total = 0;
+      
+      this.productos.forEach(producto => {
+        if (categoria === producto.category.categoryName){
+          total = total + producto.detailProducts.length;
+        }
+      });
 
-      this.dataProductos.push([producto.name, producto.detailProducts.length])
+      this.dataProductos.push([categoria, total])
     });
 
     this.cargarEstados();
@@ -96,6 +113,54 @@ export class IepChartsInventoryComponent implements OnInit {
 
     this.dataEstadosProductos.push(["Disponible", d / total * 100],["Prestado", p /total * 100],
     ["Mantenimiento", m /total * 100])
+  }
+
+  cargarModificaciones(){
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 31);
+    const fechas: Set<Date> = new Set();
+    
+    this.modificaciones.forEach(modificacion => {
+      const parts = modificacion.date.split('/');
+      const fechaModificacion = new Date(+parts[2], +parts[1] - 1, +parts[0]);
+      fechas.add(fechaModificacion);
+    });
+
+    this.dataHistorial = [];
+    fechas.forEach(fecha => {
+      var total = 0;
+      this.modificaciones.forEach(modificacion => {
+        const parts = modificacion.date.split('/');
+        const fechaModificacion = new Date(+parts[2], +parts[1] - 1, +parts[0]);
+  
+        if (fecha.getDate() === fechaModificacion.getDate() && 
+            fecha.getMonth() === fechaModificacion.getMonth()) {
+            switch (modificacion.modificationType){
+              case 'Aumento': total = total + modificacion.amount; break;
+              case 'Disminución': total = total - modificacion.amount; break;
+          }
+        }
+      });
+      
+      this.dataHistorial.push([fecha,total]);
+    });
+
+
+    //modificacionesFiltradas.forEach(modificacion => {
+      //console.log(modificacion.date)
+      //this.dataHistorial.push(new Date(modificacion.date), modificacion.amount)
+    //});
+
+    //const categoria: Set<string> = new Set();
+    //this.modificaciones.forEach(modificacion => {
+   //   console.log(modificacion);
+      //categoria.add(modificacion.product)
+   // });
+    //this.columnNames.push("Categoria")
+    //categoria.forEach(categoria => {
+    //  this.columnNames.push(categoria);
+    // });
   }
 
 }
