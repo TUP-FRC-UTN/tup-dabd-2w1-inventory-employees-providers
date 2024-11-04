@@ -37,8 +37,8 @@ export class IepSupplierUpdateComponent implements OnInit{
       const supplierUpdate: Supplier = {
         id: this.id, 
         name: this.proveedorForm.value.name,
-        healthInsurance: this.proveedorForm.value.healthInsurance,
-        authorized: this.proveedorForm.value.authorized,
+       // healthInsurance: this.proveedorForm.value.healthInsurance,
+       // authorized: this.proveedorForm.value.authorized,
         address: this.proveedorForm.value.address,
         supplierType: this.proveedorForm.value.supplierType, 
         description: this.proveedorForm.value.description,
