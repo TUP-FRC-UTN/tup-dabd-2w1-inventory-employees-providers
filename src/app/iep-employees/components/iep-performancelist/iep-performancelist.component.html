@@ -17,7 +17,9 @@
               <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownYearSelect"
                 data-bs-toggle="dropdown" aria-expanded="false">
                 Año
-                <span *ngIf="selectedYears.length > 0"> ({{ selectedYears.length }})</span>
+                @if (selectedYears.length > 0) {
+                  <span> ({{ selectedYears.length }})</span>
+                }
               </button>
               <ul class="dropdown-menu w-100" aria-labelledby="dropdownYearSelect">
                 <li *ngFor="let year of availableYears">
@@ -37,7 +39,9 @@
               <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownMonthSelect"
                 data-bs-toggle="dropdown" aria-expanded="false">
                 Mes
-                <span *ngIf="selectedMonths.length > 0"> ({{ selectedMonths.length }})</span>
+                @if (selectedMonths.length > 0) {
+                  <span> ({{ selectedMonths.length }})</span>
+                }
               </button>
               <ul class="dropdown-menu w-100" aria-labelledby="dropdownMonthSelect">
                 <li *ngFor="let month of months; let i = index">

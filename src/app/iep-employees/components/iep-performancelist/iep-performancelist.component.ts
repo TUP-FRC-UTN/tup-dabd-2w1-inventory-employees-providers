@@ -104,9 +104,9 @@ export class IepPerformancelistComponent implements OnInit {
 
   toggleFilters() {
     this.showFilters = !this.showFilters;
-    if (!this.showFilters) {
-      this.resetFilters(); // Esto ahora mantendrá el año y mes actual
-    }
+    //if (this.showFilters) {
+    //  this.resetFilters(); // Esto ahora mantendrá el año y mes actual
+    //}
   }
 
   ngOnDestroy() {
@@ -116,18 +116,22 @@ export class IepPerformancelistComponent implements OnInit {
     }
   }
 
-  
-
+  // Método auxiliar para recargar datos
   loadData(): void {
     this.employeeService.getCombinedData().subscribe({
       next: (data) => {
         this.performances = data;
         this.setAvailableYears();
         
-        setTimeout(() => {
-          this.initializeDataTable();
-          this.filterData(); // Aplicar filtros iniciales
-        }, 0);
+        if (this.dataTable) {
+          this.dataTable.clear();
+          this.dataTable.rows.add(this.performances);
+          this.dataTable.draw();
+        } else {
+          setTimeout(() => {
+            this.initializeDataTable();
+          }, 0);
+        }
       },
       error: (error) => {
         console.error('Error loading data:', error);
@@ -242,31 +246,61 @@ export class IepPerformancelistComponent implements OnInit {
 
   // Modificar el método resetFilters para preservar el año y mes actual
   resetFilters() {
+    // Limpiar todos los valores de filtro
     this.searchTerm = '';
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear().toString();
-    const currentMonth = this.months[currentDate.getMonth()];
-    
-    this.selectedYears = [currentYear];
-    this.selectedMonths = [currentMonth];
+    this.selectedYears = [];
+    this.selectedMonths = [];
     this.selectedPerformanceType = [];
     this.selectedObservationCount = null;
-
-    // Limpiar los checkboxes y marcar solo los actuales
+  
+    // Limpiar el campo de búsqueda
+    const searchInput = document.getElementById('searchTerm') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.value = '';
+    }
+  
+    // Limpiar el campo de observaciones
+    const observationInput = document.getElementById('observationCount') as HTMLInputElement;
+    if (observationInput) {
+      observationInput.value = '';
+    }
+  
+    // Desmarcar todos los checkboxes
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach((checkbox: any) => {
       checkbox.checked = false;
     });
-
-    this.updateCheckboxes();
-
-    // Limpiar DataTable y aplicar los filtros
+  
+    // No necesitamos actualizar manualmente el texto de los botones
+    // ya que Angular se encargará de esto con el binding
+  
+    // Limpiar la búsqueda de DataTables y los filtros personalizados
     if (this.dataTable) {
-      $.fn.dataTable.ext.search.pop();
-      this.dataTable.search('').columns().search('').draw();
+      // Remover todos los filtros personalizados
+      while ($.fn.dataTable.ext.search.length > 0) {
+        $.fn.dataTable.ext.search.pop();
+      }
+      
+      // Limpiar la búsqueda global y de columnas
+      this.dataTable.search('').columns().search('');
+      
+      // Recargar los datos originales
+      this.loadData();
+  
+      // Redibujar la tabla
+      this.dataTable.draw();
     }
-
-    this.filterData();
+  
+    // Emitir evento de cambio para asegurar que Angular detecte los cambios
+    setTimeout(() => {
+      const event = new Event('input');
+      if (searchInput) {
+        searchInput.dispatchEvent(event);
+      }
+      if (observationInput) {
+        observationInput.dispatchEvent(event);
+      }
+    }, 0);
   }
 
   // Asegurarse de que el método filterData() esté funcionando correctamente
