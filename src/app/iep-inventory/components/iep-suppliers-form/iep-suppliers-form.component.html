@@ -1,92 +1,108 @@
-<div
-  class="container d-flex flex-column justify-content-center align-items-center "
->
-  <form [formGroup]="proveedorForm" (ngSubmit)="onSubmit()" class="mt-3 bg-white shadow p-3" style="max-width: 500px">
+<div class="container-fluid d-flex flex-column justify-content-center align-items-center">
+  <form [formGroup]="proveedorForm" (ngSubmit)="onSubmit()" class="mt-5 bg-white shadow p-5 mx-2 w-100" style="max-width: 1200px">
     <div class="row">
-      <div class="col-sm-6">
+      <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Razon social</label>
-          <input type="text" formControlName="name" class="form-control" [ngClass]="{ 'is-invalid': hasError('name', 'required') }" />
-          <div *ngIf="hasError('name','required')" class="text-danger">
-            <span>La razon social es requerida</span>
+          <label class="form-label">Razón Social</label>
+          <input type="text" formControlName="name" class="form-control" [ngClass]="{'is-invalid': isFieldInvalid('name')}"/>
+          <div *ngIf="isFieldInvalid('name')" class="invalid-feedback">
+            Este campo es requerido.
           </div>
         </div>
       </div>
-      <div class="col-sm-6">
+
+      <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Obra social</label>
-          <input type="text" formControlName="healthInsurance" class="form-control"  [ngClass]="{ 'is-invalid': hasError('healthInsurance', 'required') }" />
-          <div *ngIf="hasError('healthInsurance','required')" class="text-danger">
-            <span>La obra social requerida</span>
+          <label class="form-label">Obra Social</label>
+          <input type="text" formControlName="healthInsurance" class="form-control" [ngClass]="{'is-invalid': isFieldInvalid('healthInsurance')}"/>
+          <div *ngIf="isFieldInvalid('healthInsurance')" class="invalid-feedback">
+            Este campo es requerido.
           </div>
         </div>
       </div>
     </div>
+
     <div class="row">
-      <div class="col-sm-6">
+      <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Telefono</label>
-          <input type="text" formControlName="phoneNumber" class="form-control"[ngClass]="{
-            'is-invalid': hasError('phoneNumber', 'required') || hasError('phoneNumber', 'pattern')
-          }" />
-          <div *ngIf="hasError('phoneNumber','required')" class="text-danger">
-            <span>El telefono es requerido</span>
-          </div>
-          <div *ngIf="hasError('phoneNumber', 'pattern')" class="text-danger">
-            <span>Solo se permiten números en el teléfono.</span>
+          <label class="form-label">Teléfono</label>
+          <input type="text" formControlName="phoneNumber" class="form-control" [ngClass]="{'is-invalid': isFieldInvalid('phoneNumber')}"/>
+          <div *ngIf="isFieldInvalid('phoneNumber')" class="invalid-feedback">
+            Debe ingresar un número válido.
           </div>
         </div>
       </div>
-      <div class="col-sm-6">
+
+      <div class="col-md-6">
         <div class="mb-3">
           <label class="form-label">Email</label>
-          <input type="email" formControlName="email" class="form-control"   [ngClass]="{ 'is-invalid': hasError('healthInsurance', 'required') }"/>
-          <div *ngIf="hasError('email','required')" class="text-danger">
-            <span>El email es requerido</span>
+          <input type="email" formControlName="email" class="form-control" [ngClass]="{'is-invalid': isFieldInvalid('email')}"/>
+          <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
+            Este campo es requerido.
           </div>
         </div>
       </div>
     </div>
+
+
     <div class="row">
-      <div class="col-sm-6">
+      <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Tipo proveedor</label>
-          <select formControlName="supplierType" class="form-select">
-            <option value="OTHER">Otro</option>
-            <option value="OUTSOURCED_SERVICE">Servicio externo</option>
-            <option value="INVENTORY_SUPPLIER">Proveedor de Inventario</option>
-           
-          </select>
+          <label class="form-label">Tipo Proveedor</label>
+                <select formControlName="supplierType" class="form-select" [ngClass]="{'is-invalid': isFieldInvalid('supplierType')}">
+                  <option value="" disabled selected>Seleccionar tipo</option>
+                  <option value="OTHER">Otro</option>
+                  <option value="OUTSOURCED_SERVICE">Servicio externo</option>
+                  <option value="INVENTORY_SUPPLIER">Proveedor de Inventario</option>
+                </select>
+                <div *ngIf="isFieldInvalid('supplierType')" class="invalid-feedback">
+                  Este campo es requerido.
+                </div>
         </div>
       </div>
-      <div class="col-sm-6">
+
+      <div class="col-md-6">
         <div class="mb-3">
           <label class="form-label">Direccion</label>
-          <input type="text" formControlName="address" class="form-control"  [ngClass]="{ 'is-invalid': hasError('healthInsurance', 'required') }" />
-          <div *ngIf="hasError('address','required')" class="text-danger">
-            <span>La direccion es requerido</span>
+          <input type="text" formControlName="address" class="form-control" [ngClass]="{'is-invalid': isFieldInvalid('address')}"/>
+          <div *ngIf="isFieldInvalid('address')" class="invalid-feedback">
+            Este campo es requerido.
           </div>
         </div>
       </div>
     </div>
+
+
+
+    
+
     <div class="row">
-      <div class="col">
+      <div class="col-md-12">
         <div class="mb-3">
-          <label class="form-label">Descripcion</label>
-          <textarea formControlName="description" class="form-control" rows="3" ></textarea>
-          
+          <label class="form-label">Descripción</label>
+          <textarea formControlName="description" class="form-control"></textarea>
         </div>
       </div>
     </div>
+
     <div class="row">
-      <div class="col">
-        <button class="btn btn-secondary" routerLink="/home/suppliers">Volver</button>
-
-
-      </div>
-      <div class="col text-end">
-        <button type="submit" class="btn btn-success" [disabled]="proveedorForm.invalid">Registrar</button>
+      <div class="col-md-12">
+        <div class="form-check">
+          <input type="checkbox" formControlName="discontinued" class="form-check-input" />
+          <label class="form-check-label">Autorizado</label>
+        </div>
       </div>
     </div>
-  </form>
+
+    <div class="row mt-3">
+      <div class="row justify-content-end">
+        <div class="col-auto">
+          <button type="button" class="btn btn-danger" [routerLink]="['/home/suppliers']" routerLinkActive="router-link-active" >Cancelar</button> 
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-success" style="width: 100%;" [disabled]="proveedorForm.invalid">Registrar</button>
+        </div>
+      </div>
+    </div>
+  </form>  
 </div>

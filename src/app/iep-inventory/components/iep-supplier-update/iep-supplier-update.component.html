@@ -44,22 +44,37 @@
       </div>
     </div>
 
+
     <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-6">
         <div class="mb-3">
           <label class="form-label">Tipo Proveedor</label>
-          <select formControlName="supplierType" class="form-select" [ngClass]="{'is-invalid': isFieldInvalid('supplierType')}">
-            <option value="" disabled selected>Seleccionar tipo</option>
-            <option value="OTHER">Otro</option>
-            <option value="OUTSOURCED_SERVICE">Servicio externo</option>
-            <option value="INVENTORY_SUPPLIER">Proveedor de Inventario</option>
-          </select>
-          <div *ngIf="isFieldInvalid('supplierType')" class="invalid-feedback">
+                <select formControlName="supplierType" class="form-select" [ngClass]="{'is-invalid': isFieldInvalid('supplierType')}">
+                  <option value="" disabled selected>Seleccionar tipo</option>
+                  <option value="OTHER">Otro</option>
+                  <option value="OUTSOURCED_SERVICE">Servicio externo</option>
+                  <option value="INVENTORY_SUPPLIER">Proveedor de Inventario</option>
+                </select>
+                <div *ngIf="isFieldInvalid('supplierType')" class="invalid-feedback">
+                  Este campo es requerido.
+                </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label">Direccion</label>
+          <input type="text" formControlName="address" class="form-control" [ngClass]="{'is-invalid': isFieldInvalid('address')}"/>
+          <div *ngIf="isFieldInvalid('address')" class="invalid-feedback">
             Este campo es requerido.
           </div>
         </div>
       </div>
     </div>
+
+
+
+    
 
     <div class="row">
       <div class="col-md-12">
