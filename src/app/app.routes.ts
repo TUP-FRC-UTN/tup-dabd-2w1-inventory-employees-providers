@@ -16,6 +16,8 @@ import { IepSupplierListComponent } from './iep-inventory/components/iep-supplie
 import { IepSupplierUpdateComponent } from './iep-inventory/components/iep-supplier-update/iep-supplier-update.component';
 import { IepSuppliersFormComponent } from './iep-inventory/components/iep-suppliers-form/iep-suppliers-form.component';
 import { IepCategoriesListComponent } from './iep-inventory/components/iep-categories-list/iep-categories-list.component';
+import { IepChartsEmployeesComponent } from './iep-employees/components/iep-charts-employees/iep-charts-employees.component';
+import { IepChartsInventoryComponent } from './iep-inventory/components/iep-charts-inventory/iep-charts-inventory.component';
 export const routes: Routes = [
     {
         path: "", redirectTo: "/home", pathMatch: "full" 
@@ -105,6 +107,16 @@ export const routes: Routes = [
                     path: 'categories-list', 
                     component:IepCategoriesListComponent,
                     title: 'Categorías de productos'
+                },
+                {
+                  path: 'employee/charts',
+                  component:IepChartsEmployeesComponent,
+                  title: 'Grafico empleados'  
+                },
+                {
+                    path: 'inventory/charts',
+                    component:IepChartsInventoryComponent,
+                    title: 'Grafico inventario'
                 }
             ]
     }

@@ -30,6 +30,10 @@ export class StockAumentoService {
     );
   }
 
+  getModifications(){
+    return this.http.get<any[]>(this.AMOUNT_MODIFICATION_URL+"/getAllModifications");
+  }
+
   // Método para obtener proveedores // TOMAS
   getSuppliers(): Observable<Supplier[]> {
     // Nuevo método para obtener proveedores

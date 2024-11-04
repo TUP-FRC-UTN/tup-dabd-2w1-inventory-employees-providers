@@ -6,7 +6,7 @@ import { SideButton } from '../../common-models/SideButton';
 @Component({
   selector: 'app-users-navbar',
   standalone: true,
-  imports: [ UsersSideButtonComponent, RouterOutlet],
+  imports: [UsersSideButtonComponent, RouterOutlet],
   templateUrl: './users-navbar.component.html',
   styleUrl: './users-navbar.component.css'
 })
@@ -22,7 +22,7 @@ export class UsersNavbarComponent {
   userRoles: string[] = ["Admin", "Owner"]
 
   //Traer con el authService
-  actualRole : string = "Admin"
+  actualRole: string = "Admin"
   //Lista de botones
   buttonsList: SideButton[] = [];
 
@@ -35,77 +35,92 @@ export class UsersNavbarComponent {
       {
         icon: "bi-boxes",
         title: "Inventario",
-        roles: ["SuperAdmin", "Admin","Encargado de inventario"],
+        roles: ["SuperAdmin", "Admin", "Encargado de inventario"],
         childButtons: [
           {
-            icon:"bi-inboxes-fill",
+            icon: "bi-inboxes-fill",
             title: "Listado de productos",
-            roles: ["SuperAdmin", "Admin","Encargado de inventario"],
-             route: "home/inventory",
-            
+            roles: ["SuperAdmin", "Admin", "Encargado de inventario"],
+            route: "home/inventory",
+
           },
           {
-          icon: "bi-arrow-down-up",
-          title: "Historial de stock",
-          route: "home/modification-stock-list",
-          roles: ["SuperAdmin", "Admin","Encargado de inventario"]
-        },
-        {
-          icon: "bi-plus",
-          title: "Nuevo producto",
-          route: "home/new-product",
-          roles: ["SuperAdmin", "Admin","Encargado de inventario"]
-        },
-        {
-          icon: "bi-arrow-left-right",
-          title: "Movimientos de inventario",
-          route: "home/warehouse-movements",
-          roles: ["SuperAdmin", "Admin","Encargado de inventario"]
-        },
-        {
-          icon: "bi-truck",
-          title: "Proveedores",
-          route: "home/suppliers",
-          roles: ["SuperAdmin", "Admin","Encargado de inventario"]
-        },
-        {
-          icon: "bi-tags-fill",
-          title: "Cateogorías de productos",
-          route: "home/categories-list",
-          roles: ["SuperAdmin", "Admin","Encargado de inventario"]
-        }
+            icon: "bi-arrow-down-up",
+            title: "Historial de stock",
+            route: "home/modification-stock-list",
+            roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
+          },
+          {
+            icon: "bi-plus",
+            title: "Nuevo producto",
+            route: "home/new-product",
+            roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
+          },
+          {
+            icon: "bi-arrow-left-right",
+            title: "Movimientos de inventario",
+            route: "home/warehouse-movements",
+            roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
+          },
+          {
+            icon: "bi-truck",
+            title: "Proveedores",
+            route: "home/suppliers",
+            roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
+          },
+          {
+
+            icon: "bi-tags-fill",
+            title: "Cateogorías de productos",
+            route: "home/categories-list",
+            roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
+
+          },
+          {
+            icon: "bi-bar-chart-fill",
+            title: "Grafico inventario",
+            route: "home/inventory/charts",
+
+            roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
+          }
         ]
       },
       {
         icon: "bi-person-vcard",
         title: "Empleados",
-        roles: ["SuperAdmin", "Admin","Encargado de empleados"],
+        roles: ["SuperAdmin", "Admin", "Encargado de empleados"],
         childButtons: [
           {
             icon: "bi-person-lines-fill",
             title: "Listado de empleados",
             route: "home/employee-list",
-            roles: ["SuperAdmin", "Admin","Encargado de empleados"]
+            roles: ["SuperAdmin", "Admin", "Encargado de empleados"]
           },
           {
             icon: "bi-person-add",
             title: "Nuevo empleado",
             route: "home/employee-post",
-            roles: ["SuperAdmin", "Admin","Encargado de empleados"]
+            roles: ["SuperAdmin", "Admin", "Encargado de empleados"]
           },
           {
-          icon: "bi-card-checklist",
-          title: "Listado de desempeño",
-          route: "home/performance",
-          roles: ["SuperAdmin", "Admin","Encargado de empleados"]
-        },
-        {
-          icon: "bi-person-badge-fill",
-          title: "Cargos de empleados",
-          route: "home/charges",
-          roles: ["SuperAdmin", "Admin","Encargado de empleados"]
-        }
-      ]
+            icon: "bi-card-checklist",
+            title: "Listado de desempeño",
+            route: "home/performance",
+            roles: ["SuperAdmin", "Admin", "Encargado de empleados"]
+          },
+          {
+            icon: "bi-person-badge-fill",
+            title: "Cargos de empleados",
+            route: "home/charges",
+            roles: ["SuperAdmin", "Admin", "Encargado de empleados"]
+          },
+          {
+            icon: "bi-bar-chart-fill",
+            title: "Grafico asistencias",
+            route: "home/employee/charts",
+            roles: ["SuperAdmin", "Admin", "Encargado de empleados"]
+          }
+        ]
 
       }
     ];
@@ -131,7 +146,7 @@ export class UsersNavbarComponent {
     this.pageTitle = title;
   }
 
-  selectRole(role : string){
+  selectRole(role: string) {
     this.actualRole = role;
   }
 }
