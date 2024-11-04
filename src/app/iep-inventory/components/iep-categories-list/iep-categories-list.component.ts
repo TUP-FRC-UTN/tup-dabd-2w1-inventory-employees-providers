@@ -137,10 +137,10 @@ export class IepCategoriesListComponent implements OnInit {
         },
         {
           data: 'discontinued',
-          title: 'Activo',
+          title: 'Estado',
           visible : true,
           render: (data: any, type: any, row: any) => {
-            return data ? 'Sí' : 'No';
+            return data ? 'Inactivo' : 'Activo';
           }
         },
         {
