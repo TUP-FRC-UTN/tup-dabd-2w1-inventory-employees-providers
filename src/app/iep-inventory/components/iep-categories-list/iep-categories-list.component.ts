@@ -136,6 +136,14 @@ export class IepCategoriesListComponent implements OnInit {
           title: 'Categoría'
         },
         {
+          data: 'discontinued',
+          title: 'Activo',
+          visible : true,
+          render: (data: any, type: any, row: any) => {
+            return data ? 'Sí' : 'No';
+          }
+        },
+        {
           data: null,
           title: 'Acciones',
           orderable: false,
@@ -152,7 +160,8 @@ export class IepCategoriesListComponent implements OnInit {
                   <li><a class="dropdown-item delete-btn" href="#" data-id="${row.id}">Eliminar</a></li>
                 </ul>
               </div>`;
-          }
+          },
+
         }
       ],
       pageLength: 10,
@@ -419,6 +428,7 @@ export class IepCategoriesListComponent implements OnInit {
     this.categoryService.getCategorias().subscribe({
       next: (categories) => {
         this.categories = categories;
+        console.log('Categorías cargadas:', categories);
         this.filteredData = [...categories];
         setTimeout(() => {
           this.refreshDataTable();
