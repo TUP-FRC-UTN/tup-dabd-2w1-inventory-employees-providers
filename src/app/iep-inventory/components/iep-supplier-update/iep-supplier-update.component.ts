@@ -6,6 +6,7 @@ import { Supplier } from '../../models/suppliers';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { error } from 'jquery';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-iep-supplier-update',
@@ -21,14 +22,25 @@ export class IepSupplierUpdateComponent implements OnInit{
 
 
   onSubmit() {
+
+    Swal.fire({
+      icon: "success",
+      title: "Actualización Exitosa",
+      text: "Los datos se han actualizado correctamente.",
+      confirmButtonText: "Aceptar" 
+    }).then(() => {
+      this.router.navigate(['/home/suppliers']);
+    });
+
+
     if (this.proveedorForm.valid) {
       const supplierUpdate: Supplier = {
-        id: this.id, // Asegúrate de tener la id
+        id: this.id, 
         name: this.proveedorForm.value.name,
-        healthInsurance: this.proveedorForm.value.healthInsurance,
-        authorized: this.proveedorForm.value.authorized,
+       // healthInsurance: this.proveedorForm.value.healthInsurance,
+       // authorized: this.proveedorForm.value.authorized,
         address: this.proveedorForm.value.address,
-        supplierType: this.proveedorForm.value.supplierType, // Asegúrate de que este valor sea correcto
+        supplierType: this.proveedorForm.value.supplierType, 
         description: this.proveedorForm.value.description,
         phoneNumber: this.proveedorForm.value.phoneNumber,
         email: this.proveedorForm.value.email,
@@ -53,7 +65,6 @@ export class IepSupplierUpdateComponent implements OnInit{
   supplierUpdate?:Supplier;
 
   ngOnInit(): void {
-    // Inicializa el formulario sin valores específicos para los controles
     this.proveedorForm = this.fb.group({
       name: ['', Validators.required],
       healthInsurance: ['', Validators.required],
@@ -67,7 +78,6 @@ export class IepSupplierUpdateComponent implements OnInit{
       discontinued:[false]
     });
   
-    // Llama a la función para buscar el proveedor por ID
     this.searchSupplier();
   }
   
@@ -78,7 +88,6 @@ export class IepSupplierUpdateComponent implements OnInit{
         .subscribe(
           supplier => {
             this.supplierUpdate = supplier;
-            // Usa patchValue para actualizar el formulario con los datos del proveedor
             this.proveedorForm.patchValue({
               name: supplier.name,
               healthInsurance: supplier.healthInsurance,

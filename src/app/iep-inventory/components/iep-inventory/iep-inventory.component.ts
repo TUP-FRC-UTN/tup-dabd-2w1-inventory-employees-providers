@@ -10,7 +10,6 @@ import $ from 'jquery';
 import 'datatables.net';
 import 'datatables.net-dt';
 import 'datatables.net-bs5';
-import DataTable from 'datatables.net-dt';
 import jsPDF from 'jspdf';
 import { IepStockIncreaseComponent } from '../iep-stock-increase/iep-stock-increase.component';
 import { Details } from '../../models/details';
@@ -19,6 +18,17 @@ import { ProductXDetailDto } from '../../models/product-xdetail-dto';
 import { CategoriaService } from '../../services/categoria.service';
 import { DetailServiceService } from '../../services/detail-service.service';
 import { EstadoService } from '../../services/estado.service';
+
+interface Filters {
+  categoriasSeleccionadas: number[];
+  reutilizableSeleccionado: number[];
+  nombre: string;
+  startDate: string;
+  endDate: string;
+  cantMinima: number;
+  cantMaxima: number;
+}
+
 @Component({
   selector: 'app-iep-inventory',
   standalone: true,
@@ -28,21 +38,145 @@ import { EstadoService } from '../../services/estado.service';
 })
 export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
+    // Objeto que mantiene el estado de todos los filtros
+    filters: Filters = {
+      categoriasSeleccionadas: [],
+      reutilizableSeleccionado: [],
+      nombre: '',
+      startDate: '',
+      endDate: '',
+      cantMinima: 0,
+      cantMaxima: 0
+    };
+
+     // Método principal de filtrado que combina todos los filtros
+  aplicarFiltrosCombinados(): void {
+    this.productosFiltered = this.productosALL.filter(producto => {
+      // Filtro por nombre
+      const nombreCumple = !this.filters.nombre || 
+        producto.name.toLowerCase().includes(this.filters.nombre.toLowerCase());
+
+      // Filtro por categorías
+      const categoriaCumple = this.filters.categoriasSeleccionadas.length === 0 ||
+        this.filters.categoriasSeleccionadas.includes(producto.category.categoryId);
+
+      // Filtro por reutilizable
+      const reusableCumple = this.filters.reutilizableSeleccionado.length === 0 ||
+        this.filters.reutilizableSeleccionado.includes(producto.reusable ? 1 : 2);
+
+      // Filtro por cantidad
+      const amount = producto.detailProducts.length;
+      const cantMinimaCumple = !this.filters.cantMinima || amount >= this.filters.cantMinima;
+      const cantMaximaCumple = !this.filters.cantMaxima || amount <= this.filters.cantMaxima;
+
+      // Filtro por fecha
+      let fechaCumple = true;
+      if (this.filters.startDate || this.filters.endDate) {
+        let lastDate = this.getLastUpdateDate(producto.detailProducts);
+        if (!lastDate) {
+          fechaCumple = false;
+        } else {
+          const productDate = new Date(lastDate);
+          if (this.filters.startDate) {
+            fechaCumple = fechaCumple && productDate >= new Date(this.filters.startDate);
+          }
+          if (this.filters.endDate) {
+            fechaCumple = fechaCumple && productDate <= new Date(this.filters.endDate);
+          }
+        }
+      }
+
+      return nombreCumple && 
+             categoriaCumple && 
+             reusableCumple && 
+             cantMinimaCumple && 
+             cantMaximaCumple && 
+             fechaCumple;
+    });
+
+    this.updateDataTable();
+    this.actualizarContadores();
+  }
+
+  // Método auxiliar para obtener la última fecha de actualización
+  private getLastUpdateDate(detailProducts: any[]): string {
+    let lastDate = '';
+    for (const detail of detailProducts) {
+      if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+        lastDate = detail.lastUpdatedDatetime;
+      }
+    }
+    return lastDate;
+  }
+
+  // Actualiza los contadores después de aplicar los filtros
+  private actualizarContadores(): void {
+    this.amountAvailable = this.getCountByategoryAndState(1, 'Disponible');
+    this.amountBorrowed = this.getCountByategoryAndState(1, 'Prestado');
+    this.amountBroken = this.getCountByategoryAndState(1, 'Roto');
+  }
+
+  // Añade esto en las propiedades de la clase
+  categoriasSeleccionadas: number[] = [];
+  reutilizableSeleccionado: number[] = [];
+
+  // Añade este método para manejar los cambios en los checkboxes
+  onCategoriaChange(event: any, categoryId: number): void {
+    if (event.target.checked) {
+      this.filters.categoriasSeleccionadas.push(categoryId);
+    } else {
+      this.filters.categoriasSeleccionadas = this.filters.categoriasSeleccionadas
+        .filter(id => id !== categoryId);
+    }
+    this.aplicarFiltrosCombinados();
+  }
+
+  onReutilizableChange(event: any, reusable: number): void {
+    if (event.target.checked) {
+      this.filters.reutilizableSeleccionado.push(reusable);
+    } else {
+      this.filters.reutilizableSeleccionado = this.filters.reutilizableSeleccionado
+        .filter(id => id !== reusable);
+    }
+    this.aplicarFiltrosCombinados();
+  }
+
+
   // Variables necesarias para el filtrado por fecha
   startDate: string = '';
   endDate: string = '';
 
+  filtrarPorUltimos30Dias(): void {
+    const hoy = new Date();
+    const hace30Dias = new Date(hoy.setDate(hoy.getDate() - 30));
+
+    this.productosFiltered = this.productosALL.filter(producto => {
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
+        }
+      }
+      if (!lastDate) {
+        return false;
+      }
+
+      const productDate = new Date(lastDate);
+      return productDate >= hace30Dias;
+    });
+  }
+
 
   onStartDateChange(): void {
     const startDateInput = document.getElementById('startDate') as HTMLInputElement;
-    this.startDate = startDateInput.value;
-    this.applyDateFilter();
+    this.filters.startDate = startDateInput.value;
+    this.aplicarFiltrosCombinados();
   }
 
   onEndDateChange(): void {
     const endDateInput = document.getElementById('endDate') as HTMLInputElement;
-    this.endDate = endDateInput.value;
-    this.applyDateFilter();
+    this.filters.endDate = endDateInput.value;
+    this.aplicarFiltrosCombinados();
   }
 
   applyDateFilter(): void {
@@ -109,6 +243,9 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   toggleFilters(): void {
     this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+    if (this.filtersVisible) {
+      this.cleanFilters(); // Limpia los filtros al ocultarlos
+    }
   }
 
   private categoriaService = inject(CategoriaService);
@@ -169,6 +306,9 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedProductId: number | null = null;
 
   ngOnInit(): void {
+    this.endDate = new Date().toISOString().split('T')[0];
+    // Inicializar la fecha de inicio con la fecha actual menos 30 dias
+    this.startDate = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
     this.initializeDataTable();
     this.cargarDatos();
     this.cargarProductos();
@@ -182,7 +322,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.productos$.subscribe({
       next: (productos) => {
         this.productosALL = productos;
-        this.aplicarFiltros();
+        this.filtrarPorUltimos30Dias(); // Aplica el filtro automáticamente
+        this.updateDataTable(); // Actualiza la tabla con el filtro aplicado
         this.requestInProcess = false;
       },
       error: (error) => {
@@ -223,49 +364,37 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  // Modifica el método aplicarFiltros() para usar las categorías seleccionadas
   aplicarFiltros(): void {
-    this.productosFiltered = [];
-    if (this.cantMinima > this.cantMaxima) {
-      this.validoMin = false;
-    } else {
-      this.validoMin = true;
-    }
-    if (this.cantMaxima < this.cantMinima) {
-      this.validoMax = false;
-    } else {
-      this.validoMax = true;
-    }
-
-    if (!this.reusable) {
-      this.reusable = 0;
-    }
-    /*     if (!this.cantMaxima) {
-          this.cantMaxima = 0;
-        }
-        if (!this.cantMinima) {
-          this.cantMinima = 0;
-        } */
-    console.log(this.reusable);
     this.productosFiltered = this.productosALL.filter((producto) => {
       const nombreCumple =
         this.nombre === '' ||
         producto.name.toLowerCase().includes(this.nombre.toLowerCase());
+
+      // Lógica para múltiples categorías
       const categoriaCumple =
-        this.categoria == 0 || producto.category.categoryId == this.categoria;
-      if (producto.reusable == true && this.reusable == 1) {
-        var reusableCumple = true;
-      } else if (producto.reusable == false && this.reusable == 2) {
-        var reusableCumple = true;
-      } else if (this.reusable == 0) {
-        var reusableCumple = true;
-      } else {
-        var reusableCumple = false;
-      }
+        this.categoriasSeleccionadas.length === 0 ||
+        this.categoriasSeleccionadas.includes(producto.category.categoryId);
+
+      // Lógica para reutilizable (SI, NO, Ambos, Ninguno)
+      const reusableCumple =
+        this.reutilizableSeleccionado.length === 0 ||
+        this.reutilizableSeleccionado.includes(producto.reusable ? 1 : 2);
+
+
+      /*     let reusableCumple = false;
+          if (producto.reusable && this.reusable === 1) {
+            reusableCumple = true;
+          } else if (!producto.reusable && this.reusable === 2) {
+            reusableCumple = true;
+          } else if (this.reusable === 0) {
+            reusableCumple = true;
+          } */
+
       const amount = producto.detailProducts.length;
-      const minQuantityWarningCumple =
-        this.cantMinima == 0 || amount >= this.cantMinima;
-      const maxQuantityWarningCumple =
-        this.cantMaxima == 0 || amount <= this.cantMaxima;
+      const minQuantityWarningCumple = this.cantMinima === 0 || amount >= this.cantMinima;
+      const maxQuantityWarningCumple = this.cantMaxima === 0 || amount <= this.cantMaxima;
+
       return (
         nombreCumple &&
         categoriaCumple &&
@@ -274,10 +403,34 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         maxQuantityWarningCumple
       );
     });
+
     this.amountAvailable = this.getCountByategoryAndState(1, 'Disponible');
     this.amountBorrowed = this.getCountByategoryAndState(1, 'Prestado');
     this.amountBroken = this.getCountByategoryAndState(1, 'Roto');
     this.updateDataTable();
+  }
+
+  // Modifica el método cleanFilters() para limpiar también las categorías seleccionadas
+  cleanFilters(): void {
+    this.filters = {
+      categoriasSeleccionadas: [],
+      reutilizableSeleccionado: [],
+      nombre: '',
+      startDate: '',
+      endDate: '',
+      cantMinima: 0,
+      cantMaxima: 0
+    };
+
+    // Limpia los checkboxes
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach((checkbox: any) => checkbox.checked = false);
+
+    // Limpia los campos de texto
+    const textInputs = document.querySelectorAll('input.form-control');
+    textInputs.forEach(input => (input as HTMLInputElement).value = '');
+
+    this.aplicarFiltrosCombinados();
   }
 
   getCountByategoryAndState(categoryId: number, state: string): number {
@@ -364,7 +517,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       lengthMenu: [10, 25, 50], // Valores para el número de filas],
       searching: false,
       ordering: true,
-      order: [[0, 'desc']],
+      order: [[0, 'asc']],
       autoWidth: false, // Desactivar el ajuste automático de ancho
 
       language: {
@@ -422,25 +575,13 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  cleanFilters(): void {
-    this.categoria = 0;
-    this.reusable = 0;
-    this.cantMinima = 0;
-    this.cantMaxima = 0;
-    this.nombre = '';
-      // Limpia los valores de los inputs en el DOM
-      const textInputs = document.querySelectorAll('input.form-control');
 
-      // Limpia cada campo de texto
-      textInputs.forEach(input => (input as HTMLInputElement).value = '');
-    this.aplicarFiltros();
-  }
   getFormattedDate(): string {
     const date = new Date();
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
     const day = String(date.getDate()).padStart(2, '0');
-    
+
     return `${day}-${month}-${year}`;
   }
 
@@ -582,9 +723,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.cargarProductos();
     this.cerrarModalAumentoStock();
   }
-
-
-
 
   abrirModalAumentoStock(productId: number) {
     this.selectedProductId = productId;

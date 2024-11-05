@@ -62,13 +62,12 @@
   </div>
 
   <!-- Modal para Crear Cargo -->
-  <div class="modal fade" id="createChargeModal" tabindex="-1" [class.show]="isCreateModalOpen" 
-       [style.display]="isCreateModalOpen ? 'block' : 'none'">
+  <div class="modal fade" id="createChargeModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Nuevo Cargo</h5>
-          <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close" (click)="reset()"></button>
         </div>
         <div class="modal-body">
           <form [formGroup]="cargoForm" (ngSubmit)="onSubmitCreate()">
@@ -91,7 +90,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" (click)="closeCreateModal()">Cancelar</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"  aria-label="Close" (click)="reset()">Cancelar</button>
               <button type="submit" class="btn btn-primary" [disabled]="cargoForm.invalid">Crear</button>
             </div>
           </form>
@@ -101,13 +100,12 @@
   </div>
 
   <!-- Modal para Editar Cargo -->
-  <div class="modal fade" id="editChargeModal" tabindex="-1" [class.show]="isEditModalOpen"
-       [style.display]="isEditModalOpen ? 'block' : 'none'">
+  <div class="modal fade" id="editChargeModal" tabindex="-1" >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Modificar Cargo</h5>
-          <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close" (click)="reset()"></button>
         </div>
         <div class="modal-body">
           <form [formGroup]="cargoForm" (ngSubmit)="onSubmitEdit()">
@@ -130,7 +128,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancelar</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"  aria-label="Close" (click)="reset()">Cancelar</button>
               <button type="submit" class="btn btn-primary" [disabled]="cargoForm.invalid">Actualizar</button>
             </div>
           </form>
@@ -139,11 +137,9 @@
     </div>
   </div>
 
-  <!-- Modal Backdrops -->
-  <div class="modal-backdrop fade show" *ngIf="isCreateModalOpen || isEditModalOpen"></div>
 
   <!-- Botón Flotante -->
-  <button class="floating-btn btn btn-primary" (click)="openCreateModal()">
+  <button class="floating-btn btn btn-primary" data-bs-target="#createChargeModal" data-bs-toggle="modal">
     <span class="bi-plus-lg"></span>
   </button>
 </div>

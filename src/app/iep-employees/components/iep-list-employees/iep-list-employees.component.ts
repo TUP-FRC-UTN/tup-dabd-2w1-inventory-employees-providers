@@ -60,9 +60,9 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
           empleado.salary.toString().includes(term)
         );
 
-        // Filtro por posición
-        const positionMatch = !this.positionFilter ||
-          empleado.position === this.positionFilter;
+        // Filtro por posición (modificado para múltiples selecciones)
+        const positionMatch = this.selectedPositions.length === 0 ||
+          this.selectedPositions.includes(empleado.position);
 
         // Aplicar todos los filtros en conjunto
         return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch;
@@ -115,6 +115,9 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       salarioMax: Number.MAX_VALUE
     };
 
+    // Limpiar las posiciones seleccionadas
+    this.selectedPositions = [];
+
     // Limpiar los inputs
     const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
     inputs.forEach(input => {
@@ -152,12 +155,12 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   modalContent: SafeHtml = '';
   startDate!: string;
   endDate!: string;
-  nombreFiltrado!: string;
-  estadoFiltrado!: string;
+  nombreFiltrado: string  = "";
+  estadoFiltrado: string = "";
   private subscriptions: Subscription[] = [];
   private searchFilter: string = '';
   private positionFilter: string = '';
-  private uniquePositions: string[] = [];
+  uniquePositions: string[] = [];
 
 
   constructor(
@@ -289,9 +292,17 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     }
   }
 
-  onPositionFilterChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.positionFilter = select.value;
+  selectedPositions: string[] = []; // Array para almacenar las posiciones seleccionadas
+
+  onPositionFilterChange(event: Event, position: string): void {
+    const checkbox = event.target as HTMLInputElement;
+
+    if (checkbox.checked) {
+      this.selectedPositions.push(position);
+    } else {
+      this.selectedPositions = this.selectedPositions.filter(p => p !== position);
+    }
+
     this.applyFilters();
   }
 
@@ -437,7 +448,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       dom:
         '<"mb-3"t>' +                           //Tabla
         '<"d-flex justify-content-between"lp>', //Paginacion
-      data: this.Empleados,
+      data: this.Empleados,      
+      order: [[4, 'asc']], // Ordenar por fecha de forma descendente
       columns: [
         {
           data: 'fullName',
@@ -481,6 +493,14 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
               }).format(data);
             }
             return data;
+          }
+        },
+        {
+          data: 'active',
+          title: 'Estado',
+          className: 'text-center',
+          render: (data: boolean) => {
+            return data ? 'Activo' : 'Inactivo';
           }
         },
         {
@@ -747,7 +767,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             <div class="row">
               <div class="col-12">
                 <h6>Información adicional</h6>
-                <p><strong>Obra Social:</strong> ${empleado.healthInsurance ? 'Sí' : 'No'}</p>
+                <!-- <p><strong>Obra Social:</strong> ${empleado.healthInsurance ? 'Sí' : 'No'}</p> -->
                 <p><strong>Estado:</strong> ${empleado.active ? 'Activo' : 'Inactivo'}</p>
                 <p><strong>Licencia:</strong> ${empleado.license ? 'Sí' : 'No'}</p>
               </div>
@@ -797,6 +817,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   filterByDate(): void {
+
     const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
     const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
 
@@ -816,8 +837,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         (!endDate || productDate <= endDate)
       );
     });
-
-    if (this.nombreFiltrado.length >= 3) {
+    
+    if (this.nombreFiltrado !== null && this.nombreFiltrado.length >= 3) {
       this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
         return asistencia.employeeName.toUpperCase().includes(this.nombreFiltrado.toUpperCase());
       })
@@ -828,6 +849,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         return asistencia.state === this.estadoFiltrado;
       })
     }
+
 
     // Actualizar el DataTable
     if (this.table) {

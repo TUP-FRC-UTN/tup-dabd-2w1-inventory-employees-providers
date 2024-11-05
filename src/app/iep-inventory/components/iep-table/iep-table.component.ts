@@ -18,6 +18,9 @@ import { Producto } from '../../models/producto';
   styleUrls: ['./iep-table.component.css'],
 })
 export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  selectedMovementTypes: string[] = [];
+
   private table: any; // Referencia para la instancia de DataTable
   productos: Producto[] = []; // Array para almacenar los productos
   filteredProductos: Producto[] = []; // Array para almacenar productos filtrados
@@ -139,7 +142,11 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.productService.getProductos().subscribe({
       next: (productos) => {
         this.productos = this.calculateRunningStock(productos);
-        this.filteredProductos = [...this.productos];
+
+
+      // Llama a filterByDate después de establecer los productos
+      this.filterByDate(); // Aplica el filtro de fechas inicial
+
         if (this.table) {
           this.table.destroy();
         }
@@ -421,6 +428,9 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleFilters(): void {
     this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+    if (this.filtersVisible) {
+      this.cleanColumnFilters(); // Limpia los filtros al ocultarlos
+    }
   }
 
   applyAmountFilter(type: 'min' | 'max', event: Event): void {
@@ -437,26 +447,40 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   applyColumnFilter(event?: Event, column?: string): void {
-    let filterValue = '';
-
-    if (event && column) {
-      const input = event.target as HTMLInputElement;
-      filterValue = input.value.toLowerCase();
+    if (column === 'modificationType' && event) {
+      const checkbox = event.target as HTMLInputElement;
+      const value = checkbox.value.toLowerCase();
+      
+      if (checkbox.checked) {
+        this.selectedMovementTypes.push(value);
+      } else {
+        const index = this.selectedMovementTypes.indexOf(value);
+        if (index > -1) {
+          this.selectedMovementTypes.splice(index, 1);
+        }
+      }
     }
-
+  
     // Filtra los productos según los filtros establecidos
     this.filteredProductos = this.productos.filter((producto) => {
-      const productFieldValue = column ? (producto as any)[column]?.toString().toLowerCase() : '';
-      const matchesColumnFilter = column ? productFieldValue.includes(filterValue) : true;
-
+      // Filtro para tipo de movimiento
+      const matchesMovementType = this.selectedMovementTypes.length === 0 || 
+        this.selectedMovementTypes.includes(producto.modificationType.toLowerCase());
+  
+      // Filtro para cantidad
       const amount = parseFloat((producto as any)['amount']);
       const matchesAmountFilter =
         (this.minAmount === null || amount >= this.minAmount) &&
         (this.maxAmount === null || amount <= this.maxAmount);
-
-      return matchesColumnFilter && matchesAmountFilter;
+  
+      // Otros filtros existentes
+      const matchesOtherFilters = column && column !== 'modificationType' ? 
+        producto[column as keyof Producto]?.toString().toLowerCase().includes((event?.target as HTMLInputElement)?.value.toLowerCase() || '') : 
+        true;
+  
+      return matchesMovementType && matchesAmountFilter && matchesOtherFilters;
     });
-
+  
     // Actualiza el DataTable con los productos filtrados
     if (this.table) {
       this.table.clear().rows.add(this.filteredProductos).draw();
@@ -465,24 +489,22 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   cleanColumnFilters(): void {
-    // Restablece los valores de filtro
+    // Restablece los valores de filtro existentes
     this.minAmount = null;
     this.maxAmount = null;
-
-    // Restablece el listado de productos filtrados al listado completo
+    this.selectedMovementTypes = []; // Limpia los tipos de movimiento seleccionados
+  
+    // Restablece el listado de productos filtrados
     this.filteredProductos = [...this.productos];
-
-    // Limpia los valores de los inputs en el DOM
+  
+    // Limpia los inputs
     const textInputs = document.querySelectorAll('input.form-control');
-    const selectInputs = document.querySelectorAll('select.form-control');
-
-    // Limpia cada campo de texto
+    const checkboxInputs = document.querySelectorAll('input[type="checkbox"]');
+  
     textInputs.forEach(input => (input as HTMLInputElement).value = '');
-
-    // Limpia cada campo de selección
-    selectInputs.forEach(select => (select as HTMLSelectElement).value = '');
-
-    // Actualiza el DataTable con todos los productos sin filtrar
+    checkboxInputs.forEach(checkbox => (checkbox as HTMLInputElement).checked = false);
+  
+    // Actualiza el DataTable
     if (this.table) {
       this.table.clear().rows.add(this.filteredProductos).draw();
     }

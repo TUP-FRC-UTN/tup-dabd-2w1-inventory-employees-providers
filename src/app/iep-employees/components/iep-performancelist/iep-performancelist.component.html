@@ -1,33 +1,61 @@
 <section class="py-5">
-
   <div class="container p-3 border border-2 rounded shadow-lg">
 
     <!-- Fila de búsqueda, selectores de mes y año con botones a la derecha -->
     <div class="row mb-3">
       <div class="col-md-12 d-flex align-items-center justify-content-between">
         <div class="row w-100 align-items-center">
+          
+          <!-- Campo de búsqueda -->
           <div class="col-md-4 d-flex align-items-center">
-            <input type="text" id="searchTerm" [(ngModel)]="searchTerm" (input)="filterData()" placeholder="Buscar"
-              class="form-control">
+            <input type="text" id="searchTerm" [(ngModel)]="searchTerm" (input)="filterData()" placeholder="Buscar" class="form-control">
           </div>
 
-          <!-- Selector de Año -->
+          <!-- Dropdown de Año -->
           <div class="col-md-2 d-flex align-items-center">
-            <select id="yearSelect" [(ngModel)]="selectedYear" (change)="filterData()" class="form-control">
-              <option value="">Seleccione Año</option>
-              <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
-            </select>
+            <div class="dropdown w-100">
+              <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownYearSelect"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                Año
+                @if (selectedYears.length > 0) {
+                  <span> ({{ selectedYears.length }})</span>
+                }
+              </button>
+              <ul class="dropdown-menu w-100" aria-labelledby="dropdownYearSelect">
+                <li *ngFor="let year of availableYears">
+                  <label class="dropdown-item">
+                    <input type="checkbox" class="form-check-input me-2"
+                      [checked]="selectedYears.includes(year.toString())" (change)="toggleYear(year.toString())">
+                    {{ year }}
+                  </label>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <!-- Selector de Mes -->
+          <!-- Dropdown de Mes -->
           <div class="col-md-2 d-flex align-items-center">
-            <select id="monthSelect" [(ngModel)]="selectedMonth" (change)="filterData()" class="form-control">
-              <option value="">Seleccione Mes</option>
-              <option *ngFor="let month of months; let i = index" [value]="i + 1">{{ month }}</option>
-            </select>
+            <div class="dropdown w-100">
+              <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownMonthSelect"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                Mes
+                @if (selectedMonths.length > 0) {
+                  <span> ({{ selectedMonths.length }})</span>
+                }
+              </button>
+              <ul class="dropdown-menu w-100" aria-labelledby="dropdownMonthSelect">
+                <li *ngFor="let month of months; let i = index">
+                  <label class="dropdown-item">
+                    <input type="checkbox" class="form-check-input me-2" [checked]="selectedMonths.includes(month)"
+                      (change)="toggleMonth(month)">
+                    {{ month }}
+                  </label>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <!-- Botones de filtro, limpiar y exportación (en la misma fila) -->
+          <!-- Botones de filtro, limpiar y exportación -->
           <div class="col-md-4 d-flex justify-content-end align-items-center">
             <button class="btn btn-primary me-2" (click)="toggleFilters()">
               <i class="bi bi-funnel-fill"></i>
@@ -47,25 +75,36 @@
     </div>
 
     <!-- Fila de selectores adicionales (Tipo de Desempeño y Observaciones) -->
-<div class="row mb-3" *ngIf="showFilters"> <!-- Mostrar/ocultar esta fila según el estado de los filtros -->
-  <div class="col-md-12 d-flex align-items-center">
-    <!-- Selector de Tipo de Desempeño -->
-    <div class="col-md-4 d-flex align-items-center me-3"> <!-- Agregada clase me-3 para margen a la derecha -->
-      <select id="performanceType" [(ngModel)]="selectedPerformanceType" (change)="filterData()"
-        class="form-control">
-        <option value="">Seleccione Tipo</option>
-        <option *ngFor="let type of performanceTypes" [value]="type">{{ type }}</option>
-      </select>
-    </div>
+    <div class="row mb-3" *ngIf="showFilters">
+      <div class="col-md-12 d-flex align-items-center">
+        
+        <!-- Dropdown de Tipo de Desempeño -->
+        <div class="col-md-4 d-flex align-items-center me-3">
+          <div class="dropdown w-100">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownPerformanceType"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Desempeño
+              <span *ngIf="selectedPerformanceType.length > 0"> ({{ selectedPerformanceType.length }})</span>
+            </button>
+            <ul class="dropdown-menu w-100" aria-labelledby="dropdownPerformanceType">
+              <li *ngFor="let type of performanceTypes">
+                <label class="dropdown-item">
+                  <input type="checkbox" class="form-check-input me-2"
+                    [checked]="selectedPerformanceType.includes(type)" (change)="togglePerformanceType(type)">
+                  {{ type }}
+                </label>
+              </li>
+            </ul>
+          </div>
+        </div>
 
-    <!-- Selector de Cantidad de Observaciones -->
-    <div class="col-md-4 d-flex align-items-center">
-      <input type="number" id="observationCount" [(ngModel)]="selectedObservationCount" (input)="filterData()"
-        class="form-control" placeholder="Observaciones">
+        <!-- Selector de Cantidad de Observaciones -->
+        <div class="col-md-4 d-flex align-items-center">
+          <input type="number" id="observationCount" [(ngModel)]="selectedObservationCount" (input)="filterData()"
+            class="form-control" placeholder="Observaciones">
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-
 
     <!-- Modal de Información -->
     <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -76,20 +115,14 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p>En esta página, puedes gestionar el desempeño de empleados del sistema. A continuación, se detallan las
-              secciones y funcionalidades disponibles:</p>
+            <p>En esta página, puedes gestionar el desempeño de empleados del sistema. A continuación, se detallan las secciones y funcionalidades disponibles:</p>
             <ul>
-              <li><strong>Buscar:</strong> Encuentra empleados por nombre o desempeño utilizando el campo de búsqueda.
-              </li>
-              <li><strong>Filtros de Año y Mes:</strong> Selecciona un año y mes específicos para filtrar el rendimiento
-                de los empleados.</li>
-              <li><strong>Tabla de Desempeño:</strong> Visualiza una lista detallada de empleados con información sobre
-                su desempeño.</li>
-              <li><strong>Registrar Observaciones:</strong> Haz clic en el botón "Registrar observación" para añadir
-                comentarios sobre el rendimiento de un empleado.</li>
+              <li><strong>Buscar:</strong> Encuentra empleados por nombre o desempeño utilizando el campo de búsqueda.</li>
+              <li><strong>Filtros de Año y Mes:</strong> Selecciona un año y mes específicos para filtrar el rendimiento de los empleados.</li>
+              <li><strong>Tabla de Desempeño:</strong> Visualiza una lista detallada de empleados con información sobre su desempeño.</li>
+              <li><strong>Registrar Observaciones:</strong> Haz clic en el botón "Registrar observación" para añadir comentarios sobre el rendimiento de un empleado.</li>
             </ul>
-            <p class="text-danger mt-3"><strong>Nota:</strong> No es posible añadir un desempeño para una fecha en la
-              que ya se haya registrado o que se encuentre fuera del rango permitido.</p>
+            <p class="text-danger mt-3"><strong>Nota:</strong> No es posible añadir un desempeño para una fecha en la que ya se haya registrado o que se encuentre fuera del rango permitido.</p>
           </div>
         </div>
       </div>
@@ -109,122 +142,64 @@
       <tbody></tbody>
     </table>
 
-    
-    <div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeDetailsModal()">
-      <div class="modal fade" aria-labelledby="infoModalLabel" aria-hidden="true" tabindex="-1" 
-           [class.show]="showDetailsModal" 
-           [ngStyle]="{'display': showDetailsModal ? 'block' : 'none'}">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Detalles de Llamados de Atención</h5>
-              <button type="button" class="btn-close" (click)="closeDetailsModal()" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <div class="table-responsive">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Tipo</th>
-                      <th>Observación</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let detail of selectedEmployeeDetails">
-                      <td>{{ detail.dateReal[2] }}/{{ detail.dateReal[1] }}/{{ detail.dateReal[0] }}</td>
-                      <td>
-                        <span class="tag" [ngClass]="detail.wackeUpTypeEnum.toLowerCase()">
-                          {{ detail.wackeUpTypeEnum }}
-                        </span>
-                      </td>
-                      <td>{{ detail.observation }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div *ngIf="selectedEmployeeDetails.length === 0" class="text-center p-3">
-                No hay llamados de atención para mostrar en este período.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-
-    <!-- Boton + Flotante -->
-    <button class="floating-btn btn btn-primary" (click)="openModal()">
+    <!-- Botón flotante -->
+    <button class="floating-btn btn btn-primary" data-bs-target="#newCall" data-bs-toggle="modal">
       <span class="bi-plus-lg"></span>
     </button>
 
     <!-- Modal del Formulario -->
-    <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()"></div>
-    <div class="modal fade" tabindex="-1" [class.show]="showModal"
-      [ngStyle]="{'display': showModal ? 'block' : 'none'}">
+    <div class="modal fade" id="newCall" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Llamado de Atención</h5>
-            <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <!-- En iep-performancelist.component.html -->
-            <app-iep-attention-call (closeModal)="closeModal()"
-              (showConfirmationMessage)="handleConfirmationMessage($event)"
-              (showErrorMessage)="handleErrorMessage($event)">
-            </app-iep-attention-call>
+            <app-iep-attention-call (closeModal)="closeNewCallModal()"></app-iep-attention-call>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal de Confirmación -->
-    <div class="modal-overlay" *ngIf="showConfirmationModal" (click)="closeConfirmationModal()"></div>
-    <div class="modal fade" tabindex="-1" [class.show]="showConfirmationModal"
-      [ngStyle]="{'display': showConfirmationModal ? 'block' : 'none'}">
-      <div class="modal-dialog">
+    <!-- Modal de Detalles -->
+    <div class="modal fade" id="viewDetail" tabindex="-1">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Confirmación</h5>
-            <button type="button" class="btn-close" (click)="closeConfirmationModal()" aria-label="Close"></button>
+            <h5 class="modal-title">Detalles de Llamados de Atención</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="alert alert-success" role="alert">
-              <i class="bi bi-check-circle me-2"></i>{{ confirmationMessage }}
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Observación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let detail of selectedEmployeeDetails">
+                    <td>{{ detail.dateReal[2] }}/{{ detail.dateReal[1] }}/{{ detail.dateReal[0] }}</td>
+                    <td>
+                      <span class="tag" [ngClass]="detail.wackeUpTypeEnum.toLowerCase()">
+                        {{ detail.wackeUpTypeEnum }}
+                      </span>
+                    </td>
+                    <td>{{ detail.observation }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" (click)="closeConfirmationModal()">
-              <i class="bi bi-check-lg me-2"></i>Aceptar
-            </button>
+            <div *ngIf="selectedEmployeeDetails.length === 0" class="text-center p-3">
+              No hay llamados de atención para mostrar en este período.
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal de Error -->
-    <div class="modal-overlay" *ngIf="showErrorModal" (click)="closeErrorModal()"></div>
-    <div class="modal fade" tabindex="-1" [class.show]="showErrorModal"
-      [ngStyle]="{'display': showErrorModal ? 'block' : 'none'}">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title text-danger">Error</h5>
-            <button type="button" class="btn-close" (click)="closeErrorModal()" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="alert alert-danger" role="alert">
-              <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMessage }}
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeErrorModal()">
-              <i class="bi bi-x-lg me-2"></i>Cerrar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </section>

@@ -8,17 +8,19 @@
             <!-- Campo de Búsqueda -->
             <div class="me-3" style="flex: 1 1 auto;">
                 <input type="text" id="filterInput" class="form-control" placeholder="Buscar"
-                    (input)="applyFilter($event)" />
+                    (change)="applyFilter($event)" />
             </div>
 
             <!-- Campo Desde para seleccionar la fecha de inicio -->
             <div class="me-3" style="flex: 1 1 auto;">
-                <input type="date" id="startDate" class="form-control" #startDateInput (change)="onStartDateChange()" />
+                <input type="date" id="startDate" class="form-control" #startDateInput [(ngModel)]="startDate"
+                    (change)="onStartDateChange()" />
             </div>
 
             <!-- Campo Hasta para seleccionar la fecha de fin -->
             <div class="me-3" style="flex: 1 1 auto;">
-                <input type="date" id="endDate" class="form-control" #endDateInput (change)="onEndDateChange()" />
+                <input type="date" id="endDate" class="form-control" #endDateInput [(ngModel)]="endDate"
+                    (change)="onEndDateChange()" />
             </div>
 
             <!-- Contenedor de botones alineados a la derecha -->
@@ -49,20 +51,55 @@
 
         <div *ngIf="filtersVisible" class="row mb-3">
 
+            <!-- Filtro por columna Solicitante -->
             <div class="col-md-4">
-                <input type="text" placeholder="Solicitante" (input)="applyColumnFilter($event, 'supplier')"
-                    class="form-control" />
+                <input type="text" placeholder="Solicitante" data-column="applicant"
+                    (change)="applyColumnFilter($event, 'applicant')" class="form-control" />
             </div>
 
+            <!-- Filtro por columna Productos -->
             <div class="col-md-4">
-                <input type="text" placeholder="Producto" (input)="applyColumnFilter($event, 'supplier')"
-                    class="form-control" />
+                <input type="text" placeholder="Productos" data-column="detailProducts"
+                    (change)="applyColumnFilter($event, 'detailProducts')" class="form-control" />
             </div>
 
+            <!-- Dropdown de Tipo de Movimiento con el evento (change) para filtrar -->
             <div class="col-md-4">
-                <input type="text" placeholder="Tipo" (input)="applyColumnFilter($event, 'supplier')"
-                    class="form-control" />
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle w-100 text-start" type="button" id="dropdownTipoMovimiento"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        Tipo de Movimiento
+                        @if (filters.movement_type.length > 0) {
+                            ({{ filters.movement_type.length }})
+                        }
+                        <span class="selected-movimiento"></span>
+                    </button>
+                    <ul class="dropdown-menu w-100" aria-labelledby="dropdownTipoMovimiento">
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" class="form-check-input me-2" name="movement_type" value="RETURN"
+                                    (change)="applyColumnFilter($event, 'movement_type')">
+                                Devolución
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" class="form-check-input me-2" name="movement_type" value="LOAN"
+                                    (change)="applyColumnFilter($event, 'movement_type')">
+                                Préstamo
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" class="form-check-input me-2" name="movement_type"
+                                    value="TO_MAINTENANCE" (change)="applyColumnFilter($event, 'movement_type')">
+                                Uso
+                            </label>
+                        </li>
+                    </ul>
+                </div>
             </div>
+
 
         </div>
 
@@ -80,7 +117,7 @@
                 </div>
                 <div class="modal-body">
 
-                    <p><strong>Fecha:</strong> {{ selectedMovement?.date | date: 'short' }}</p>
+                    <p><strong>Fecha:</strong> {{ selectedMovement?.date | date: 'dd/MM/yyyy HH:mm' }}</p>
                     <p><strong>Solicitante:</strong> {{ selectedMovement?.applicant }}</p>
                     <p><strong>Tipo:</strong> {{ selectedMovement?.movement_type ?? '' | warehouseType }}</p>
                     <p class="mb-0"><strong>Productos:</strong> </p>

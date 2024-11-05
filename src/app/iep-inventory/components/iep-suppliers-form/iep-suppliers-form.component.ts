@@ -4,6 +4,7 @@ import { SuppliersService } from '../../services/suppliers.service';
 import { Router, RouterModule } from '@angular/router';
 import { iepBackButtonComponent } from '../../../common-components/iep-back-button/iep-back-button.component';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-iep-suppliers-form',
@@ -32,6 +33,17 @@ export class IepSuppliersFormComponent {
   }
 
   onSubmit() {
+
+    Swal.fire({
+      icon: "success",
+      title: "Proveedor registrado",
+      text: "El nuevo proveedor se ha registrado correctamente.",
+      confirmButtonText: "Aceptar" 
+    }).then(() => {
+      this.router.navigate(['/home/suppliers']);
+    });
+    
+
     if (this.proveedorForm.valid) {
       const formData = this.proveedorForm.value;
       console.log(formData);
@@ -44,12 +56,12 @@ export class IepSuppliersFormComponent {
   }
 
 
-  hasError(controlName: string, errorType: string): boolean {
-    const control = this.proveedorForm.get(controlName);
-    return control ? control.hasError(errorType) && (control.touched || control.dirty) : false;
-  }
 
+  isFieldInvalid(field: string): boolean {
+    const control = this.proveedorForm.get(field);
+    return control ? control.invalid && (control.touched || control.dirty) : false;
+  }
   goBack() {
-    this.router.navigate(['/suppliers']);
+    this.router.navigate(['/home/suppliers']);
   }
 }

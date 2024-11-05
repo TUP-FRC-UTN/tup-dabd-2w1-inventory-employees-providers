@@ -17,6 +17,10 @@ export class WarehouseMovementService {
 
   constructor(private http: HttpClient) { }
 
+  public getWarehouseMovements(): Observable<WarehouseMovement[]> {
+    return this.http.get<WarehouseMovement[]>(`${this.WAREHOUSE_MOVEMENT_URL}/all`);
+  }
+
   public searchMovements(
     searchParams: GetWarehouseMovementRequest
   ): Observable<WarehouseMovement[]> {
