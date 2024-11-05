@@ -8,31 +8,31 @@
           <div class="input-group">
             <input type="text" class="form-control" placeholder="Buscar..." [(ngModel)]="searchTerm" 
                    (input)="filterData($event)">
-          </div>
 
-          <div class="me-3">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownReusable"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            Seleccionar estado
-            <span *ngIf="filters.reutilizableSeleccionado.length > 0">({{ filters.reutilizableSeleccionado.length }})</span>
-          </button>
-          
-            <ul class="dropdown-menu" aria-labelledby="dropdownReusable">
-              <li>
-                <label class="dropdown-item">
-                  <input type="checkbox" class="form-check-input me-2" name="reusable" [value]="true"
-                    (change)="stateFilter($event)">
-                  Activo
-                </label>
-              </li>
-              <li>
-                <label class="dropdown-item">
-                  <input type="checkbox" class="form-check-input me-2" name="reusable" [value]="false"
-                    (change)="stateFilter($event)">
-                  Inactivo
-                </label>
-              </li>
-            </ul>
+                   <div class="ms-2">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownReusable"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    Seleccionar estado
+                    <span *ngIf="filters.reutilizableSeleccionado.length > 0">({{ filters.reutilizableSeleccionado.length }})</span>
+                  </button>
+                  
+                    <ul class="dropdown-menu" aria-labelledby="dropdownReusable">
+                      <li>
+                        <label class="dropdown-item">
+                          <input type="checkbox" class="form-check-input me-2" name="reusable" [value]="true"
+                            (change)="stateFilter($event)">
+                          Activo
+                        </label>
+                      </li>
+                      <li>
+                        <label class="dropdown-item">
+                          <input type="checkbox" class="form-check-input me-2" name="reusable" [value]="false"
+                            (change)="stateFilter($event)">
+                          Inactivo
+                        </label>
+                      </li>
+                    </ul>
+                  </div>
           </div>
         </div>
 

@@ -53,28 +53,18 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   stateFilter(event: Event) {
     const checkbox = event.target as HTMLInputElement;
-    const value = checkbox.value === 'true';
+  const value = checkbox.value === 'true';
   
-    // Añadir o quitar el valor del array de filtros
-    if (checkbox.checked) {
-      this.filters.reutilizableSeleccionado.push(value);
-    } else {
-      this.filters.reutilizableSeleccionado = this.filters.reutilizableSeleccionado.filter((v) => v !== value);
-    }
-  
-    // Filtra `filteredData` basándose en `reutilizableSeleccionado`
-    if (this.filters.reutilizableSeleccionado.length > 0) {
-      this.filteredData = this.cargos.filter((cargo) =>
-        this.filters.reutilizableSeleccionado.includes(cargo.active)
-      );
-    } else {
-      this.filteredData = [...this.cargos]; // Restablecer si no hay filtros seleccionados
-    }
-  
-    // Actualizar la tabla después de aplicar el filtro
-    if (this.table) {
-      this.table.clear().rows.add(this.filteredData).draw();
-    }
+  // Si se selecciona el estado, agregarlo a los filtros
+  if (checkbox.checked) {
+    this.filters.reutilizableSeleccionado.push(value);
+  } else {
+    // Si no se selecciona el estado, eliminarlo de los filtros
+    this.filters.reutilizableSeleccionado = this.filters.reutilizableSeleccionado.filter((v) => v !== value);
+  }
+
+  // Aplicar ambos filtros: texto y estado
+  this.filterData({ target: { value: this.searchTerm } });
   }
   
   
@@ -82,7 +72,7 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
   getFormattedDate(): string {
     const date = new Date();
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     
     return `${day}-${month}-${year}`;
@@ -90,7 +80,6 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
   
   
   exportToPdf(): void {
-    // Usar filteredData en lugar de cargos
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('Lista de Cargos', 10, 10);
@@ -111,7 +100,6 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   
   exportToExcel(): void {
-    // Usar filteredData en lugar de cargos
     const dataToExport = this.filteredData.map((cargo) => ({
       'Cargo': cargo.charge,
       'Descripción': cargo.description,
@@ -267,16 +255,27 @@ closeInfoModal(): void{
 
   filterData(event: any): void {
     const searchTerm = event.target.value.toLowerCase().trim();
-    
-    if (!searchTerm) {
-      this.filteredData = [...this.cargos];
-    } else {
-      this.filteredData = this.cargos.filter(cargo => 
-        cargo.charge.toLowerCase().includes(searchTerm)
-      );
-    }
-    
-    this.refreshDataTable();
+  
+  // Filtrar por texto (cargo o descripción)
+  let filteredByText = this.cargos.filter(cargo => 
+    cargo.charge.toLowerCase().includes(searchTerm) || 
+    cargo.description.toLowerCase().includes(searchTerm)
+  );
+
+  // Filtrar por estado si se ha seleccionado alguno
+  if (this.filters.reutilizableSeleccionado.length > 0) {
+    filteredByText = filteredByText.filter(cargo =>
+      this.filters.reutilizableSeleccionado.includes(cargo.active)
+    );
+  }
+
+  // Asignar los resultados filtrados
+  this.filteredData = filteredByText;
+
+  // Actualizar la tabla
+  if (this.table) {
+    this.table.clear().rows.add(this.filteredData).draw();
+  }
   }
 
   loadCargos(): void {
