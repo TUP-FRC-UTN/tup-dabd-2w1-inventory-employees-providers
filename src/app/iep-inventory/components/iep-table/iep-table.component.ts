@@ -545,6 +545,4 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.table.clear().rows.add(this.filteredProductos).draw();
     }
   }
-
-
 }

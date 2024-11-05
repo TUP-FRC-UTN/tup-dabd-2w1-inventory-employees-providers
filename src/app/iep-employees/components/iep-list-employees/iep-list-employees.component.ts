@@ -355,6 +355,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     const empSubscription = this.empleadoService.getEmployees().subscribe({
       next: (empleados) => {
         this.Empleados = empleados;
+        console.log('Empleados:',  this.Empleados);
         this.ventana = 'Informacion';
         // Obtener posiciones únicas
         this.uniquePositions = [...new Set(empleados.map(emp => emp.position))].sort();
@@ -530,7 +531,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       const empleadoId = $(event.currentTarget).data('empleado-id');
       this.consultarEmpleado(empleadoId);
     });
-
 
     $('#empleadosTable').on('click', '.modificar-btn', (event: any) => {
       event.preventDefault();
