@@ -584,10 +584,10 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         text: '¡Esta acción no se puede deshacer!',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: '¡Sí, eliminar!',
-        cancelButtonText: 'Cancelar'
+        confirmButtonColor: '#dc3545', // Color rojo de Bootstrap
+        cancelButtonColor: '#6c757d', // Color gris de Bootstrap
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
       }).then((result) => {
         if (result.isConfirmed && this.empleadoIdToDelete !== null) {  // Re-verificar antes de llamar al servicio
           this.empleadoService.changeEmployeeStatus(this.empleadoIdToDelete).subscribe({
