@@ -37,8 +37,7 @@ export class IepSupplierUpdateComponent implements OnInit{
       const supplierUpdate: Supplier = {
         id: this.id, 
         name: this.proveedorForm.value.name,
-       // healthInsurance: this.proveedorForm.value.healthInsurance,
-       // authorized: this.proveedorForm.value.authorized,
+       cuit: this.proveedorForm.value.cuit,
         address: this.proveedorForm.value.address,
         supplierType: this.proveedorForm.value.supplierType, 
         description: this.proveedorForm.value.description,
@@ -67,12 +66,11 @@ export class IepSupplierUpdateComponent implements OnInit{
   ngOnInit(): void {
     this.proveedorForm = this.fb.group({
       name: ['', Validators.required],
-      healthInsurance: ['', Validators.required],
+      cuit: ['', Validators.required],
       phoneNumber: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       supplierType: ['', Validators.required],
       address: ['', Validators.required],
-      description: [''],
       createdUser: [0],
       authorized: [false],
       discontinued:[false]
@@ -90,12 +88,11 @@ export class IepSupplierUpdateComponent implements OnInit{
             this.supplierUpdate = supplier;
             this.proveedorForm.patchValue({
               name: supplier.name,
-              healthInsurance: supplier.healthInsurance,
+              cuit: supplier.cuit,
               phoneNumber: supplier.phoneNumber,
               email: supplier.email,
               supplierType: supplier.supplierType,
               address: supplier.address,
-              description: supplier.description,
               authorized: supplier.authorized,
               discontinued:supplier.discontinued
             });

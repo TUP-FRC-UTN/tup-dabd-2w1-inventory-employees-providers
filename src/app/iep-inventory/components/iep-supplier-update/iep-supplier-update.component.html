@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Razón Social</label>
+          <label class="form-label">Nombre</label>
           <input type="text" formControlName="name" class="form-control" [ngClass]="{'is-invalid': isFieldInvalid('name')}"/>
           <div *ngIf="isFieldInvalid('name')" class="invalid-feedback">
             Este campo es requerido.
@@ -13,9 +13,9 @@
 
       <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Obra Social</label>
-          <input type="text" formControlName="healthInsurance" class="form-control" [ngClass]="{'is-invalid': isFieldInvalid('healthInsurance')}"/>
-          <div *ngIf="isFieldInvalid('healthInsurance')" class="invalid-feedback">
+          <label class="form-label">Cuit</label>
+          <input type="text" formControlName="cuit" class="form-control" [ngClass]="{'is-invalid': isFieldInvalid('cuit')}"/>
+          <div *ngIf="isFieldInvalid('cuit')" class="invalid-feedback">
             Este campo es requerido.
           </div>
         </div>
@@ -73,26 +73,6 @@
     </div>
 
 
-
-    
-
-    <div class="row">
-      <div class="col-md-12">
-        <div class="mb-3">
-          <label class="form-label">Descripción</label>
-          <textarea formControlName="description" class="form-control"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-12">
-        <div class="form-check">
-          <input type="checkbox" formControlName="authorized" class="form-check-input" />
-          <label class="form-check-label">Autorizado</label>
-        </div>
-      </div>
-    </div>
 
     <div class="row mt-3">
       <div class="row justify-content-end">
