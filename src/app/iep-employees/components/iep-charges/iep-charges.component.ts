@@ -34,6 +34,7 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
   isConfirmDeleteModalOpen = false;
   isErrorModalOpen = false;
   errorMessage = '';
+  statusFilter: string = 'todos';
 
 
   constructor(
@@ -107,6 +108,7 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   resetFilters() {
     this.searchTerm = ''; // Limpiar el término de búsqueda
+    this.statusFilter = 'todos';
     this.filteredData = [...this.cargos]; // Restaurar los datos completos
     this.refreshDataTable(); // Refrescar la tabla para mostrar todos los registros
   }
@@ -235,15 +237,32 @@ closeInfoModal(): void{
   filterData(event: any): void {
     const searchTerm = event.target.value.toLowerCase().trim();
     
-    if (!searchTerm) {
-      this.filteredData = [...this.cargos];
-    } else {
-      this.filteredData = this.cargos.filter(cargo => 
-        cargo.charge.toLowerCase().includes(searchTerm)
-      );
-    }
+    // if (!searchTerm) {
+    //   this.filteredData = [...this.cargos];
+    // } else {
+    //   this.filteredData = this.cargos.filter(cargo => 
+    //     cargo.charge.toLowerCase().includes(searchTerm)
+    //   );
+    // }
     
+    // this.refreshDataTable();
+    this.filteredData = this.cargos.filter(cargo => {
+      const matchesSearch = searchTerm === '' || 
+        cargo.charge.toLowerCase().includes(searchTerm) ||
+        cargo.description.toLowerCase().includes(searchTerm);
+      
+      const matchesStatus = this.statusFilter === 'todos' || 
+        (this.statusFilter === 'activo' && cargo.active) ||
+        (this.statusFilter === 'inactivo' && !cargo.active);
+      
+      return matchesSearch && matchesStatus;
+    });
+  
     this.refreshDataTable();
+  }
+  onStatusFilterChange(event: any): void {
+    this.statusFilter = event.target.value;
+    this.filterData({ target: { value: this.searchTerm } });
   }
 
   loadCargos(): void {
@@ -281,6 +300,15 @@ closeInfoModal(): void{
       columns: [
         { data: 'charge', title: 'Cargo' },
         { data: 'description', title: 'Descripción' },
+        { 
+          data: 'active', 
+          title: 'Estado',
+          render: (data: boolean) => {
+            return data ? 
+              '<span class="badge bg-success">Activo</span>' : 
+              '<span class="badge bg-danger">Inactivo</span>';
+          }
+        },
         {
           data: null,
           title: 'Acciones',

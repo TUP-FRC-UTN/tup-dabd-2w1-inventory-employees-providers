@@ -10,6 +10,18 @@
                    (input)="filterData($event)">
           </div>
         </div>
+          <div class="col-md-6">
+            <select class="form-select" 
+            style="width: auto;" 
+            [(ngModel)]="statusFilter" 
+            (change)="onStatusFilterChange($event)">
+            <option value="todos">Todos</option>
+            <option value="activo">Activos</option>
+            <option value="inactivo">Inactivos</option>
+          </select>
+          </div>
+        
+        
 
         <!-- Botones a la derecha -->
         <div>
@@ -31,6 +43,7 @@
           <tr>
             <th>Cargo</th>
             <th>Descripción</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
