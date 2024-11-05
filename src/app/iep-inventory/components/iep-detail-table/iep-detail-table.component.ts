@@ -446,6 +446,7 @@ private closeModal() {
   }
 
 
+
   public openModalWarehouse() {
     const modalElement = document.getElementById('warehouseModal');
     if (!modalElement) return;
@@ -458,8 +459,9 @@ private closeModal() {
   
     // Crear nueva instancia y mostrar
     modalInstance = new bootstrap.Modal(modalElement, {
-      backdrop: 'static', // o true si prefieres que se cierre al hacer clic fuera
-      keyboard: false // o true si quieres permitir cerrar con ESC
+      backdrop: 'static', // Esto evita que se cierre al hacer clic fuera
+      keyboard: false,
+      backdropClassName: 'darker-backdrop' // Clase personalizada para el backdrop
     });
     
     modalInstance.show();

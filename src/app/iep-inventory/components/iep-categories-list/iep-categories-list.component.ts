@@ -30,6 +30,7 @@ export class IepCategoriesListComponent implements OnInit {
   descrCategoryToEdit: string = '';
   categoryToCreate: string = '';
   private productService: ProductService;
+  errorMessage: string = '';
   
 
   idUser: number=0;
@@ -232,6 +233,7 @@ export class IepCategoriesListComponent implements OnInit {
       title: 'Error al crear categoría',
       icon: 'error',
       confirmButtonText: 'Aceptar',
+      text: this.errorMessage,
     }).then(() => {
       this.closeModal();
     });
@@ -336,6 +338,9 @@ export class IepCategoriesListComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error al registrar categoría:', error);
+          if(error.error.message === '400 Category already exists') {
+            this.errorMessage = 'La categoría que intenta ingresar ya existe';
+          }
           this.showFailureCreateAlert();
         },
       });
