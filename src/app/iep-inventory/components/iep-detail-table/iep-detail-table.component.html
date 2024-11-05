@@ -88,22 +88,14 @@
         <input type="text" id="filterInput" class="form-control me-3" placeholder="Buscar"
           (input)="applyFilter($event)" />
 
-        <!-- ComboBox de Estado con el evento (change) para filtrar -->
-        <!--        <select id="estadoSelect" class="form-select" style="width: auto;" (change)="applyStateFilter($event)">
-          <option value="">Seleccionar Estado</option>
-          <option value="Disponible">Disponible</option>
-          <option value="Mantenimiento">Mantenimiento</option>
-          <option value="Prestado">Prestado</option>
-        </select> -->
-
         <!-- Dropdown de Estado con el evento (change) para filtrar -->
         <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle text-start" style="width: 200px;" type="button" id="dropdownEstado"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="selected-state"> Seleccionar Estado
-              @if (selectedStates.length > 0) {
-              ({{ selectedStates.length }})
-              }</span>
+          <button class="btn btn-secondary dropdown-toggle text-start" style="width: 200px;" type="button"
+            id="dropdownEstado" data-bs-toggle="dropdown" aria-expanded="false">
+            <label for="">Seleccionar Estado</label>
+            @if (selectedStates.length > 0) {
+            ({{ selectedStates.length }})
+            }
           </button>
           <ul class="dropdown-menu w-100" aria-labelledby="dropdownEstado">
             <li>
@@ -132,22 +124,39 @@
 
       </div>
 
-
-
       <!-- Contenedor Derecho: Selección y Botones de Exportación -->
       <div class="d-flex align-items-center">
 
         <input type="checkbox" id="selectAll" (change)="toggleSelectAll($event)" class="form-check-input me-2" />
         <label for="selectAll" class="me-3">Seleccionar Todo</label>
 
-        <!-- Botón para mostrar/ocultar filtros -->
+        <!-- Botón para mostrar/ocultar filtros
         <button class="btn btn-primary me-2" (click)="toggleFilters()">
           <i class="bi bi-funnel-fill"></i>
+        </button> -->
+
+        <!-- Botón filtros avanzados -->
+        <button class="btn btn-primary me-2" data-bs-toggle="modal" title="Filtros Avanzados" data-bs-target="#filtrosAvanzados">
+          <i class="bi bi-sort-down-alt"></i>
         </button>
 
         <!-- Botón para limpiar filtros -->
         <button class="btn btn-secondary me-2" (click)="cleanColumnFilters()">
           <i class="bi bi-trash"></i>
+        </button>
+
+        <!-- Botón Volver -->
+        <button class="btn btn-secondary me-2 px-3" (click)="volverInventario()">
+          <i class="bi bi-arrow-left"></i>
+        </button>
+
+        <!-- Botones que antes eran flotantes -->
+        <button class="btn btn-danger me-2 px-3" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
+
+        <button class="btn btn-primary me-2 px-3" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#warehouseModal">
+          <i class="bi bi-arrow-left-right"></i>
         </button>
 
         <button class="btn btn-success me-2" (click)="generateExcel()">
@@ -162,11 +171,11 @@
 
 
     <!-- Sección de filtros por columna -->
-    <div *ngIf="filtersVisible" class="row mb-3">
+    <!-- <div *ngIf="filtersVisible" class="row mb-3"> -->
       <!--       <div class="col-md-2">
         <input type="text" placeholder="Fecha" (input)="applyColumnFilter($event, 'date')" class="form-control" />
       </div> -->
-      <div class="col-md-4">
+      <!-- <div class="col-md-4">
         <input type="text" placeholder="Descripción" (input)="applyColumnFilter($event, 'product')"
           class="form-control" />
       </div>
@@ -183,7 +192,73 @@
         <input type="number" placeholder="Precio Máx." (input)="applyPriceFilter('max', $event)"
           class="form-control text-end" />
       </div>
+    </div> -->
+
+
+    <!-- Advanced Filters Modal -->
+<div class="modal fade" id="filtrosAvanzados" tabindex="-1" aria-labelledby="filtrosAvanzadosLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="filtrosAvanzadosLabel">Filtros Avanzados</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Descripción -->
+        <div class="mb-3">
+          <label for="descripcion" class="form-label">Descripción</label>
+          <input 
+            type="text" 
+            class="form-control"
+            id="descripcion"
+            placeholder="Descripción" />
+        </div>
+        <!-- Proveedor -->
+        <div class="mb-3">
+          <label for="proveedor" class="form-label">Proveedor</label>
+          <input 
+            type="text" 
+            class="form-control"
+            id="proveedor"
+            placeholder="Proveedor" />
+        </div>
+        <!-- Precio Mínimo -->
+        <div class="mb-3">
+          <label for="precioMin" class="form-label">Precio Mínimo</label>
+          <input 
+            type="number" 
+            class="form-control text-end"
+            id="precioMin"
+            placeholder="Precio Mín." />
+        </div>
+        <!-- Precio Máximo -->
+        <div class="mb-3">
+          <label for="precioMax" class="form-label">Precio Máximo</label>
+          <input 
+            type="number" 
+            class="form-control text-end"
+            id="precioMax"
+            placeholder="Precio Máx." />
+            @if (minPrice&&maxPrice) {
+              @if (minPrice > maxPrice) {
+              <div class="error-container mt-1 text-danger">
+                La cantidad mínima no puede ser mayor que la cantidad máxima.
+              </div>
+              }
+            }
+        </div>
+      </div>
+    
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" (click)="applyAllFilters2()" data-bs-dismiss="modal">Aplicar</button>
+        <button type="button" class="btn btn-primary bi bi-trash" title="Limpiar Filtros" (click)="cleanColumnFilters()"></button>
+      </div>
+    
     </div>
+  </div>
+</div>
+
 
     <!-- Sección: Tabla de Detalles de Productos -->
     <div class="table-responsive mb-4 justify-content-between">
@@ -289,35 +364,6 @@
                     </div>
                   </div>
                 </div>
-                <!--
-
-                <div class="mb-3 row">
-                  <label for="inputApplicant" class="col-form-label col-2">Solicitante</label>
-                  <div class="col-10">
-                    <input type="text" class="form-control" id="inputApplicant" name="applicant"
-                    #applicant="ngModel" required minlength="3" maxlength="50"
-                    [(ngModel)]="dtoCreate.applicant" [disabled]="(dtoCreate.employee_id!=undefined|| 
-                    dtoCreate.employee_id!=null ) && dtoCreate.employee_id!=0"
-                    [ngClass]="{
-                      'is-invalid': applicant.invalid && applicant.touched, 
-                      'is-valid': applicant.valid && applicant.touched
-                  }">
-                   <div class="error-container " style="color: red;   min-height: 20px;">
-                    <div *ngIf="applicant.invalid && applicant.touched" class="error-message">
-                      @if(applicant.invalid && applicant.touched){
-                        @if(applicant.errors?.['required']){
-                          <p>El campo es requerido</p>
-                        }
-                        @else {
-                          <p>El campo debe tener entre 3 y 50 caracteres</p>
-                        }
-                      }
-                    </div>
-                  </div>
-                  </div>
-                 
-                </div>
-                -->
 
                 <div class="container mt-2 mb-2 py-2" style="border: 1px solid rgba(128, 128, 128, 0.3);
                 border-radius: 10px;">
@@ -344,39 +390,6 @@
                   </div>
                 </div>
 
-                <!--
-  
-                <div class="mb-1 mt-3 form-check  ml-2">
-                  <input type="checkbox" name="reusable" class="form-check-input" id="exampleCheck1" (change)="reincorporationDate=!reincorporationDate">
-                  <label class="form-check-label" for="exampleCheck1">Programar fecha de reincorporación</label>
-                </div>
-
-                <div class="container mt-2 mb-2 py-2" style="border: 1px solid rgba(128, 128, 128, 0.3);
-                border-radius: 10px;">
-                  <div class="mb-3 row">
-                    <label for="inputDate" class="col-form-label col-2">Fecha</label>
-                    <div class="col-10">
-                      <input type="datetime-local" #reincorporation="ngModel" name="reincorporation"
-                      [(ngModel)]="dtoCreate.reinstatement_datetime" min="dtoCreate.date"
-                       [value]="dtoCreate.reinstatement_datetime | date: 'yyyy-MM-ddTHH:mm'"
-                      class="form-control" id="reincorporation" required  [ngClass]="{
-                        'is-invalid': reincorporation.invalid && reincorporation.touched, 
-                        'is-valid': reincorporation.valid && reincorporation.touched
-                    }"
-                      [disabled]="!reincorporationDate">
-                      <div class="error-container error-message">
-                        @if(reincorporationDate){
-                          @if(reincorporation.invalid && reincorporation.touched){
-                              @if(reincorporation.errors?.['required']){
-                                <p>El campo es requerido</p>
-                              }
-                            }
-                        }
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                -->
                 <div class="modal-footer">
                   <div class="">
                   </div>
@@ -393,7 +406,7 @@
     </div>
   </div>
   <!-- Boton + Flotante -->
-  <button class="floating-btn btn btn-danger" style="bottom: 90px;" data-bs-toggle="modal"
+  <!-- <button class="floating-btn btn btn-danger" style="bottom: 90px;" data-bs-toggle="modal"
     [disabled]="selectedIds.length === 0" data-bs-target="#confirmDeleteModal">
     <span class="bi-x-circle-fill"></span>
   </button>
@@ -401,6 +414,6 @@
   <button class="floating-btn btn btn-primary" data-bs-toggle="modal" (click)="openModalWarehouse()"
     [disabled]="selectedIds.length === 0">
     <span class="bi-arrow-left-right"></span>
-  </button>
+  </button> -->
 
 </section>

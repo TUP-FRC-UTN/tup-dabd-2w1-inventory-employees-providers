@@ -1,8 +1,7 @@
 export interface Supplier {
     id: number;
     name: string;
-    healthInsurance: string;
-    authorized: boolean;
+    cuit?:string;
     address: string;
     supplierType: string;
     description: string | null;

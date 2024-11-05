@@ -43,7 +43,7 @@ export class IepSupplierListComponent implements AfterViewInit {
     name: '',
     supplierType: '',
     address: '',
-    healthInsurance: '',
+    cuit: '',
     description: '',
     phoneNumber: '',
     email: ''
@@ -169,7 +169,6 @@ export class IepSupplierListComponent implements AfterViewInit {
       supplier.name,
       this.translateSupplierType(supplier.supplierType),
       supplier.address,
-      supplier.healthInsurance,
       supplier.description,
       supplier.phoneNumber,
       supplier.email
@@ -177,7 +176,7 @@ export class IepSupplierListComponent implements AfterViewInit {
 
     // Configuración de la tabla en el PDF
     (doc as any).autoTable({
-      head: [['Razón Social', 'Tipo Proveedor', 'Dirección', 'Obra Social', 'Descripción', 'Teléfono', 'Email']],
+      head: [['Razón Social', 'Tipo Proveedor', 'Dirección', 'Descripción', 'Teléfono', 'Email']],
       body: dataToExport,
       startY: 20,
     });
@@ -192,7 +191,6 @@ export class IepSupplierListComponent implements AfterViewInit {
       'Razón Social': supplier.name,
       'Tipo Proveedor': this.translateSupplierType(supplier.supplierType),
       'Dirección': supplier.address,
-      'Obra Social': supplier.healthInsurance,
       'Descripción': supplier.description,
       'Teléfono': supplier.phoneNumber,
       'Email': supplier.email
@@ -221,7 +219,8 @@ export class IepSupplierListComponent implements AfterViewInit {
           '<"d-flex justify-content-between"lp>', //Paginacion
         data: this.filteredSuppliers,
         columns: [
-          { data: 'name', title: 'Razón social' },
+          { data: 'cuit', title: 'Cuit' },
+          { data: 'name', title: 'Nombre' },
           {
             data: 'supplierType',
             title: 'Tipo proveedor',
@@ -239,10 +238,16 @@ export class IepSupplierListComponent implements AfterViewInit {
             }
           },
           { data: 'address', title: 'Dirección' },
-          { data: 'healthInsurance', title: 'Obra Social' },
-          { data: 'description', title: 'Descripción' },
+          
           { data: 'phoneNumber', title: 'Teléfono' },
           { data: 'email', title: 'Email' },
+          { 
+            data: 'discontinued', 
+            title: 'Estado',
+            render: function(data) {
+                return data ? 'Inactivo' : 'Activo';
+            }
+        },
           {
             data: null,
             title: 'Acciones',
@@ -263,7 +268,7 @@ export class IepSupplierListComponent implements AfterViewInit {
         ],
         pageLength: 10,
         lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
-        lengthMenu: [10, 25, 50],
+        lengthMenu: [5,10, 25, 50],
         searching: false,
         destroy: true,
         language: {

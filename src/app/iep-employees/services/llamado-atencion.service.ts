@@ -45,6 +45,7 @@ export class LlamadoAtencionService {
       );
   }
 
+
   getAllEmployees(): Observable<EmployeeGetResponseDTO[]> {
     return this.http.get<EmployeeGetResponseDTO[]>(this.EMPLOYEES_GET_ALL)
       .pipe(catchError(this.handleError));

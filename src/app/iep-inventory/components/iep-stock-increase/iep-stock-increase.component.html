@@ -2,12 +2,15 @@
   <div class="row form">
     <form [formGroup]="stockForm" (ngSubmit)="onSubmit()">
       <!-- Mostrar el nombre del producto -->
-      <div class="mb-3">
+      <div class="mb-3 col-md-6">
         <label for="productName" class="form-label">Producto</label>
         <div id="productName" class="form-control" readonly>{{ productName }}</div>
       </div>
 
-      <div class="mb-3">
+      <div class="row">
+        
+    
+      <div class="mb-3 col-md-6">
         <label for="supplierId" class="form-label">Proveedor</label>
         <select id="supplierId" formControlName="supplierId" class="form-select">
           <option value="" disabled selected>Selecciona un proveedor</option>
@@ -18,15 +21,18 @@
         </div>
       </div>
 
-      <div class="mb-3">
+      <div class="mb-3 col-md-6">
         <label for="quantity" class="form-label">Cantidad</label>
         <input id="quantity" type="number" formControlName="quantity" class="form-control">
         <div *ngIf="stockForm.get('quantity')?.invalid && stockForm.get('quantity')?.touched" class="text-danger">
           Cantidad es requerida y debe ser mayor que 0
         </div>
       </div>
-
-      <div class="mb-3">
+    </div>
+    <div class="row">
+      
+    
+      <div class="mb-3 col-md-6">
         <label for="unitPrice" class="form-label">Precio Unitario</label>
         <input id="unitPrice" type="number" formControlName="unitPrice" class="form-control">
         <div *ngIf="stockForm.get('unitPrice')?.invalid && stockForm.get('unitPrice')?.touched" class="text-danger">
@@ -34,14 +40,14 @@
         </div>
       </div>
 
-      <div class="mb-3">
+      <div class="mb-3 col-md-6">
         <label for="description" class="form-label">Descripción</label>
         <input id="description" formControlName="description" class="form-control">
         <div *ngIf="stockForm.get('description')?.invalid && stockForm.get('description')?.touched" class="text-danger">
           Descripción es requerida
         </div>
       </div>
-
+    </div>
       <div class="mb-3">
         <label for="justification" class="form-label">Justificación</label>
         <textarea id="justification" formControlName="justification" class="form-control" rows="3"></textarea>
