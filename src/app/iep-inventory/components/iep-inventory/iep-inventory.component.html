@@ -169,7 +169,7 @@
       [style.display]="showAumentoStockModal ? 'block' : 'none'" id="aumentoStockModal" tabindex="-1"
       aria-labelledby="aumentoStockModalLabel" [attr.aria-modal]="showAumentoStockModal"
       [attr.aria-hidden]="!showAumentoStockModal" (click)="handleModalBackdropClick($event)">
-      <div class="modal-dialog modal-lg" style="max-width: 75%;" (click)="$event.stopPropagation()">
+      <div class="modal-dialog modal-lg" style="max-width: 50%;" (click)="$event.stopPropagation()">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Agregar Aumento de Stock</h5>
@@ -177,6 +177,8 @@
           </div>
           <div class="modal-body">
             <app-iep-stock-increase *ngIf="showAumentoStockModal"></app-iep-stock-increase>
+            
+            
           </div>
         </div>
       </div>
