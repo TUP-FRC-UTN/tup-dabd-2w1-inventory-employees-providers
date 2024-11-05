@@ -1,99 +1,122 @@
 <section class="py-5">
 
   <div class="container p-3 border border-2 rounded shadow-lg">
-  <div class="">
     <div class="">
-      <!-- Fila de opciones (Filtro, Exportar, Nuevo) -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <!-- Filtro de búsqueda a la izquierda -->
-          <div class="col-md-4">
-            <div class="input-group">
-              <input type="text" class="form-control" id="searchTerm"
-              placeholder="Buscar..."  (input)="filterData($event)">
+      <div class="">
+
+        <!-- Fila de opciones (Filtro, Exportar, Nuevo) -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <!-- Filtro de búsqueda a la izquierda -->
+          <div class="col-md-8 d-flex">
+            <div class=" input-group me-2">
+              <input type="text" class="form-control" id="searchTerm" placeholder="Buscar..."
+                (input)="filterData($event)">
             </div>
-            
+
+            <div class="col-md-4 dropdown" style="width: 200px;">  <!-- Añade un ancho fijo al contenedor -->
+              <button class="btn btn-secondary dropdown-toggle text-start w-100" type="button" id="dropdownEstado"
+                data-bs-toggle="dropdown" aria-expanded="true">
+                Seleccionar Estado @if (selectedStatusCount > 0) { ({{ selectedStatusCount }}) }
+              </button>
+              <ul class="dropdown-menu w-100" aria-labelledby="dropdownEstado">  <!-- Asegura que el menú tenga el mismo ancho -->
+                <li>
+                  <label class="dropdown-item">
+                    <input type="checkbox" class="form-check-input me-2" [(ngModel)]="selectedStatus.active"
+                      (change)="filterData()" />
+                    Activo
+                  </label>
+                </li>
+                <li>
+                  <label class="dropdown-item">
+                    <input type="checkbox" class="form-check-input me-2" [(ngModel)]="selectedStatus.inactive"
+                      (change)="filterData()" />
+                    Inactivo
+                  </label>
+                </li>
+              </ul>
+            </div>
           </div>
-       
+          <!-- Botones a la derecha -->
 
-        <!-- Botones a la derecha -->
-        
 
-        <!-- Botones para exportar datos a PDF y Excel -->
-        <div class="d-flex ms-2">
-          <button class="btn btn-secondary" (click)="cleanFilters()">
-            <i class="bi bi-trash"></i>
-          </button>
-          <button class="btn btn-success ms-2" title="Exportar a Excel" (click)="exportToExcel()">
-            <i class="fa-solid bi-file-earmark-excel"></i>
-          </button>
-          <button class="btn btn-danger ms-2" title="Exportar a PDF" (click)="exportToPdf()">
-            <i class="fas bi-file-earmark-pdf"></i>
-          </button>
+          <!-- Botones para exportar datos a PDF y Excel -->
+          <div class="d-flex ms-2">
+            <button class="btn btn-secondary" (click)="cleanFilters()">
+              <i class="bi bi-trash"></i>
+            </button>
+            <button class="btn btn-success ms-2" title="Exportar a Excel" (click)="exportToExcel()">
+              <i class="fa-solid bi-file-earmark-excel"></i>
+            </button>
+            <button class="btn btn-danger ms-2" title="Exportar a PDF" (click)="exportToPdf()">
+              <i class="fas bi-file-earmark-pdf"></i>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Tabla de categorías -->
+        <table id="categoryTable" class="table table-striped">
+          <thead>
+            <tr>
+              <th>Categoría</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
     </div>
 
-      </div>
 
-      <!-- Tabla de categorías -->
-      <table id="categoryTable" class="table table-striped">
-        <thead>
-          <tr>
-            <th>Categoría</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-      </table>
-    </div>
-  </div>
-
-  
-<!-- Boton + Flotante -->
-<button class="floating-btn btn btn-primary" data-bs-target="#categoriaModal" data-bs-toggle="modal" (click)="setCategoryToEdit(0)">
-  <span class="bi-plus-lg"></span>
-</button>
+    <!-- Boton + Flotante -->
+    <button class="floating-btn btn btn-primary" data-bs-target="#categoriaModal" data-bs-toggle="modal"
+      (click)="setCategoryToEdit(0)">
+      <span class="bi-plus-lg"></span>
+    </button>
 
 
-<!-- Modal para Categorias -->
-<div class="modal fade" id="categoriaModal" tabindex="-1" role="dialog" aria-labelledby="categoriaModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="categoriaModalLabel">Categorias</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="" #modalCategoryForm="ngForm" (ngSubmit)="updateCategory()">
-          <div class="row">
-            <div class="">
-              <div class="input-group d-flex mb-3">
-                @if(categoryToEdit){
-                 <!-- <label for="category" class="col-form-label" style="margin-right: 18px;">Categoría</label>
+    <!-- Modal para Categorias -->
+    <div class="modal fade" id="categoriaModal" tabindex="-1" role="dialog" aria-labelledby="categoriaModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="categoriaModalLabel">Categorias</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="" #modalCategoryForm="ngForm" (ngSubmit)="updateCategory()">
+              <div class="row">
+                <div class="">
+                  <div class="input-group d-flex mb-3">
+                    @if(categoryToEdit){
+                    <!-- <label for="category" class="col-form-label" style="margin-right: 18px;">Categoría</label>
                   <select class="form-select" id="categoryModal" style="border-radius: 0.25rem;"
                  [(ngModel)]="idCategoryToEdit" #categoryToEditS="ngModel"  name="categoryToEdit"  required>
                   @for(c of categories;track $index){
                     <option value="{{c.id}}">{{c.category}}</option>
                   }
                 </select>-->
-                <label for="category" class="" style="margin-right: 18px;">Categoría a editar: {{categoryToEdit.category}}</label>
-                }
+                    <label for="category" class="" style="margin-right: 18px;">Categoría a editar:
+                      {{categoryToEdit.category}}</label>
+                    }
+                  </div>
+                </div>
               </div>
-            </div>
+              <div class="row">
+                <div class="input-group d-flex form-group mb-2">
+                  <label for="inputName" class="col-form-label" style="margin-right: 10px;">Descripción</label>
+                  <input type="text" class="form-control" #descr="ngModel" [(ngModel)]="descrCategoryToEdit"
+                    name="newCategory" minlength="3" required>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <div class="">
+                  <button type="submit" [disabled]="modalCategoryForm.invalid" class="btn btn-primary"
+                    data-bs-dismiss="">Actualizar</button>
+                </div>
+              </div>
+            </form>
           </div>
-          <div class="row">
-            <div class="input-group d-flex form-group mb-2">
-              <label for="inputName" class="col-form-label" style="margin-right: 10px;">Descripción</label>
-              <input type="text" class="form-control" #descr="ngModel" 
-              [(ngModel)]="descrCategoryToEdit" name="newCategory"
-                minlength="3" required>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <div class="">
-              <button type="submit" [disabled]="modalCategoryForm.invalid"
-              class="btn btn-primary" data-bs-dismiss="">Actualizar</button>
-            </div>
         </div>
-        </form>
       </div>
     </div>
-  </div>
-</div>
