@@ -549,7 +549,7 @@ applyStateFilter($event: Event, state: string) {
 
   volverInventario(): void {
     // Implementa la lógica para volver al inventario
-    this.router.navigate(["inventario"])
+     this.router.navigate(["home/inventory"])
   }
 
   getFormattedDate(): string {
@@ -610,4 +610,5 @@ applyStateFilter($event: Event, state: string) {
     const formattedDate = this.getFormattedDate();
     doc.save(`Detalle_Inventario_${formattedDate}.pdf`);
   }
+  
 }
