@@ -80,10 +80,24 @@
           </div>
           <div class="row">
             <div class="input-group d-flex form-group mb-2">
-              <label for="inputName" class="col-form-label" style="margin-right: 10px;">Descripción</label>
+              <label for="inputName" class="col-form-label" style="margin-right: 10px;">Nombre</label>
               <input type="text" class="form-control" #descr="ngModel" 
               [(ngModel)]="descrCategoryToEdit" name="newCategory"
-                minlength="3" required>
+              [ngClass]="{
+                'is-invalid': descr.invalid && descr.touched, 
+                'is-valid': descr.valid && descr.touched
+            }"  
+              minlength="3" required>
+              
+            </div>
+            <div class="error-container">
+              @if(descr.invalid && descr.touched) {
+                @if(descr.errors?.['minlength']) {
+                  <div class="text-danger">El nombre de la categoría debe tener al menos 3 caracteres</div>
+                } @else {
+                  <div class="text-danger">Este campo es requerido</div>
+                }
+              }
             </div>
           </div>
           <div class="modal-footer">
