@@ -55,31 +55,58 @@
 
       <!-- Botones para generar PDF o Excel -->
       <div class="row mb-2">
-
         <!-- Sección de filtros y botones de exportación -->
-        <div class="d-flex mb-3 justify-content-between align-items-center">
+        <div class="d-flex mb-3 justify-content-between align-items-center w-100">
+
+          <!-- Contenedor de filtros -->
           <div class="d-flex align-items-center flex-grow-1">
-            
+
             <!-- Campo de Búsqueda -->
-            <div class="col-md-4 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-              <input type="text" id="filterInput" class="form-control" placeholder="Buscar" [(ngModel)]="globalFilter" name="globalFilter"
-                (input)="applyFilter()" />
+            <div class="me-3" style="min-width: 200px;">
+              <input type="text" id="filterInput" class="form-control" placeholder="Buscar" [(ngModel)]="globalFilter"
+                name="globalFilter" (input)="applyFilter()" />
+            </div>
+
+            <!-- Selección de estado -->
+            <div class="me-3">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownReusable"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                Seleccionar estado
+                <span
+                  *ngIf="filters.reutilizableSeleccionado.length > 0">({{filters.reutilizableSeleccionado.length}})</span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownReusable">
+                <li>
+                  <label class="dropdown-item">
+                    <input type="checkbox" id="idFalse" class="form-check-input me-2" name="reusable" [value]="false"
+                      (change)="stateFilter($event)">
+                    Activo
+                  </label>
+                </li>
+                <li>
+                  <label class="dropdown-item">
+                    <input type="checkbox" id="idTrue" class="form-check-input me-2" name="reusable" [value]="true"
+                      (change)="stateFilter($event)">
+                    Inactivo
+                  </label>
+                </li>
+              </ul>
             </div>
 
             <!-- Campo Desde para seleccionar la fecha de inicio -->
-            <div class="col-md-3 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-              <input type="date" id="startDate" class="form-control"  #startDateInput [(ngModel)]="startDate" name="startDate"
-                (ngModelChange)="applyFilter()" />
+            <div class="me-3" style="min-width: 160px;">
+              <input type="date" id="startDate" class="form-control" #startDateInput [(ngModel)]="startDate"
+                name="startDate" (ngModelChange)="applyFilter()" />
             </div>
 
             <!-- Campo Hasta para seleccionar la fecha de fin -->
-            <div class="col-md-3 mb-3 mb-md-0">
+            <div class="me-3" style="min-width: 160px;">
               <input type="date" id="endDate" class="form-control" #endDateInput [(ngModel)]="endDate" name="endDate"
                 (ngModelChange)="applyFilter()" />
             </div>
 
             <!-- Botón para mostrar/ocultar filtros -->
-            <div class="col-mb-3 me-1">
+            <div class="me-1">
               <button class="btn btn-primary" data-bs-toggle="modal" title="Filtros Avanzados"
                 data-bs-target="#filtrosAvanzados">
                 <i class="bi bi-sort-down-alt"></i>
@@ -87,9 +114,10 @@
             </div>
 
             <!-- Botón para limpiar filtros -->
-            <div class="col-mb-3 me-1">
+            <div class="me-1">
               <button class="btn btn-secondary" (click)="cleanFilters()">
-                <i class="bi bi-trash"></i></button>
+                <i class="bi bi-trash"></i>
+              </button>
             </div>
           </div>
 
@@ -102,9 +130,10 @@
               <i class="fas bi-file-earmark-pdf"></i>
             </button>
           </div>
-        </div>
 
+        </div>
       </div>
+
 
       <div>
         <table class="table table-striped" id="productsList"></table>
@@ -127,8 +156,8 @@
           </div>
           <div class="modal-body">
             <app-iep-stock-increase *ngIf="showAumentoStockModal"></app-iep-stock-increase>
-            
-            
+
+
           </div>
         </div>
       </div>
