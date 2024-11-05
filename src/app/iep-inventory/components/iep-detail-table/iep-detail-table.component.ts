@@ -408,11 +408,11 @@ applyStateFilter($event: Event, state: string) {
           },
         },
       ],
-      pageLength: 10,
+      pageLength: 5,
       lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
       lengthMenu: [ // Opciones para el menú desplegable de longitud
-        [10, 25, 50], // Valores para el número de filas
-        [10, 25, 50] // Etiquetas para el número de filas
+        [5, 10, 25, 50], // Valores para el número de filas
+        [5, 10, 25, 50] // Etiquetas para el número de filas
       ],
       searching: false, // Desactivar la búsqueda
       language: {
