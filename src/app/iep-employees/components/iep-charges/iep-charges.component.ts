@@ -18,6 +18,7 @@ declare var bootstrap: any; // Añadir esta declaración al principio
   styleUrl: './iep-charges.component.css'
 })
 export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
+
   cargoForm: FormGroup;
   cargos: ChargeResponse[] = [];
   selectedCargo: ChargeResponse | null = null;
@@ -34,6 +35,10 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
   isConfirmDeleteModalOpen = false;
   isErrorModalOpen = false;
   errorMessage = '';
+  selectedStates: any;
+  filters = {
+    reutilizableSeleccionado: [] as boolean[]
+  };
 
 
   constructor(
@@ -45,6 +50,34 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
       description: ['', Validators.required]
     });
   }
+
+  stateFilter(event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    const value = checkbox.value === 'true';
+  
+    // Añadir o quitar el valor del array de filtros
+    if (checkbox.checked) {
+      this.filters.reutilizableSeleccionado.push(value);
+    } else {
+      this.filters.reutilizableSeleccionado = this.filters.reutilizableSeleccionado.filter((v) => v !== value);
+    }
+  
+    // Filtra `filteredData` basándose en `reutilizableSeleccionado`
+    if (this.filters.reutilizableSeleccionado.length > 0) {
+      this.filteredData = this.cargos.filter((cargo) =>
+        this.filters.reutilizableSeleccionado.includes(cargo.active)
+      );
+    } else {
+      this.filteredData = [...this.cargos]; // Restablecer si no hay filtros seleccionados
+    }
+  
+    // Actualizar la tabla después de aplicar el filtro
+    if (this.table) {
+      this.table.clear().rows.add(this.filteredData).draw();
+    }
+  }
+  
+  
 
   getFormattedDate(): string {
     const date = new Date();
@@ -272,15 +305,21 @@ closeInfoModal(): void{
     if (!this.cargos || this.cargos.length === 0) {
       return;
     }
-
+  
     this.table = $('#cargosTable').DataTable({
-      dom:
-          '<"mb-3"t>' +
-          '<"d-flex justify-content-between"lp>',
+      dom: '<"mb-3"t>' +
+           '<"d-flex justify-content-between"lp>',
       data: this.filteredData,
       columns: [
         { data: 'charge', title: 'Cargo' },
         { data: 'description', title: 'Descripción' },
+        {
+          data: 'active',
+          title: 'Estado',
+          render: (data: boolean) => {
+            return data ? 'Activo' : 'Inactivo'; // Muestra "Activo" o "Inactivo" según el valor de `active`
+          }
+        },
         {
           data: null,
           title: 'Acciones',
@@ -320,10 +359,10 @@ closeInfoModal(): void{
         lengthMenu: '_MENU_',
       }
     });
-
+  
     this.setupTableListeners();
   }
-
+  
   private setupTableListeners(): void {
     this.table.on('click', '.edit-btn', (event: { preventDefault: () => void; currentTarget: any; }) => {
       event.preventDefault();
@@ -343,6 +382,7 @@ closeInfoModal(): void{
       }
     });
   }
+  
 
   closeModale(modalId: string) {
     const modalElement = document.getElementById(modalId);

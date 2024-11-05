@@ -54,17 +54,15 @@ export class IepCategoriesListComponent implements OnInit {
 
   exportToPdf(): void {
     const doc = new jsPDF();
-
-    // Extrae datos de la lista de categorías
     const dataToExport = this.categories.map((category) => [
-      category.id,
       category.category,
+      category.discontinued ? 'Inactivo' : 'Activo'
     ]);
 
     doc.setFontSize(16);
     doc.text('Lista de Categorías', 10, 10);
     (doc as any).autoTable({
-      head: [['ID', 'Categoría']],
+      head: [['Categoría', 'Estado']],
       body: dataToExport,
       startY: 20,
     });
@@ -72,14 +70,20 @@ export class IepCategoriesListComponent implements OnInit {
     doc.save(`Lista_Categorías_${this.getFormattedDate()}.pdf`);
   }
 
-  // Método para exportar a Excel
   exportToExcel(): void {
-    const worksheet = XLSX.utils.json_to_sheet(this.categories);
+    const dataToExport = this.categories.map((category) => ({
+      'Categoría': category.category,
+      'Estado': category.discontinued ? 'Inactivo' : 'Activo'
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  
     const workbook = XLSX.utils.book_new();
+    
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Categorías');
-
+  
     XLSX.writeFile(workbook, `Lista_Categorías_${this.getFormattedDate()}.xlsx`);
   }
+  
 
   getFormattedDate(): string {
     const today = new Date();
