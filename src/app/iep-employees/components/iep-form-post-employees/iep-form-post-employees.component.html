@@ -3,17 +3,42 @@
     <div class="container mt-5 col-md-8 ">
         <form #form="ngForm" (ngSubmit)="onSubmit(form)" class="form-container border rounded border shadow p-4">
 
+
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
             <!-- Modal de Información -->
-            <div class="modal" *ngIf="isInfoModalVisible" (click)="closeInfoModal()">
-                <div class="modal-content" (click)="$event.stopPropagation()">
-                    <div class="modal-header">
+                <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                    <div class=" modal-header">
                         <h5 class="modal-title">Información sobre la Página</h5>
-                        <button type="button" class="close" (click)="closeInfoModal()">&times;</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-
-
-                        <!-- Resto del contenido del modal -->
+                                <!-- Resto del contenido del modal -->
 
                         <p>
                             Bienvenido al formulario de registro de empleado. En esta página, puedes registrar nuevos
@@ -34,11 +59,9 @@
                             <li>
                                 <strong>Datos de contrato:</strong> Se piden los datos para constatar la modalidad de
                                 trabajo, puede ser
-                                <em>Tercerizado <span style="color: green;">SI</span>,o NO Tercerizado <span
-                                        style="color: red;">NO</span></em>, lafechade inicio de contrato debe ser igual o
+                                <em>Tercerizado <button class="btn btn-success" >SI</button>   o no Tercerizado <button class="btn btn-danger">NO</button></em>      la fecha de inicio de contrato debe ser igual o
                                 posterior a la fecha actual
                             </li>
-
                             <li>
                                 <strong>Dias laborales y horarios:</strong> se deben seleccionar los dias habiles que el
                                 empleado debe asistir y los horarios que deberia cumplir
@@ -50,8 +73,7 @@
 
                     </div>
                     
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" (click)="closeInfoModal()">Cerrar</button>
+                  
                     </div>
                 </div>
             </div>
