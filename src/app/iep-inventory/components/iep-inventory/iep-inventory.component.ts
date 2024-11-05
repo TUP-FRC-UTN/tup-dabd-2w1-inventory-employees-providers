@@ -659,11 +659,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           title: 'Min. Alerta',
         },
         {
-          data: 'discontinued',
-          title: 'Estado',
-          render: (data: boolean) => (data ? 'Inactivo' : 'Activo'),
-        },
-        {
           data: null,
           title: 'Acciones',
           render: (data: any, type: any, row: any) => {
