@@ -8,6 +8,8 @@ import { Supplier } from '../../../iep-inventory/models/suppliers';
 import { AddressDto, Charge, DocumentTypeEnum, PostEmployeeDto } from '../../Models/emp-post-employee-dto';
 import { post } from 'jquery';
 import { EmpPostEmployeeService } from '../../services/emp-post-employee.service';
+import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-iep-form-post-employees',
   standalone: true,
@@ -16,7 +18,7 @@ import { EmpPostEmployeeService } from '../../services/emp-post-employee.service
   styleUrl: './iep-form-post-employees.component.css',
 })
 export class IEPFormPostEmployeesComponent implements OnInit {
-  constructor(private serviceCombos: EmpPostEmployeeService) {}
+  constructor(private serviceCombos: EmpPostEmployeeService , private router : Router) {}
 
   isInfoModalVisible: boolean = false;
 
@@ -95,7 +97,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
 
 
-  
+ 
 
   public validateDate() {
     if (this.startTimeContract != null) {
@@ -147,9 +149,6 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
   }
 
-  
-
-
   public validateDni(){
 
     if(this.dni!=null&&this.dni!=undefined && this.documentType!=null&& this.documentType!=undefined){
@@ -167,11 +166,9 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
     }
 
-
   }
 
  
-
 
   public changeTerceorized() {
     this.terciorizedEmployee = !this.terciorizedEmployee;
@@ -246,30 +243,55 @@ export class IEPFormPostEmployeesComponent implements OnInit {
             console.log("Antes del Post (formato JSON):", JSON.stringify(this.postDto, null, 2))
             this.createEmployee$ = this.serviceCombos.createProduct(this.postDto);
             console.log(this.createEmployee$);
+            
+        // Primero mostrar confirmación
+        Swal.fire({
+          title: 'Confirmar',
+          text: `¿Seguro deseas guardar el empleado"?`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Confirmar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
             this.createEmployee$.subscribe({
               next: response => {
                 this.success = true;
-                this.successMessage = "Empleado guardado.Credenciales de acceso habilitadas.";
+                this.successMessage = "Empleado guardado con exito. Credenciales de acceso habilitadas.";
+                Swal.fire({
+                  title: '¡Guardado!',
+                  text: this.successMessage,
+                  icon: 'success',
+                  confirmButtonText: 'Aceptar',
+                  showCancelButton: false,
+                  confirmButtonColor: '#3085d6'
+                }).then(() => {
+                  this.resetForm(form)
+                });
                 console.log("PASO: ", response);
-                this.showModal=true;
               },
               //formatear estos errores y mostrar en modal succes y error
               error: error => {
                 const errorKey = error.error.message as keyof typeof this.ERROR_MESSAGES; // Asegúrate de que sea del tipo correcto
                 this.errorMessage = this.ERROR_MESSAGES[errorKey] || this.ERROR_MESSAGES['default'];
                 this.success = false;
+
+                Swal.fire({
+                  title: 'Error',
+                  text: this.errorMessage,
+                  icon: 'error',
+                  confirmButtonText: 'Aceptar',
+                  confirmButtonColor: '#3085d6'
+                });
+
                 console.log("Hola error "+this.errorMessage)
                 console.log("error:"+error.error.message)
                 console.error(error);
-                this.showModal=true;
-              
+                       
               },
-              complete: () => {
-                console.log('Petición completada');
-                this.showModal=true;
-              }
-            });
-
+              complete: () => {     
+                }
+             });
+           })
           }
         }
       }
@@ -311,6 +333,11 @@ export class IEPFormPostEmployeesComponent implements OnInit {
     window.history.back();
   }
 
+  goTo(path : string){
+   this.router.navigate([path]);
+  }
+
+
 
  public loadLocalidades():void{
 
@@ -321,7 +348,8 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   }
 
   
-  public resetForm(form: NgForm) {
+  public resetForm(form :NgForm) {
+   
     form.reset();
     this.errorMessage = '';
     this.showModal=false;
@@ -349,8 +377,6 @@ export class IEPFormPostEmployeesComponent implements OnInit {
    this.horaSalida = '17:00';
    this. horaEntrada = '08:00';
    this.startTimeContract = new Date().toISOString().split('T')[0];
-
- 
 
   }
 

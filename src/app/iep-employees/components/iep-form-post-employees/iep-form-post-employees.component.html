@@ -34,8 +34,8 @@
                             <li>
                                 <strong>Datos de contrato:</strong> Se piden los datos para constatar la modalidad de
                                 trabajo, puede ser
-                                <em>Tercerizado <span style="color: green;">✅</span>,o NO Tercerizado <span
-                                        style="color: red;">❌</span></em>, lafechade inicio de contrato debe ser igual o
+                                <em>Tercerizado <span style="color: green;">SI</span>,o NO Tercerizado <span
+                                        style="color: red;">NO</span></em>, lafechade inicio de contrato debe ser igual o
                                 posterior a la fecha actual
                             </li>
 
@@ -49,6 +49,7 @@
 
 
                     </div>
+                    
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" (click)="closeInfoModal()">Cerrar</button>
                     </div>
@@ -246,7 +247,7 @@
                     <!-- provincia  -->
 
                     <div class="col-md-6">
-                        <div class="row">
+                        <div class="row text-end">
                             <label for="provincia" class="col-form-label col-md-3">Provincia</label>
                             <div class="col-md-9">
                                 <select id="provincia" name="provincia" class="form-select"
@@ -261,8 +262,8 @@
                     </div>
                     <!-- localidad  -->
                     <div class="col-md-6">
-                        <div class="row">
-                            <label for="localidad" class="col-form-label col-md-3">Localidad</label>
+                        <div class="row text-end">
+                            <label for="localidad" class="col-form-label col-md-3 ">Localidad</label>
                             <div class="col-md-9">
                                 <select id="localidad" name="localidad" class="form-select"
                                     [(ngModel)]="localidadSelect" required>
@@ -282,7 +283,7 @@
                     <!-- calle  -->
 
                     <div class="col-md-6">
-                        <div class="row">
+                        <div class="row text-end">
                             <label for="calle" class="col-form-label col-md-3">Calle</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="calle" name="calle" [(ngModel)]="calle"
@@ -301,7 +302,7 @@
                     <!-- nro calle  -->
 
                     <div class="col-md-6">
-                        <div class="row">
+                        <div class="row text-end">
                             <label for="numeroCalle" class="col-form-label col-md-3">Número</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="numeroCalle" name="numeroCalle"
@@ -325,7 +326,7 @@
                     <!-- piso  -->
 
                     <div class="col-md-6">
-                        <div class="row">
+                        <div class="row text-end">
                             <label for="piso" class="col-form-label col-md-3">Piso</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="piso" name="piso" [(ngModel)]="piso"
@@ -342,7 +343,7 @@
                     <!-- depa  -->
 
                     <div class="col-md-6">
-                        <div class="row">
+                        <div class="row text-end">
                             <label for="dpto" class="col-form-label col-md-3">Departamento</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="dpto" name="dpto" [(ngModel)]="dpto"
@@ -364,7 +365,7 @@
                     <!-- cod postal  -->
 
                     <div class="col-md-6">
-                        <div class="row">
+                        <div class="row text-end">
                             <label for="codigo-postal" class="col-form-label col-md-3">Código P </label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="codigo-postal" name="codigo-postal"
@@ -403,26 +404,26 @@
 
 
                     <!-- Empleado tercerizado -->
-                    <div class="col-md-6 mb-3">
-                        <div class="row">
-
-
+                    <div class="col-md-6 mb-3 ">
+                        <div class="row text-end">
 
                             <label class="col-form-label col-md-4" for="tercerizado">Tercerizado</label>
-                            <div class="col-md-8">
+                            <div class="col-md-8 text-center">
 
-                                <i id="tercerizado" name="tercerizado" (click)="changeTerceorized()"
-                                    [class]="terciorizedEmployee ? 'fas fa-check text-success' : 'fas fa-times text-danger'"
-                                    style="font-size: 2.0em; cursor: pointer; margin-left: 10px;"></i>
+
+                                <button style="width: 100%;"
+                                [ngClass]="terciorizedEmployee ? 'btn btn-success text-center' : 'btn btn-danger text-center'"  
+                                (click)="changeTerceorized()">
+                                {{ terciorizedEmployee ? 'SI' : 'NO' }}
+                            </button>
                             </div>
 
                         </div>
                     </div>
                     @if (!terciorizedEmployee) {
                     <!-- Salario -->
-
                     <div class="col-md-6 mb-3">
-                        <div class="row">
+                        <div class="row text-end">
 
                             <label class="col-form-label col-md-3" for="salario">Salario</label>
                             <div class="col-md-9">
@@ -443,7 +444,7 @@
                     @else {
                     <!-- Proveedores de servicio tercerizado -->
                     <div class="col-md-6 mb-3">
-                        <div class="row">
+                        <div class="row text-end">
 
                             <label class="col-form-label col-md-3" for="proveedores">Proveedores</label>
                             <div class="col-md-9">
@@ -463,7 +464,7 @@
                     }
                     <!-- Cargo -->
                     <div class="col-md-6 mb-3">
-                        <div class="row">
+                        <div class="row text-end">
                             <label for="cargo" class="col-form-label col-md-4">Cargo</label>
                             <div class="col-md-8">
                                 <select id="cargo" name="cargo" class="form-control" [(ngModel)]="cargoSelected"
@@ -481,7 +482,7 @@
                     </div>
                     <!-- fecha inicio contrato -->
                     <div class="col-md-6 ">
-                        <div class="row">
+                        <div class="row text-end">
                             <label for="start-time-contract" class="col-form-label col-md-3">Inicio</label>
                             <div class="col-md-9">
                                 <input type="date" id="startTimeContract" id="startTimeContract" class="form-control"
@@ -602,36 +603,21 @@
            
 
             <!-- Botones -->
-            <div class="row">
-                <div class="col-md-8"></div>
-                <div class="col-ms-2  d-flex justify-content-end">
+          
+            <div class="row mt-5">
+                <div class="col-md-10 text-end">
+                    <button  type="submit" link class="btn btn-secondary" (click)="goTo('home/employee-list')">Volver</button>
+
+                </div>
+                <div class="col-md-2  d-flex justify-content-end">
                     <button [disabled]="!form.valid" type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </div>
 
 
 
-            <!-- Modal para mostrar mensajes de éxito o error -->
-            <!-- Modal para mostrar mensajes de éxito o error -->
-            <div class="modal" *ngIf="showModal" (click)="resetForm(form)">
-                <div class="modal-content" [ngClass]="{'border-success': success, 'border-error': !success}"
-                    (click)="$event.stopPropagation()">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{ success ? 'Éxito' : 'Error' }}</h5>
-
-                    </div>
-                    <div class="modal-body">
-                        {{ success ? successMessage : errorMessage }}
-                    </div>
-                    <div class="modal-footer">
-                        <button *ngIf="success" type="button" class="btn btn-secondary"
-                            (click)="resetForm(form)">Cerrar</button>
-                        <button *ngIf="!success" type="button" class="btn btn-secondary"
-                            (click)="cerrarModal()">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-
+           
         </form>
     </div>
+
 </section>
