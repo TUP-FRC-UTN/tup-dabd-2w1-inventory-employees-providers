@@ -18,6 +18,7 @@ import { IepSuppliersFormComponent } from './iep-inventory/components/iep-suppli
 import { IepCategoriesListComponent } from './iep-inventory/components/iep-categories-list/iep-categories-list.component';
 import { IepChartsEmployeesComponent } from './iep-employees/components/iep-charts-employees/iep-charts-employees.component';
 import { IepChartsInventoryComponent } from './iep-inventory/components/iep-charts-inventory/iep-charts-inventory.component';
+import { IepAttendancesComponent } from './iep-employees/components/iep-attendances/iep-attendances.component';
 export const routes: Routes = [
     {
         path: "", redirectTo: "/home", pathMatch: "full" 
@@ -117,6 +118,11 @@ export const routes: Routes = [
                     path: 'inventory/charts',
                     component:IepChartsInventoryComponent,
                     title: 'Grafico inventario'
+                },
+                {
+                    path: 'employee/attendance/:id',
+                    component:IepAttendancesComponent,
+                    title: 'Asistencias'
                 }
             ]
     }

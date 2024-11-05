@@ -515,8 +515,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
                 </a>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
-               
-                <li><a class="dropdown-item eliminar-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-empleado-id="${data.id}" href="#">Eliminar</a></li>
+                  <li><button class="dropdown-item consultar-asistencias" data-empleado-id="${data.id}">Ver asistencias</button></li>
+                  <li><a class="dropdown-item eliminar-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-empleado-id="${data.id}" href="#">Eliminar</a></li>
                 </ul>
               </div>`;
           }
@@ -524,11 +524,17 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       ]
     });
 
-
     $('#empleadosTable').on('click', '.consultar-btn', (event: any) => {
       event.preventDefault();
       const empleadoId = $(event.currentTarget).data('empleado-id');
       this.consultarEmpleado(empleadoId);
+    });
+
+    $('#empleadosTable').on('click', '.consultar-asistencias', (event: any) => {
+      event.preventDefault();
+      const empleadoId = $(event.currentTarget).data('empleado-id');
+      console.log(empleadoId);
+      this.router.navigate([`home/employee/attendance/${empleadoId}`]);
     });
 
 
