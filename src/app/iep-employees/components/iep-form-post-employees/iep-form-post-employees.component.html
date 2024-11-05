@@ -473,7 +473,7 @@
 
                                 <select id="proveedores" name="proveedores" class="form-select"
                                     [(ngModel)]="selectedSupplier" required>
-                                    <option disabled selected value="opcion1">Seleccionar proveedor</option>
+                                    <option disabled selected [ngValue]="undefined">Seleccionar proveedor</option>
 
                                     @for (x of suppliers; track $index) {
                                     <option [ngValue]="x"> {{x.name}} </option>
@@ -491,7 +491,7 @@
                             <div class="col-md-8">
                                 <select id="cargo" name="cargo" class="form-control" [(ngModel)]="cargoSelected"
                                     required>
-                                    <option disabled selected value="opcion1">Seleccionar Cargo</option>
+                                    <option disabled selected [ngValue]="undefined">Seleccionar Cargo</option>
                                     @for (c of cargos; track $index) {
                                     <option selected [ngValue]="c">{{c.charge}}</option>
 
