@@ -190,7 +190,12 @@
                         {{ detail.wackeUpTypeEnum }}
                       </span>
                     </td>
-                    <td>{{ detail.observation }}</td>
+                    <td>
+                      <ng-container *ngFor="let line of formatObservation(detail.observation)">
+                        {{ line }}<br />
+                      </ng-container>
+                    </td>
+                    
                   </tr>
                 </tbody>
               </table>

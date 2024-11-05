@@ -38,7 +38,7 @@
       </div>
     </div>
 
-    <!-- Observaciones -->
+      <!-- Observaciones -->
     <div class="mb-3 position-relative">
       <label for="observaciones" class="form-label">Observaciones <span class="text-danger">*</span></label>
       <textarea 
@@ -49,10 +49,15 @@
         [class.is-invalid]="wakeUpCallForm.get('observaciones')?.invalid && (wakeUpCallForm.get('observaciones')?.touched || formSubmitted)"
         [class.is-valid]="wakeUpCallForm.get('observaciones')?.valid && wakeUpCallForm.get('observaciones')?.touched"
       ></textarea>
-      <div class="invalid-feedback">
+      <div *ngIf="wakeUpCallForm.get('observaciones')?.errors?.['maxlength']" class="text-danger">
+        <i class="bi bi-exclamation-circle"></i> Máximo de 200 caracteres alcanzado
+      </div>
+      <div *ngIf="wakeUpCallForm.get('observaciones')?.hasError('required') && (wakeUpCallForm.get('observaciones')?.touched || formSubmitted)" class="invalid-feedback">
         <i class="bi bi-exclamation-circle"></i> Las observaciones son requeridas
       </div>
     </div>
+
+
 
     <!-- Botón de Envío -->
     <div class="d-flex justify-content-end gap-2 mt-4">

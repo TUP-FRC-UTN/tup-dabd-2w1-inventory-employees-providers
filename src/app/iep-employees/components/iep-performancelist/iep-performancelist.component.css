@@ -68,3 +68,11 @@
   display: block; /* Muestra el modal cuando se agrega la clase 'show' */
 }
 
+/* Asegúrate de que este CSS esté en el archivo adecuado o en una etiqueta <style> */
+.table td:nth-child(3) { /* Selecciona la columna de Observación */
+  max-width: 300px; /* Ajusta el ancho según tus necesidades */
+  white-space: normal; /* Permite que el texto se ajuste en varias líneas */
+  word-wrap: break-word; /* Asegura el ajuste de línea */
+}
+
+

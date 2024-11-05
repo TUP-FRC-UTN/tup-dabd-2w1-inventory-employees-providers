@@ -69,10 +69,10 @@ export const routes: Routes = [
                     title: 'Movimientos de inventario'
                 },
                 {
-                    path: 'performance',
+                    path: 'employee/performance/:id',  // Nueva ruta para desempeño con ID de empleado
                     component: IepPerformancelistComponent,
-                    title: 'Desempeño de empleados'
-                },
+                    title: 'Desempeño de empleado'
+                },                  
                 {
                     path: "suppliers",
                     component: IepSupplierListComponent,

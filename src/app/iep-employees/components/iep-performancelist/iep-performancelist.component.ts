@@ -4,6 +4,7 @@ import { ListadoDesempeñoService } from '../../services/listado-desempeño.serv
 import { EmployeePerformance } from '../../Models/listado-desempeño';
 import { FormsModule, NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { WakeUpCallDetail } from '../../Models/listado-desempeño';
 import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
@@ -56,7 +57,8 @@ export class IepPerformancelistComponent implements OnInit {
 
   constructor(
     private employeeService: ListadoDesempeñoService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     // Inicializar los arrays
     this.selectedYears = [];
@@ -74,7 +76,10 @@ export class IepPerformancelistComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.setEmployeeById(1);
+    const empleadoId = this.route.snapshot.paramMap.get('id');
+    if (empleadoId) {
+      this.setEmployeeById(Number(empleadoId)); // Carga los datos del empleado específico
+    }
     this.loadData();
     this.employeeService.refreshData();
     
@@ -456,6 +461,29 @@ openNewCallModal(employeeId: number) {
     
     return `${day}-${month}-${year}`;
   }
+
+  splitObservation(observacion: string): string[] {
+    const lineLength = 50;
+    const lines = [];
+    
+    for (let i = 0; i < observacion.length; i += lineLength) {
+      lines.push(observacion.slice(i, i + lineLength));
+    }
+    
+    return lines;
+  }
+
+  // En tu componente Angular
+  formatObservation(observation: string): string[] {
+    const chunkSize = 50;
+    const result = [];
+    for (let i = 0; i < observation.length; i += chunkSize) {
+      result.push(observation.slice(i, i + chunkSize));
+    }
+    return result;
+  }
+
+  
 
   // Funciones de exportación
   exportToPdf(): void {
