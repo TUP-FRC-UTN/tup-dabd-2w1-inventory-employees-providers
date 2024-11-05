@@ -5,6 +5,7 @@ export interface EmpListadoEmpleados {
   position: string; // Cargo del empleado
   salary: number; // Salario del empleado (en formato de texto)
   active: boolean; // Estado de actividad del empleado
+  license: boolean; // Estado de licencia del empleado
 }
 
 export interface Charge {
