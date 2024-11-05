@@ -22,6 +22,12 @@ import { IepAttentionCallComponent } from '../iep-attention-call/iep-attention-c
   styleUrl: './iep-performancelist.component.css'
 })
 export class IepPerformancelistComponent implements OnInit {
+  paginatedDetails: WakeUpCallDetail[] = [];
+  currentPage: number = 1;
+  itemsPerPage: number = 5;
+  totalPages: number = 0;
+  selectedEmployeeId: number | null = null; // Variable para almacenar el ID del empleado seleccionado
+  selectedEmployeeName: string = '';         // Nombre del empleado seleccionado
   selectedYears: string[] = [];  // Cambiado a array
   selectedMonths: string[] = []; // Cambiado a array
   selectedPerformanceType: string[] = [];  // Cambiado de string a string[]
@@ -65,7 +71,10 @@ export class IepPerformancelistComponent implements OnInit {
     this.selectedYears.push(currentYear);
     this.selectedMonths.push(currentMonth);
   }
+
+
   ngOnInit(): void {
+    this.setEmployeeById(1);
     this.loadData();
     this.employeeService.refreshData();
     
@@ -80,6 +89,35 @@ export class IepPerformancelistComponent implements OnInit {
     // Marcar los checkboxes del año y mes actual
     setTimeout(() => {
       this.updateCheckboxes();
+    }, 100);
+  }
+
+  // Método para establecer el ID de empleado, obtener su nombre y cargar sus datos de desempeño
+  // Dentro de tu componente principal (ej. IepPerformancelistComponent)
+setEmployeeById(employeeId: number): void {
+  this.selectedEmployeeId = employeeId;
+
+  // Llama al servicio para obtener el empleado por ID y actualizar el nombre
+  this.employeeService.getEmployees().subscribe(employees => {
+    const employee = employees.find(emp => emp.id === employeeId);
+    if (employee) {
+      this.selectedEmployeeName = employee.fullName;
+      this.searchTerm = employee.fullName; // Establece el término de búsqueda con el nombre
+      this.loadData(); // Carga los datos del desempeño del empleado
+    }
+  });
+}
+
+// Al abrir el modal
+openNewCallModal(employeeId: number) {
+  this.setEmployeeById(employeeId); // Establece el empleado seleccionado
+  this.showNewCallModal = true; // Muestra el modal
+}
+
+  ngAfterViewInit(): void {
+    // Llama a filterData para aplicar el filtro inicial
+    setTimeout(() => {
+      this.filterData();
     }, 100);
   }
   
@@ -192,10 +230,14 @@ export class IepPerformancelistComponent implements OnInit {
       this.dataTable = table.DataTable({
         data: this.performances,
         columns: [
-          { data: 'year' },
           { 
-            data: 'month',
-            render: (data: number) => this.getMonthName(data)
+            data: null,
+            render: (data: any) => {
+              // Formatear el mes para asegurar que tenga dos dígitos
+              const month = data.month.toString().padStart(2, '0');
+              return `${data.year}-${month}`;
+            },
+            title: 'Periodo'
           },
           { data: 'fullName' },
           { data: 'totalObservations', className: 'text-center' },
@@ -221,12 +263,12 @@ export class IepPerformancelistComponent implements OnInit {
           search: ""
         },
         pageLength: 10,
-        order: [[0, 'desc'], [1, 'desc']],
-        dom: 'rt<"d-flex justify-content-between mt-3"l<"pagination-container"p>>', // Clase personalizada para paginación
+        order: [[0, 'desc']],
+        dom: 'rt<"d-flex justify-content-between mt-3"l<"pagination-container"p>>',
         lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]]
       });
   
-      // Agregar listener para el botón de detalles
+      // Listener para el botón de detalles
       $('.data-table tbody').on('click', '.view-details', (event) => {
         const button = $(event.currentTarget);
         const employeeId = button.data('id');
@@ -244,66 +286,51 @@ export class IepPerformancelistComponent implements OnInit {
     this.availableYears = [...new Set(years)].sort((a, b) => b - a);
   }
 
-  // Modificar el método resetFilters para preservar el año y mes actual
   resetFilters() {
-    // Limpiar todos los valores de filtro
-    this.searchTerm = '';
+    // Limpiar todos los valores de filtro excepto el campo de búsqueda
     this.selectedYears = [];
     this.selectedMonths = [];
     this.selectedPerformanceType = [];
     this.selectedObservationCount = null;
-  
-    // Limpiar el campo de búsqueda
-    const searchInput = document.getElementById('searchTerm') as HTMLInputElement;
-    if (searchInput) {
-      searchInput.value = '';
-    }
-  
+
     // Limpiar el campo de observaciones
     const observationInput = document.getElementById('observationCount') as HTMLInputElement;
     if (observationInput) {
       observationInput.value = '';
     }
-  
+
     // Desmarcar todos los checkboxes
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach((checkbox: any) => {
       checkbox.checked = false;
     });
-  
-    // No necesitamos actualizar manualmente el texto de los botones
-    // ya que Angular se encargará de esto con el binding
-  
-    // Limpiar la búsqueda de DataTables y los filtros personalizados
-    if (this.dataTable) {
-      // Remover todos los filtros personalizados
-      while ($.fn.dataTable.ext.search.length > 0) {
-        $.fn.dataTable.ext.search.pop();
-      }
-      
-      // Limpiar la búsqueda global y de columnas
-      this.dataTable.search('').columns().search('');
-      
-      // Recargar los datos originales
-      this.loadData();
-  
-      // Redibujar la tabla
-      this.dataTable.draw();
-    }
-  
-    // Emitir evento de cambio para asegurar que Angular detecte los cambios
-    setTimeout(() => {
-      const event = new Event('input');
-      if (searchInput) {
-        searchInput.dispatchEvent(event);
-      }
-      if (observationInput) {
-        observationInput.dispatchEvent(event);
-      }
-    }, 0);
-  }
 
-  // Asegurarse de que el método filterData() esté funcionando correctamente
+    // Limpiar la búsqueda de DataTables y los filtros personalizados sin afectar `searchTerm`
+    if (this.dataTable) {
+        // Remover todos los filtros personalizados
+        while ($.fn.dataTable.ext.search.length > 0) {
+            $.fn.dataTable.ext.search.pop();
+        }
+
+        // No modificar la búsqueda global porque `searchTerm` debe mantenerse
+        this.dataTable.columns().search(''); // Limpiar solo la búsqueda de columnas
+
+        // Recargar los datos originales
+        this.loadData();
+        this.dataTable.draw();
+    }
+
+    // Emitir evento de cambio solo para los campos que se limpiaron
+    setTimeout(() => {
+        const event = new Event('input');
+        if (observationInput) {
+            observationInput.dispatchEvent(event);
+        }
+    }, 0);
+}
+
+
+  // Modificar el método filterData() para trabajar con la nueva estructura
   filterData(): void {
     if (!this.dataTable) return;
 
@@ -314,16 +341,18 @@ export class IepPerformancelistComponent implements OnInit {
     }
 
     $.fn.dataTable.ext.search.push((settings: any, data: any[]) => {
-      const rowYear = data[0];
-      const rowMonthName = data[1];
-      const rowPerformanceType = data[4];
-      const rowObservationCount = parseInt(data[3], 10);
+      const period = data[0]; // El período ahora está en la primera columna
+      const [yearStr, monthStr] = period.split('-');
+      const rowYear = yearStr;
+      const rowMonth = this.getMonthName(parseInt(monthStr, 10));
+      const rowPerformanceType = data[3];
+      const rowObservationCount = parseInt(data[2], 10);
 
       const yearMatch = this.selectedYears.length === 0 ||
         this.selectedYears.includes(rowYear);
 
       const monthMatch = this.selectedMonths.length === 0 ||
-        this.selectedMonths.includes(rowMonthName);
+        this.selectedMonths.includes(rowMonth);
 
       const performanceTypeMatch = this.selectedPerformanceType.length === 0 ||
         this.selectedPerformanceType.includes(rowPerformanceType);
@@ -372,23 +401,48 @@ export class IepPerformancelistComponent implements OnInit {
   closeErrorModal() {
     this.showErrorModal = false;
   }
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.filterData();
-    }, 100);
-  }
-
+  
+  
   viewDetails(employeeId: number, year: number, month: number): void {
     this.employeeService.getWakeUpCallDetails().subscribe(details => {
-      this.selectedEmployeeDetails = details.filter(detail => {
-        const detailDate = new Date(detail.dateReal[0], detail.dateReal[1] - 1, detail.dateReal[2]);
-        return detail.employeeId === employeeId && 
-               detailDate.getFullYear() === year && 
-               detailDate.getMonth() === month - 1;
-      });
+      this.selectedEmployeeDetails = details
+        .filter(detail => {
+          const detailDate = new Date(detail.dateReal[0], detail.dateReal[1] - 1, detail.dateReal[2]);
+          return detail.employeeId === employeeId && 
+                 detailDate.getFullYear() === year && 
+                 detailDate.getMonth() === month - 1;
+        })
+        .sort((a, b) => {
+          const dateA = new Date(a.dateReal[0], a.dateReal[1] - 1, a.dateReal[2]);
+          const dateB = new Date(b.dateReal[0], b.dateReal[1] - 1, b.dateReal[2]);
+          return dateB.getTime() - dateA.getTime(); // Ordenar de más reciente a más antiguo
+        });
+  
+      this.totalPages = Math.ceil(this.selectedEmployeeDetails.length / this.itemsPerPage);
+      this.paginate();
       this.showDetailsModal = true;
     });
   }
+  
+  paginate(): void {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    this.paginatedDetails = this.selectedEmployeeDetails.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+  
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.paginate();
+    }
+  }
+  
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.paginate();
+    }
+  }
+  
 
   closeDetailsModal() {
     this.showDetailsModal = false;

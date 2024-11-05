@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { LlamadoAtencionService } from "../../services/llamado-atencion.service";
 import { EmployeeGetResponseDTO } from "../../Models/llamado-atencion";
 import { Router } from '@angular/router';
-import { Output } from "@angular/core";
+import { Output, Input} from "@angular/core";
 import { EventEmitter } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { RequestWakeUpCallDTO, RequestWakeUpCallGroupDTO } from "../../Models/llamado-atencion";
@@ -19,6 +19,8 @@ import Swal from 'sweetalert2';
   styleUrl: './iep-attention-call.component.css'
 })
 export class IepAttentionCallComponent implements OnInit{
+  @Input() employeeId: number | null = null; // Propiedad de entrada para el ID del empleado
+  employeeName: string = ''; // Para almacenar el nombre del empleado
   @Output() closeModal = new EventEmitter<void>();
   @Output() showConfirmationMessage = new EventEmitter<string>();
   @Output() showErrorMessage = new EventEmitter<string>();
@@ -42,15 +44,14 @@ export class IepAttentionCallComponent implements OnInit{
     this.wakeUpCallForm = this.fb.group({
       fecha: [today, [Validators.required, this.fechaMaximaValidator]],
       desempeno: ['', Validators.required],
-      observaciones: ['', Validators.required],
-      searchTerm: ['', [Validators.minLength(3)]]
+      observaciones: ['', Validators.required]
     });
   }
 
 
   ngOnInit() {
     this.loadEmployees();
-    this.wakeUpCallForm.get('searchTerm')?.valueChanges.subscribe(() => this.filterEmployees());
+    console.log('ID del empleado:', this.employeeId);
   }
 
   fechaMaximaValidator(control: any) {
@@ -186,16 +187,17 @@ export class IepAttentionCallComponent implements OnInit{
   onSubmit() {
     this.formSubmitted = true;
   
-    if (this.wakeUpCallForm.valid && this.selectedEmployeeIds.size > 0) {
+    // Verificar si el formulario es válido y si hay un empleado seleccionado
+    if (this.wakeUpCallForm.valid && this.employeeId !== null) {
       const formValues = this.wakeUpCallForm.value;
-      
+  
       const request: RequestWakeUpCallGroupDTO = {
-        empleadoIds: Array.from(this.selectedEmployeeIds),
+        empleadoIds: [this.employeeId], // Usar el employeeId directamente
         fecha: formValues.fecha,
         desempeno: formValues.desempeno,
         observation: formValues.observaciones,
         lastUpdateUser: 1,
-        created_user :1
+        created_user: 1
       };
   
       this.wakeUpCallService.crearWakeUpCallGrupo(request).subscribe({
@@ -209,7 +211,6 @@ export class IepAttentionCallComponent implements OnInit{
           }).then((result) => {
             if (result.isConfirmed) {
               this.resetForm();
-              // Emitir el evento para cerrar el modal
               this.closeModal.emit();
               this.router.navigate(['/llamados']);
             }
@@ -219,11 +220,12 @@ export class IepAttentionCallComponent implements OnInit{
           this.handleError(error);
         }
       });
-    } else if (this.selectedEmployeeIds.size === 0) {
+    } else {
+      // Si no hay un empleado seleccionado, mostrar un mensaje de advertencia
       Swal.fire({
         icon: 'warning',
         title: 'Advertencia',
-        text: 'Debe seleccionar al menos un empleado',
+        text: 'Debe seleccionar un empleado',
         confirmButtonText: 'Aceptar',
         confirmButtonColor: '#3085d6'
       });
