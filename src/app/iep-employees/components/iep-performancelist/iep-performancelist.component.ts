@@ -39,7 +39,7 @@ export class IepPerformancelistComponent implements OnInit {
   confirmationMessage = '';
   errorMessage = '';
   selectedObservationCount: number | null = null;  // Nuevo filtro de observaciones
-  performanceTypes: string[] = ['BUENO', 'REGULAR', 'MALO'];  // Opciones de tipo de desempeño
+  performanceTypes: string[] = ['Bueno', 'Regular', 'Malo'];  // Opciones de tipo de desempeño
   performances: EmployeePerformance[] = [];
   searchTerm: string = '';
   selectedYear: string = '';

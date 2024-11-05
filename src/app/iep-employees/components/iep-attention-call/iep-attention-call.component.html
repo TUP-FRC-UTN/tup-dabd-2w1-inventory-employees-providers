@@ -24,13 +24,13 @@
     <div class="mb-3 position-relative">
       <label class="form-label">Desempeño <span class="text-danger">*</span></label>
       <div class="btn-group w-100" role="group">
-        <input type="radio" class="btn-check" formControlName="desempeno" value="LEVE" id="leve">
+        <input type="radio" class="btn-check" formControlName="desempeno" value="Leve" id="leve">
         <label class="btn btn-outline-primary" for="leve">Leve</label>
 
-        <input type="radio" class="btn-check" formControlName="desempeno" value="MODERADO" id="moderado">
+        <input type="radio" class="btn-check" formControlName="desempeno" value="Moderado" id="moderado">
         <label class="btn btn-outline-primary" for="moderado">Moderado</label>
 
-        <input type="radio" class="btn-check" formControlName="desempeno" value="SEVERO" id="severo">
+        <input type="radio" class="btn-check" formControlName="desempeno" value="Severo" id="severo">
         <label class="btn btn-outline-primary" for="severo">Severo</label>
       </div>
       <div class="invalid-feedback d-block" *ngIf="wakeUpCallForm.get('desempeno')?.invalid && (wakeUpCallForm.get('desempeno')?.touched || formSubmitted)">

@@ -1,7 +1,7 @@
 export interface RequestWakeUpCallDTO {
   empleadoId: number;
   fecha: string; // Usamos string para fechas por simplicidad
-  desempeno: 'LEVE' | 'MODERADO' | 'SEVERO'; // Enum equivalente
+  desempeno: 'Leve' | 'Moderado' | 'Severo'; // Enum equivalente
   observation: string;
   lastUpdateUser: number;
   created_user: number;
@@ -10,7 +10,7 @@ export interface RequestWakeUpCallDTO {
 export interface RequestWakeUpCallGroupDTO {
   empleadoIds: number[];
   fecha: string;
-  desempeno: 'LEVE' | 'MODERADO' | 'SEVERO';
+  desempeno: 'Leve' | 'Moderado' | 'Severo';
   observation: string;
   lastUpdateUser: number;
   created_user: number;
