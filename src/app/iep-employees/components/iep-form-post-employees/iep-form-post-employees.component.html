@@ -3,30 +3,6 @@
     <div class="container mt-5 col-md-8 ">
         <form #form="ngForm" (ngSubmit)="onSubmit(form)" class="form-container border rounded border shadow p-4">
 
-
-
-
-
-
-
-
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             
             <!-- Modal de Información -->
                 <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -78,8 +54,6 @@
                 </div>
             </div>
 
-
-
             <!-- empieza el formulario -->
             <!-- empieza el formulario -->
             <!-- empieza el formulario -->
@@ -90,16 +64,12 @@
             <!-- empieza el formulario -->
             <!-- empieza el formulario -->
             <!-- empieza el formulario -->
-
-
-
-
             <!-- Datos personales -->
         
 
-                <p class="text-start mb-3 ">Datos personales:</p>
+                <p class="text-start mb-3 mt-3 ">Datos personales:</p>
                 <hr>
-                <div class="form-group row mb-3">
+                <div class="form-group row mb-3 ">
                     <!-- nombre  -->
 
                     <div class="col-md-6">
@@ -213,7 +183,7 @@
 
             <!-- contacto  -->
           
-                <p class="text-start mb-3 ">Datos de contacto:</p>
+                <p class="text-start mb-3 mt-3">Datos de contacto:</p>
                 <hr>
 
                 <div class="form-group row mb-3 pb-2 ">
@@ -263,7 +233,7 @@
             <!-- Dirección -->
 
            
-                <p class="text-start mb-3 ">Datos de domicilio:</p>
+                <p class="text-start mb-3 mt-3 ">Datos de domicilio:</p>
                 <hr>
                 <div class="form-group row mb-3 ">
                     <!-- provincia  -->
@@ -405,32 +375,17 @@
                         </div>
                     </div>
                 </div>
-        
-
-
-
-
-
-
-
-
-
-                <p class="text-start mb-3 ">Datos del contrato:</p>
+    
+                <p class="text-start mb-3 mt-3">Datos del contrato:</p>
                 <hr>
 
-
-
                 <div class="form-group row mb-3">
-
-
-
-
                     <!-- Empleado tercerizado -->
                     <div class="col-md-6 mb-3 ">
                         <div class="row text-end">
 
-                            <label class="col-form-label col-md-4" for="tercerizado">Tercerizado</label>
-                            <div class="col-md-8 text-center">
+                            <label class="col-form-label col-md-3" for="tercerizado">Tercerizado</label>
+                            <div class="col-md-9 text-center">
 
 
                                 <button style="width: 100%;"
@@ -487,9 +442,9 @@
                     <!-- Cargo -->
                     <div class="col-md-6 mb-3">
                         <div class="row text-end">
-                            <label for="cargo" class="col-form-label col-md-4">Cargo</label>
-                            <div class="col-md-8">
-                                <select id="cargo" name="cargo" class="form-control" [(ngModel)]="cargoSelected"
+                            <label for="cargo" class="col-form-label col-md-3">Cargo</label>
+                            <div class="col-md-9">
+                                <select id="cargo" name="cargo" class="form-select" [(ngModel)]="cargoSelected"
                                     required>
                                     <option disabled selected [ngValue]="undefined">Seleccionar Cargo</option>
                                     @for (c of cargos; track $index) {
@@ -537,7 +492,7 @@
             <!-- dias laborales -->
           
 
-                <p class="text-start mb-3 ">Dias laborales</p>
+                <p class="text-start mb-3 mt-3 ">Dias laborales</p>
                 <hr>
                 <div class="form-group d-flex justify-content-center flex-wrap gap-3 px-3 ">
 
