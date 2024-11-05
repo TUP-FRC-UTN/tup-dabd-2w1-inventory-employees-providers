@@ -7,6 +7,7 @@ import { ProductCategory } from '../models/product-category';
 import { Producto } from '../models/producto';
 import { ProductXDetailDto } from '../models/product-xdetail-dto';
 import { createProductDTO } from '../models/create-product-dto';
+import { UsersMockIdService } from '../../common-services/users-mock-id.service';
 @Injectable({
   providedIn: 'root',
 })
@@ -24,8 +25,13 @@ export class ProductService {
   private readonly AMOUNT_MODIFICATION_URL_GETALL: string = `${this.AMOUNT_MODIFICATION_URL}/getAllModifications`; // Enzo
   private readonly AMOUNT_MODIFICATION_URL_GETALL_PDF: string = `${this.AMOUNT_MODIFICATION_URL}/getAllModificationsPdf`;
   private readonly AMOUNT_MODIFICATION_URL_GETALL_EXCEL: string = `${this.AMOUNT_MODIFICATION_URL}/getAllModificationsExcel`;
+  private userIdService: UsersMockIdService;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,
+    userIdService:UsersMockIdService
+  ) { 
+    this.userIdService = userIdService
+  }
 
   // TOMAS C
   getAllCategories(): Observable<ProductCategory[]> {
@@ -109,4 +115,13 @@ export class ProductService {
       responseType: 'arraybuffer',
     });
   }
+
+  giveLogicalLow(id: number): Observable<any> {
+    const url = `${this.PRODUCT_URL}/${id}/logicalLow`;
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const params = new HttpParams().set('idUser', this.userIdService.getMockId()).set('id', id.toString());
+    return this.http.put<any>(url, {}, { headers, params });
+  }
+
+  //http://localhost:8081/product/1/logicalLow?idUser=3
 }

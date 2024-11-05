@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit, AfterViewInit, } from '@angular/core';
-import { debounceTime, Observable, Subscription } from 'rxjs';
+import { debounceTime, min, Observable, Subscription } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -18,6 +18,9 @@ import { ProductXDetailDto } from '../../models/product-xdetail-dto';
 import { CategoriaService } from '../../services/categoria.service';
 import { DetailServiceService } from '../../services/detail-service.service';
 import { EstadoService } from '../../services/estado.service';
+import { Row } from 'jspdf-autotable';
+import Swal from 'sweetalert2';
+
 
 interface Filters {
   categoriasSeleccionadas: number[];
@@ -37,7 +40,7 @@ interface Filters {
   styleUrl: './iep-inventory.component.css',
 })
 export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
-
+    errorMessage: string = '';
     // Objeto que mantiene el estado de todos los filtros
     filters: Filters = {
       categoriasSeleccionadas: [],
@@ -321,6 +324,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.productos$ = this.productoService.getAllProducts();
     this.productos$.subscribe({
       next: (productos) => {
+        console.log(productos);
         this.productosALL = productos;
         this.filtrarPorUltimos30Dias(); // Aplica el filtro automáticamente
         this.updateDataTable(); // Actualiza la tabla con el filtro aplicado
@@ -446,12 +450,14 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 0);
   }
 
+
   initializeDataTable(): void {
     this.table = $('#productsList').DataTable({
       dom:
         '<"mb-3"t>' +
         '<"d-flex justify-content-between"lp>',
       data: this.productosFiltered,
+      
       columns: [
         {
           data: 'detailProducts',
@@ -483,15 +489,30 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           render: (data: boolean) => (data ? 'SI' : 'NO'),
         },
         {
-          data: 'detailProducts',
+          data: null,
           title: 'Cantidad',
-          render: (data: any) => {
-            return data.length;
-          },
+          render: (row: any) => {
+            const quantity = row.detailProducts.length;
+            const warning = row.minQuantityWarning;
+            
+            if (quantity <= warning+10 && quantity > warning) {
+              return `<span style="color: #FF8C00; font-weight: bold;">${quantity}</span>`;
+            }else{
+              if(9 >= quantity && quantity > 0){
+                return `<span style="color: #FF0000; font-weight: bold;">${quantity}</span>`;
+              }
+            }
+            return quantity;
+          }
         },
         {
           data: 'minQuantityWarning',
           title: 'Min. Alerta',
+        },
+        {
+          data:'discontinued',
+          title: 'Estado',
+          render: (data: boolean) => (data ? 'Inactivo' : 'Activo'),
         },
         {
           data: null,
@@ -506,6 +527,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
                 <ul class="dropdown-menu">
                   <li><button class="dropdown-item btn botonAumentoStock" data-id="${row.id}">Agregar</button></li>
                   <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
+                  <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" (click)="giveLogicalLow(${row.id})">Eliminar</button></li>
                 </ul>
               </div>
             `;
@@ -532,6 +554,12 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           previous: '<',
         },
       },
+      createdRow: function(row: any, data: any) {
+        // Verifica si la cantidad es menor o igual al mínimo de alerta
+        if (data.detailProducts.length <= data.minQuantityWarning) {
+          // Aplicar la clase de Bootstrap para warning
+        }
+      },
       initComplete: () => {
         $('#Nombre').on('keyup', (event) => {
           this.nombre = $(event.currentTarget).val() as string;
@@ -540,6 +568,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         });
       },
+
     });
     // Corregir los event handlers
     $('#productsList').on('click', '.botonAumentoStock', (event) => {
@@ -561,12 +590,95 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       this.irAgregarDetalles(id);
     });
 
+    $('#productsList').on('click', '.delete-btn', (event) => {
+      event.preventDefault();
+      const id = $(event.currentTarget).data('id');
+      this.setProductToDelete(id);
+      this.showConfirmDeleteModal();
+    });
+
+  }
+
+  setProductToDelete(id: number): void {  
+    console.log('Eliminando producto con id: ' + id);
+    this.selectedProductId = id;
+  }
+
+  showConfirmDeleteModal(): void {
+    Swal.fire({
+      title: '¿Estás seguro de eliminar este producto?',
+      text: 'Se darán de baja todos sus ítems asociados',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc3545', // Color rojo de Bootstrap
+      cancelButtonColor: '#6c757d', // Color gris de Bootstrap
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.deleteProduct();
+      }
+    });
+  }
+
+  showErrorDeleteModal(): void {
+    Swal.fire({
+      title: 'Error al eliminar el producto',
+      text: 'No se pudo eliminar el producto',
+      icon: 'error',
+      confirmButtonText: 'Aceptar',
+    });
+  }
+
+  showSuccessDeleteModal(): void {
+    Swal.fire({
+      title: 'Producto eliminado',
+      text: 'El producto ha sido eliminado correctamente',
+      icon: 'success',
+      confirmButtonText: 'Aceptar',
+    });
+  }
+
+  deleteProduct(): void {
+    console.log('Eliminando producto');
+    if(this.selectedProductId!==null){
+      const logicalLow$ = this.productoService.giveLogicalLow(this.selectedProductId);
+      logicalLow$.subscribe({
+        next: (response) => {
+          console.log(response);
+          this.showSuccessDeleteModal();  
+          this.cargarProductos();
+        },
+        error: (error) => {
+          this.handleErrorMessage(error);
+          console.error(error);
+        },
+        complete: () => {
+          console.log('Petición completada');
+        },
+      });
+    }else{
+      console.log('No se ha seleccionado un producto');
+      this.showErrorDeleteModal();
+    }
+  }
+
+  handleErrorMessage(error: any): void {
+    console.error(error);
+    if(error.error.message === '404 Product not found') {
+      this.errorMessage = 'El producto no fue encontrado';
+    }
+    this.showErrorDeleteModal();
+  }
+
+  giveLogicalLow(id: number) {  
+    console.log('Eliminando producto con id: ' + id);
   }
 
   /* METODO PARA PASAR DE FECHAS "2024-10-17" A FORMATO dd/mm/yyyy*/
   formatDate(inputDate: string): string {
     const [year, month, day] = inputDate.split('-');
-    return `${day}/${month}/${year}`;
+    return `${day}-${month}-${year}`;
   }
 
   updateDataTable(): void {
