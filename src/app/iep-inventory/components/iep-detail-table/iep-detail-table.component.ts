@@ -16,6 +16,7 @@ import { WarehouseMovementService } from '../../services/warehouse-movement.serv
 import { catchError, delay, Observable } from 'rxjs';
 import { IepCreateWarehouseMovementDTO } from '../../models/iep-create-warehouse-movement-dto';
 import { DetailServiceService } from '../../services/detail-service.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-iep-detail-table',
@@ -227,43 +228,168 @@ applyStateFilter($event: Event, state: string) {
     });
   }
 
+  showErrorWarehouseAlert(): void {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: this.errorMessage,
+      confirmButtonText: 'Intentar de nuevo'
+    }).then(()=>{
+      this.cleanDTO();
+      this.closeModal();
+    });
+  }
+
+  showSuccessWarehouseAlert(): void {
+    Swal.fire({
+      icon: 'success',
+      title: 'Movimiento registrado',
+      text: 'El movimiento de almacén se ha registrado con éxito',
+      confirmButtonText: 'OK'
+
+    }).then(()=>{
+      this.cleanDTO();
+      this.closeModal();
+    });
+  }
+
   onSubmit(form: NgForm) {
+    if (!form.valid) {
+      console.log("Formulario inválido");
+      return;
+    }
+
     this.loading = true;
     this.confirmPost = false;
     this.errorPost = false;
-    if (form.valid) {
-      this.dtoCreate.id_details = this.selectedIds;
-      this.dtoCreate.responsible = 'Encargado de Inventario';
-      console.log(".............");
-      console.log(this.dtoCreate);
-      this.createMovement$ = this.warehouseService.postWarehouseMovement(this.dtoCreate, this.idUser)
-        .pipe(catchError((err) => {
-          if (err.error.message == "Required request parameter 'idLastUpdatedUser' for method parameter type Integer is not present") {
-            this.errorMessage = 'No se ha especificado el usuario que realiza el movimiento';
-          }
-          if (err.error.message == "404 Item not available to loan") {
-            this.errorMessage = 'El producto no está disponible para préstamo';
-          }
-          if (err.error.message == '404 Item already available') {
-            this.errorMessage = 'El producto ya está disponible';
-          }
-          if (err.error.message == '404 Item already in maintenance') {
-            this.errorMessage = 'El producto ya está en mantenimiento';
-          }
-          this.errorPost = true;
+    this.errorMessage = '';
+
+    this.dtoCreate.id_details = this.selectedIds;
+    this.dtoCreate.responsible = 'Encargado de Inventario';
+
+    this.warehouseService.postWarehouseMovement(this.dtoCreate, this.idUser)
+      .subscribe({
+        next: (response) => {
+          console.log('Movimiento de almacén registrado con éxito:', response);
+          this.showSuccessWarehouseAlert();
+          this.confirmPost = true;
+        },
+        error: (err) => {
           console.error('Error al registrar movimiento de almacén:', err);
-          console.log(err.error.message);
-          return [];
+          this.errorPost = true;
+          
+          // Manejar diferentes tipos de error
+          this.handleError(err);
+        },
+        complete: () => {
+          console.log('Petición completada');
+          this.loading = false;
         }
-        ));
-    } else {
-      console.log("Formulario inválido");
-    }
-    this.loading = false;
-    if (this.createMovement$) {
-      this.confirmPost = true;
-    }
+      });
+
+}
+
+handleError(err: any): void {
+  switch(err.error.message) {
+    case "Required request parameter 'idLastUpdatedUser' for method parameter type Integer is not present":
+      this.errorMessage = 'No se ha especificado el usuario que realiza el movimiento';
+      break;
+    case "404 Item not available to loan":
+      this.errorMessage = 'El producto no está disponible para préstamo';
+      break;
+    case "404 Item already available":
+      this.errorMessage = 'El producto ya está disponible';
+      break;
+    case "404 Item already in maintenance":
+      this.errorMessage = 'El producto ya está en mantenimiento';
+      break;
+    case "404 Item not found":
+      this.errorMessage = 'Producto no encontrado';
+      break;
+    case "500 Error creating warehouse movement":
+      this.errorMessage = 'Error al crear el movimiento de almacén';
+      break;
+    case "400 Invalid movement type":
+      this.errorMessage = 'Tipo de movimiento inválido';
+      break;
+    case "404 Employee not found":
+      this.errorMessage = 'Error al crear el movimiento de almacén';
+      break;
+    case "400 Applicant required":
+      this.errorMessage = 'El solicitante es requerido';
+      break;
+    case "400 Item discontinued":
+      this.errorMessage = 'El producto seleccionado fue dado de baja';
+      break;
+    default:
+      this.errorMessage = 'Error al procesar la solicitud';
   }
+  this.showErrorWarehouseAlert();
+  
+}
+
+/*private closeModal() {
+  const modalElement = document.getElementById('warehouseModal');
+  if (modalElement) {
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+      modal.hide();
+    }
+    
+    // Limpieza completa después de que se oculte el modal
+    setTimeout(() => {
+      // Remover clases del body
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('padding-right');
+      document.body.style.removeProperty('overflow');
+      
+      // Remover todos los backdrops
+      const backdrops = document.getElementsByClassName('modal-backdrop');
+      while (backdrops.length > 0) {
+        backdrops[0].remove();
+      }
+
+      // Limpiar el modal
+      modalElement.classList.remove('show');
+      modalElement.style.display = 'none';
+      modalElement.setAttribute('aria-hidden', 'true');
+      modalElement.removeAttribute('aria-modal');
+      modalElement.removeAttribute('role');
+    }, 300);
+  }
+}*/ 
+
+private closeModal() {
+  const modalElement = document.getElementById('warehouseModal');
+  if (modalElement) {
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+      modal.hide();
+    }
+    
+    // Limpieza completa después de que se oculte el modal
+    setTimeout(() => {
+      // Remover clases del body
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('padding-right');
+      document.body.style.removeProperty('overflow');
+      
+      // Remover todos los backdrops
+      const backdrops = document.getElementsByClassName('modal-backdrop');
+      while (backdrops.length > 0) {
+        backdrops[0].remove();
+      }
+
+      // Limpiar el modal
+      modalElement.classList.remove('show');
+      modalElement.style.display = 'none';
+      modalElement.setAttribute('aria-hidden', 'true');
+      modalElement.removeAttribute('aria-modal');
+      modalElement.removeAttribute('role');
+    }, 300);
+  }
+}
+
 
   cleanDTO(): void {
     this.dtoCreate = new IepCreateWarehouseMovementDTO();
@@ -316,6 +442,27 @@ applyStateFilter($event: Event, state: string) {
         // o cualquier otro método
       }
     });
+    
+  }
+
+
+  public openModalWarehouse() {
+    const modalElement = document.getElementById('warehouseModal');
+    if (!modalElement) return;
+  
+    // Asegurarnos de que no exista una instancia previa
+    let modalInstance = bootstrap.Modal.getInstance(modalElement);
+    if (modalInstance) {
+      modalInstance.dispose();
+    }
+  
+    // Crear nueva instancia y mostrar
+    modalInstance = new bootstrap.Modal(modalElement, {
+      backdrop: 'static', // o true si prefieres que se cierre al hacer clic fuera
+      keyboard: false // o true si quieres permitir cerrar con ESC
+    });
+    
+    modalInstance.show();
   }
 
   initializeModal(): void {
@@ -496,6 +643,24 @@ applyStateFilter($event: Event, state: string) {
     }
   }
 
+  showSuccessDeleteAlert(): void {
+    Swal.fire({
+      icon: 'success',
+      title: 'Productos eliminados',
+      text: 'Los productos se han eliminado con éxito',
+      confirmButtonText: 'OK'
+    });
+  }
+
+  showErrorDeleteAlert(): void {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Error al eliminar productos',
+      confirmButtonText: 'Intentar de nuevo'
+    });
+  }
+
   confirmDelete(): void {
     if (this.selectedIds.length > 0 && this.justificativo.trim() !== '') {
       const postDecrement: PostDecrement = {
@@ -506,6 +671,7 @@ applyStateFilter($event: Event, state: string) {
       this.detailService.postDecrement(postDecrement).subscribe({
         next: (response) => {
           console.log('Productos eliminados con éxito:', response);
+          this.showSuccessDeleteAlert();
           // Primero ocultamos el modal
           this.deleteModal.hide();
           // Removemos manualmente el backdrop y las clases modal-open
@@ -519,7 +685,19 @@ applyStateFilter($event: Event, state: string) {
           this.resetSelectionAndJustification();
         },
         error: (err) => {
-          console.error('Error al eliminar productos:', err);
+          console.error(err);
+          if(err.error.text === 'Operation successful'){
+            this.showSuccessDeleteAlert();
+            this.deleteModal.hide();
+            document.body.classList.remove('modal-open');
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+              backdrop.remove();
+            }
+            this.loadDetails();
+            this.resetSelectionAndJustification();
+          }else{
+            this.showErrorDeleteAlert();
           // Misma limpieza en caso de error
           this.deleteModal.hide();
           document.body.classList.remove('modal-open');
@@ -529,6 +707,7 @@ applyStateFilter($event: Event, state: string) {
           }
           this.loadDetails();
           this.resetSelectionAndJustification();
+          }
         },
       });
     }
