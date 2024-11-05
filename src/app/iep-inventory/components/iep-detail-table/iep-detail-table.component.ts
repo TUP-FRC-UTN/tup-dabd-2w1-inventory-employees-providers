@@ -29,6 +29,12 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
 
   selectedStates: string[] = []; // Cambia de string a array
 
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+  priceValidationError: boolean = false;
+
+
+
   // Método para aplicar filtro por estados seleccionados
 applyStateFilter($event: Event, state: string) {
   const checkbox = $event.target as HTMLInputElement;
@@ -66,6 +72,8 @@ applyStateFilter($event: Event, state: string) {
     // Limpiar valores de los inputs
     const inputs = document.querySelectorAll('input[placeholder]');
     inputs.forEach(input => (input as HTMLInputElement).value = '');
+
+    
   
     // Resetear select de estado
     const estadoSelect = document.getElementById('estadoSelect') as HTMLSelectElement;
@@ -89,12 +97,10 @@ applyStateFilter($event: Event, state: string) {
   selectedState: string = ''; // Método para aplicar filtro por estado
 
 
-  // Método para aplicar filtro por rango de precio
-  minPrice: number | null = null;
-  maxPrice: number | null = null;
+
 
   // Método para aplicar todos los filtros
-  private applyAllFilters(): void {
+  public applyAllFilters(): void {
     this.filteredDetails = this.details.filter(detail => {
       // Filtro de búsqueda general
       const searchTerm = this.currentSearchTerm.toLowerCase();
@@ -124,6 +130,62 @@ applyStateFilter($event: Event, state: string) {
     // Actualizar la tabla con los resultados filtrados
     this.table.clear().rows.add(this.filteredDetails).draw();
   }
+  // Método para validar precios
+  validatePrices(): boolean {
+    if (this.minPrice !== null && this.maxPrice !== null) {
+      if (this.minPrice > this.maxPrice) {
+        this.priceValidationError = true;
+        return false;
+      }
+    }
+    this.priceValidationError = false;
+    return true;
+  }
+
+  public applyAllFilters2(): void {
+
+    // Validar precios antes de aplicar filtros
+    if (!this.validatePrices()) {
+      return;
+    }
+    // Captura de valores de los filtros al hacer clic en el botón "Filtrar"
+    const productFilter = (document.querySelector('input[placeholder="Descripción"]') as HTMLInputElement)?.value.toLowerCase();
+    const supplierFilter = (document.querySelector('input[placeholder="Proveedor"]') as HTMLInputElement)?.value.toLowerCase();
+    const minPriceInput = (document.querySelector('input[placeholder="Precio Mín."]') as HTMLInputElement)?.value;
+    const maxPriceInput = (document.querySelector('input[placeholder="Precio Máx."]') as HTMLInputElement)?.value;
+
+    this.minPrice = minPriceInput ? Number(minPriceInput) : null;
+    this.maxPrice = maxPriceInput ? Number(maxPriceInput) : null;
+
+
+
+    this.filteredDetails = this.details.filter(detail => {
+        // Filtro de búsqueda general
+        const searchTerm = this.currentSearchTerm.toLowerCase();
+        const matchesSearch = !searchTerm ||
+            detail.description.toLowerCase().includes(searchTerm) ||
+            detail.supplierName.toLowerCase().includes(searchTerm) ||
+            detail.state.toLowerCase().includes(searchTerm);
+
+        // Filtro por estado
+        const matchesState = this.selectedStates.length === 0 || 
+                             this.selectedStates.includes(detail.state);
+
+        // Filtro por precio
+        const matchesPrice = this.applyPriceFilterLogic(detail.price);
+
+        // Filtros por columnas específicas
+        const matchesProduct = !productFilter || detail.description.toLowerCase().includes(productFilter);
+        const matchesSupplier = !supplierFilter || detail.supplierName.toLowerCase().includes(supplierFilter);
+
+        // Retorna true solo si cumple con todos los filtros
+        return matchesSearch && matchesState && matchesPrice && matchesProduct && matchesSupplier;
+    
+    });
+
+    // Actualizar la tabla con los resultados filtrados
+    this.table.clear().rows.add(this.filteredDetails).draw();
+}
 
   cleanStateFilters(): void {
     this.selectedStates = [];
@@ -466,6 +528,7 @@ private closeModal() {
     
     modalInstance.show();
   }
+  
 
   initializeModal(): void {
     this.deleteModal = new bootstrap.Modal(
@@ -730,7 +793,7 @@ private closeModal() {
 
   volverInventario(): void {
     // Implementa la lógica para volver al inventario
-    this.router.navigate(["inventario"])
+     this.router.navigate(["home/inventory"])
   }
 
   getFormattedDate(): string {
@@ -791,4 +854,5 @@ private closeModal() {
     const formattedDate = this.getFormattedDate();
     doc.save(`Detalle_Inventario_${formattedDate}.pdf`);
   }
+  
 }
