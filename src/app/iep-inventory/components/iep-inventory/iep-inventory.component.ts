@@ -248,9 +248,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
 
-  // Variables necesarias para el filtrado por fecha
-  startDate: string = '';
-  endDate: string = '';
 
   filtrarPorUltimos30Dias(): void {
     const hoy = new Date();
@@ -272,74 +269,100 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-
+  //Filtra los productos cuya fecha es mayor a startDate
   onStartDateChange(): void {
-    const startDateInput = document.getElementById('startDate') as HTMLInputElement;
-    this.filters.startDate = startDateInput.value;
-    this.aplicarFiltrosCombinados();
-  }
-
-  onEndDateChange(): void {
-    const endDateInput = document.getElementById('endDate') as HTMLInputElement;
-    this.filters.endDate = endDateInput.value;
-    this.aplicarFiltrosCombinados();
-  }
-
-  applyDateFilter(): void {
     this.productosFiltered = this.productosALL.filter(producto => {
-      // Obtener la última fecha de actualización de los detalles del producto
       let lastDate = '';
       for (const detail of producto.detailProducts) {
-        if (detail.lastUpdatedDatetime) {
-          if (!lastDate || detail.lastUpdatedDatetime > lastDate) {
-            lastDate = detail.lastUpdatedDatetime;
-          }
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
         }
       }
-
-      // Si no hay fecha de inicio ni fin, mostrar todos los productos
-      if (!this.startDate && !this.endDate) {
-        return true;
-      }
-
-      // Si no hay fecha para el producto, no lo incluimos en el filtro
       if (!lastDate) {
         return false;
       }
 
       const productDate = new Date(lastDate);
-
-      // Filtrar por fecha de inicio si existe
-      if (this.startDate && !this.endDate) {
-        return productDate >= new Date(this.startDate);
-      }
-
-      // Filtrar por fecha final si existe
-      if (!this.startDate && this.endDate) {
-        return productDate <= new Date(this.endDate);
-      }
-
-      // Filtrar por rango de fechas si ambas existen
-      return productDate >= new Date(this.startDate) && productDate <= new Date(this.endDate);
+      return this.startDate ? productDate >= new Date(this.startDate) : true;
     });
 
     this.updateDataTable();
   }
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value.toLowerCase();
 
+  //Filtra los productos cuya fecha es menor a startDate
+  onEndDateChange(): void {
     this.productosFiltered = this.productosALL.filter(producto => {
-      // Obtener todos los valores de las columnas excepto la primera (fecha)
-      const searchableValues = [
-        producto.name,
-        producto.category?.categoryName,
-        producto.reusable ? 'SI' : 'NO',
-        producto.detailProducts?.length.toString(),
-        producto.minQuantityWarning?.toString()
-      ].map(value => value?.toLowerCase() || '');
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
+        }
+      }
+      if (!lastDate) {
+        return false;
+      }
 
-      // Verificar si alguno de los valores coincide con el texto de búsqueda
-      return searchableValues.some(value => value.includes(filterValue));
+      const productDate = new Date(lastDate);
+      return this.endDate ? productDate <= new Date(this.endDate) : true;
+    });
+
+    this.updateDataTable();
+  }
+
+  applyDateFilter(): void {
+    this.productosFiltered = this.productosALL.filter(producto => {
+      // Obtener la última fecha de actualización de los detalles del producto
+    });
+
+    this.updateDataTable();
+  }
+
+  filtersValues: any = {
+    startDate: '',
+    endDate: '',
+  };
+
+  globalFilter: string = '';
+  // Método para aplicar el filtro global.
+  applyFilter(): void {
+    const globalFilterLower = this.globalFilter.toLowerCase();
+    this.productosFiltered = this.productosALL.filter(producto => {
+      return producto.name.toLowerCase().includes(globalFilterLower.toLowerCase()) ||
+        producto.category.categoryName.toLowerCase().includes(globalFilterLower.toLowerCase()) ||
+        (producto.reusable ? 'SI' : 'NO').toLowerCase().includes(globalFilterLower.toLowerCase()) ||
+        producto.detailProducts.length.toString().includes(globalFilterLower);
+    });
+
+    //Seccion para filtrar por fecha startDate
+    this.productosFiltered = this.productosFiltered.filter(producto => {
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
+        }
+      }
+      if (!lastDate) {
+        return false;
+      }
+
+      const productDate = new Date(lastDate);
+      return this.startDate ? productDate >= new Date(this.startDate) : true;
+    });
+
+    //Seccion para filtrar por fecha endDate
+    this.productosFiltered = this.productosFiltered.filter(producto => {
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
+        }
+      }
+      if (!lastDate) {
+        return false;
+      }
+
+      const productDate = new Date(lastDate);
+      return this.endDate ? productDate <= new Date(this.endDate) : true;
     });
 
     this.updateDataTable();
@@ -411,10 +434,23 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   showNuevoProductoModal: boolean = false;
   selectedProductId: number | null = null;
 
+  
+  // Variables necesarias para el filtrado por fecha
+  startDate: string | undefined;
+  endDate: string | undefined;
+
+  
+
   ngOnInit(): void {
-    this.endDate = new Date().toISOString().split('T')[0];
+    const hoy = new Date();
+    const hace30Dias = new Date();
+    this.endDate = hoy.toISOString().split('T')[0];
     // Inicializar la fecha de inicio con la fecha actual menos 30 dias
-    this.startDate = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
+    hace30Dias.setDate(hoy.getDate() - 30);
+    this.startDate = hace30Dias.toISOString().split('T')[0];
+    console.log('startDate', this.startDate);
+    console.log('endDate', this.endDate);
+    console.log('hoy', hoy);
     this.initializeDataTable();
     this.cargarDatos();
     console.log(this.categories);
@@ -507,6 +543,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.amountBroken = this.getCountByategoryAndState(1, 'Roto');
     this.updateDataTable();
   }
+
+  
 
   // Modifica el método cleanFilters() para limpiar también las categorías seleccionadas
   cleanFilters(): void {

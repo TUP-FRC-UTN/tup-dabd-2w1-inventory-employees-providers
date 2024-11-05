@@ -59,22 +59,23 @@
         <!-- Sección de filtros y botones de exportación -->
         <div class="d-flex mb-3 justify-content-between align-items-center">
           <div class="d-flex align-items-center flex-grow-1">
+            
             <!-- Campo de Búsqueda -->
             <div class="col-md-4 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-              <input type="text" id="filterInput" class="form-control" placeholder="Buscar"
-                (input)="applyFilter($event)" />
+              <input type="text" id="filterInput" class="form-control" placeholder="Buscar" [(ngModel)]="globalFilter" name="globalFilter"
+                (input)="applyFilter()" />
             </div>
 
             <!-- Campo Desde para seleccionar la fecha de inicio -->
             <div class="col-md-3 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-              <input type="date" id="startDate" class="form-control" [value]="startDate" #startDateInput
-                (change)="onStartDateChange()" />
+              <input type="date" id="startDate" class="form-control"  #startDateInput [(ngModel)]="startDate" name="startDate"
+                (ngModelChange)="applyFilter()" />
             </div>
 
             <!-- Campo Hasta para seleccionar la fecha de fin -->
             <div class="col-md-3 mb-3 mb-md-0">
-              <input type="date" id="endDate" class="form-control" [value]="endDate" #endDateInput
-                (change)="onEndDateChange()" />
+              <input type="date" id="endDate" class="form-control" #endDateInput [(ngModel)]="endDate" name="endDate"
+                (ngModelChange)="applyFilter()" />
             </div>
 
             <!-- Botón para mostrar/ocultar filtros -->
