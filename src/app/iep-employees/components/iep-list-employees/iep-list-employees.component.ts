@@ -185,6 +185,11 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     return `${day}/${month}/${year}`;
   }
 
+  goTo(path:string){
+
+    this.router.navigate([path])
+
+  }
   exportToPdf(): void {
     const doc = new jsPDF();
 

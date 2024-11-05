@@ -3,18 +3,18 @@
     <div class="container mt-5 col-md-8 ">
         <form #form="ngForm" (ngSubmit)="onSubmit(form)" class="form-container border rounded border shadow p-4">
 
+            
             <!-- Modal de Información -->
-            <div class="modal" *ngIf="isInfoModalVisible" (click)="closeInfoModal()">
-                <div class="modal-content" (click)="$event.stopPropagation()">
-                    <div class="modal-header">
+                <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                    <div class=" modal-header">
                         <h5 class="modal-title">Información sobre la Página</h5>
-                        <button type="button" class="close" (click)="closeInfoModal()">&times;</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-
-
-                        <!-- Resto del contenido del modal -->
-
+                                <!-- Resto del contenido del modal -->
                         <p>
                             Bienvenido al formulario de registro de empleado. En esta página, puedes registrar nuevos
                             empleados del sistema. A continuación, se
@@ -34,11 +34,9 @@
                             <li>
                                 <strong>Datos de contrato:</strong> Se piden los datos para constatar la modalidad de
                                 trabajo, puede ser
-                                <em>Tercerizado <span style="color: green;">✅</span>,o NO Tercerizado <span
-                                        style="color: red;">❌</span></em>, lafechade inicio de contrato debe ser igual o
+                                <em>Tercerizado <button class="btn btn-success" >SI</button>   o no Tercerizado <button class="btn btn-danger">NO</button></em>      la fecha de inicio de contrato debe ser igual o
                                 posterior a la fecha actual
                             </li>
-
                             <li>
                                 <strong>Dias laborales y horarios:</strong> se deben seleccionar los dias habiles que el
                                 empleado debe asistir y los horarios que deberia cumplir
@@ -49,14 +47,12 @@
 
 
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" (click)="closeInfoModal()">Cerrar</button>
+                    
+                  
                     </div>
                 </div>
             </div>
 
-
-
             <!-- empieza el formulario -->
             <!-- empieza el formulario -->
             <!-- empieza el formulario -->
@@ -67,21 +63,17 @@
             <!-- empieza el formulario -->
             <!-- empieza el formulario -->
             <!-- empieza el formulario -->
-
-
-
-
             <!-- Datos personales -->
-            <div class="bg-light rounded mb-5 pb-3 pt-3 ps-2">
+        
 
-                <p class="text-start mb-3 ">Datos personales:</p>
+                <p class="text-start mb-3 mt-3 ">Datos personales:</p>
                 <hr>
-                <div class="form-group row mb-3">
+                <div class="form-group row mb-3 ">
                     <!-- nombre  -->
 
                     <div class="col-md-6">
                         <div class="row">
-                            <label for="nombre" class="col-form-label col-md-3 text-end">Nombre:</label>
+                            <label for="nombre" class="col-form-label col-md-3 text-end">Nombre</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="nombre" name="nombre" [(ngModel)]="nombre"
                                     #nombreModel="ngModel" required pattern="^[A-Za-zÀ-ÿ\s]+$" [ngClass]="{
@@ -98,7 +90,7 @@
                     <!-- apellido  -->
                     <div class="col-md-6">
                         <div class="row">
-                            <label for="apellido" class="col-form-label col-md-3 text-end">Apellido:</label>
+                            <label for="apellido" class="col-form-label col-md-3 text-end">Apellido</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="apellido" name="apellido" name="apellido"
                                     [(ngModel)]="apellido" #apellidoModel="ngModel" required pattern="^[A-Za-zÀ-ÿ\s]+$"
@@ -122,9 +114,9 @@
 
                     <div class="col-md-6">
                         <div class="row">
-                            <label for="documentType" class="col-form-label col-md-3 text-end">Tipo Doc:</label>
+                            <label for="documentType" class="col-form-label col-md-3 text-end">Tipo Doc</label>
                             <div class="col-md-9">
-                                <select id="documentType" name="documentType" class="form-control"
+                                <select id="documentType" name="documentType" class="form-select"
                                     [(ngModel)]="documentType">
                                     <option disabled required value="">Seleccionar tipo de documento</option>
                                     <option [ngValue]="documentTypeEnum.DNI">DNI</option>
@@ -143,7 +135,7 @@
 
                     <div class="col-md-6">
                         <div class="row">
-                            <label for="cuil" class="col-form-label col-md-3 text-end">CUIL:</label>
+                            <label for="cuil" class="col-form-label col-md-3 text-end">CUIL</label>
                             <div class="form-group col-md-9">
                                 <input type="text" class="form-control" id="cuil" name="cuil" [(ngModel)]="cuil"
                                     #cuilModel="ngModel" required pattern="^([0-9]{2}-)?[0-9]{8}-[0-9]$" [ngClass]="{
@@ -165,7 +157,7 @@
 
                     <div class="col-md-6 mt-3">
                         <div class="row">
-                            <label for="dni" class="col-form-label col-md-3 text-end">Documento:</label>
+                            <label for="dni" class="col-form-label col-md-3 text-end">Documento</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="dni" name="dni" [(ngModel)]="dni"
                                     #dniModel="ngModel" required [ngClass]="{
@@ -186,11 +178,11 @@
 
 
                 </div>
-            </div>
+       
 
             <!-- contacto  -->
-            <div class="bg-light rounded ps-2 ">
-                <p class="text-start mb-3 ">Datos de contacto:</p>
+          
+                <p class="text-start mb-3 mt-3">Datos de contacto:</p>
                 <hr>
 
                 <div class="form-group row mb-3 pb-2 ">
@@ -198,7 +190,7 @@
 
                     <div class="col-md-6">
                         <div class="row">
-                            <label for="telefono" class="col-form-label col-md-3 text-end">Teléfono:</label>
+                            <label for="telefono" class="col-form-label col-md-3 text-end">Teléfono</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="telefono" name="telefono"
                                     [(ngModel)]="telefono" #telefonoModel="ngModel" required
@@ -219,7 +211,7 @@
 
                     <div class="col-md-6">
                         <div class="row">
-                            <label for="mail" class="col-form-label col-md-3 text-end">E-mail:</label>
+                            <label for="mail" class="col-form-label col-md-3 text-end">E-mail</label>
                             <div class="col-md-9">
                                 <input type="email" class="form-control" id="mail" name="mail" [(ngModel)]="mail"
                                     #mailModel="ngModel" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
@@ -234,22 +226,22 @@
                         </div>
                     </div>
                 </div>
-            </div>
+          
 
 
             <!-- Dirección -->
 
-            <div class="bg-light rounded mb-3 ps-2">
-                <p class="text-start mb-3 ">Datos de domicilio:</p>
+           
+                <p class="text-start mb-3 mt-3 ">Datos de domicilio:</p>
                 <hr>
                 <div class="form-group row mb-3 ">
                     <!-- provincia  -->
 
                     <div class="col-md-6">
-                        <div class="row">
-                            <label for="provincia" class="col-form-label col-md-3">Provincia:</label>
+                        <div class="row text-end">
+                            <label for="provincia" class="col-form-label col-md-3">Provincia</label>
                             <div class="col-md-9">
-                                <select id="provincia" name="provincia" class="form-control"
+                                <select id="provincia" name="provincia" class="form-select"
                                     [(ngModel)]="provinciaSelect" (change)="loadLocalidades()" required>
                                     <option disabled [ngValue]="undefined">Seleccionar provincia</option>
                                     @for (p of provincias; track $index) {
@@ -261,10 +253,10 @@
                     </div>
                     <!-- localidad  -->
                     <div class="col-md-6">
-                        <div class="row">
-                            <label for="localidad" class="col-form-label col-md-3">Localidad:</label>
+                        <div class="row text-end">
+                            <label for="localidad" class="col-form-label col-md-3 ">Localidad</label>
                             <div class="col-md-9">
-                                <select id="localidad" name="localidad" class="form-control"
+                                <select id="localidad" name="localidad" class="form-select"
                                     [(ngModel)]="localidadSelect" required>
                                     <option disabled [ngValue]="undefined">Seleccionar localidad</option>
                                     @for (l of provinciaSelect?.ciudades; track $index) {
@@ -282,8 +274,8 @@
                     <!-- calle  -->
 
                     <div class="col-md-6">
-                        <div class="row">
-                            <label for="calle" class="col-form-label col-md-3">Calle:</label>
+                        <div class="row text-end">
+                            <label for="calle" class="col-form-label col-md-3">Calle</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="calle" name="calle" [(ngModel)]="calle"
                                     #calleModel="ngModel" required pattern="^[A-Za-z0-9\s]+$" [ngClass]="{
@@ -301,8 +293,8 @@
                     <!-- nro calle  -->
 
                     <div class="col-md-6">
-                        <div class="row">
-                            <label for="numeroCalle" class="col-form-label col-md-3">Número:</label>
+                        <div class="row text-end">
+                            <label for="numeroCalle" class="col-form-label col-md-3">Número</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="numeroCalle" name="numeroCalle"
                                     [(ngModel)]="numeroCalle" #numeroCalleModel="ngModel" required
@@ -325,8 +317,8 @@
                     <!-- piso  -->
 
                     <div class="col-md-6">
-                        <div class="row">
-                            <label for="piso" class="col-form-label col-md-3">Piso:</label>
+                        <div class="row text-end">
+                            <label for="piso" class="col-form-label col-md-3">Piso</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="piso" name="piso" [(ngModel)]="piso"
                                     #pisoModel="ngModel" required pattern="^-?[0-9]\d*$" [ngClass]="{
@@ -342,8 +334,8 @@
                     <!-- depa  -->
 
                     <div class="col-md-6">
-                        <div class="row">
-                            <label for="dpto" class="col-form-label col-md-3">Departamento:</label>
+                        <div class="row text-end">
+                            <label for="dpto" class="col-form-label col-md-3">Departamento</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="dpto" name="dpto" [(ngModel)]="dpto"
                                     #dptoModel="ngModel" pattern="^[a-zA-Z0-9]+$" [ngClass]="{
@@ -364,8 +356,8 @@
                     <!-- cod postal  -->
 
                     <div class="col-md-6">
-                        <div class="row">
-                            <label for="codigo-postal" class="col-form-label col-md-3">Código P :</label>
+                        <div class="row text-end">
+                            <label for="codigo-postal" class="col-form-label col-md-3">Código P </label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="codigo-postal" name="codigo-postal"
                                     [(ngModel)]="codigoPostal" #codigoPostaModel="ngModel" required
@@ -382,50 +374,34 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-
-
-
-
-
-
-
-
-            <div class="bg-light rounded mb-5 pb-2 ps-2 pt-2">
-                <p class="text-start mb-3 ">Datos del contrato:</p>
+    
+                <p class="text-start mb-3 mt-3">Datos del contrato:</p>
                 <hr>
 
-
-
                 <div class="form-group row mb-3">
-
-
-
-
                     <!-- Empleado tercerizado -->
-                    <div class="col-md-6 mb-3">
-                        <div class="row">
+                    <div class="col-md-6 mb-3 ">
+                        <div class="row text-end">
+
+                            <label class="col-form-label col-md-3" for="tercerizado">Tercerizado</label>
+                            <div class="col-md-9 text-center">
 
 
-
-                            <label class="col-form-label col-md-4" for="tercerizado">Tercerizado:</label>
-                            <div class="col-md-8">
-
-                                <i id="tercerizado" name="tercerizado" (click)="changeTerceorized()"
-                                    [class]="terciorizedEmployee ? 'fas fa-check text-success' : 'fas fa-times text-danger'"
-                                    style="font-size: 2.0em; cursor: pointer; margin-left: 10px;"></i>
+                                <button style="width: 100%;"
+                                [ngClass]="terciorizedEmployee ? 'btn btn-success text-center' : 'btn btn-danger text-center'"  
+                                (click)="changeTerceorized()">
+                                {{ terciorizedEmployee ? 'SI' : 'NO' }}
+                            </button>
                             </div>
 
                         </div>
                     </div>
                     @if (!terciorizedEmployee) {
                     <!-- Salario -->
-
                     <div class="col-md-6 mb-3">
-                        <div class="row">
+                        <div class="row text-end">
 
-                            <label class="col-form-label col-md-3" for="salario">Salario:</label>
+                            <label class="col-form-label col-md-3" for="salario">Salario</label>
                             <div class="col-md-9">
                                 <input type="number" class="form-control text-end" id="salario" name="salario"
                                     [(ngModel)]="salario" #salarioModel="ngModel" required pattern="^[1-9]\d*$"
@@ -444,14 +420,14 @@
                     @else {
                     <!-- Proveedores de servicio tercerizado -->
                     <div class="col-md-6 mb-3">
-                        <div class="row">
+                        <div class="row text-end">
 
-                            <label class="col-form-label col-md-3" for="proveedores">Proveedores:</label>
+                            <label class="col-form-label col-md-3" for="proveedores">Proveedores</label>
                             <div class="col-md-9">
 
-                                <select id="proveedores" name="proveedores" class="form-control"
+                                <select id="proveedores" name="proveedores" class="form-select"
                                     [(ngModel)]="selectedSupplier" required>
-                                    <option disabled selected value="opcion1">Seleccionar proveedor</option>
+                                    <option disabled selected [ngValue]="undefined">Seleccionar proveedor</option>
 
                                     @for (x of suppliers; track $index) {
                                     <option [ngValue]="x"> {{x.name}} </option>
@@ -464,12 +440,12 @@
                     }
                     <!-- Cargo -->
                     <div class="col-md-6 mb-3">
-                        <div class="row">
-                            <label for="cargo" class="col-form-label col-md-4">Cargo:</label>
-                            <div class="col-md-8">
-                                <select id="cargo" name="cargo" class="form-control" [(ngModel)]="cargoSelected"
+                        <div class="row text-end">
+                            <label for="cargo" class="col-form-label col-md-3">Cargo</label>
+                            <div class="col-md-9">
+                                <select id="cargo" name="cargo" class="form-select" [(ngModel)]="cargoSelected"
                                     required>
-                                    <option disabled selected value="opcion1">Seleccionar Cargo</option>
+                                    <option disabled selected [ngValue]="undefined">Seleccionar Cargo</option>
                                     @for (c of cargos; track $index) {
                                     <option selected [ngValue]="c">{{c.charge}}</option>
 
@@ -482,8 +458,8 @@
                     </div>
                     <!-- fecha inicio contrato -->
                     <div class="col-md-6 ">
-                        <div class="row">
-                            <label for="start-time-contract" class="col-form-label col-md-3">Inicio:</label>
+                        <div class="row text-end">
+                            <label for="start-time-contract" class="col-form-label col-md-3">Inicio</label>
                             <div class="col-md-9">
                                 <input type="date" id="startTimeContract" id="startTimeContract" class="form-control"
                                     name="startTimeContract" [(ngModel)]="startTimeContract"
@@ -502,7 +478,7 @@
 
                 </div>
 
-            </div>
+          
 
 
 
@@ -513,9 +489,9 @@
 
 
             <!-- dias laborales -->
-            <div class="bg-light rounded mb-5 pb-3 ps-2">
+          
 
-                <p class="text-start mb-3 ">Dias laborales:</p>
+                <p class="text-start mb-3 mt-3 ">Dias laborales</p>
                 <hr>
                 <div class="form-group d-flex justify-content-center flex-wrap gap-3 px-3 ">
 
@@ -551,16 +527,15 @@
                         <label class="form-check-label" for="domingo">Domingo</label>
                     </div>
                 </div>
-            </div>
+          
 
             <!-- Horarios -->
-            <div class="bg-light rounded mb-5 pb-3 ps-2">
-                <p class="text-start mb-3 ">Horarios:</p>
+                <p class="text-start mb-3 ">Horarios</p>
                 <hr>
                 <div class="form-group row mb-3 pt-3">
                     <div class="col-md-6">
                         <div class="row">
-                            <label for="hora-entrada" class="col-md-3"> <i class="fas fa-clock"></i> entrada:</label>
+                            <label for="hora-entrada" class="col-md-3"> <i class="fas fa-clock"></i> Entrada</label>
                             <div class=" col-md-5">
                                 <input type="time" class="form-control" id="hora-entrada" name="hora-entrada"
                                     [(ngModel)]="horaEntrada" #horaEntradaModel="ngModel" required [ngClass]="{
@@ -581,7 +556,7 @@
 
 
                             <label for="hora-salida" class="col-md-4 text-end">
-                                <i class="fas fa-clock"></i> salida:</label>
+                                <i class="fas fa-clock"></i> Salida:</label>
 
 
                             <div class="col-md-5">
@@ -601,39 +576,24 @@
 
 
                 </div>
-            </div>
+           
 
             <!-- Botones -->
-            <div class="row">
-                <div class="col-md-8"></div>
-                <div class="col-ms-2  d-flex justify-content-end">
+          
+            <div class="row mt-5">
+                <div class="col-md-10 text-end">
+                    <button  type="submit" link class="btn btn-secondary" (click)="goTo('home/employee-list')">Volver</button>
+
+                </div>
+                <div class="col-md-2  d-flex justify-content-end">
                     <button [disabled]="!form.valid" type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </div>
 
 
 
-            <!-- Modal para mostrar mensajes de éxito o error -->
-            <!-- Modal para mostrar mensajes de éxito o error -->
-            <div class="modal" *ngIf="showModal" (click)="resetForm(form)">
-                <div class="modal-content" [ngClass]="{'border-success': success, 'border-error': !success}"
-                    (click)="$event.stopPropagation()">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{ success ? 'Éxito' : 'Error' }}</h5>
-
-                    </div>
-                    <div class="modal-body">
-                        {{ success ? successMessage : errorMessage }}
-                    </div>
-                    <div class="modal-footer">
-                        <button *ngIf="success" type="button" class="btn btn-secondary"
-                            (click)="resetForm(form)">Cerrar</button>
-                        <button *ngIf="!success" type="button" class="btn btn-secondary"
-                            (click)="cerrarModal()">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-
+           
         </form>
     </div>
+
 </section>
