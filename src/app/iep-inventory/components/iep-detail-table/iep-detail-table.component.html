@@ -220,29 +220,6 @@
             (click)="cleanDTO()"></button>
         </div>
         <div class="modal-body">
-          @if(confirmPost){
-          @if(createMovement$ | async){
-          <div class="container mt-2">
-            <div class="alert alert-success" role="alert">
-              <h4 class="alert-heading">¡Registro Exitoso!</h4>
-              <p>El movimiento de inventario se ha registrado correctamente.</p>
-              <hr>
-              <p class="mb-0">Puedes cerrar esta ventana o registrar otro movimiento.</p>
-            </div>
-          </div>
-          }@else {
-          @if(errorPost){
-          <div class="container mt-2">
-            <div class="alert alert-danger" role="alert">
-              <h4 class="alert-heading">¡Error!</h4>
-              <p>{{errorMessage}}</p>
-              <hr>
-              <p class="mb-0">Puedes cerrar esta ventana e intentar nuevamente.</p>
-            </div>
-          </div>
-          }
-          }
-          }@else {
           <div class="row" style="color: gray;">
             @if(selectedIds.length === 0) {
             <p class="col-12">No
@@ -335,11 +312,6 @@
 
                 <div class="modal-footer">
                   <div class="">
-                    @if(loading){
-                    <div class="spinner-border" role="status">
-                      <span class="visually-hidden">Cargando...</span>
-                    </div>
-                    }
                   </div>
                   <div class="">
                     <button type="submit" [disabled]="myForm.invalid" class="btn btn-primary"
@@ -349,7 +321,6 @@
               </form>
             </div>
           </div>
-          }
         </div>
       </div>
     </div>
@@ -360,7 +331,7 @@
     <span class="bi-x-circle-fill"></span>
   </button>
 
-  <button class="floating-btn btn btn-primary" data-bs-toggle="modal" data-bs-target="#warehouseModal"
+  <button class="floating-btn btn btn-primary" data-bs-toggle="modal" (click)="openModalWarehouse()"
     [disabled]="selectedIds.length === 0">
     <span class="bi-arrow-left-right"></span>
   </button>
