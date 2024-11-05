@@ -19,7 +19,52 @@ import { Producto } from '../../models/producto';
 })
 export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
+  applyAllFilters(): void {
+    if (this.isApplyButtonDisabled) {
+      return; // No aplicar filtros si el botón está deshabilitado
+    }
+
+    this.filteredProductos = this.productos.filter((producto) => {
+      // Filtro por tipo de movimiento
+      const matchesMovementType = this.selectedMovementTypes.length === 0 || 
+        this.selectedMovementTypes.includes(producto.modificationType.toLowerCase());
+
+      // Filtro por cantidad
+      const amount = producto.amount;
+      const matchesAmountFilter =
+        (this.minAmount === null || amount >= this.minAmount) &&
+        (this.maxAmount === null || amount <= this.maxAmount);
+
+      // Filtros por texto
+      const matchesProduct = producto['product'].toLowerCase().includes(this.filterValues['product']);
+      const matchesSupplier = producto['supplier'].toLowerCase().includes(this.filterValues['supplier']);
+      const matchesDescription = producto['description'].toLowerCase().includes(this.filterValues['description']);
+      
+
+      return matchesMovementType && 
+             matchesAmountFilter && 
+             matchesProduct && 
+             matchesSupplier && 
+             matchesDescription;
+    });
+
+    // Actualizar DataTable
+    if (this.table) {
+      this.table.clear().rows.add(this.filteredProductos).draw();
+    }
+  }
+
   selectedMovementTypes: string[] = [];
+  minAmount: number | null = null;
+  maxAmount: number | null = null;
+  filterValues: { [key: string]: string } = {
+    product: '',
+    supplier: '',
+    description: ''
+  };
+  
+  // Propiedad para controlar el estado del botón
+  isApplyButtonDisabled: boolean = false;
 
   private table: any; // Referencia para la instancia de DataTable
   productos: Producto[] = []; // Array para almacenar los productos
@@ -220,17 +265,17 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         },
         { data: 'product', title: 'Producto' }, // Columna de producto
-        { data: 'modificationType', title: 'Tipo Movimiento' }, // Columna de tipo de movimiento
+        { data: 'modificationType', title: 'Tipo movimiento' }, // Columna de tipo de movimiento
         { data: 'supplier', title: 'Proveedor' }, // Columna de proveedor
         { data: 'amount', title: 'Cantidad' }, // Columna de cantidad
         { data: 'description', title: 'Justificativo' }, // Columna de justificativo
-        { data: 'stockAfterModification', title: 'Stock Después' },
+        { data: 'stockAfterModification', title: 'Stock Resultante' },
       ],
-      pageLength: 10,
+      pageLength: 5,
       lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
       lengthMenu: [ // Opciones para el menú desplegable de longitud
-        [10, 25, 50], // Valores para el número de filas
-        [10, 25, 50] // Etiquetas para el número de filas
+        [5, 10, 25, 50], // Valores para el número de filas
+        [5, 10, 25, 50] // Etiquetas para el número de filas
       ],
       searching: false, // Desactivar la búsqueda
       order: [[0, 'desc']], // Ordenar por fecha de forma descendente
@@ -421,10 +466,8 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  filtersVisible = false; // Controla la visibilidad de los filtros
+  filtersVisible = true; // Controla la visibilidad de los filtros
 
-  minAmount: number | null = null;
-  maxAmount: number | null = null;
 
   toggleFilters(): void {
     this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
@@ -443,11 +486,20 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.maxAmount = value;
     }
 
-    this.applyColumnFilter();
+    // Validar si el máximo es menor que el mínimo
+    this.validateAmountRange();
   }
 
-  applyColumnFilter(event?: Event, column?: string): void {
-    if (column === 'modificationType' && event) {
+  validateAmountRange(): void {
+    if (this.minAmount !== null && this.maxAmount !== null) {
+      this.isApplyButtonDisabled = this.maxAmount < this.minAmount;
+    } else {
+      this.isApplyButtonDisabled = false;
+    }
+  }
+
+  applyColumnFilter(event: Event, column: string): void {
+    if (column === 'modificationType') {
       const checkbox = event.target as HTMLInputElement;
       const value = checkbox.value.toLowerCase();
       
@@ -459,56 +511,38 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
           this.selectedMovementTypes.splice(index, 1);
         }
       }
-    }
-  
-    // Filtra los productos según los filtros establecidos
-    this.filteredProductos = this.productos.filter((producto) => {
-      // Filtro para tipo de movimiento
-      const matchesMovementType = this.selectedMovementTypes.length === 0 || 
-        this.selectedMovementTypes.includes(producto.modificationType.toLowerCase());
-  
-      // Filtro para cantidad
-      const amount = parseFloat((producto as any)['amount']);
-      const matchesAmountFilter =
-        (this.minAmount === null || amount >= this.minAmount) &&
-        (this.maxAmount === null || amount <= this.maxAmount);
-  
-      // Otros filtros existentes
-      const matchesOtherFilters = column && column !== 'modificationType' ? 
-        producto[column as keyof Producto]?.toString().toLowerCase().includes((event?.target as HTMLInputElement)?.value.toLowerCase() || '') : 
-        true;
-  
-      return matchesMovementType && matchesAmountFilter && matchesOtherFilters;
-    });
-  
-    // Actualiza el DataTable con los productos filtrados
-    if (this.table) {
-      this.table.clear().rows.add(this.filteredProductos).draw();
+    } else {
+      const input = event.target as HTMLInputElement;
+      this.filterValues[column] = input.value.toLowerCase();
     }
   }
 
 
   cleanColumnFilters(): void {
-    // Restablece los valores de filtro existentes
+    // Resetear todos los valores de filtro
     this.minAmount = null;
     this.maxAmount = null;
-    this.selectedMovementTypes = []; // Limpia los tipos de movimiento seleccionados
+    this.selectedMovementTypes = [];
+    this.filterValues = {
+      product: '',
+      supplier: '',
+      description: ''
+    };
+    this.isApplyButtonDisabled = false;
   
-    // Restablece el listado de productos filtrados
-    this.filteredProductos = [...this.productos];
-  
-    // Limpia los inputs
+    // Resetear inputs
     const textInputs = document.querySelectorAll('input.form-control');
     const checkboxInputs = document.querySelectorAll('input[type="checkbox"]');
   
     textInputs.forEach(input => (input as HTMLInputElement).value = '');
     checkboxInputs.forEach(checkbox => (checkbox as HTMLInputElement).checked = false);
   
-    // Actualiza el DataTable
+    // Resetear lista filtrada
+    this.filteredProductos = [...this.productos];
+  
+    // Actualizar DataTable
     if (this.table) {
       this.table.clear().rows.add(this.filteredProductos).draw();
     }
   }
-
-
 }

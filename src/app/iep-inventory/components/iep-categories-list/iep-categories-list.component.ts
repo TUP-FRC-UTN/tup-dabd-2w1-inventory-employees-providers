@@ -19,6 +19,16 @@ declare var bootstrap: any; // Añadir esta declaración al principio
   standalone: true
 })
 export class IepCategoriesListComponent implements OnInit {
+
+  selectedStatus = {
+    active: false,
+    inactive: false
+  };
+
+  get selectedStatusCount(): number {
+    return Object.values(this.selectedStatus).filter(value => value).length;
+  }
+
   private usersMockService: UsersMockIdService;
   private categoryService: CategoriaService;
   categories: ProductCategory[] = [];
@@ -30,12 +40,13 @@ export class IepCategoriesListComponent implements OnInit {
   descrCategoryToEdit: string = '';
   categoryToCreate: string = '';
   private productService: ProductService;
-  
+  errorMessage: string = '';
 
-  idUser: number=0;
+
+  idUser: number = 0;
   constructor(categoryService: CategoriaService,
     usersMockService: UsersMockIdService,
-    productService: ProductService) { 
+    productService: ProductService) {
     this.usersMockService = usersMockService;
     this.categoryService = categoryService;
     this.productService = productService
@@ -43,7 +54,7 @@ export class IepCategoriesListComponent implements OnInit {
 
   exportToPdf(): void {
     const doc = new jsPDF();
-    
+
     // Extrae datos de la lista de categorías
     const dataToExport = this.categories.map((category) => [
       category.id,
@@ -66,7 +77,7 @@ export class IepCategoriesListComponent implements OnInit {
     const worksheet = XLSX.utils.json_to_sheet(this.categories);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Categorías');
-    
+
     XLSX.writeFile(workbook, `Lista_Categorías_${this.getFormattedDate()}.xlsx`);
   }
 
@@ -92,30 +103,34 @@ export class IepCategoriesListComponent implements OnInit {
     }
   }
 
-  filterData(event: any): void {
-    const searchTerm = event.target.value.toLowerCase().trim();
-    if (!searchTerm) {
-      this.filteredData = [...this.categories];
-    } else {
-      this.filteredData = this.categories.filter(cat => 
-        cat.category.toLowerCase().includes(searchTerm)
-      );
-    }
-    
+  filterData(event?: any): void {
+    const searchTerm = event?.target?.value?.toLowerCase().trim() ||
+      (document.getElementById('searchTerm') as HTMLInputElement)?.value?.toLowerCase().trim() || '';
+
+    this.filteredData = this.categories.filter(cat => {
+      const matchesSearch = cat.category.toLowerCase().includes(searchTerm);
+      const matchesStatus =
+        (!this.selectedStatus.active && !this.selectedStatus.inactive) || // Si no hay filtros de estado seleccionados
+        (this.selectedStatus.active && !cat.discontinued) || // Si está seleccionado "Activo"
+        (this.selectedStatus.inactive && cat.discontinued); // Si está seleccionado "Inactivo"
+
+      return matchesSearch && matchesStatus;
+    });
+
     this.refreshDataTable();
   }
 
   cleanFilters(): void {
-    
     // Limpia los valores de los inputs en el DOM
     const textInputs = document.querySelectorAll('input.form-control');
-
-    // Limpia cada campo de texto
     textInputs.forEach(input => (input as HTMLInputElement).value = '');
+
+    // Resetear los filtros de estado
+    this.selectedStatus.active = false;
+    this.selectedStatus.inactive = false;
 
     this.filteredData = [...this.categories];
     this.refreshDataTable();
-
   }
 
 
@@ -127,18 +142,18 @@ export class IepCategoriesListComponent implements OnInit {
 
     this.table = $('#categoryTable').DataTable({
       dom:
-          '<"mb-3"t>' +
-          '<"d-flex justify-content-between"lp>',
+        '<"mb-3"t>' +
+        '<"d-flex justify-content-between"lp>',
       data: this.categories, // Usar directamente el array de categorías
       columns: [
-        { 
+        {
           data: 'category',
           title: 'Categoría'
         },
         {
           data: 'discontinued',
           title: 'Estado',
-          visible : true,
+          visible: true,
           render: (data: any, type: any, row: any) => {
             return data ? 'Inactivo' : 'Activo';
           }
@@ -232,6 +247,7 @@ export class IepCategoriesListComponent implements OnInit {
       title: 'Error al crear categoría',
       icon: 'error',
       confirmButtonText: 'Aceptar',
+      text: this.errorMessage,
     }).then(() => {
       this.closeModal();
     });
@@ -277,16 +293,16 @@ export class IepCategoriesListComponent implements OnInit {
       return;
     }
     this.categoryService.deleteCategory(
-      this.categoryToDelete,this.usersMockService.getMockId()).subscribe({
-      next: (response) => {
-        console.log('Categoría eliminada:', response);
-        this.showSuccessDeleteAlert();
-        this.loadCategories();
-      },
-      error: (error) => {
-        console.error('Error al eliminar categoría:', error);
-      },
-    });
+      this.categoryToDelete, this.usersMockService.getMockId()).subscribe({
+        next: (response) => {
+          console.log('Categoría eliminada:', response);
+          this.showSuccessDeleteAlert();
+          this.loadCategories();
+        },
+        error: (error) => {
+          console.error('Error al eliminar categoría:', error);
+        },
+      });
   }
 
   showProductsInCategoryAlert(products: any) {
@@ -305,44 +321,47 @@ export class IepCategoriesListComponent implements OnInit {
   }
 
 
-  searchForProductsWithCategory() :any{ 
-   /* this.productService.getDtoProducts(this.categoryToDelete).subscribe({
-      next: (products) => {
-        console.log('Productos con categoría:', products);
-        if(products.length > 0){
-          this.showProductsInCategoryAlert(products);
-          this.closeModal();
-        }else{
-          this.deleteCategory();
-        }
-
-      },
-      error: (error) => {
-        console.error('Error al buscar productos por categoría:', error);
-      },
-  });*/
-  this.deleteCategory();
+  searchForProductsWithCategory(): any {
+    /* this.productService.getDtoProducts(this.categoryToDelete).subscribe({
+       next: (products) => {
+         console.log('Productos con categoría:', products);
+         if(products.length > 0){
+           this.showProductsInCategoryAlert(products);
+           this.closeModal();
+         }else{
+           this.deleteCategory();
+         }
+ 
+       },
+       error: (error) => {
+         console.error('Error al buscar productos por categoría:', error);
+       },
+   });*/
+    this.deleteCategory();
 
   }
 
   updateCategory() {
     if (this.idCategoryToEdit === null || !this.categoryToEdit) {
       this.categoryService.postCategory(
-        this.descrCategoryToEdit,this.usersMockService.getMockId()).subscribe({
-        next: (response) => {
-          console.log('Pasa:', response);
-          this.showSuccessCreateAlert();
-          this.loadCategories();
-        },
-        error: (error) => {
-          console.error('Error al registrar categoría:', error);
-          this.showFailureCreateAlert();
-        },
-      });
-    }else{
-      const dto: PutCategoryDTO = 
-      {id:this.idCategoryToEdit,category:this.descrCategoryToEdit};
-      this.categoryService.putCategory(dto,this.usersMockService.getMockId()).subscribe({
+        this.descrCategoryToEdit, this.usersMockService.getMockId()).subscribe({
+          next: (response) => {
+            console.log('Pasa:', response);
+            this.showSuccessCreateAlert();
+            this.loadCategories();
+          },
+          error: (error) => {
+            console.error('Error al registrar categoría:', error);
+            if (error.error.message === '400 Category already exists') {
+              this.errorMessage = 'La categoría que intenta ingresar ya existe';
+            }
+            this.showFailureCreateAlert();
+          },
+        });
+    } else {
+      const dto: PutCategoryDTO =
+        { id: this.idCategoryToEdit, category: this.descrCategoryToEdit };
+      this.categoryService.putCategory(dto, this.usersMockService.getMockId()).subscribe({
         next: (response) => {
           console.log('Pasa:', response);
           this.showSuccessEditAlert();
@@ -383,7 +402,7 @@ export class IepCategoriesListComponent implements OnInit {
     console.log('Editar categoría:', this.idCategoryToEdit);
     console.log('Categoría:', this.categoryToEdit);
   }
-  
+
   private closeModal() {
     const modalElement = document.getElementById('categoriaModal');
     if (modalElement) {
@@ -391,14 +410,14 @@ export class IepCategoriesListComponent implements OnInit {
       if (modal) {
         modal.hide();
       }
-      
+
       // Limpieza completa del modal y sus efectos
       setTimeout(() => {
         // Remover clases del body
         document.body.classList.remove('modal-open');
         document.body.style.removeProperty('padding-right');
         document.body.style.removeProperty('overflow');
-        
+
         // Remover todos los backdrops
         const backdrops = document.getElementsByClassName('modal-backdrop');
         while (backdrops.length > 0) {
@@ -411,7 +430,7 @@ export class IepCategoriesListComponent implements OnInit {
         modalElement.setAttribute('aria-hidden', 'true');
         modalElement.removeAttribute('aria-modal');
         modalElement.removeAttribute('role');
-        
+
         // Remover cualquier estilo inline que Bootstrap pueda haber añadido
         const allModals = document.querySelectorAll('.modal');
         allModals.forEach(modal => {

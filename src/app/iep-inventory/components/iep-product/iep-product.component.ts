@@ -54,9 +54,11 @@ export class IepProductComponent {
     this.providers$ = this.providerService.getAll();
     this.providers$.subscribe({
       next: providers =>{
-        this.providers = providers;
-        console.log(providers);
+        const filteredSuppliers = providers.filter(p => !p.discontinued);
+        this.providers = filteredSuppliers;
+        console.log(this.categories);
         this.providersError = false;
+        this.requestInProgress = false;
       },
       error: error => this.providersError = true
     })
@@ -151,10 +153,12 @@ export class IepProductComponent {
     this.requestInProgress = true;
     this.categories$.subscribe({
       next: categories => {
-        this.categories = categories;
-        console.log(categories);
+        const filteredCategories = categories.filter(category => !category.discontinued);
+        this.categories = filteredCategories;
+        console.log(this.categories);
         this.categoriesError = false;
         this.requestInProgress = false;
+
       },
       error: error => {
         console.error(error);

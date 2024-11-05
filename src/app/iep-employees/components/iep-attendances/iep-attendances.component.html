@@ -1,0 +1,58 @@
+<section class="py-5">
+    <div class="container p-3 border border-2 rounded shadow-lg">
+
+        <!-- Filtros para Desempeño y Asistencias -->
+        <div class="row filtros mb-3">
+            <div class="col-2">
+                <h4>{{empleadoName}}</h4>
+            </div>
+            <!-- Filtro de estado  -->
+            <div class="col-2">
+                <select class="form-select" id="" [(ngModel)]="estadoFiltrado" (ngModelChange)="loadAsistencias()">
+                    <option value="" selected>Estado</option>
+                    <option value="PRESENTE">PRESENTE</option>
+                    <option value="TARDE">TARDE</option>
+                    <option value="AUSENTE">AUSENTE</option>
+                    <option value="JUSTIFICADO">JUSTIFICADO</option>
+                </select>
+            </div>
+            <!-- Filtros por fecha -->
+            <div class="col-2">
+                <input type="date" id="startDate" class="form-control" [(ngModel)]="startDate"
+                (change)="onStartDateChange()"/>
+            </div>
+            <div class="col-2">
+                <input type="date" id="endDate" class="form-control" [(ngModel)]="endDate"
+                (change)="onEndDateChange()" />
+            </div>
+            
+            <!-- Botones de exportación en Asistencias y Desempeño -->
+            <div class="col text-end">
+                <button class="btn btn-secondary ms-2" (click)="limpiarFiltro()">
+                    <i class="bi bi-trash"></i>
+                </button>
+                <button class="btn btn-success ms-2" (click)="exportToExcel()">
+                    <i class="fa-solid bi-file-earmark-excel"></i>
+                </button>
+                <button class="btn btn-danger ms-2" (click)="exportToPdf()">
+                    <i class="fas bi-file-earmark-pdf"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabla de empleados con cabecera de columnas -->
+        <table id="empleadosTable" class="table table-striped border border-3 rounded table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</section>
+    

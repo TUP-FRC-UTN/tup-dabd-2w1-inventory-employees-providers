@@ -155,7 +155,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   modalContent: SafeHtml = '';
   startDate!: string;
   endDate!: string;
-  nombreFiltrado: string  = "";
+  nombreFiltrado: string = "";
   estadoFiltrado: string = "";
   private subscriptions: Subscription[] = [];
   private searchFilter: string = '';
@@ -185,6 +185,11 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     return `${day}/${month}/${year}`;
   }
 
+  goTo(path: string) {
+
+    this.router.navigate([path])
+
+  }
   exportToPdf(): void {
     const doc = new jsPDF();
 
@@ -355,6 +360,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     const empSubscription = this.empleadoService.getEmployees().subscribe({
       next: (empleados) => {
         this.Empleados = empleados;
+        console.log('Empleados:', this.Empleados);
         this.ventana = 'Informacion';
         // Obtener posiciones únicas
         this.uniquePositions = [...new Set(empleados.map(emp => emp.position))].sort();
@@ -448,7 +454,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       dom:
         '<"mb-3"t>' +                           //Tabla
         '<"d-flex justify-content-between"lp>', //Paginacion
-      data: this.Empleados,      
+      data: this.Empleados,
       order: [[4, 'asc']], // Ordenar por fecha de forma descendente
       columns: [
         {
@@ -499,9 +505,14 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
           data: 'active',
           title: 'Estado',
           className: 'text-center',
-          render: (data: boolean) => {
-            return data ? 'Activo' : 'Inactivo';
+          render: (data: boolean, type: any, row: any) => {
+            // Si el empleado está activo, valida la clave 'license' y si es true, retorna "Licencia"
+            if (data) {
+              return row.license ? 'Licencia' : 'Activo';
+            }
+            return 'Inactivo';
           }
+          
         },
         {
           data: null,
@@ -515,8 +526,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
                 </a>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
-               
-                <li><a class="dropdown-item eliminar-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-empleado-id="${data.id}" href="#">Eliminar</a></li>
+                  <li><button class="dropdown-item consultar-asistencias" data-empleado-id="${data.id}">Ver asistencias</button></li>
+                  <li><a class="dropdown-item eliminar-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-empleado-id="${data.id}" href="#">Eliminar</a></li>
                 </ul>
               </div>`;
           }
@@ -524,11 +535,17 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       ]
     });
 
-
     $('#empleadosTable').on('click', '.consultar-btn', (event: any) => {
       event.preventDefault();
       const empleadoId = $(event.currentTarget).data('empleado-id');
       this.consultarEmpleado(empleadoId);
+    });
+
+    $('#empleadosTable').on('click', '.consultar-asistencias', (event: any) => {
+      event.preventDefault();
+      const empleadoId = $(event.currentTarget).data('empleado-id');
+      console.log(empleadoId);
+      this.router.navigate([`home/employee/attendance/${empleadoId}`]);
     });
 
 
@@ -837,7 +854,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         (!endDate || productDate <= endDate)
       );
     });
-    
+
     if (this.nombreFiltrado !== null && this.nombreFiltrado.length >= 3) {
       this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
         return asistencia.employeeName.toUpperCase().includes(this.nombreFiltrado.toUpperCase());

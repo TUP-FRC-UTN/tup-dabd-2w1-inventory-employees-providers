@@ -5,7 +5,7 @@ export class CreateProductDtoClass {
     amount: number|undefined;
     description: string|undefined;
     unitPrice: number|undefined;
-    stateId:number|undefined;
+    state_id:number|undefined;
     supplier_id: number|undefined;
     category_id: number|undefined;
 

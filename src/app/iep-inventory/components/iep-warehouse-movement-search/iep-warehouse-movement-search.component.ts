@@ -25,22 +25,105 @@ type FilterColumn = 'general' | 'applicant' | 'detailProducts' | 'movement_type'
 })
 export class IepWarehouseMovementSearchComponent implements AfterViewInit, AfterViewChecked {
 
+  // Objeto para almacenar los filtros temporales
+  tempFilters: {
+    general: string;
+    startDate: Date | null;
+    endDate: Date | null;
+    applicant: string;
+    detailProducts: string;
+    movement_type: string[];
+  } = {
+      general: '',
+      startDate: null,
+      endDate: null,
+      applicant: '',
+      detailProducts: '',
+      movement_type: []
+    };
+
+  applyAllFilters() {
+    // Copiar los filtros temporales a los filtros reales
+    this.filters = { ...this.tempFilters };
+
+    let result = [...this.movements];
+
+    // Filtros de fecha
+    if (this.filters.startDate) {
+      result = result.filter(movement => {
+        const movementDate = new Date(movement.date);
+        movementDate.setHours(0, 0, 0, 0);
+        return this.isSameOrAfterDate(movementDate, this.filters.startDate!);
+      });
+    }
+
+    if (this.filters.endDate) {
+      result = result.filter(movement => {
+        const movementDate = new Date(movement.date);
+        movementDate.setHours(23, 59, 59, 999);
+        return this.isSameOrBeforeDate(movementDate, this.filters.endDate!);
+      });
+    }
+
+    // Filtro general
+    if (this.filters.general) {
+      result = result.filter(movement => {
+        const productsString = movement.detailProducts
+          .map(product => product.description.toLowerCase())
+          .join(' ');
+
+        return (
+          movement.applicant.toLowerCase().includes(this.filters.general) ||
+          movement.responsible.toLowerCase().includes(this.filters.general) ||
+          movement.movement_type.toLowerCase().includes(this.filters.general) ||
+          productsString.includes(this.filters.general)
+        );
+      });
+    }
+
+    // Filtros de columna específicos
+    if (this.filters.applicant) {
+      result = result.filter(movement =>
+        movement.applicant.toLowerCase().includes(this.filters.applicant)
+      );
+    }
+
+    if (this.filters.detailProducts) {
+      result = result.filter(movement => {
+        const productsString = movement.detailProducts
+          .map(product => product.description.toLowerCase())
+          .join(' ');
+        return productsString.includes(this.filters.detailProducts);
+      });
+    }
+
+    // Filtro de tipo de movimiento
+    if (this.filters.movement_type.length > 0) {
+      result = result.filter(movement =>
+        this.filters.movement_type.includes(movement.movement_type)
+      );
+    }
+
+    this.filteredMovements = result;
+    this.updateDataTable(result);
+  }
+
   // En la interface de filters, cambia el tipo de movement_type
-filters: {
-  general: string;
-  startDate: Date | null;
-  endDate: Date | null;
-  applicant: string;
-  detailProducts: string;
-  movement_type: string[];  // Cambiado a array
-} = {
-  general: '',
-  startDate: null,
-  endDate: null,
-  applicant: '',
-  detailProducts: '',
-  movement_type: []  // Inicializado como array vacío
-};
+  filters: {
+    general: string;
+    startDate: Date | null;
+    endDate: Date | null;
+    applicant: string;
+    detailProducts: string;
+    movement_type: string[];  // Cambiado a array
+  } = {
+      general: '',
+      startDate: null,
+      endDate: null,
+      applicant: '',
+      detailProducts: '',
+      movement_type: []  // Inicializado como array vacío
+    };
 
   endDate: Date = new Date();
   startDate: Date = new Date(this.endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -49,13 +132,11 @@ filters: {
     const endDateStr = this.endDateInput?.nativeElement?.value;
     if (endDateStr) {
       const endDate = new Date(endDateStr);
-      endDate.setDate(endDate.getDate() + 1); // Añade un día para incluir la fecha seleccionada
+      endDate.setDate(endDate.getDate() + 1);
       endDate.setHours(23, 59, 59, 999);
-      this.filters.endDate = endDate;
-      this.applyFilters();
+      this.tempFilters.endDate = endDate;
     } else {
-      this.filters.endDate = null;
-      this.applyFilters();
+      this.tempFilters.endDate = null;
     }
   }
 
@@ -63,13 +144,11 @@ filters: {
     const startDateStr = this.startDateInput?.nativeElement?.value;
     if (startDateStr) {
       const startDate = new Date(startDateStr);
-      startDate.setDate(startDate.getDate() + 1); // Añade un día para incluir la fecha seleccionada
+      startDate.setDate(startDate.getDate() + 1);
       startDate.setHours(0, 0, 0, 0);
-      this.filters.startDate = startDate;
-      this.applyFilters();
+      this.tempFilters.startDate = startDate;
     } else {
-      this.filters.startDate = null;
-      this.applyFilters();
+      this.tempFilters.startDate = null;
     }
   }
 
@@ -114,8 +193,8 @@ filters: {
   }
 
   cleanColumnFilters(): void {
-    // Restablecer todos los filtros
-    this.filters = {
+    // Limpiar los filtros temporales
+    this.tempFilters = {
       general: '',
       startDate: null,
       endDate: null,
@@ -123,19 +202,22 @@ filters: {
       detailProducts: '',
       movement_type: []
     };
-  
+
+    // Limpiar los filtros reales
+    this.filters = { ...this.tempFilters };
+
     // Limpiar inputs de texto
     const textInputs = document.querySelectorAll('input[type="text"]');
     textInputs.forEach(input => {
       (input as HTMLInputElement).value = '';
     });
-  
+
     // Limpiar checkboxes
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach(checkbox => {
       (checkbox as HTMLInputElement).checked = false;
     });
-  
+
     // Limpiar inputs de fecha
     if (this.startDateInput?.nativeElement) {
       this.startDateInput.nativeElement.value = '';
@@ -143,7 +225,7 @@ filters: {
     if (this.endDateInput?.nativeElement) {
       this.endDateInput.nativeElement.value = '';
     }
-  
+
     // Restaurar datos originales
     this.filteredMovements = [...this.movements];
     this.updateDataTable(this.movements);
@@ -174,20 +256,21 @@ filters: {
     if (column === 'movement_type') {
       const checkbox = event.target as HTMLInputElement;
       if (checkbox.checked) {
-        this.filters.movement_type.push(checkbox.value);
+        if (!this.tempFilters.movement_type.includes(checkbox.value)) {
+          this.tempFilters.movement_type.push(checkbox.value);
+        }
       } else {
-        const index = this.filters.movement_type.indexOf(checkbox.value);
+        const index = this.tempFilters.movement_type.indexOf(checkbox.value);
         if (index > -1) {
-          this.filters.movement_type.splice(index, 1);
+          this.tempFilters.movement_type.splice(index, 1);
         }
       }
     } else {
       const filterValue = (event.target as HTMLInputElement).value.toLowerCase().trim();
       if (column === 'general' || column === 'applicant' || column === 'detailProducts') {
-        this.filters[column] = filterValue;
+        this.tempFilters[column] = filterValue;
       }
     }
-    this.applyFilters();
   }
 
   movements: WarehouseMovement[] = [];
@@ -208,7 +291,6 @@ filters: {
 
   ngAfterViewInit() {
     // Configurar listeners para los inputs con debounce
-    this.setupFilterListeners();
   }
 
   private setupFilterListeners() {
@@ -253,7 +335,7 @@ filters: {
   // Método principal para aplicar todos los filtros
   private applyFilters() {
     let result = [...this.movements];
-  
+
     // Filtros de fecha
     if (this.filters.startDate) {
       result = result.filter(movement => {
@@ -262,7 +344,7 @@ filters: {
         return this.isSameOrAfterDate(movementDate, this.filters.startDate!);
       });
     }
-  
+
     if (this.filters.endDate) {
       result = result.filter(movement => {
         const movementDate = new Date(movement.date);
@@ -270,14 +352,14 @@ filters: {
         return this.isSameOrBeforeDate(movementDate, this.filters.endDate!);
       });
     }
-  
+
     // Filtro general
     if (this.filters.general) {
       result = result.filter(movement => {
         const productsString = movement.detailProducts
           .map(product => product.description.toLowerCase())
           .join(' ');
-  
+
         return (
           movement.applicant.toLowerCase().includes(this.filters.general) ||
           movement.responsible.toLowerCase().includes(this.filters.general) ||
@@ -286,14 +368,14 @@ filters: {
         );
       });
     }
-  
+
     // Filtros de columna específicos
     if (this.filters.applicant) {
       result = result.filter(movement =>
         movement.applicant.toLowerCase().includes(this.filters.applicant)
       );
     }
-  
+
     if (this.filters.detailProducts) {
       result = result.filter(movement => {
         const productsString = movement.detailProducts
@@ -302,14 +384,14 @@ filters: {
         return productsString.includes(this.filters.detailProducts);
       });
     }
-  
+
     // Filtro de tipo de movimiento
     if (this.filters.movement_type.length > 0) {
       result = result.filter(movement =>
         this.filters.movement_type.includes(movement.movement_type)
       );
     }
-  
+
     this.filteredMovements = result;
     this.updateDataTable(result);
   }
@@ -372,7 +454,7 @@ filters: {
 
   toggleFilters(): void {
     this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
-    if(this.filtersVisible){
+    if (this.filtersVisible) {
       this.cleanColumnFilters();
     }
   }
@@ -419,7 +501,7 @@ filters: {
     const product = this.products.find((p) => p.id === productId);
     return product ? product.name : 'Desconocido';
   }
-  
+
 
   exportToPdf(): void {
     const doc = new jsPDF();
@@ -428,11 +510,11 @@ filters: {
 
     // Ajustar los datos exportados para que coincidan con la tabla
     const dataToExport = this.movements.map((movement) => [
-      new Date(movement.date).toLocaleString('es-ES'),   
-      movement.applicant,                               
-      movement.detailProducts.map((product) => this.getProductNameById(product.productId)).join(', '),               
-      this.translateMovementType(movement.movement_type),                            
-      movement.responsible                               
+      new Date(movement.date).toLocaleString('es-ES'),
+      movement.applicant,
+      movement.detailProducts.map((product) => this.getProductNameById(product.productId)).join(', '),
+      this.translateMovementType(movement.movement_type),
+      movement.responsible
     ]);
 
     // Configuración de la tabla en el PDF
@@ -444,25 +526,25 @@ filters: {
 
     const formattedDate = this.getFormattedDate();
     doc.save(`Lista_Movimientos_${formattedDate}.pdf`);
-}
+  }
 
 
-exportToExcel(): void {
-  const dataToExport = this.movements.map((movement) => ({
-    'Fecha y Hora': new Date(movement.date).toLocaleString('es-ES'),  
-    'Solicitante': movement.applicant,                               
-    'Productos': movement.detailProducts.map((product) => this.getProductNameById(product.productId)).join(', '),                     
-    'Tipo': this.translateMovementType(movement.movement_type),                                 
-    'Responsable': movement.responsible                              
-  }));
+  exportToExcel(): void {
+    const dataToExport = this.movements.map((movement) => ({
+      'Fecha y Hora': new Date(movement.date).toLocaleString('es-ES'),
+      'Solicitante': movement.applicant,
+      'Productos': movement.detailProducts.map((product) => this.getProductNameById(product.productId)).join(', '),
+      'Tipo': this.translateMovementType(movement.movement_type),
+      'Responsable': movement.responsible
+    }));
 
-  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Movimientos');
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Movimientos');
 
-  const formattedDate = this.getFormattedDate();
-  XLSX.writeFile(workbook, `Lista_Movimientos_${formattedDate}.xlsx`);
-}
+    const formattedDate = this.getFormattedDate();
+    XLSX.writeFile(workbook, `Lista_Movimientos_${formattedDate}.xlsx`);
+  }
 
 
 
@@ -528,7 +610,7 @@ exportToExcel(): void {
           }
         ],
         order: [[0, 'desc']],
-        pageLength: 10,
+        pageLength: 5,
         lengthChange: true,
         searching: false,
         destroy: true,
@@ -537,6 +619,7 @@ exportToExcel(): void {
           info: "Mostrando _START_ a _END_ de _TOTAL_ movimientos",
           lengthMenu:
             `<select class="form-select">
+            <option value="5">5</option>
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>

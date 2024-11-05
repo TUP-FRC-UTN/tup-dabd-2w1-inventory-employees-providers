@@ -41,6 +41,7 @@ export class ListadoDesempeñoService {
   getWakeUpCallDetails(): Observable<WakeUpCallDetail[]> {
     return this.http.get<WakeUpCallDetail[]>(this.WAKE_UP_CALLS_DETAILS);
   }
+  
 
   getCombinedData(): Observable<EmployeePerformance[]> {
     return forkJoin({

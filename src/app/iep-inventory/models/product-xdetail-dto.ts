@@ -7,4 +7,5 @@ export interface ProductXDetailDto {
     category_id: number;
     minQuantityWarning: number;
     detail: Details[];
+    discontinued: boolean;
 }
