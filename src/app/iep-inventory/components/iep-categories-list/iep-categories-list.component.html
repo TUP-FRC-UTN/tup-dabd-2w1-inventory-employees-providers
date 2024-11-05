@@ -102,21 +102,6 @@
                   </div>
                 </div>
               </div>
-              <div class="row">
-                <div class="input-group d-flex form-group mb-2">
-                  <label for="inputName" class="col-form-label" style="margin-right: 10px;">Descripción</label>
-                  <input type="text" class="form-control" #descr="ngModel" [(ngModel)]="descrCategoryToEdit"
-                    name="newCategory" minlength="3" required>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <div class="">
-                  <button type="submit" [disabled]="modalCategoryForm.invalid" class="btn btn-primary"
-                    data-bs-dismiss="">Actualizar</button>
-                </div>
-              </div>
-            </form>
-          </div>
           <div class="row">
             <div class="input-group d-flex form-group mb-2">
               <label for="inputName" class="col-form-label" style="margin-right: 10px;">Nombre</label>
@@ -145,5 +130,6 @@
               class="btn btn-primary" data-bs-dismiss="">Actualizar</button>
             </div>
         </div>
+      </form>
       </div>
     </div>
