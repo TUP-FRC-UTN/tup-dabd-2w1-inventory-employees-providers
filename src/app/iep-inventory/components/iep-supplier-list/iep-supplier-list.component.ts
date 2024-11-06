@@ -149,11 +149,11 @@ export class IepSupplierListComponent implements AfterViewInit {
   translateSupplierType(type: string): string {
     switch (type) {
       case 'OTHER':
-        return 'OTRO';
+        return 'Otro';
       case 'OUTSOURCED_SERVICE':
-        return 'SERVICIO TERCERIZADO';
+        return 'Sservicio Tercerizado';
       case 'INVENTORY_SUPPLIER':
-        return 'PROVEEDOR DE INVENTARIO';
+        return 'Proveedor de Inventario';
       default:
         return type;
     }
@@ -227,27 +227,27 @@ export class IepSupplierListComponent implements AfterViewInit {
             render: (data: string) => {
               switch (data) {
                 case 'OTHER':
-                  return 'OTRO';
+                  return 'Otro';
                 case 'OUTSOURCED_SERVICE':
-                  return 'SERVICIO TERCERIZADO';
+                  return 'Servicio Tercerizado';
                 case 'INVENTORY_SUPPLIER':
-                  return 'PROVEEDOR DE INVENTARIO';
+                  return 'Proveedor de Inventario';
                 default:
                   return data;
               }
             }
           },
           { data: 'address', title: 'Dirección' },
-          
+
           { data: 'phoneNumber', title: 'Teléfono' },
           { data: 'email', title: 'Email' },
-          { 
-            data: 'discontinued', 
+          {
+            data: 'discontinued',
             title: 'Estado',
-            render: function(data) {
-                return data ? 'Inactivo' : 'Activo';
+            render: function (data) {
+              return data ? 'Inactivo' : 'Activo';
             }
-        },
+          },
           {
             data: null,
             title: 'Acciones',
@@ -268,7 +268,7 @@ export class IepSupplierListComponent implements AfterViewInit {
         ],
         pageLength: 10,
         lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
-        lengthMenu: [5,10, 25, 50],
+        lengthMenu: [5, 10, 25, 50],
         searching: false,
         destroy: true,
         language: {
