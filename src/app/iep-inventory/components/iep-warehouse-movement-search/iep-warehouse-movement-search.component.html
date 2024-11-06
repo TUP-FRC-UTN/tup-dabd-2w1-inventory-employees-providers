@@ -6,24 +6,59 @@
         <div class="row mb-3 d-flex align-items-center flex-nowrap">
 
             <!-- Campo de Búsqueda -->
-            <div class="me-3" style="flex: 1 1 auto;">
+            <div class="" style="flex: 1 1 auto;">
                 <input type="text" id="filterInput" class="form-control" placeholder="Buscar"
                     (input)="applyFilters()" [(ngModel)]="tempFilters.general"/>
             </div>
 
             <!-- Campo Desde para seleccionar la fecha de inicio -->
-            <div class="me-3" style="flex: 1 1 auto;">
+            <div class="" style="flex: 1 1 auto;">
                 <input type="date" id="startDate" class="form-control" #startDateInput
                   (change)="onStartDateChange(startDateInput.value)" />
               </div>
               
 
             <!-- Campo Hasta para seleccionar la fecha de fin -->
-            <div class="me-3" style="flex: 1 1 auto;">
+            <div class="" style="flex: 1 1 auto;">
                 <input type="date" id="endDate" class="form-control" #endDateInput 
                 (change)="onEndDateChange(endDateInput.value)" />
             </div>
-
+                <div class="dropdown" style="width: fit-content;">
+                    <button class="btn btn-outline-secondary dropdown-toggle text-start" type="button"
+                        id="dropdownReusable" data-bs-toggle="dropdown" aria-expanded="false">
+                        Tipo de Movimiento
+                        @if (tempFilters.movement_type.length > 0) {
+                        ({{ tempFilters.movement_type.length }})
+                        }@else {
+                        (0)
+                        }
+                        <span class="selected-movimiento"></span>
+                    </button>
+                    <ul class="dropdown-menu " aria-labelledby="dropdownTipoMovimiento">
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" class="form-check-input me-2" name="movement_type"
+                                    value="RETURN" (change)="applyColumnFilter('RETURN')">
+                                Devolución
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" class="form-check-input me-2" name="movement_type"
+                                    value="LOAN" (change)="applyColumnFilter('LOAN')">
+                                Préstamo
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" class="form-check-input me-2" name="movement_type"
+                                    value="TO_MAINTENANCE"
+                                    (change)="applyColumnFilter('TO_MAINTENANCE')">
+                                Uso
+                            </label>
+                        </li>
+                    </ul>
+                </div>
             <!-- Contenedor de botones alineados a la derecha -->
             <div class="d-flex justify-content-end align-items-center" style="flex: 1 1 auto;">
 
@@ -77,23 +112,23 @@
                 <div class="modal-body">
 
                     <!-- Min Amount Section -->
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="" class="form-label">Solicitante</label>
                         <input type="text" placeholder="Solicitante" data-column="applicant"
                         class="form-control" [(ngModel)]="tempFilters.applicant"
                         (input)="applyFilters()"    
                         />
-                    </div>
+                    </div> -->
 
 
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="" class="form-label">Producto</label>
                         <input type="text" placeholder="Productos" data-column="detailProducts"
                              class="form-control" 
                              [(ngModel)]="tempFilters.detailProducts"
                              (input)="applyFilters()"
                              />
-                    </div>
+                    </div> -->
 
                     <!-- Period Section -->
                     <div class="mb-3">

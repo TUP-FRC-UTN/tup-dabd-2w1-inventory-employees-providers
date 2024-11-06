@@ -54,13 +54,21 @@ applyFilters(): void {
                            return value.toString().toLowerCase().includes(this.tempFilters.general.toLowerCase());
                          });
 
+    // Función auxiliar para convertir la fecha de formato dd/MM/yyyy HH:mm a un objeto Date
+    const parseDate = (dateString: string): Date => {
+      const [datePart, timePart] = dateString.split(' ');
+      const [day, month, year] = datePart.split('/').map(Number);
+      const [hours, minutes] = timePart.split(':').map(Number);
+      return new Date(year, month - 1, day, hours, minutes);
+    };
+
     // Filtro por fecha inicio
     const startDateMatch = !this.tempFilters.startDate || 
-                           new Date(movement.dateTime.replace(/-/g, '/')) >= this.tempFilters.startDate;
+                           parseDate(movement.dateTime) >= this.tempFilters.startDate;
 
     // Filtro por fecha fin
     const endDateMatch = !this.tempFilters.endDate || 
-                         new Date(movement.dateTime.replace(/-/g, '/')) <= this.tempFilters.endDate;
+                         parseDate(movement.dateTime) <= this.tempFilters.endDate;
 
     // Filtro por solicitante
     const applicantMatch = !this.tempFilters.applicant || 
@@ -77,6 +85,7 @@ applyFilters(): void {
     // Devuelve true solo si todos los filtros coinciden
     return generalMatch && startDateMatch && endDateMatch && applicantMatch && detailProductsMatch && movementTypeMatch;
   });
+
   this.updateDataTable(this.filteredMovements);
 }
 
@@ -123,77 +132,6 @@ onEndDateChange(value: string): void {
       detailProducts: '',
       movement_type: []
     };
-
-  
-  //   // Copiar los filtros temporales a los filtros reales
-  //   this.filters = { ...this.tempFilters };
-
-  //   let result = [...this.movements];
-
-  //   // Filtros de fecha
-  //   if (this.filters.startDate) {
-  //     result = result.filter(movement => {
-  //       const movementDate = new Date(movement.dateTime);
-  //       movementDate.setHours(0, 0, 0, 0);
-  //       return this.isSameOrAfterDate(movementDate, this.filters.startDate!);
-  //     });
-  //   }
-
-  //   if (this.filters.endDate) {
-  //     result = result.filter(movement => {
-  //       const movementDate = new Date(movement.);
-  //       movementDate.setHours(23, 59, 59, 999);
-  //       return this.isSameOrBeforeDate(movementDate, this.filters.endDate!);
-  //     });
-  //   }
-
-  //   // Filtro general
-  //   if (this.filters.general) {
-  //     result = result.filter(movement => {
-  //       const productsString = movement.detailProducts
-  //         .map(product => product.description.toLowerCase())
-  //         .join(' ');
-
-  //       return (
-  //         movement.applicant.toLowerCase().includes(this.filters.general) ||
-  //         movement.responsible.toLowerCase().includes(this.filters.general) ||
-  //         movement.movement_type.toLowerCase().includes(this.filters.general) ||
-  //         productsString.includes(this.filters.general)
-  //       );
-  //     });
-  //   }
-
-  //   // Filtros de columna específicos
-  //   if (this.filters.applicant) {
-  //     result = result.filter(movement =>
-  //       movement.applicant.toLowerCase().includes(this.filters.applicant)
-  //     );
-  //   }
-
-  //   if (this.filters.detailProducts) {
-  //     result = result.filter(movement => {
-  //       const productsString = movement.detailProducts
-  //         .map(product => product.description.toLowerCase())
-  //         .join(' ');
-  //       return productsString.includes(this.filters.detailProducts);
-  //     });
-  //   }
-
-  //   // Filtro de tipo de movimiento
-  //   if (this.filters.movement_type.length > 0) {
-  //     result = result.filter(movement =>
-  //       this.filters.movement_type.includes(movement.movement_type)
-  //     );
-  //   }
-
-  //   this.filteredMovements = result;
-  //   this.updateDataTable(result);
-  // }
-
-  // En la interface de filters, cambia el tipo de movement_type
-
-
- 
 
 
   ngOnInit() {
@@ -327,26 +265,30 @@ onEndDateChange(value: string): void {
           { data: 'applicant', title: 'Solicitante' },
           {
             data: 'product_name',
-            title: 'Productos',
+            title: 'Producto',
             
           },
           {
             data: 'movement_type',
             title: 'Tipo',
             render: (data: string) => {
+              let colorClass;
               switch (data) {
                 case 'RETURN':
-                  return 'Devolución';
+                  return `<span class="badge" style="background-color: #dc3545;">Devolución</span>`;
                 case 'LOAN':
-                  return 'Préstamo';
+                  
+                  return `<span class="badge" style="background-color: #ffc107;">Préstamo</span>`;
                 case 'TO_MAINTENANCE':
-                  return 'Uso';
+                  
+                  return `<span class="badge" style="background-color: #0d6efd;">Uso</span>`;
                 default:
                   return data;
               }
-            }
+            },
           },
-          { data: 'responsible', title: 'Responsable' }
+          
+         // { data: 'responsible', title: 'Responsable' }
 
         ],
         order: [[0, 'desc']],

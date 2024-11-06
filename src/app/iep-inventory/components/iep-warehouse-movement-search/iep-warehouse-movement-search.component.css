@@ -1,0 +1,15 @@
+.badge-red {
+    background-color: #dc3545; /* Rojo */
+    color: white;
+  }
+  
+  .badge-yellow {
+     /* Amarillo */
+    color: black; /* Mejor contraste con amarillo */
+  }
+  
+  .badge-blue {
+     /* Azul */
+    color: white;
+  }
+  
