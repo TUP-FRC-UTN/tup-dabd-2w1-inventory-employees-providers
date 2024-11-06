@@ -13,7 +13,7 @@ import 'jspdf-autotable';
 import { EmpListadoEmpleados } from '../../../iep-employees/Models/emp-listado-empleados';
 import { EmpListadoEmpleadosService } from '../../../iep-employees/services/emp-listado-empleados.service';
 import { WarehouseMovementService } from '../../services/warehouse-movement.service';
-import { catchError, delay, Observable } from 'rxjs';
+import { catchError, delay, min, Observable } from 'rxjs';
 import { IepCreateWarehouseMovementDTO } from '../../models/iep-create-warehouse-movement-dto';
 import { DetailServiceService } from '../../services/detail-service.service';
 import Swal from 'sweetalert2';
@@ -84,6 +84,13 @@ applyStateFilter($event: Event, state: string) {
     // Resetear variables de precio
     this.minPrice = null;
     this.maxPrice = null;
+    this.priceValidationError = false;
+    
+    // Limpiar los inputs de precio
+    const minPriceInput = document.getElementById('precioMin') as HTMLInputElement;
+    const maxPriceInput = document.getElementById('precioMax') as HTMLInputElement;
+    if (minPriceInput) minPriceInput.value = '';
+    if (maxPriceInput) maxPriceInput.value = '';
   
     // Resetear la lista filtrada a todos los elementos
     this.filteredDetails = [...this.details];
@@ -131,9 +138,9 @@ applyStateFilter($event: Event, state: string) {
     this.table.clear().rows.add(this.filteredDetails).draw();
   }
   // Método para validar precios
-  validatePrices(): boolean {
-    if (this.minPrice !== null && this.maxPrice !== null) {
-      if (this.minPrice > this.maxPrice) {
+  validatePrices(min: number | null, max: number | null): boolean {
+    if (min !== null && max !== null) {
+      if (min > max) {
         this.priceValidationError = true;
         return false;
       }
@@ -142,50 +149,29 @@ applyStateFilter($event: Event, state: string) {
     return true;
   }
 
-  public applyAllFilters2(): void {
-
-    // Validar precios antes de aplicar filtros
-    if (!this.validatePrices()) {
-      return;
-    }
-    // Captura de valores de los filtros al hacer clic en el botón "Filtrar"
-    const productFilter = (document.querySelector('input[placeholder="Descripción"]') as HTMLInputElement)?.value.toLowerCase();
-    const supplierFilter = (document.querySelector('input[placeholder="Proveedor"]') as HTMLInputElement)?.value.toLowerCase();
-    const minPriceInput = (document.querySelector('input[placeholder="Precio Mín."]') as HTMLInputElement)?.value;
-    const maxPriceInput = (document.querySelector('input[placeholder="Precio Máx."]') as HTMLInputElement)?.value;
-
-    this.minPrice = minPriceInput ? Number(minPriceInput) : null;
-    this.maxPrice = maxPriceInput ? Number(maxPriceInput) : null;
-
-
-
-    this.filteredDetails = this.details.filter(detail => {
-        // Filtro de búsqueda general
-        const searchTerm = this.currentSearchTerm.toLowerCase();
-        const matchesSearch = !searchTerm ||
-            detail.description.toLowerCase().includes(searchTerm) ||
-            detail.supplierName.toLowerCase().includes(searchTerm) ||
-            detail.state.toLowerCase().includes(searchTerm);
-
-        // Filtro por estado
-        const matchesState = this.selectedStates.length === 0 || 
-                             this.selectedStates.includes(detail.state);
-
-        // Filtro por precio
-        const matchesPrice = this.applyPriceFilterLogic(detail.price);
-
-        // Filtros por columnas específicas
-        const matchesProduct = !productFilter || detail.description.toLowerCase().includes(productFilter);
-        const matchesSupplier = !supplierFilter || detail.supplierName.toLowerCase().includes(supplierFilter);
-
-        // Retorna true solo si cumple con todos los filtros
-        return matchesSearch && matchesState && matchesPrice && matchesProduct && matchesSupplier;
+  applyPriceFilter2(event: Event, type: 'min' | 'max'): void {
+    const value = (event.target as HTMLInputElement).value;
+    const numValue = value ? Number(value) : null;
     
-    });
-
-    // Actualizar la tabla con los resultados filtrados
-    this.table.clear().rows.add(this.filteredDetails).draw();
-}
+    if (type === 'min') {
+      this.minPrice = numValue;
+      // Validar si el precio mínimo es mayor que el máximo actual
+      if (this.maxPrice !== null && numValue !== null && numValue > this.maxPrice) {
+        this.priceValidationError = true;
+        return;
+      }
+    } else {
+      this.maxPrice = numValue;
+      // Validar si el precio máximo es menor que el mínimo actual
+      if (this.minPrice !== null && numValue !== null && numValue < this.minPrice) {
+        this.priceValidationError = true;
+        return;
+      }
+    }
+    
+    this.priceValidationError = false;
+    this.applyAllFilters();
+  }
 
   cleanStateFilters(): void {
     this.selectedStates = [];
@@ -216,6 +202,10 @@ applyStateFilter($event: Event, state: string) {
 
   // Método auxiliar para aplicar la lógica del filtro de precio
   private applyPriceFilterLogic(price: number): boolean {
+    if (this.priceValidationError) {
+      return false;
+    }
+    
     const minPriceMatch = this.minPrice === null || price >= this.minPrice;
     const maxPriceMatch = this.maxPrice === null || price <= this.maxPrice;
     return minPriceMatch && maxPriceMatch;
