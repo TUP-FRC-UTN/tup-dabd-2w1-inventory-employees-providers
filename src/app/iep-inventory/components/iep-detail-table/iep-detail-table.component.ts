@@ -36,65 +36,65 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
 
 
   // Método para aplicar filtro por estados seleccionados
-applyStateFilter($event: Event, state: string) {
-  const checkbox = $event.target as HTMLInputElement;
-  
-  if (checkbox.checked) {
-    // Añadir estado si está marcado
-    this.selectedStates.push(state);
-  } else {
-    // Remover estado si está desmarcado
-    const index = this.selectedStates.indexOf(state);
-    if (index > -1) {
-      this.selectedStates.splice(index, 1);
+  applyStateFilter($event: Event, state: string) {
+    const checkbox = $event.target as HTMLInputElement;
+
+    if (checkbox.checked) {
+      // Añadir estado si está marcado
+      this.selectedStates.push(state);
+    } else {
+      // Remover estado si está desmarcado
+      const index = this.selectedStates.indexOf(state);
+      if (index > -1) {
+        this.selectedStates.splice(index, 1);
+      }
     }
+    console.log(this.selectedStates.length);
+    this.applyAllFilters();
   }
-  console.log(this.selectedStates.length);
-  this.applyAllFilters();
-}
   // Método para limpiar todos los filtros
   cleanColumnFilters(): void {
     // Limpiar estados seleccionados
     this.selectedStates = [];
-    
+
     // Desmarcar todos los checkboxes del dropdown de estado
     const stateCheckboxes = document.querySelectorAll('input[name="estado"]') as NodeListOf<HTMLInputElement>;
     stateCheckboxes.forEach(checkbox => {
       checkbox.checked = false;
     });
-  
+
     // Limpiar el texto seleccionado en el botón del dropdown
     const selectedStateSpan = document.querySelector('.selected-state') as HTMLSpanElement;
     if (selectedStateSpan) {
       selectedStateSpan.textContent = '';
     }
-  
+
     // Limpiar valores de los inputs
     const inputs = document.querySelectorAll('input[placeholder]');
     inputs.forEach(input => (input as HTMLInputElement).value = '');
 
-    
-  
+
+
     // Resetear select de estado
     const estadoSelect = document.getElementById('estadoSelect') as HTMLSelectElement;
     if (estadoSelect) {
       estadoSelect.value = '';
     }
-  
+
     // Resetear variables de precio
     this.minPrice = null;
     this.maxPrice = null;
     this.priceValidationError = false;
-    
+
     // Limpiar los inputs de precio
     const minPriceInput = document.getElementById('precioMin') as HTMLInputElement;
     const maxPriceInput = document.getElementById('precioMax') as HTMLInputElement;
     if (minPriceInput) minPriceInput.value = '';
     if (maxPriceInput) maxPriceInput.value = '';
-  
+
     // Resetear la lista filtrada a todos los elementos
     this.filteredDetails = [...this.details];
-  
+
     // Actualizar la tabla
     this.table.clear().rows.add(this.filteredDetails).draw();
   }
@@ -115,25 +115,25 @@ applyStateFilter($event: Event, state: string) {
         detail.description.toLowerCase().includes(searchTerm) ||
         detail.supplierName.toLowerCase().includes(searchTerm) ||
         detail.state.toLowerCase().includes(searchTerm);
-  
+
       // Filtro por estado - modificado para manejar múltiples estados
-      const matchesState = this.selectedStates.length === 0 || 
-                          this.selectedStates.includes(detail.state);
-  
+      const matchesState = this.selectedStates.length === 0 ||
+        this.selectedStates.includes(detail.state);
+
       // Filtro por precio
       const matchesPrice = this.applyPriceFilterLogic(detail.price);
-  
+
       // Filtros por columnas específicas
       const productFilter = (document.querySelector('input[placeholder="Descripción"]') as HTMLInputElement)?.value.toLowerCase();
       const supplierFilter = (document.querySelector('input[placeholder="Proveedor"]') as HTMLInputElement)?.value.toLowerCase();
-  
+
       const matchesProduct = !productFilter || detail.description.toLowerCase().includes(productFilter);
       const matchesSupplier = !supplierFilter || detail.supplierName.toLowerCase().includes(supplierFilter);
-  
+
       // Retorna true solo si cumple con todos los filtros
       return matchesSearch && matchesState && matchesPrice && matchesProduct && matchesSupplier;
     });
-  
+
     // Actualizar la tabla con los resultados filtrados
     this.table.clear().rows.add(this.filteredDetails).draw();
   }
@@ -152,7 +152,7 @@ applyStateFilter($event: Event, state: string) {
   applyPriceFilter2(event: Event, type: 'min' | 'max'): void {
     const value = (event.target as HTMLInputElement).value;
     const numValue = value ? Number(value) : null;
-    
+
     if (type === 'min') {
       this.minPrice = numValue;
       // Validar si el precio mínimo es mayor que el máximo actual
@@ -168,7 +168,7 @@ applyStateFilter($event: Event, state: string) {
         return;
       }
     }
-    
+
     this.priceValidationError = false;
     this.applyAllFilters();
   }
@@ -205,7 +205,7 @@ applyStateFilter($event: Event, state: string) {
     if (this.priceValidationError) {
       return false;
     }
-    
+
     const minPriceMatch = this.minPrice === null || price >= this.minPrice;
     const maxPriceMatch = this.maxPrice === null || price <= this.maxPrice;
     return minPriceMatch && maxPriceMatch;
@@ -286,7 +286,7 @@ applyStateFilter($event: Event, state: string) {
       title: 'Error',
       text: this.errorMessage,
       confirmButtonText: 'Intentar de nuevo'
-    }).then(()=>{
+    }).then(() => {
       this.cleanDTO();
       this.closeModal();
     });
@@ -299,7 +299,7 @@ applyStateFilter($event: Event, state: string) {
       text: 'El movimiento de almacén se ha registrado con éxito',
       confirmButtonText: 'OK'
 
-    }).then(()=>{
+    }).then(() => {
       this.cleanDTO();
       this.closeModal();
     });
@@ -329,7 +329,7 @@ applyStateFilter($event: Event, state: string) {
         error: (err) => {
           console.error('Error al registrar movimiento de almacén:', err);
           this.errorPost = true;
-          
+
           // Manejar diferentes tipos de error
           this.handleError(err);
         },
@@ -339,108 +339,108 @@ applyStateFilter($event: Event, state: string) {
         }
       });
 
-}
-
-handleError(err: any): void {
-  switch(err.error.message) {
-    case "Required request parameter 'idLastUpdatedUser' for method parameter type Integer is not present":
-      this.errorMessage = 'No se ha especificado el usuario que realiza el movimiento';
-      break;
-    case "404 Item not available to loan":
-      this.errorMessage = 'El producto no está disponible para préstamo';
-      break;
-    case "404 Item already available":
-      this.errorMessage = 'El producto ya está disponible';
-      break;
-    case "404 Item already in maintenance":
-      this.errorMessage = 'El producto ya está en mantenimiento';
-      break;
-    case "404 Item not found":
-      this.errorMessage = 'Producto no encontrado';
-      break;
-    case "500 Error creating warehouse movement":
-      this.errorMessage = 'Error al crear el movimiento de almacén';
-      break;
-    case "400 Invalid movement type":
-      this.errorMessage = 'Tipo de movimiento inválido';
-      break;
-    case "404 Employee not found":
-      this.errorMessage = 'Error al crear el movimiento de almacén';
-      break;
-    case "400 Applicant required":
-      this.errorMessage = 'El solicitante es requerido';
-      break;
-    case "400 Item discontinued":
-      this.errorMessage = 'El producto seleccionado fue dado de baja';
-      break;
-    default:
-      this.errorMessage = 'Error al procesar la solicitud';
   }
-  this.showErrorWarehouseAlert();
+
+  handleError(err: any): void {
+    switch (err.error.message) {
+      case "Required request parameter 'idLastUpdatedUser' for method parameter type Integer is not present":
+        this.errorMessage = 'No se ha especificado el usuario que realiza el movimiento';
+        break;
+      case "404 Item not available to loan":
+        this.errorMessage = 'El producto no está disponible para préstamo';
+        break;
+      case "404 Item already available":
+        this.errorMessage = 'El producto ya está disponible';
+        break;
+      case "404 Item already in maintenance":
+        this.errorMessage = 'El producto ya está en mantenimiento';
+        break;
+      case "404 Item not found":
+        this.errorMessage = 'Producto no encontrado';
+        break;
+      case "500 Error creating warehouse movement":
+        this.errorMessage = 'Error al crear el movimiento de almacén';
+        break;
+      case "400 Invalid movement type":
+        this.errorMessage = 'Tipo de movimiento inválido';
+        break;
+      case "404 Employee not found":
+        this.errorMessage = 'Error al crear el movimiento de almacén';
+        break;
+      case "400 Applicant required":
+        this.errorMessage = 'El solicitante es requerido';
+        break;
+      case "400 Item discontinued":
+        this.errorMessage = 'El producto seleccionado fue dado de baja';
+        break;
+      default:
+        this.errorMessage = 'Error al procesar la solicitud';
+    }
+    this.showErrorWarehouseAlert();
+
+  }
+
+  /*private closeModal() {
+    const modalElement = document.getElementById('warehouseModal');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      if (modal) {
+        modal.hide();
+      }
+      
+      // Limpieza completa después de que se oculte el modal
+      setTimeout(() => {
+        // Remover clases del body
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('padding-right');
+        document.body.style.removeProperty('overflow');
+        
+        // Remover todos los backdrops
+        const backdrops = document.getElementsByClassName('modal-backdrop');
+        while (backdrops.length > 0) {
+          backdrops[0].remove();
+        }
   
-}
-
-/*private closeModal() {
-  const modalElement = document.getElementById('warehouseModal');
-  if (modalElement) {
-    const modal = bootstrap.Modal.getInstance(modalElement);
-    if (modal) {
-      modal.hide();
+        // Limpiar el modal
+        modalElement.classList.remove('show');
+        modalElement.style.display = 'none';
+        modalElement.setAttribute('aria-hidden', 'true');
+        modalElement.removeAttribute('aria-modal');
+        modalElement.removeAttribute('role');
+      }, 300);
     }
-    
-    // Limpieza completa después de que se oculte el modal
-    setTimeout(() => {
-      // Remover clases del body
-      document.body.classList.remove('modal-open');
-      document.body.style.removeProperty('padding-right');
-      document.body.style.removeProperty('overflow');
-      
-      // Remover todos los backdrops
-      const backdrops = document.getElementsByClassName('modal-backdrop');
-      while (backdrops.length > 0) {
-        backdrops[0].remove();
+  }*/
+
+  private closeModal() {
+    const modalElement = document.getElementById('warehouseModal');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      if (modal) {
+        modal.hide();
       }
 
-      // Limpiar el modal
-      modalElement.classList.remove('show');
-      modalElement.style.display = 'none';
-      modalElement.setAttribute('aria-hidden', 'true');
-      modalElement.removeAttribute('aria-modal');
-      modalElement.removeAttribute('role');
-    }, 300);
-  }
-}*/ 
+      // Limpieza completa después de que se oculte el modal
+      setTimeout(() => {
+        // Remover clases del body
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('padding-right');
+        document.body.style.removeProperty('overflow');
 
-private closeModal() {
-  const modalElement = document.getElementById('warehouseModal');
-  if (modalElement) {
-    const modal = bootstrap.Modal.getInstance(modalElement);
-    if (modal) {
-      modal.hide();
+        // Remover todos los backdrops
+        const backdrops = document.getElementsByClassName('modal-backdrop');
+        while (backdrops.length > 0) {
+          backdrops[0].remove();
+        }
+
+        // Limpiar el modal
+        modalElement.classList.remove('show');
+        modalElement.style.display = 'none';
+        modalElement.setAttribute('aria-hidden', 'true');
+        modalElement.removeAttribute('aria-modal');
+        modalElement.removeAttribute('role');
+      }, 300);
     }
-    
-    // Limpieza completa después de que se oculte el modal
-    setTimeout(() => {
-      // Remover clases del body
-      document.body.classList.remove('modal-open');
-      document.body.style.removeProperty('padding-right');
-      document.body.style.removeProperty('overflow');
-      
-      // Remover todos los backdrops
-      const backdrops = document.getElementsByClassName('modal-backdrop');
-      while (backdrops.length > 0) {
-        backdrops[0].remove();
-      }
-
-      // Limpiar el modal
-      modalElement.classList.remove('show');
-      modalElement.style.display = 'none';
-      modalElement.setAttribute('aria-hidden', 'true');
-      modalElement.removeAttribute('aria-modal');
-      modalElement.removeAttribute('role');
-    }, 300);
   }
-}
 
 
   cleanDTO(): void {
@@ -494,7 +494,7 @@ private closeModal() {
         // o cualquier otro método
       }
     });
-    
+
   }
 
 
@@ -502,23 +502,23 @@ private closeModal() {
   public openModalWarehouse() {
     const modalElement = document.getElementById('warehouseModal');
     if (!modalElement) return;
-  
+
     // Asegurarnos de que no exista una instancia previa
     let modalInstance = bootstrap.Modal.getInstance(modalElement);
     if (modalInstance) {
       modalInstance.dispose();
     }
-  
+
     // Crear nueva instancia y mostrar
     modalInstance = new bootstrap.Modal(modalElement, {
       backdrop: 'static', // Esto evita que se cierre al hacer clic fuera
       keyboard: false,
       backdropClassName: 'darker-backdrop' // Clase personalizada para el backdrop
     });
-    
+
     modalInstance.show();
   }
-  
+
 
   initializeModal(): void {
     this.deleteModal = new bootstrap.Modal(
@@ -584,19 +584,37 @@ private closeModal() {
             }, */
       data: this.filteredDetails, // Cambia `details` a `filteredDetails`
       columns: [
+        {
+          data: 'state',
+          title: 'Estado',
+          render: (data: string) => {
+            let colorClass;
+            switch (data) {
+              case 'Disponible':
+                return `<span class="badge" style = "background-color: #0d6efd;" > Disponible </span>`;
+              case 'Mantenimiento':
+                return `<span class="badge" style = "background-color: #ffc107;" > Mantenimiento </span>`;
+              case 'Prestado':
+                return `<span class="badge" style = "background-color: #dc3545;" > Prestado </span>`;
+              default:
+                return data;
+            }
+          }
+        },
         { data: 'description', title: 'Descripción' },
         { data: 'supplierName', title: 'Nombre del Proveedor' },
-        { data: 'state', title: 'Estado' },
         {
           data: 'price',
           title: 'Precio',
           className: 'text-end',
-          render: (data: number) => {
-            return new Intl.NumberFormat('en-US', {
-              style: 'currency',
-              currency: 'USD',
+          render: (data: number) =>  {
+            let formattedAmount = new Intl.NumberFormat('es-AR', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
             }).format(data);
-          },
+            return `<div>$ ${formattedAmount} </div>`;
+          }
+,
         },
         {
           data: null,
@@ -735,7 +753,7 @@ private closeModal() {
         },
         error: (err) => {
           console.error(err);
-          if(err.error.text === 'Operation successful'){
+          if (err.error.text === 'Operation successful') {
             this.showSuccessDeleteAlert();
             this.deleteModal.hide();
             document.body.classList.remove('modal-open');
@@ -745,17 +763,17 @@ private closeModal() {
             }
             this.loadDetails();
             this.resetSelectionAndJustification();
-          }else{
+          } else {
             this.showErrorDeleteAlert();
-          // Misma limpieza en caso de error
-          this.deleteModal.hide();
-          document.body.classList.remove('modal-open');
-          const backdrop = document.querySelector('.modal-backdrop');
-          if (backdrop) {
-            backdrop.remove();
-          }
-          this.loadDetails();
-          this.resetSelectionAndJustification();
+            // Misma limpieza en caso de error
+            this.deleteModal.hide();
+            document.body.classList.remove('modal-open');
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+              backdrop.remove();
+            }
+            this.loadDetails();
+            this.resetSelectionAndJustification();
           }
         },
       });
@@ -777,7 +795,7 @@ private closeModal() {
 
   volverInventario(): void {
     // Implementa la lógica para volver al inventario
-     this.router.navigate(["home/inventory"])
+    this.router.navigate(["home/inventory"])
   }
 
   getFormattedDate(): string {
@@ -838,5 +856,5 @@ private closeModal() {
     const formattedDate = this.getFormattedDate();
     doc.save(`Detalle_Inventario_${formattedDate}.pdf`);
   }
-  
+
 }
