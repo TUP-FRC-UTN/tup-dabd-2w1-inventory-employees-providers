@@ -630,12 +630,6 @@ private closeModal() {
       language: {
         info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
         emptyTable: 'No se encontraron resultados', // Mensaje personalizado si no hay datos   
-        paginate: {
-          first: '<<',
-          last: '>>',
-          next: '>',
-          previous: '<',
-        },
         lengthMenu: '_MENU_', // Etiqueta para el menú de longitud
       },
       initComplete: function () {

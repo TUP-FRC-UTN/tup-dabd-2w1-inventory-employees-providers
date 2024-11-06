@@ -6,8 +6,15 @@
       <div class="col-md-12 d-flex align-items-center justify-content-between">
         <div class="row w-100 align-items-center">
           
+          
+          
+          
           <!-- Campo de búsqueda -->
           <div class="col-md-4 d-flex align-items-center">
+            <!-- Add the back button -->
+            <button class="btn btn-secondary me-2" (click)="volverInventario()">
+              <i class="bi bi-arrow-left"></i>
+            </button>
             <input type="text" id="searchTerm" [(ngModel)]="searchTerm" placeholder="Buscar" class="form-control" readonly>
           </div>
 
@@ -120,13 +127,6 @@
       </thead>
       <tbody></tbody>
     </table>
-
-    <!-- Add the back button -->
-    <div class="d-flex justify-content-end mt-3">
-      <button class="btn btn-secondary me-2 px-3" (click)="volverInventario()">
-        <i class="bi bi-arrow-left"></i>
-      </button>
-    </div>
 
     <!-- Floating button -->
     <button class="floating-btn btn btn-primary" data-bs-target="#newCall" data-bs-toggle="modal">

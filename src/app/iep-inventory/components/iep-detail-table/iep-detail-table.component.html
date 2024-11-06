@@ -84,6 +84,12 @@
     <div class="d-flex  justify-content-between align-items-center">
       <!-- Contenedor Izquierdo: Campo de Búsqueda y ComboBox -->
       <div class="d-flex mb-3 align-items-center">
+
+        <!-- Botón Volver -->
+        <button class="btn btn-secondary me-2" (click)="volverInventario()">
+          <i class="bi bi-arrow-left"></i>
+        </button>
+
         <!-- Campo de Búsqueda -->
         <input type="text" id="filterInput" class="form-control me-3" placeholder="Buscar"
           (input)="applyFilter($event)" />
@@ -143,11 +149,6 @@
         <!-- Botón para limpiar filtros -->
         <button class="btn btn-secondary me-2" (click)="cleanColumnFilters()">
           <i class="bi bi-trash"></i>
-        </button>
-
-        <!-- Botón Volver -->
-        <button class="btn btn-secondary me-2" (click)="volverInventario()">
-          <i class="bi bi-arrow-left"></i>
         </button>
 
         <!-- Botones que antes eran flotantes -->
