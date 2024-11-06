@@ -19,50 +19,59 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./iep-table.component.css'],
 })
 export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
+  private table: any;
+  productos: Producto[] = [];
+  filteredProductos: Producto[] = [];
+
+  // Filtros
+  globalFilter: string = '';
+  startDate: string | undefined;
+  endDate: string | undefined;
+  selectedMovementTypes: string[] = [];
 
   applyAllFilters(): void {
-    if (this.isApplyButtonDisabled) {
-      return; // No aplicar filtros si el botón está deshabilitado
+    // Comenzar con todos los productos
+    let filteredResults = [...this.productos];
+
+    // 1. Aplicar filtro global si existe
+    if (this.globalFilter && this.globalFilter.trim() !== '') {
+      const filterValue = this.globalFilter.toLowerCase();
+      filteredResults = filteredResults.filter(producto =>
+        producto.product.toLowerCase().includes(filterValue) ||
+        producto.modificationType.toLowerCase().includes(filterValue) ||
+        producto.supplier.toLowerCase().includes(filterValue) ||
+        producto.description.toLowerCase().includes(filterValue)
+      );
     }
-  
-    this.filteredProductos = this.productos.filter((producto) => {
-      // Filtro por tipo de movimiento
-      const matchesMovementType = this.selectedMovementTypes.length === 0 || 
-        this.selectedMovementTypes.includes(producto.modificationType.toLowerCase());
-  
-      // Filtro por cantidad
-      const amount = producto.amount;
-      const matchesAmountFilter =
-        (this.minAmount === null || amount >= this.minAmount) &&
-        (this.maxAmount === null || amount <= this.maxAmount);
-  
-      // Filtros por texto
-      const matchesProduct = producto['product'].toLowerCase().includes(this.filterValues['product']);
-      const matchesSupplier = producto['supplier'].toLowerCase().includes(this.filterValues['supplier']);
-      const matchesDescription = producto['description'].toLowerCase().includes(this.filterValues['description']);
-      
-      // Filtro por fecha
-      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
-      const matchesDateFilter =
-        (!this.startDate || productDate >= new Date(this.startDate)) &&
-        (!this.endDate || productDate <= new Date(this.endDate));
-  
-      return matchesMovementType &&
-        matchesAmountFilter &&
-        matchesProduct &&
-        matchesSupplier &&
-        matchesDescription &&
-        matchesDateFilter;
-    });
-  
-    // Actualizar DataTable
+
+    // 2. Aplicar filtro de fechas si existen
+    if (this.startDate || this.endDate) {
+      filteredResults = filteredResults.filter(producto => {
+        const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
+        const start = this.startDate ? new Date(this.startDate) : null;
+        const end = this.endDate ? new Date(this.endDate) : null;
+
+        return (!start || productDate >= start) && (!end || productDate <= end);
+      });
+    }
+
+    // 3. Aplicar filtro de tipo de movimiento si hay seleccionados
+    if (this.selectedMovementTypes.length > 0) {
+      filteredResults = filteredResults.filter(producto =>
+        this.selectedMovementTypes.includes(producto.modificationType.toLowerCase())
+      );
+    }
+
+    // Actualizar los resultados filtrados
+    this.filteredProductos = filteredResults;
+
+    // Actualizar DataTable si existe
     if (this.table) {
       this.table.clear().rows.add(this.filteredProductos).draw();
     }
   }
-  
 
-  selectedMovementTypes: string[] = [];
+
   minAmount: number | null = null;
   maxAmount: number | null = null;
   filterValues: { [key: string]: string } = {
@@ -70,13 +79,10 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     supplier: '',
     description: ''
   };
-  
+
   // Propiedad para controlar el estado del botón
   isApplyButtonDisabled: boolean = false;
 
-  private table: any; // Referencia para la instancia de DataTable
-  productos: Producto[] = []; // Array para almacenar los productos
-  filteredProductos: Producto[] = []; // Array para almacenar productos filtrados
 
   exportButtonsEnabled: boolean = true; // Controla la habilitación de los botones
   private stockMap: Map<string, number> = new Map();
@@ -86,41 +92,12 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     private excelPdfService: GenerateExcelPdfService
   ) { }
 
-  globalFilter: string = ''; // Filtro global para la búsqueda
-  
-  applyFilter(): void {
-    const filterValue = this.globalFilter.toLowerCase(); // Convertir a minúsculas para una comparación insensible
-    console.log('Filtro global:', filterValue);
-  
-    // Filtrar los productos según el valor del input
-    this.filteredProductos = this.productos.filter((producto) => {
-      return (
-        producto.product.toLowerCase().includes(filterValue) || // Filtrar por producto
-        producto.modificationType.toLowerCase().includes(filterValue) || // Filtrar por tipo de movimiento
-        producto.supplier.toLowerCase().includes(filterValue) || // Filtrar por proveedor
-        producto.description.toLowerCase().includes(filterValue) // Filtrar por justificativo
-      );
-    });
-  
-    // Filtrar por fecha startDate y endDate (solo una vez)
-    this.filteredProductos = this.filteredProductos.filter((producto) => {
-      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
-      return (
-        (!this.startDate || productDate >= new Date(this.startDate)) &&
-        (!this.endDate || productDate <= new Date(this.endDate))
-      );
-    });
-  
-    // Actualizar el DataTable con los productos filtrados
-    if (this.table) {
-      this.table.clear().rows.add(this.filteredProductos).draw();
-    }
-  }
-  
 
-  // Variables necesarias para el filtrado por fecha
-  startDate: string | undefined;
-  endDate: string | undefined;
+  applyFilter(): void {
+    this.applyAllFilters();
+  }
+
+
 
   onStartDateChange(): void {
   }
@@ -170,19 +147,15 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.productService.getProductos().subscribe({
       next: (productos) => {
         this.productos = this.calculateRunningStock(productos);
-
-
-      // Llama a filterByDate después de establecer los productos
-      this.filterByDate(); // Aplica el filtro de fechas inicial
+        this.filteredProductos = [...this.productos];
+        this.applyAllFilters(); // Aplicar todos los filtros inicialmente
 
         if (this.table) {
           this.table.destroy();
         }
         this.initializeDataTable();
       },
-      error: (err) => {
-        console.error('Error al cargar productos:', err);
-      },
+      error: (err) => console.error('Error al cargar productos:', err)
     });
   }
 
@@ -248,7 +221,21 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         },
         { data: 'product', title: 'Producto' }, // Columna de producto
-        { data: 'modificationType', title: 'Tipo movimiento' }, // Columna de tipo de movimiento
+        {
+          data: 'modificationType',
+          title: 'Tipo de Movimiento',
+          render: (data: string) => {
+            let colorClass;
+            switch (data) {
+              case 'Aumento':
+                return `<span class="badge" style = "background-color: #0d6efd;" > Aumento </span>`;
+              case 'Disminución':
+                return `<span class="badge" style = "background-color: #dc3545;" > Disminución </span>`;
+              default:
+                return data;
+            }
+          }
+        }, // Columna de tipo de movimiento
         { data: 'supplier', title: 'Proveedor' }, // Columna de proveedor
         { data: 'amount', title: 'Cantidad' }, // Columna de cantidad
         { data: 'description', title: 'Justificativo' }, // Columna de justificativo
@@ -266,7 +253,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
         lengthMenu: '_MENU_', // Esto eliminará el texto "entries per page"
         search: 'Buscar:',
         info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
-        emptyTable: 'No se encontraron registros', // Mensaje personalizado si no hay datos        
+        emptyTable: 'No se encontraron movimientos', // Mensaje personalizado si no hay datos        
       },
     });
   }
@@ -317,7 +304,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
     const day = String(date.getDate()).padStart(2, '0');
-    
+
     return `${day}-${month}-${year}`;
   }
 
@@ -465,6 +452,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Validar si el máximo es menor que el mínimo
     this.validateAmountRange();
+    this.applyAllFilters()
   }
 
   validateAmountRange(): void {
@@ -479,7 +467,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (column === 'modificationType') {
       const checkbox = event.target as HTMLInputElement;
       const value = checkbox.value.toLowerCase();
-      
+
       if (checkbox.checked) {
         this.selectedMovementTypes.push(value);
       } else {
@@ -488,39 +476,25 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
           this.selectedMovementTypes.splice(index, 1);
         }
       }
-    } else {
-      const input = event.target as HTMLInputElement;
-      this.filterValues[column] = input.value.toLowerCase();
+      this.applyAllFilters();
     }
   }
 
-
   cleanColumnFilters(): void {
-    //resetar los ngModel de los inputs
     this.globalFilter = '';
-    this.startDate = '';
-    this.endDate = '';
-    // Resetear todos los valores de filtro
-    this.minAmount = null;
-    this.maxAmount = null;
+    this.startDate = undefined;
+    this.endDate = undefined;
     this.selectedMovementTypes = [];
-    this.filterValues = {
-      product: '',
-      supplier: '',
-      description: ''
-    };
-    this.isApplyButtonDisabled = false;
-  
-    // Resetear inputs
-    const textInputs = document.querySelectorAll('input.form-control');
-    const checkboxInputs = document.querySelectorAll('input[type="checkbox"]');
-  
-    textInputs.forEach(input => (input as HTMLInputElement).value = '');
-    checkboxInputs.forEach(checkbox => (checkbox as HTMLInputElement).checked = false);
-  
-    // Resetear lista filtrada
+
+    // Resetear checkboxes
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach((checkbox: Element) => {
+      (checkbox as HTMLInputElement).checked = false;
+    });
+
+    // Restablecer los productos sin filtrar
     this.filteredProductos = [...this.productos];
-  
+
     // Actualizar DataTable
     if (this.table) {
       this.table.clear().rows.add(this.filteredProductos).draw();

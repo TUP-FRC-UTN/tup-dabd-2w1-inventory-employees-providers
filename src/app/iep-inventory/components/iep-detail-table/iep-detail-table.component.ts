@@ -202,9 +202,14 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
 
   // Método auxiliar para aplicar la lógica del filtro de precio
   private applyPriceFilterLogic(price: number): boolean {
+    if (price < 0) {
+      return false;
+    }
+
     if (this.priceValidationError) {
       return false;
     }
+
 
     const minPriceMatch = this.minPrice === null || price >= this.minPrice;
     const maxPriceMatch = this.maxPrice === null || price <= this.maxPrice;
@@ -607,14 +612,14 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
           data: 'price',
           title: 'Precio',
           className: 'text-end',
-          render: (data: number) =>  {
+          render: (data: number) => {
             let formattedAmount = new Intl.NumberFormat('es-AR', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2
             }).format(data);
             return `<div>$ ${formattedAmount} </div>`;
           }
-,
+          ,
         },
         {
           data: null,
