@@ -642,15 +642,17 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           title: 'Cantidad',
           render: (row: any) => {
             const quantity = row.detailProducts.length;
+
             const warning = row.minQuantityWarning;
 
-            if (quantity <= warning + 10 && quantity > warning) {
+/*             if (quantity <= warning + 10 && quantity > warning) {
               return `<span style="color: #FF8C00; font-weight: bold;">${quantity}</span>`;
             } else {
               if (9 >= quantity && quantity > 0) {
                 return `<span style="color: #FF0000; font-weight: bold;">${quantity}</span>`;
               }
-            }
+            } */
+
             return quantity;
           }
         },
