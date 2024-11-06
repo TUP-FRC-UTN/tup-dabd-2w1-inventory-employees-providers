@@ -361,4 +361,9 @@ export class IepAttendancesComponent implements OnInit{
     const year = today.getFullYear();
     return `${day}/${month}/${year}`;
   }
+
+    // Add the volverInventario method
+    volverInventario(): void {
+      this.router.navigate(["home/employee-list"]);
+    }
 }
