@@ -5,7 +5,8 @@ import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 declare var $: any;
 declare var DataTable: any;
@@ -303,27 +304,43 @@ export class IepAttendancesComponent implements OnInit{
   }
 
   exportToPdf(): void {
-    const doc = new jsPDF();
+  console.log('Exportando a PDF...');
+  const doc = new jsPDF();
 
-    // Extrae datos de la tabla de asistencias
-    const dataToExport = this.Asistencias.map((asistencia) => [
-      asistencia.employeeName,
-      asistencia.date,
-      asistencia.arrivalTime,
-      asistencia.departureTime,
-      asistencia.state,
-    ]);
-
-    doc.setFontSize(16);
-    doc.text('Lista de Asistencias', 10, 10);
-    (doc as any).autoTable({
-      head: [['Nombre del Empleado', 'Fecha', 'Hora de Llegada', 'Hora de Salida', 'Estado']],
-      body: dataToExport,
-      startY: 20,
-    });
-    
-    doc.save(`Lista_asistencias_${this.empleadoName}_${this.getFormattedDate()}.pdf`);
+  // Verifica si hay datos en Asistencias
+  if (!this.Asistencias || this.Asistencias.length === 0) {
+    console.error('No hay datos de asistencias');
+    return;
   }
+
+  const dataToExport = this.Asistencias.map((asistencia) => [
+    asistencia.date,
+    asistencia.employeeName,
+    asistencia.state,
+    asistencia.arrivalTime,
+    asistencia.departureTime,
+    asistencia.justification
+  ]);
+
+  doc.setFontSize(16);
+  doc.text('Lista de Asistencias', 10, 10);
+
+  (doc as any).autoTable({
+    head: [['Fecha', 'Apellido y nombre', 'Estado', 'Hora de entrada', 'Hora de salida', 'Observaciones']],
+    body: dataToExport,
+    startY: 30, 
+    theme: 'grid',  
+    margin: { top: 30, bottom: 20 },
+    styles: {
+      fontSize: 10,  
+      cellPadding: 5,  
+      halign: 'center', 
+    },
+  });
+  
+  doc.save(`Lista_asistencias_${this.empleadoName}_${this.getFormattedDate()}.pdf`);
+}
+
 
   getFormattedDate(): string {
     const today = new Date();

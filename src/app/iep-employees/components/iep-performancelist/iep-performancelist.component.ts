@@ -6,6 +6,7 @@ import { FormsModule, NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
 import { WakeUpCallDetail } from '../../Models/listado-desempeño';
 import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import $ from 'jquery';
 declare var bootstrap: any; // Añadir esta declaración al principio
@@ -469,25 +470,33 @@ openNewCallModal(employeeId: number) {
       .data()
       .toArray();
   
+      
     const dataToExport = filteredData.map((performance: any) => [
-      performance.year,
-      this.months[performance.month - 1],
+      `${performance.year}-${(performance.month).toString().padStart(2, '0')}`,
       performance.fullName,
       performance.totalObservations,
       performance.performanceType,
     ]);
   
     (doc as any).autoTable({
-      head: [['Año', 'Mes', 'Empleado', 'Observaciones', 'Desempeño']],
-      body: dataToExport,
-      startY: 20,
+      head: [['Periodo', 'Empleado', 'Observaciones', 'Desempeño']],
+      body: dataToExport, 
+      startY: 30, 
+      theme: 'grid',  
+      margin: { top: 30, bottom: 20 },  
+      styles: {
+        fontSize: 10,  
+        cellPadding: 5,  
+        halign: 'center', 
+      },
     });
   
     const formattedDate = this.getFormattedDate();
     doc.save(`Lista_Desempeños_Filtrados_${formattedDate}.pdf`);
   }
   
-  exportToExcel(): void {
+ exportToExcel(): void {
+
     // Obtener los datos filtrados de la tabla DataTables
     const filteredData = this.dataTable
       .rows({ search: 'applied' })
@@ -495,14 +504,21 @@ openNewCallModal(employeeId: number) {
       .toArray();
   
     const dataToExport = filteredData.map((performance: any) => ({
-      'Año': performance.year,
-      'Mes': this.months[performance.month - 1],
+      'Periodo': `${performance.year}-${(performance.month).toString().padStart(2, '0')}`,
       'Empleado': performance.fullName,
       'Observaciones': performance.totalObservations,
       'Desempeño': performance.performanceType,
     }));
   
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+    worksheet['!cols'] = [
+      { wch: 20 }, 
+      { wch: 30 }, 
+      { wch: 15 },
+      { wch: 15 }
+    ];
+  
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Desempeños Filtrados');
 

@@ -805,33 +805,49 @@ private closeModal() {
     return `${day}/${month}/${year}`;
   }
 
-  // Método para exportar a Excel
   generateExcel(): void {
-    const dataToExport = this.details.map(detail => ({
-      Descripción: detail.description,
-      'Nombre del Proveedor': detail.supplierName,
-      Estado: detail.state,
-      Precio: new Intl.NumberFormat('en-US', {
+    const encabezado = [
+      ['Listado de Detalles de Productos'],
+      [],
+      ['Descripción', 'Nombre del Proveedor', 'Estado', 'Precio']
+    ];
+
+    // Datos a exportar
+    const excelData = this.details.map(detail => [
+      detail.description,
+      detail.supplierName,
+      detail.state,
+      new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
       }).format(detail.price),
-    }));
+    ]);
 
-    // Crear un libro de Excel
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const worksheetData = [...encabezado, ...excelData];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    worksheet['!cols'] = [
+      { wch: 30 },
+      { wch: 30 },
+      { wch: 15 },
+      { wch: 15 },
+    ];
+
+    // Crear el libro de trabajo y agregar la hoja
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Detalles de Productos');
 
-    // Guardar el archivo
+    // Guardar el archivo con la fecha
     const formattedDate = this.getFormattedDate();
     XLSX.writeFile(workbook, `Detalle_Inventario_${formattedDate}.xlsx`);
-  }
+}
+
 
   // Método para exportar a PDF
   generatePDF(): void {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text('Listado de Productos', 10, 10);
+    doc.text('Listado de Inventario (Detalle)', 10, 10);
 
     const dataToExport = this.details.map(detail => [
       detail.description,
@@ -847,7 +863,14 @@ private closeModal() {
     (doc as any).autoTable({
       head: [['Descripción', 'Nombre del Proveedor', 'Estado', 'Precio']],
       body: dataToExport,
-      startY: 20,
+      startY: 30, 
+      theme: 'grid',  
+      margin: { top: 30, bottom: 20 },  
+      styles: {
+        fontSize: 10,  
+        cellPadding: 5,  
+        halign: 'center', 
+      },
     });
 
     // Guardar el PDF

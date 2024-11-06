@@ -10,7 +10,8 @@ import { EmpListadoAsistencias } from '../../Models/emp-listado-asistencias';
 import { EmployeePerformance } from '../../Models/listado-desempeño';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 declare var $: any;
@@ -194,37 +195,52 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     const doc = new jsPDF();
 
     if (this.ventana === 'Informacion') {
-      // Extrae datos de la tabla de empleados
       const dataToExport = this.Empleados.map((empleado) => [
         empleado.fullName,
         empleado.document,
         empleado.position,
         empleado.salary,
+        empleado.active ? 'Activo' : 'Inactivo',
       ]);
 
       doc.setFontSize(16);
       doc.text('Lista de Empleados', 10, 10);
       (doc as any).autoTable({
-        head: [['Nombre', 'Documento', 'Posición', 'Salario']],
+        head: [['Apellido y nombre', 'Documento', 'Posición', 'Salario', 'Estado']],
         body: dataToExport,
-        startY: 20,
+        startY: 30, 
+        theme: 'grid',  
+        margin: { top: 30, bottom: 20 },  
+        styles: {
+          fontSize: 10,  
+          cellPadding: 5,  
+          halign: 'center', 
+        },
       });
     } else if (this.ventana === 'Asistencias') {
-      // Extrae datos de la tabla de asistencias
       const dataToExport = this.Asistencias.map((asistencia) => [
-        asistencia.employeeName,
         asistencia.date,
+        asistencia.employeeName,
+        asistencia.state,
         asistencia.arrivalTime,
         asistencia.departureTime,
-        asistencia.state,
+        asistencia.justification,
+        
       ]);
 
       doc.setFontSize(16);
       doc.text('Lista de Asistencias', 10, 10);
       (doc as any).autoTable({
-        head: [['Nombre del Empleado', 'Fecha', 'Hora de Llegada', 'Hora de Salida', 'Estado']],
+        head: [['Fecha', 'Apellido y nombre', 'Estado', 'Hora de entrada', 'Hora de salida', 'Observaciones']],
         body: dataToExport,
-        startY: 20,
+        startY: 30, 
+        theme: 'grid',  
+        margin: { top: 30, bottom: 20 },  
+        styles: {
+          fontSize: 10,  
+          cellPadding: 5,  
+          halign: 'center', 
+        },
       });
     }
 
@@ -232,34 +248,45 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   exportToExcel(): void {
-    let dataToExport: any[] = []; // Define un array vacío por defecto
+    const encabezado = [
+        [`Lista de ${this.ventana}`],
+        [],
+        this.ventana === 'Informacion'
+            ? ['Apellido y nombre', 'Documento', 'Posición', 'Salario', 'Estado']
+            : ['Fecha', 'Apellido y nombre', 'Estado', 'Hora de entrada', 'Hora de salida', 'Observaciones']
+    ];
 
-    if (this.ventana === 'Informacion') {
-      // Extrae datos de la tabla de empleados
-      dataToExport = this.Empleados.map((empleado) => ({
-        'Nombre': empleado.fullName,
-        'Documento': empleado.document,
-        'Posición': empleado.position,
-        'Salario': empleado.salary,
-      }));
-    } else if (this.ventana === 'Asistencias') {
-      // Extrae datos de la tabla de asistencias
-      dataToExport = this.Asistencias.map((asistencia) => ({
-        'Nombre del Empleado': asistencia.employeeName,
-        'Fecha': asistencia.date,
-        'Hora de Llegada': asistencia.arrivalTime,
-        'Hora de Salida': asistencia.departureTime,
-        'Estado': asistencia.state,
-      }));
-    }
+    // Datos a exportar
+    const excelData = this.ventana === 'Informacion'
+        ? this.Empleados.map((empleado) => [
+            empleado.fullName,
+            empleado.document,
+            empleado.position,
+            empleado.salary,
+            empleado.active ? 'Activo' : 'Inactivo',
+          ])
+        : this.Asistencias.map((asistencia) => [
+            asistencia.date,
+            asistencia.employeeName,
+            asistencia.state,
+            asistencia.arrivalTime,
+            asistencia.departureTime,
+            asistencia.justification,
+          ]);
 
-    // Aquí se asegura de que dataToExport nunca sea undefined
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const worksheetData = [...encabezado, ...excelData];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    worksheet['!cols'] = this.ventana === 'Informacion'
+        ? [{ wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 10 }] 
+        : [{ wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }];  
+
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, `Lista de ${this.ventana}`);
+    XLSX.utils.book_append_sheet(workbook, worksheet, `Listado de ${this.ventana}`);
+    const formattedDate = this.getFormattedDate();
+    XLSX.writeFile(workbook, `Lista_${this.ventana}_${formattedDate}.xlsx`);
+}
 
-    XLSX.writeFile(workbook, `Lista_${this.ventana}_${this.getFormattedDate()}.xlsx`);
-  }
 
 
 

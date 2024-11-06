@@ -81,37 +81,68 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
   
   exportToPdf(): void {
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text('Lista de Cargos', 10, 10);
+  
+    const pageTitle = 'Listado de Cargos';
+    doc.setFontSize(18);
+    doc.text(pageTitle, 15, 10);
   
     const dataToExport = this.filteredData.map((cargo) => [
       cargo.charge,
       cargo.description,
+      cargo.active ? 'Activo' : 'Inactivo',
     ]);
   
     (doc as any).autoTable({
-      head: [['Cargo', 'Descripción']],
+      head: [['Cargo', 'Descripción', 'Estado']],
       body: dataToExport,
-      startY: 20,
+      startY: 30, 
+      theme: 'grid',  
+      margin: { top: 30, bottom: 20 },  
+      styles: {
+        fontSize: 10,  
+        cellPadding: 5,  
+        halign: 'center', 
+      },
     });
   
-    const formattedDate = this.getFormattedDate();
+    const formattedDate = this.getFormattedDate(); 
     doc.save(`Lista_Cargos_${formattedDate}.pdf`);
   }
   
-  exportToExcel(): void {
-    const dataToExport = this.filteredData.map((cargo) => ({
-      'Cargo': cargo.charge,
-      'Descripción': cargo.description,
-    }));
   
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  
+  exportToExcel(): void {
+    const encabezado = [
+      ['Listado de Cargos'],
+      [],
+      ['Cargo', 'Descripción', 'Estado'] 
+    ];
+  
+    // Datos a exportar
+    const excelData = this.filteredData.map((cargo) => {
+      return [
+        cargo.charge,                         
+        cargo.description,                     
+        cargo.active ? 'Activo' : 'Inactivo',  
+      ];
+    });
+  
+    const worksheetData = [...encabezado, ...excelData];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  
+    worksheet['!cols'] = [
+      { wch: 20 }, 
+      { wch: 30 }, 
+      { wch: 15 }
+    ];
+  
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Cargos');
   
     const formattedDate = this.getFormattedDate();
     XLSX.writeFile(workbook, `Lista_Cargos_${formattedDate}.xlsx`);
   }
+  
 
 
   markAllControlsAsTouched(): void {

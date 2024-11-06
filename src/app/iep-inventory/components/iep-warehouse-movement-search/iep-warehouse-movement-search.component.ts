@@ -521,7 +521,14 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
     (doc as any).autoTable({
       head: [['Fecha y Hora', 'Solicitante', 'Productos', 'Tipo', 'Responsable']],
       body: dataToExport,
-      startY: 20,
+      startY: 30, 
+      theme: 'grid',  
+      margin: { top: 30, bottom: 20 },  
+      styles: {
+        fontSize: 10,  
+        cellPadding: 5,  
+        halign: 'center', 
+      },
     });
 
     const formattedDate = this.getFormattedDate();
@@ -530,21 +537,45 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
 
 
   exportToExcel(): void {
-    const dataToExport = this.movements.map((movement) => ({
-      'Fecha y Hora': new Date(movement.date).toLocaleString('es-ES'),
-      'Solicitante': movement.applicant,
-      'Productos': movement.detailProducts.map((product) => this.getProductNameById(product.productId)).join(', '),
-      'Tipo': this.translateMovementType(movement.movement_type),
-      'Responsable': movement.responsible
-    }));
+    if (!this.movements.length) {
+      console.error('No hay datos para exportar');
+      return;
+    }
+  
+    // Datos a exportar
+    const dataToExport = this.movements.map((movement) => [
+      new Date(movement.date).toLocaleString('es-ES'),
+      movement.applicant, 
+      movement.detailProducts.map((product) => this.getProductNameById(product.productId)).join(', '), 
+      this.translateMovementType(movement.movement_type), 
+      movement.responsible 
+    ]);
+  
+    const encabezado = [
+      ['Listado de Movimientos'],
+      [], 
+      ['Fecha y Hora', 'Solicitante', 'Productos', 'Tipo', 'Responsable'],
+    ];
+  
+    const worksheetData = [...encabezado, ...dataToExport];
+  
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    worksheet['!cols'] = [
+      { wch: 20 }, 
+      { wch: 20 }, 
+      { wch: 30 }, 
+      { wch: 15 },
+      { wch: 20 }, 
+    ];
+  
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Movimientos');
-
+  
     const formattedDate = this.getFormattedDate();
     XLSX.writeFile(workbook, `Lista_Movimientos_${formattedDate}.xlsx`);
   }
+  
 
 
 
@@ -560,8 +591,8 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
       this.dataTableInstance = $('#movementsTable').DataTable({
         data: this.movements,
         dom:
-          '<"mb-3"t>' +                           //Tabla
-          '<"d-flex justify-content-between"lp>', //Paginacion
+          '<"mb-3"t>' +                           
+          '<"d-flex justify-content-between"lp>', 
         columns: [
           {
             data: 'date',
