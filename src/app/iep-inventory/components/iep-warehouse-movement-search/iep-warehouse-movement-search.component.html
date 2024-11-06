@@ -24,7 +24,7 @@
                 (change)="onEndDateChange(endDateInput.value)" />
             </div>
                 <div class="dropdown" style="width: fit-content;">
-                    <button class="btn btn-outline-secondary dropdown-toggle text-start" type="button"
+                    <button class="form-control dropdown-toggle text-start" type="button"
                         id="dropdownReusable" data-bs-toggle="dropdown" aria-expanded="false">
                         Tipo de Movimiento
                         @if (tempFilters.movement_type.length > 0) {
@@ -63,12 +63,12 @@
             <div class="d-flex justify-content-end align-items-center" style="flex: 1 1 auto;">
 
                 <!-- Botón para mostrar/ocultar filtros -->
-                <div class="col-mb-3">
+                <!-- <div class="col-mb-3">
                     <button class="btn btn-primary me-2" data-bs-toggle="modal" title="Filtros Avanzados"
                         data-bs-target="#filtrosAvanzados">
                         <i class="bi bi-sort-down-alt"></i>
                     </button>
-                </div>
+                </div> -->
 
                 <!-- Botón para limpiar filtros -->
                 <button class="btn btn-secondary me-2" (click)="cleanColumnFilters()">
@@ -88,7 +88,7 @@
         </div>
 
         <div class="row">
-            <table id="movementsTable" class="table table-striped mt-4 ">
+            <table id="movementsTable" class="table table-striped border border-4 rounded table-hover">
 
             </table>
         </div>

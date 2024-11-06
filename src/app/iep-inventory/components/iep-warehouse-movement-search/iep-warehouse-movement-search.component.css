@@ -1,0 +1,9 @@
+.btn-outline-secondary:hover{
+background-color: transparent;
+color: gray;
+}
+
+.btn-outline-secondary:active{
+    background-color: transparent;
+    color: gray;
+    }

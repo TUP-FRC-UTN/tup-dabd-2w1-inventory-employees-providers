@@ -24,7 +24,7 @@ interface SelectedStates {
 @Component({
   selector: 'app-iep-supplier-list',
   standalone: true,
-  imports: [iepBackButtonComponent, FormsModule, CommonModule, RouterModule, SupplierTypePipe],
+  imports: [iepBackButtonComponent, FormsModule, CommonModule, RouterModule],
   templateUrl: './iep-supplier-list.component.html',
   styleUrls: ['./iep-supplier-list.component.css']
 })
@@ -249,18 +249,20 @@ export class IepSupplierListComponent implements AfterViewInit {
             data: 'supplierType',
             title: 'Tipo proveedor',
             render: (data: string) => {
+              let colorClass;
               switch (data) {
                 case 'OTHER':
-                  return 'Otro';
+                  return '<span class="badge" style="background-color: #dc3545;">Otro</span>'
                 case 'OUTSOURCED_SERVICE':
-                  return 'Servicio Tercerizado';
+                  return '<span class="badge" style="background-color: #ffc107;">Servicio Tercerizado</span>'
                 case 'INVENTORY_SUPPLIER':
-                  return 'Proveedor de Inventario';
+                  return '<span class="badge" style="background-color: #0d6efd;">Proveedor de Inventario</span>'
                 default:
                   return data;
               }
-            }
+            },
           },
+          
           { data: 'address', title: 'Dirección' },
 
           { data: 'phoneNumber', title: 'Teléfono' },
@@ -268,16 +270,20 @@ export class IepSupplierListComponent implements AfterViewInit {
           {
             data: 'discontinued',
             title: 'Estado',
-            render: function (data) {
-              return data ? 'Inactivo' : 'Activo';
+            render: (data: boolean) => {
+              return data 
+                ? '<span class="badge" style="background-color: #dc3545;">Inactivo</span>' 
+                : '<span class="badge" style="background-color: #28a745;">Activo</span>'
             }
           },
+          
           {
             data: null,
             title: 'Acciones',
             render: (data: any, type: any, row: any) => {
               return `
-                <div class="dropdown">
+                <div class="d-flex justify-content-center">
+                  <div class="dropdown">
                   <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
                      style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
                     &#8942;
@@ -287,7 +293,11 @@ export class IepSupplierListComponent implements AfterViewInit {
                     <li class="dropdown-divider"></li>
                     <li><a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${data.id}">Eliminar</a></li>
                   </ul>
-                </div>`;
+                </div>
+
+                </div>
+                
+                `;
             }
           }
         ],
