@@ -3,8 +3,13 @@
 
         <!-- Filtros para Desempeño y Asistencias -->
         <div class="row filtros mb-3">
+            <div class="col-1">
+                <button class="btn btn-secondary ms-2" (click)="volverInventario()">
+                    <i class="bi bi-arrow-left"></i>
+                </button>
+            </div>
             <div class="col-2">
-                <h4>{{empleadoName}}</h4>
+                <h4 class="text-center">{{empleadoName}}</h4>
             </div>
             <!-- Filtro de estado  -->
             <div class="col-2">
@@ -41,8 +46,8 @@
         </div>
 
         <!-- Tabla de empleados con cabecera de columnas -->
-        <table id="empleadosTable" class="table table-striped border border-3 rounded table-hover">
-            <thead class="thead-light">
+        <table id="empleadosTable" class="table table-striped border border-4 rounded table-hover">
+            <thead>
                 <tr>
                     <th></th>
                     <th></th>
@@ -53,6 +58,23 @@
             <tbody>
             </tbody>
         </table>
+
+        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="detailsModalLabel">Detalles de inasistencia.</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Prueba</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
     

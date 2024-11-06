@@ -3,10 +3,10 @@
   <div class="container p-3 border border-2 rounded shadow-lg">
 
     <!-- Sección de filtros y botones de exportación -->
-    <div class="d-flex mb-3 justify-content-between align-items-center">
+    <div class="d-flex mb-2 justify-content-between align-items-center">
       <div class="d-flex align-items-center flex-grow-1">
         <!-- Campo de Búsqueda -->
-        <div class="col-md-4 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
+        <div class="col-md-3 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
           <input type="text" id="filterInput" class="form-control" placeholder="Buscar" [(ngModel)]="globalFilter" name="globalFilter"
            (input)="applyFilter()" />
         </div>
@@ -28,7 +28,7 @@
       <div class="col-mb-3">
         <button class="btn btn-primary ms-2" data-bs-toggle="modal" title="Filtros Avanzados"
           data-bs-target="#filtrosAvanzados">
-          <i class="bi bi-sort-down-alt"></i>
+          <i class="bi bi-funnel-fill"></i>
         </button>
       </div>
 
@@ -135,12 +135,12 @@
 
           <!-- Period Section -->
           <div class="mb-3">
-            <label for="periodo" class="form-label">Seleccionar tipo movimiento</label>
+            <label for="periodo" class="form-label">Tipo movimiento</label>
             <div class="dropdown">
               <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
                 id="dropdownReusable" data-bs-toggle="dropdown" aria-expanded="false">
                 <span class="selected-movimiento">
-                  Tipo Movimiento
+                  Seleccionar tipo movimiento
                   @if (selectedMovementTypes.length > 0) {
                   ({{ selectedMovementTypes.length }})
                   }

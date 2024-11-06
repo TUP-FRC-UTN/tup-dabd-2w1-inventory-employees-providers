@@ -629,13 +629,7 @@ private closeModal() {
       searching: false, // Desactivar la búsqueda
       language: {
         info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
-        emptyTable: 'No se encontraron resultados', // Mensaje personalizado si no hay datos   
-        paginate: {
-          first: '<<',
-          last: '>>',
-          next: '>',
-          previous: '<',
-        },
+        emptyTable: 'No se encontraron productos', // Mensaje personalizado si no hay datos   
         lengthMenu: '_MENU_', // Etiqueta para el menú de longitud
       },
       initComplete: function () {

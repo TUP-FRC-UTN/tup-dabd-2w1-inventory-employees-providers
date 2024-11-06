@@ -84,13 +84,19 @@
     <div class="d-flex  justify-content-between align-items-center">
       <!-- Contenedor Izquierdo: Campo de Búsqueda y ComboBox -->
       <div class="d-flex mb-3 align-items-center">
+
+        <!-- Botón Volver -->
+        <button class="btn btn-secondary me-2" (click)="volverInventario()">
+          <i class="bi bi-arrow-left"></i>
+        </button>
+
         <!-- Campo de Búsqueda -->
         <input type="text" id="filterInput" class="form-control me-3" placeholder="Buscar"
           (input)="applyFilter($event)" />
 
         <!-- Dropdown de Estado con el evento (change) para filtrar -->
         <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle text-start" style="width: 200px;" type="button"
+          <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" style="width: 200px;" type="button"
             id="dropdownEstado" data-bs-toggle="dropdown" aria-expanded="false">
             <label for="">Seleccionar Estado</label>
             @if (selectedStates.length > 0) {
@@ -137,7 +143,7 @@
 
         <!-- Botón filtros avanzados -->
         <button class="btn btn-primary me-2" data-bs-toggle="modal" title="Filtros Avanzados" data-bs-target="#filtrosAvanzados">
-          <i class="bi bi-sort-down-alt"></i>
+          <i class="bi bi-funnel-fill"></i>
         </button>
 
         <!-- Botón para limpiar filtros -->
@@ -145,17 +151,12 @@
           <i class="bi bi-trash"></i>
         </button>
 
-        <!-- Botón Volver -->
-        <button class="btn btn-secondary me-2 px-3" (click)="volverInventario()">
-          <i class="bi bi-arrow-left"></i>
-        </button>
-
         <!-- Botones que antes eran flotantes -->
-        <button class="btn btn-danger me-2 px-3" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+        <button class="btn btn-danger me-2" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
           <i class="bi bi-x-circle-fill"></i>
         </button>
 
-        <button class="btn btn-primary me-2 px-3" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#warehouseModal">
+        <button class="btn btn-primary me-2" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#warehouseModal">
           <i class="bi bi-arrow-left-right"></i>
         </button>
 

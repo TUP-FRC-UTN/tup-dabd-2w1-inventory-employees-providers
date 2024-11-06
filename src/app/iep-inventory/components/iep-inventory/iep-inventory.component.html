@@ -80,24 +80,24 @@
             </div>
 
             <!-- Botón para mostrar/ocultar filtros -->
-            <div class="me-1">
-              <button class="btn btn-primary" data-bs-toggle="modal" title="Filtros Avanzados"
-                data-bs-target="#filtrosAvanzados">
-                <i class="bi bi-sort-down-alt"></i>
-              </button>
-            </div>
-
+            <!-- <div class="ms-2">
+            </div> -->
+            
             <!-- Botón para limpiar filtros -->
-            <div class="me-1">
-              <button class="btn btn-secondary" (click)="cleanFilters()">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
+            <!-- <div class="ms-2">
+            </div> -->
           </div>
-
-          <!-- Botones para exportar datos a PDF y Excel -->
+          
+          <!-- Botones para mostrar/ocultar y limpiar filtros, exportar datos a PDF y Excel -->
           <div class="d-flex align-items-center ms-2">
-            <button class="btn btn-success" (click)="generarExcel()" title="Exportar a Excel">
+            <button class="btn btn-primary ms-2" data-bs-toggle="modal" title="Filtros Avanzados"
+              data-bs-target="#filtrosAvanzados">
+              <i class="bi bi-funnel-fill"></i>
+            </button>
+            <button class="btn btn-secondary ms-2" (click)="cleanFilters()">
+              <i class="bi bi-trash"></i>
+            </button>
+            <button class="btn btn-success ms-2" (click)="generarExcel()" title="Exportar a Excel">
               <i class="fa-solid bi-file-earmark-excel"></i>
             </button>
             <button class="btn btn-danger ms-2" (click)="generarPdf()" title="Exportar a PDF">
@@ -118,20 +118,15 @@
 
 
     <!-- Modal para aumento de stock -->
-    <div class="modal fade" [class.show]="showAumentoStockModal"
-      [style.display]="showAumentoStockModal ? 'block' : 'none'" id="aumentoStockModal" tabindex="-1"
-      aria-labelledby="aumentoStockModalLabel" [attr.aria-modal]="showAumentoStockModal"
-      [attr.aria-hidden]="!showAumentoStockModal" (click)="handleModalBackdropClick($event)">
-      <div class="modal-dialog modal-lg" style="max-width: 50%;" (click)="$event.stopPropagation()">
+    <div class="modal fade" id="aumentoStock" tabindex="-1">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Agregar Aumento de Stock</h5>
-            <button type="button" class="btn-close" (click)="cerrarModalAumentoStock()" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <app-iep-stock-increase *ngIf="showAumentoStockModal"></app-iep-stock-increase>
-
-
           </div>
         </div>
       </div>
@@ -140,6 +135,8 @@
     <div class="modal-backdrop fade" [class.show]="showNuevoProductoModal || showAumentoStockModal"
       *ngIf="showNuevoProductoModal || showAumentoStockModal" (click)="handleModalBackdropClick($event)">
     </div>
+
+
 
   </div>
 
@@ -214,8 +211,8 @@
 
           <!-- Cantidad mínima -->
           <div class="mb-3">
-            <label for="CantMinima" class="form-label">Cantidad Mínima</label>
-            <input type="number" id="CantMinima" name="CantMinima" class="form-control text-end"
+            <label for="CantMinima" class="form-label">Cantidad mínima</label>
+            <input type="number" id="CantMinima" name="CantMinima" class="form-control text-start"
               [(ngModel)]="cantMinima" (ngModelChange)="validarCantidades()" #CantMinima="ngModel" min="0"
               placeholder="" />
             <div *ngIf="!validoMin" class="error-container mt-1 text-danger">
@@ -225,8 +222,8 @@
 
           <!-- Cantidad máxima -->
           <div class="mb-3">
-            <label for="CantMaxima" class="form-label">Cantidad Máxima</label>
-            <input type="number" id="CantMaxima" name="CantMaxima" class="form-control text-end"
+            <label for="CantMaxima" class="form-label">Cantidad máxima</label>
+            <input type="number" id="CantMaxima" name="CantMaxima" class="form-control text-start"
               [(ngModel)]="cantMaxima" (ngModelChange)="validarCantidades()" #CantMaxima="ngModel" min="0"
               placeholder="" />
             <div *ngIf="!validoMax" class="error-container mt-1 text-danger">

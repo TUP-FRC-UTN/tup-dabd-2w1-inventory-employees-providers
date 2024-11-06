@@ -54,12 +54,6 @@
 
         <div class="row filtros" *ngIf="ventana === 'Informacion'" style="align-items: center;">
             <!-- Campo de búsqueda y selector de cargos -->
-            <div class="col-md-2">
-                <div class="row">
-                    <button class="btn btn-secondary" style="margin-left: 7px;" (click)="loadAsistencias()">Ver
-                        asistencias</button>
-                </div>
-            </div>
             <div class="col-md-3">
                 <input type="text" id="inputFiltroNombre" class="form-control m-2" placeholder="Buscar"
                     (input)="onSearchFilterChange($event)" />
@@ -74,18 +68,18 @@
                 <div class="dropdown w-100 m-2">
                     <button class="btn btn-secondary dropdown-toggle w-100 text-start" type="button" id="dropdownCargo"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                        Cargos
-                        @if (selectedPositions.length>0) {
-                        ({{selectedPositions.length}})
+                        Estado
+                        @if (selectedState.length>0) {
+                        ({{selectedState.length}})
                         }
                     </button>
                     <ul class="dropdown-menu w-100" aria-labelledby="dropdownCargo">
-                        <li *ngFor="let position of uniquePositions">
+                        <li *ngFor="let state of uniqueStates">
                             <label class="dropdown-item">
-                                <input type="checkbox" class="form-check-input me-2" [value]="position"
-                                    [checked]="selectedPositions.includes(position)"
-                                    (change)="onPositionFilterChange($event, position)">
-                                {{ position }}
+                                <input type="checkbox" class="form-check-input me-2" [value]="state"
+                                    [checked]="selectedState.includes(state)"
+                                    (change)="onStateFilterChange($event, state)">
+                                {{ state }}
                             </label>
                         </li>
                     </ul>
@@ -96,7 +90,10 @@
 
             <!-- Botones de exportación alineados a la derecha del selector -->
             <div class="col-md-2 d-flex align-items-center justify-content-end">
-                <button class="btn btn-primary me-2" (click)="toggleFilters()">
+
+                <!-- Botón para mostrar/ocultar filtros -->
+                <button class="btn btn-primary me-2" data-bs-toggle="modal" title="Filtros Avanzados"
+                    data-bs-target="#filtrosAvanzados">
                     <i class="bi bi-funnel-fill"></i>
                 </button>
                 <button class="btn btn-secondary me-2" (click)="cleanColumnFilters()">
@@ -108,77 +105,6 @@
                 <button class="btn btn-danger" (click)="exportToPdf()">
                     <i class="fas bi-file-earmark-pdf"></i>
                 </button>
-            </div>
-        </div>
-
-        <!-- Filtros para Desempeño y Asistencias -->
-        <div class="row filtros mb-3" *ngIf="ventana === 'Desempeño' || ventana === 'Asistencias'">
-            <div class="col-2" style="margin-left: 7px;">
-                <div class="row">
-                    <button class="btn btn-secondary" (click)="loadEmpleados()">Ver info gral.</button>
-                </div>
-            </div>
-            <!-- Contenedor de búsqueda por nombre del empleado -->
-            <div class="col-2">
-                <input type="text" id="searchTerm" placeholder="Nombre" class="form-control"
-                    [(ngModel)]="nombreFiltrado" (ngModelChange)="filterByDate()">
-            </div>
-            <!-- Filtro de estado  -->
-            <div class="col-2">
-                <select class="form-select" id="" [(ngModel)]="estadoFiltrado" (ngModelChange)="filterByDate()">
-                    <option value="" selected>Estado</option>
-                    <option value="PRESENTE">PRESENTE</option>
-                    <option value="TARDE">TARDE</option>
-                    <option value="AUSENTE">AUSENTE</option>
-                    <option value="JUSTIFICADO">JUSTIFICADO</option>
-                </select>
-            </div>
-            <!-- Filtros por fecha -->
-            <div class="col-2">
-                <input type="date" id="startDate" class="form-control" [(ngModel)]="startDate"
-                    (change)="onStartDateChange()" />
-            </div>
-            <div class="col-2">
-                <input type="date" id="endDate" class="form-control" [(ngModel)]="endDate"
-                    (change)="onEndDateChange()" />
-            </div>
-
-            <!-- Botones de exportación en Asistencias y Desempeño -->
-            <div class="col text-end">
-                <button class="btn btn-secondary me-2" (click)="limpiarFiltro()">
-                    <i class="bi bi-trash"></i>
-                </button>
-                <button class="btn btn-success ms-2" (click)="exportToExcel()">
-                    <i class="fa-solid bi-file-earmark-excel"></i>
-                </button>
-                <button class="btn btn-danger ms-2" (click)="exportToPdf()">
-                    <i class="fas bi-file-earmark-pdf"></i>
-                </button>
-            </div>
-
-
-
-        </div>
-
-
-        <!-- Filtros para todas las columnas en la pestaña información -->
-        <div class="row filtros mb-2" *ngIf="ventana === 'Informacion' && filtersVisible">
-            <div class="col-md-4">
-                <input type="text" placeholder="Apellido y Nombre" (input)="applyColumnFilter($event, 'apellidoNombre')"
-                    class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <input type="text" placeholder="Documento" (input)="applyColumnFilter($event, 'documento')"
-                    class="form-control text-end" />
-            </div>
-            <div class="col-md-2">
-                <input type="text" placeholder="Salario Mínimo" (input)="applyAmountFilter('min', $event)"
-                    class="form-control text-end" />
-            </div>
-
-            <div class="col-md-2">
-                <input type="text" placeholder="Salario Máximo" (input)="applyAmountFilter('max', $event)"
-                    class="form-control text-end" />
             </div>
         </div>
 
@@ -252,5 +178,96 @@
     </div>
     <button class="floating-btn btn btn-primary" (click)="goTo('home/employee-post')">
         <span class="bi-plus-lg"></span>
-      </button>
+    </button>
+
+
+    <div class="modal fade" id="filtrosAvanzados" tabindex="-1" aria-labelledby="filtrosAvanzadosLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filtrosAvanzadosLabel">Filtros Avanzados</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+
+                    <!-- Filtro por nombre -->
+                    <div class="mb-3">
+                        <label for="Nombre" class="form-label">Apellido, Nombre</label>
+                        <input type="text" placeholder="" (input)="applyColumnFilter($event, 'apellidoNombre')"
+                            [(ngModel)]="apellidoNombre" name="apellidoNombre" class="form-control" />
+                    </div>
+
+                    <!-- Filtro por nombre -->
+                    <div class="mb-3">
+                        <label for="Nombre" class="form-label">Documento</label>
+                        <input type="text" placeholder="" (input)="applyColumnFilter($event, 'documento')"
+                            [(ngModel)]="documento" name="documento" class="form-control text-end" />
+                    </div>
+
+
+                    <!-- Selector de posicion -->
+                    <div class="mb-3">
+                        <label for="dropdownReusable" class="form-label">Reutilizables</label>
+                        <button class="btn btn-secondary dropdown-toggle w-100 text-start" type="button"
+                            id="dropdownCargo" data-bs-toggle="dropdown" aria-expanded="false">
+                            Posición
+                            @if (selectedPositions.length>0) {
+                            ({{selectedPositions.length}})
+                            }
+                        </button>
+                        <ul class="dropdown-menu w-100" aria-labelledby="dropdownCargo">
+                            <li *ngFor="let position of uniquePositions">
+                                <label class="dropdown-item">
+                                    <input type="checkbox" class="form-check-input me-2" [value]="position"
+                                        [checked]="selectedPositions.includes(position)"
+                                        (change)="onPositionFilterChange($event, position)">
+                                    {{ position }}
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!--                     <div class="mb-3 btn btn-secondary dropdown-toggle w-100 text-star">
+                        <ng-select [items]="uniquePositions" bindLabel="name" bindValue="id"
+                            placeholder="Selecciona países" [multiple]="true" [(ngModel)]="selecteduniquePositions">
+                        </ng-select>
+                    </div> -->
+
+
+                    <!-- Filtro por nombre -->
+                    <div class="mb-3">
+                        <label for="Nombre" class="form-label">Salario mínimo</label>
+                        <input type="number" placeholder="" (input)="applyAmountFilter('min', $event)" min=0
+                            [(ngModel)]="salarioMin" name="salarioMin" min="0" class="form-control text-end" />
+                        <div *ngIf="errorMessage" class="text-danger">{{errorMessage}}</div>
+                        @if (salarioMin) {
+                        @if (salarioMin<0) { <div class="text-danger">El salario mínimo no puede ser negativo
+                    </div>
+                    }
+                    }
+                </div>
+
+                <!-- Filtro por nombre -->
+                <div class="mb-3">
+                    <label for="salarioMax" class="form-label">Salario máximo</label>
+                    <input type="number" placeholder="" (input)="applyAmountFilter('max', $event)" min=0
+                        [(ngModel)]="salarioMax" name="salarioMax" min="0" class="form-control text-end" />
+                    @if (salarioMax) {
+                    @if (salarioMax<0) { <div class="text-danger">El salario máximo no puede ser negativo
+                </div>
+                }
+                }
+            </div>
+
+
+        </div>
+    </div>
+    </div>
+    </div>
+
 </section>

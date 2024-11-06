@@ -204,6 +204,7 @@ export class IepCategoriesListComponent implements OnInit {
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li><a class="dropdown-item edit-btn" href="#" 
                   data-id="${row.id}" data-bs-toggle="modal" data-bs-target="#categoriaModal">Editar</a></li>
+                  <li class="dropdown-divider"></li>
                   <li><a class="dropdown-item delete-btn" href="#" data-id="${row.id}">Eliminar</a></li>
                 </ul>
               </div>`;
@@ -211,9 +212,9 @@ export class IepCategoriesListComponent implements OnInit {
 
         }
       ],
-      pageLength: 10,
+      pageLength: 5,
       lengthChange: true,
-      lengthMenu: [10, 25, 50],
+      lengthMenu: [5, 10, 25, 50],
       searching: false,
       language: {
         emptyTable: "No hay datos disponibles en la tabla",
@@ -222,12 +223,6 @@ export class IepCategoriesListComponent implements OnInit {
         infoEmpty: "Mostrando 0 a 0 de 0 entradas",
         infoFiltered: "(filtrado de _MAX_ entradas totales)",
         search: 'Buscar:',
-        paginate: {
-          first: '<<',
-          last: '>>',
-          next: '>',
-          previous: '<',
-        },
         lengthMenu: '_MENU_',
       }
     });
