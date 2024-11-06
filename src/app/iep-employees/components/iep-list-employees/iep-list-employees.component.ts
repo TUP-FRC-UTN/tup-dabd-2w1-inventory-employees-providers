@@ -185,8 +185,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   Empleados: EmpListadoEmpleados[] = [];
-  Asistencias: EmpListadoAsistencias[] = [];
-  filteredAsistencias: EmpListadoAsistencias[] = [];
   employeePerformances: EmployeePerformance[] = [];
   private table: any;
   ventana: string = "Informacion";
@@ -215,7 +213,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadEmpleados();
     this.initializeDates();
-    this.setInitialDates();
     this.bindEditButtons();
   }
 
@@ -251,23 +248,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         body: dataToExport,
         startY: 20,
       });
-    } else if (this.ventana === 'Asistencias') {
-      // Extrae datos de la tabla de asistencias
-      const dataToExport = this.Asistencias.map((asistencia) => [
-        asistencia.employeeName,
-        asistencia.date,
-        asistencia.arrivalTime,
-        asistencia.departureTime,
-        asistencia.state,
-      ]);
-
-      doc.setFontSize(16);
-      doc.text('Lista de Asistencias', 10, 10);
-      (doc as any).autoTable({
-        head: [['Nombre del Empleado', 'Fecha', 'Hora de Llegada', 'Hora de Salida', 'Estado']],
-        body: dataToExport,
-        startY: 20,
-      });
     }
 
     doc.save(`Lista_${this.ventana}_${this.getFormattedDate()}.pdf`);
@@ -283,15 +263,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         'Documento': empleado.document,
         'Posición': empleado.position,
         'Salario': empleado.salary,
-      }));
-    } else if (this.ventana === 'Asistencias') {
-      // Extrae datos de la tabla de asistencias
-      dataToExport = this.Asistencias.map((asistencia) => ({
-        'Nombre del Empleado': asistencia.employeeName,
-        'Fecha': asistencia.date,
-        'Hora de Llegada': asistencia.arrivalTime,
-        'Hora de Salida': asistencia.departureTime,
-        'Estado': asistencia.state,
       }));
     }
 
@@ -395,30 +366,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  setInitialDates(): void {
-    const today = new Date();
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(today.getDate() - 30);
-
-    const startDateInput: HTMLInputElement = document.getElementById(
-      'startDate'
-    ) as HTMLInputElement;
-    const endDateInput: HTMLInputElement = document.getElementById(
-      'endDate'
-    ) as HTMLInputElement;
-
-    startDateInput.value = this.formatDateForInput(thirtyDaysAgo);
-    endDateInput.value = this.formatDateForInput(today);
-
-    // Establecer los límites de las fechas
-    endDateInput.max = this.formatDateForInput(today);
-    startDateInput.max = endDateInput.value;
-    endDateInput.min = startDateInput.value;
-
-    // Trigger the filter
-    this.filterByDate();
-  }
-
   formatDateForInput(date: Date): string {
     return date.toISOString().split('T')[0];
   }
@@ -473,22 +420,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     this.subscriptions.push(empSubscription);
   }
 
-  loadAsistencias(): void {
-    const asistSubscription = this.empleadoService.getAttendances().subscribe({
-      next: (asistencias) => {
-        this.Asistencias = asistencias;
-        this.filteredAsistencias = asistencias;
-        this.ventana = 'Asistencias';
-        // Limpiar los filtros cuando cambies a Asistencias
-        this.positionFilter = '';
-        this.searchFilter = '';
-        this.initializeDataTable();
-      },
-      error: (err) => console.error('Error al cargar asistencias:', err),
-    });
-    this.subscriptions.push(asistSubscription);
-  }
-
   loadDesempeno(): void {
     const start = new Date(this.startDate);
     const end = new Date(this.endDate);
@@ -523,12 +454,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     switch (this.ventana) {
       case 'Informacion':
         this.initializeInformacionTable(commonConfig);
-        break;
-      case 'Asistencias':
-        this.initializeAsistenciasTable(commonConfig);
-        break;
-      case 'Desempeño':
-        this.initializeDesempenoTable(commonConfig);
         break;
     }
   }
@@ -725,141 +650,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     });
   }
 
-  private initializeAsistenciasTable(commonConfig: any): void {
-    this.table = $('#empleadosTable').DataTable({
-      ...commonConfig,
-      dom:
-        '<"mb-3"t>' +                           //Tabla
-        '<"d-flex justify-content-between"lp>', //Paginacion
-      order: [[0, 'desc']], // Ordenar por fecha de forma descendente
-      data: this.filteredAsistencias,
-      columns: [
-        { data: 'date', title: 'Fecha' },
-        { data: 'employeeName', title: 'Apellido y nombre' },
-        {
-          data: 'state', title: 'Estado', className: 'text-center',
-          render: (data: any) => {
-            let color;
-
-            switch (data) {
-              case "PRESENTE": color = "#28a745"; break;
-              case "AUSENTE": color = "#dc3545"; break;
-              case "JUSTIFICADO": color = "#6f42c1"; break;
-              case "TARDE": color = "#ffc107"; break;
-            }
-            return `<button class="btn border rounded-pill w-75" 
-            style="background-color: ${color}; color: white;">${data}</button>`;
-          }
-        },
-        {
-          data: 'arrivalTime', title: 'Hora de entrada',
-          render: (data: any, type: any, row: any, meta: any) => {
-            return row.arrivalTime === null ? "--:--:--" : `${row.arrivalTime}`
-          }
-        },
-        {
-          data: 'departureTime', title: 'Hora de salida',
-          render: (data: any, type: any, row: any, meta: any) => {
-            return row.departureTime === null ? "--:--:--" : `${row.departureTime}`
-          }
-        },
-        {
-          data: null,
-          title: 'Seleccionar',
-          className: 'text-center',
-          render: (data: any, type: any, row: any, meta: any) => {
-            const isHidden = row.state === "PRESENTE" || row.state === "TARDE" ? 'style="display: none;"' : '';
-            const accion = row.state === "AUSENTE" ? "Justificar" : "Injustificar";
-            const nuevoEstado = row.state === "AUSENTE" ? "JUSTIFICADO" : "AUSENTE";
-            const checkbox = `<button class="btn border w-75" 
-            ${isHidden} data-id="${row.id}" data-nuevoestado="${nuevoEstado}">${accion}</button>`;
-
-            const indicator = row.state === "PRESENTE" || row.state === "TARDE" ? '' : checkbox;
-
-            return indicator;
-          },
-        }
-      ],
-    });
-
-    $('#empleadosTable').off('click', 'button').on('click', 'button', (event: any) => {
-      const button = $(event.currentTarget);
-      const id = button.data('id');
-      const nuevoEstado = button.data('nuevoestado');
-
-      // Deshabilitar el botón para evitar múltiples clics
-      button.prop('disabled', true);
-
-      if (id && nuevoEstado) {
-        this.empleadoService.putAttendances(id, nuevoEstado).subscribe({
-          next: (response) => {
-            console.log('Asistencia actualizada:', response);
-            this.loadAsistencias();
-          },
-          error: (error) => {
-            console.error('Error al actualizar asistencia:', error);
-          },
-          complete: () => {
-            // Habilitar el botón nuevamente si es necesario
-            button.prop('disabled', false);
-          }
-        });
-      } else {
-        // Habilitar el botón nuevamente si no hay id o nuevoEstado
-        button.prop('disabled', false);
-      }
-    });
-  }
-
-  private initializeDesempenoTable(commonConfig: any): void {
-    this.table = $('#empleadosTable').DataTable({
-      layout: {
-        topStart: 'search',
-        topEnd: null
-      },
-      ...commonConfig,
-      data: this.employeePerformances,
-      columns: [
-        {
-          data: 'performance',
-          title: 'Fecha Inicio',
-          render: (data: any[]) => {
-            return data.length > 0 ? new Date(data[0].startDate).toLocaleDateString() : 'No hay fechas';
-          }
-        },
-        {
-          data: 'performance',
-          title: 'Fecha Fin',
-          render: (data: any[]) => {
-            return data.length > 0 ? new Date(data[0].endDate).toLocaleDateString() : 'No hay fechas';
-          }
-        },
-        { data: 'employee.fullName', title: 'Nombre' },
-        { data: 'employee.position', title: 'Cargo' },
-        {
-          data: 'performance',
-          title: 'Desempeño',
-          render: (data: any[]) => {
-            return data.length > 0 ? data[0].performanceType : 'No hay datos';
-          }
-        },
-        {
-          data: 'performance',
-          title: 'Observaciones',
-          render: (data: any[]) => {
-            const filteredData = data.filter(item => {
-              const itemDate = new Date(item.startDate);
-              const startDate = new Date(this.startDate);
-              const endDate = new Date(this.endDate);
-              return itemDate >= startDate && itemDate <= endDate;
-            });
-            return filteredData.length > 0 ? filteredData.length : 'No hay observaciones';
-          }
-        }
-      ]
-    });
-  }
-
   consultarEmpleado(id: number): void {
     const empByIdSubscription = this.empleadoService.getEmployeeById(id).subscribe({
       next: (empleado) => {
@@ -927,78 +717,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     this.subscriptions.push(empByIdSubscription);
   }
 
-  onStartDateChange(): void {
-    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
-    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
-
-    // Establecer límites de fechas
-    const today = new Date();
-    const formattedToday = today.toISOString().split('T')[0];
-    endDateInput.max = formattedToday;
-
-    if (startDateInput.value) {
-      endDateInput.min = startDateInput.value;
-    } else {
-      endDateInput.min = '';
-    }
-
-    this.filterByDate();
-  }
-
-  onEndDateChange(): void {
-    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
-    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
-
-    if (endDateInput.value) {
-      startDateInput.max = endDateInput.value;
-    } else {
-      startDateInput.max = '';
-    }
-
-    this.filterByDate();
-  }
-
-  filterByDate(): void {
-
-    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
-    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
-
-    const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
-    const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
-
-    if (startDate && endDate && startDate > endDate) {
-      //alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
-      startDateInput.value = '';
-      endDateInput.value = '';
-      return;
-    }
-    this.filteredAsistencias = this.Asistencias.filter((producto) => {
-      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
-      return (
-        (!startDate || productDate >= startDate) &&
-        (!endDate || productDate <= endDate)
-      );
-    });
-
-    if (this.nombreFiltrado !== null && this.nombreFiltrado.length >= 3) {
-      this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
-        return asistencia.employeeName.toUpperCase().includes(this.nombreFiltrado.toUpperCase());
-      })
-    }
-
-    if (this.estadoFiltrado !== "") {
-      this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
-        return asistencia.state === this.estadoFiltrado;
-      })
-    }
-
-
-    // Actualizar el DataTable
-    if (this.table) {
-      this.table.clear().rows.add(this.filteredAsistencias).draw(); // Actualiza la tabla con los productos filtrados
-    }
-  }
-
   onFilterByDate(): void {
     if (this.ventana === 'Desempeño') {
       this.loadDesempeno();
@@ -1008,7 +726,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   limpiarFiltro() {
     this.nombreFiltrado = "";
     this.estadoFiltrado = "";
-    this.setInitialDates();
   }
 
   formatDateyyyyMMdd(dateString: string): string {
