@@ -126,15 +126,16 @@ export class IepAttendancesComponent implements OnInit{
           data: 'state', title: 'Estado', className: 'text-center',
           render: (data: any) => {
             let color;
+            let name;
 
             switch (data) {
-              case "PRESENTE": color = "#28a745"; break;
-              case "AUSENTE": color = "#dc3545"; break;
-              case "JUSTIFICADO": color = "#6f42c1"; break;
-              case "TARDE": color = "#ffc107"; break;
+              case "PRESENTE": color = "#28a745"; name = "Presente"; break;
+              case "AUSENTE": color = "#dc3545"; name = "Ausente"; break;
+              case "JUSTIFICADO": color = "#6f42c1"; name = "Justificado"; break;
+              case "TARDE": color = "#ffc107"; name = "Tarde"; break;
             }
-            return `<button class="btn border rounded-pill w-75" 
-            style="background-color: ${color}; color: white;">${data}</button>`;
+            return `<button class="btn border rounded-pill" 
+            style="background-color: ${color}; color: white;">${name}</button>`;
           }
         },
         {
