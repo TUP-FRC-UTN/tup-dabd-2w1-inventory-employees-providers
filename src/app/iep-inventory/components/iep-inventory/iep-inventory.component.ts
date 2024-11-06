@@ -40,17 +40,19 @@ interface Filters {
   styleUrl: './iep-inventory.component.css',
 })
 export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
-    errorMessage: string = '';
-    // Objeto que mantiene el estado de todos los filtros
-    filters: Filters = {
-      categoriasSeleccionadas: [],
-      reutilizableSeleccionado: [],
-      nombre: '',
-      startDate: '',
-      endDate: '',
-      cantMinima: 0,
-      cantMaxima: 0
-    };
+
+  errorMessage: string = '';
+  // Objeto que mantiene el estado de todos los filtros
+  filters: Filters = {
+    categoriasSeleccionadas: [],
+    reutilizableSeleccionado: [],
+    nombre: '',
+    startDate: '',
+    endDate: '',
+    cantMinima: 0,
+    cantMaxima: 0
+
+  };
 
   botonDeshabilitado: boolean = false;
 
@@ -59,8 +61,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       this.validoMin = this.cantMinima <= this.cantMaxima;
       this.validoMax = this.cantMaxima >= this.cantMinima;
 
-          // Bloquear el botón si alguno de los valores es inválido
-    this.botonDeshabilitado = !(this.validoMin && this.validoMax);
+      // Bloquear el botón si alguno de los valores es inválido
+      this.botonDeshabilitado = !(this.validoMin && this.validoMax);
 
     } else {
       // Si alguno de los dos valores es nulo, no mostrar mensajes de error
@@ -323,6 +325,13 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   };
 
   globalFilter: string = '';
+
+
+  //Método para filtrar productos con estado Activo e Inactivo
+  stateFilter(event: Event) {
+    
+  }
+
   // Método para aplicar el filtro global.
   applyFilter(): void {
     const globalFilterLower = this.globalFilter.toLowerCase();
@@ -365,7 +374,12 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       return this.endDate ? productDate <= new Date(this.endDate) : true;
     });
 
+
     this.updateDataTable();
+
+    console.log('Filtro global:', this.globalFilter);
+    console.log('startDate:', this.startDate);
+    console.log('endDate:', this.endDate);
   }
 
   filtersVisible = false; // Controla la visibilidad de los filtros
@@ -434,12 +448,12 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   showNuevoProductoModal: boolean = false;
   selectedProductId: number | null = null;
 
-  
+
   // Variables necesarias para el filtrado por fecha
   startDate: string | undefined;
   endDate: string | undefined;
 
-  
+
 
   ngOnInit(): void {
     const hoy = new Date();
@@ -524,9 +538,9 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         this.reutilizableSeleccionado.includes(producto.reusable ? 1 : 2);
 
       const amount = producto.detailProducts.length;
-      const minQuantityWarningCumple = 
+      const minQuantityWarningCumple =
         this.cantMinima === null || amount >= this.cantMinima;
-      const maxQuantityWarningCumple = 
+      const maxQuantityWarningCumple =
         this.cantMaxima === null || amount <= this.cantMaxima;
 
       return (
@@ -544,10 +558,13 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.updateDataTable();
   }
 
-  
+
 
   // Modifica el método cleanFilters() para limpiar también las categorías seleccionadas
   cleanFilters(): void {
+    this.globalFilter = '';
+    this.startDate = '';
+    this.endDate = '';
     this.filters = {
       categoriasSeleccionadas: [],
       reutilizableSeleccionado: [],
@@ -589,7 +606,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         '<"mb-3"t>' +
         '<"d-flex justify-content-between"lp>',
       data: this.productosFiltered,
-      
+
       columns: [
         {
           data: 'detailProducts',
@@ -626,11 +643,11 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           render: (row: any) => {
             const quantity = row.detailProducts.length;
             const warning = row.minQuantityWarning;
-            
-            if (quantity <= warning+10 && quantity > warning) {
+
+            if (quantity <= warning + 10 && quantity > warning) {
               return `<span style="color: #FF8C00; font-weight: bold;">${quantity}</span>`;
-            }else{
-              if(9 >= quantity && quantity > 0){
+            } else {
+              if (9 >= quantity && quantity > 0) {
                 return `<span style="color: #FF0000; font-weight: bold;">${quantity}</span>`;
               }
             }
@@ -640,11 +657,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         {
           data: 'minQuantityWarning',
           title: 'Min. Alerta',
-        },
-        {
-          data:'discontinued',
-          title: 'Estado',
-          render: (data: boolean) => (data ? 'Inactivo' : 'Activo'),
         },
         {
           data: null,
@@ -686,7 +698,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           previous: '<',
         },
       },
-      createdRow: function(row: any, data: any) {
+      createdRow: function (row: any, data: any) {
         // Verifica si la cantidad es menor o igual al mínimo de alerta
         if (data.detailProducts.length <= data.minQuantityWarning) {
           // Aplicar la clase de Bootstrap para warning
@@ -731,7 +743,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
-  setProductToDelete(id: number): void {  
+  setProductToDelete(id: number): void {
     console.log('Eliminando producto con id: ' + id);
     this.selectedProductId = id;
   }
@@ -773,12 +785,12 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   deleteProduct(): void {
     console.log('Eliminando producto');
-    if(this.selectedProductId!==null){
+    if (this.selectedProductId !== null) {
       const logicalLow$ = this.productoService.giveLogicalLow(this.selectedProductId);
       logicalLow$.subscribe({
         next: (response) => {
           console.log(response);
-          this.showSuccessDeleteModal();  
+          this.showSuccessDeleteModal();
           this.cargarProductos();
         },
         error: (error) => {
@@ -789,7 +801,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           console.log('Petición completada');
         },
       });
-    }else{
+    } else {
       console.log('No se ha seleccionado un producto');
       this.showErrorDeleteModal();
     }
@@ -797,13 +809,13 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   handleErrorMessage(error: any): void {
     console.error(error);
-    if(error.error.message === '404 Product not found') {
+    if (error.error.message === '404 Product not found') {
       this.errorMessage = 'El producto no fue encontrado';
     }
     this.showErrorDeleteModal();
   }
 
-  giveLogicalLow(id: number) {  
+  giveLogicalLow(id: number) {
     console.log('Eliminando producto con id: ' + id);
   }
 
