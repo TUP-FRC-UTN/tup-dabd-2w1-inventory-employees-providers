@@ -244,7 +244,15 @@ export class IEPFormPostEmployeesComponent implements OnInit {
             this.createEmployee$ = this.serviceCombos.createProduct(this.postDto);
             console.log(this.createEmployee$);
             
-    
+        // Primero mostrar confirmación
+        Swal.fire({
+          title: 'Confirmar',
+          text: `¿Seguro deseas guardar el empleado"?`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Confirmar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
             this.createEmployee$.subscribe({
               next: response => {
                 this.success = true;
@@ -258,7 +266,6 @@ export class IEPFormPostEmployeesComponent implements OnInit {
                   confirmButtonColor: '#3085d6'
                 }).then(() => {
                   this.resetForm(form)
-                 this.goTo('home/employee-list')
                 });
                 console.log("PASO: ", response);
               },
@@ -284,7 +291,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
               complete: () => {     
                 }
              });
-           
+           })
           }
         }
       }
@@ -349,7 +356,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
     this.successMessage = '';
     this.success=false;
 
-   this.lunes=true;
+    this.lunes=true;
    this.martes=true;
    this.miercoles=true;
    this.jueves=true;
