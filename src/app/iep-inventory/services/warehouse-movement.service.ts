@@ -4,6 +4,7 @@ import { GetWarehouseMovementRequest } from '../models/GetWarehouseMovementReque
 import { WarehouseMovement } from '../models/getWarehouseMovementResponse';
 import { Observable } from 'rxjs';
 import { IepCreateWarehouseMovementDTO } from '../models/iep-create-warehouse-movement-dto';
+import { WarehouseMovementByProduct } from '../models/WarehouseMovementByProduct';
 
 @Injectable({
   providedIn: 'root',
@@ -17,8 +18,8 @@ export class WarehouseMovementService {
 
   constructor(private http: HttpClient) { }
 
-  public getWarehouseMovements(): Observable<WarehouseMovement[]> {
-    return this.http.get<WarehouseMovement[]>(`${this.WAREHOUSE_MOVEMENT_URL}/all`);
+  public getWarehouseMovements(): Observable<WarehouseMovementByProduct[]> {
+    return this.http.get<WarehouseMovementByProduct[]>(`${this.WAREHOUSE_MOVEMENT_URL}/all`);
   }
 
   public searchMovements(
