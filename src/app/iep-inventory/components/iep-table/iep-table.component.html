@@ -7,17 +7,20 @@
       <div class="d-flex align-items-center flex-grow-1">
         <!-- Campo de Búsqueda -->
         <div class="col-md-4 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-          <input type="text" id="filterInput" class="form-control" placeholder="Buscar" (input)="applyFilter($event)" />
+          <input type="text" id="filterInput" class="form-control" placeholder="Buscar" [(ngModel)]="globalFilter" name="globalFilter"
+           (input)="applyFilter()" />
         </div>
 
         <!-- Campo Desde para seleccionar la fecha de inicio -->
         <div class="col-md-3 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-          <input type="date" id="startDate" class="form-control" #startDateInput (change)="onStartDateChange()" />
+          <input type="date" id="startDate" class="form-control" #startDateInput [(ngModel)]="startDate" name="starDate"
+          (ngModelChange)="applyFilter()" />
         </div>
 
         <!-- Campo Hasta para seleccionar la fecha de fin -->
         <div class="col-md-3 mb-3 mb-md-0">
-          <input type="date" id="endDate" class="form-control" #endDateInput (change)="onEndDateChange()" />
+          <input type="date" id="endDate" class="form-control" #endDateInput [(ngModel)]="endDate" name="endDate"
+          (ngModelChange)="applyFilter()" />
         </div>
       </div>
 
@@ -164,7 +167,7 @@
 
 
           <div class="mb-3">
-            <label for="montoMinimo" class="form-label">Producto</label>
+            <label for="montoMinimo" class="form-label">Proveedor</label>
             <input type="text" placeholder="" (input)="applyColumnFilter($event, 'supplier')" class="form-control" />
           </div>
 

@@ -55,30 +55,32 @@
 
       <!-- Botones para generar PDF o Excel -->
       <div class="row mb-2">
-
         <!-- Sección de filtros y botones de exportación -->
-        <div class="d-flex mb-3 justify-content-between align-items-center">
+        <div class="d-flex mb-3 justify-content-between align-items-center w-100">
+
+          <!-- Contenedor de filtros -->
           <div class="d-flex align-items-center flex-grow-1">
+
             <!-- Campo de Búsqueda -->
-            <div class="col-md-4 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-              <input type="text" id="filterInput" class="form-control" placeholder="Buscar"
-                (input)="applyFilter($event)" />
+            <div class="me-3" style="min-width: 200px;">
+              <input type="text" id="filterInput" class="form-control" placeholder="Buscar" [(ngModel)]="globalFilter"
+                name="globalFilter" (input)="applyFilter()" />
             </div>
 
             <!-- Campo Desde para seleccionar la fecha de inicio -->
-            <div class="col-md-3 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-              <input type="date" id="startDate" class="form-control" [value]="startDate" #startDateInput
-                (change)="onStartDateChange()" />
+            <div class="me-3" style="min-width: 160px;">
+              <input type="date" id="startDate" class="form-control" #startDateInput [(ngModel)]="startDate"
+                name="startDate" (ngModelChange)="applyFilter()" />
             </div>
 
             <!-- Campo Hasta para seleccionar la fecha de fin -->
-            <div class="col-md-3 mb-3 mb-md-0">
-              <input type="date" id="endDate" class="form-control" [value]="endDate" #endDateInput
-                (change)="onEndDateChange()" />
+            <div class="me-3" style="min-width: 160px;">
+              <input type="date" id="endDate" class="form-control" #endDateInput [(ngModel)]="endDate" name="endDate"
+                (ngModelChange)="applyFilter()" />
             </div>
 
             <!-- Botón para mostrar/ocultar filtros -->
-            <div class="col-mb-3 me-1">
+            <div class="me-1">
               <button class="btn btn-primary" data-bs-toggle="modal" title="Filtros Avanzados"
                 data-bs-target="#filtrosAvanzados">
                 <i class="bi bi-sort-down-alt"></i>
@@ -86,9 +88,10 @@
             </div>
 
             <!-- Botón para limpiar filtros -->
-            <div class="col-mb-3 me-1">
+            <div class="me-1">
               <button class="btn btn-secondary" (click)="cleanFilters()">
-                <i class="bi bi-trash"></i></button>
+                <i class="bi bi-trash"></i>
+              </button>
             </div>
           </div>
 
@@ -101,9 +104,10 @@
               <i class="fas bi-file-earmark-pdf"></i>
             </button>
           </div>
-        </div>
 
+        </div>
       </div>
+
 
       <div>
         <table class="table table-striped" id="productsList"></table>
@@ -114,20 +118,15 @@
 
 
     <!-- Modal para aumento de stock -->
-    <div class="modal fade" [class.show]="showAumentoStockModal"
-      [style.display]="showAumentoStockModal ? 'block' : 'none'" id="aumentoStockModal" tabindex="-1"
-      aria-labelledby="aumentoStockModalLabel" [attr.aria-modal]="showAumentoStockModal"
-      [attr.aria-hidden]="!showAumentoStockModal" (click)="handleModalBackdropClick($event)">
-      <div class="modal-dialog modal-lg" style="max-width: 50%;" (click)="$event.stopPropagation()">
+    <div class="modal fade" id="aumentoStock" tabindex="-1">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Agregar Aumento de Stock</h5>
-            <button type="button" class="btn-close" (click)="cerrarModalAumentoStock()" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <app-iep-stock-increase *ngIf="showAumentoStockModal"></app-iep-stock-increase>
-            
-            
           </div>
         </div>
       </div>
@@ -136,6 +135,8 @@
     <div class="modal-backdrop fade" [class.show]="showNuevoProductoModal || showAumentoStockModal"
       *ngIf="showNuevoProductoModal || showAumentoStockModal" (click)="handleModalBackdropClick($event)">
     </div>
+
+
 
   </div>
 

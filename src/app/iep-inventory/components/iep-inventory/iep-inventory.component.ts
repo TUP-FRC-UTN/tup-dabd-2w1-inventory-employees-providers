@@ -40,17 +40,19 @@ interface Filters {
   styleUrl: './iep-inventory.component.css',
 })
 export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
-    errorMessage: string = '';
-    // Objeto que mantiene el estado de todos los filtros
-    filters: Filters = {
-      categoriasSeleccionadas: [],
-      reutilizableSeleccionado: [],
-      nombre: '',
-      startDate: '',
-      endDate: '',
-      cantMinima: 0,
-      cantMaxima: 0
-    };
+
+  errorMessage: string = '';
+  // Objeto que mantiene el estado de todos los filtros
+  filters: Filters = {
+    categoriasSeleccionadas: [],
+    reutilizableSeleccionado: [],
+    nombre: '',
+    startDate: '',
+    endDate: '',
+    cantMinima: 0,
+    cantMaxima: 0
+
+  };
 
   botonDeshabilitado: boolean = false;
 
@@ -59,8 +61,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       this.validoMin = this.cantMinima <= this.cantMaxima;
       this.validoMax = this.cantMaxima >= this.cantMinima;
 
-          // Bloquear el botón si alguno de los valores es inválido
-    this.botonDeshabilitado = !(this.validoMin && this.validoMax);
+      // Bloquear el botón si alguno de los valores es inválido
+      this.botonDeshabilitado = !(this.validoMin && this.validoMax);
 
     } else {
       // Si alguno de los dos valores es nulo, no mostrar mensajes de error
@@ -248,9 +250,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
 
-  // Variables necesarias para el filtrado por fecha
-  startDate: string = '';
-  endDate: string = '';
 
   filtrarPorUltimos30Dias(): void {
     const hoy = new Date();
@@ -272,77 +271,115 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-
+  //Filtra los productos cuya fecha es mayor a startDate
   onStartDateChange(): void {
-    const startDateInput = document.getElementById('startDate') as HTMLInputElement;
-    this.filters.startDate = startDateInput.value;
-    this.aplicarFiltrosCombinados();
-  }
-
-  onEndDateChange(): void {
-    const endDateInput = document.getElementById('endDate') as HTMLInputElement;
-    this.filters.endDate = endDateInput.value;
-    this.aplicarFiltrosCombinados();
-  }
-
-  applyDateFilter(): void {
     this.productosFiltered = this.productosALL.filter(producto => {
-      // Obtener la última fecha de actualización de los detalles del producto
       let lastDate = '';
       for (const detail of producto.detailProducts) {
-        if (detail.lastUpdatedDatetime) {
-          if (!lastDate || detail.lastUpdatedDatetime > lastDate) {
-            lastDate = detail.lastUpdatedDatetime;
-          }
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
         }
       }
-
-      // Si no hay fecha de inicio ni fin, mostrar todos los productos
-      if (!this.startDate && !this.endDate) {
-        return true;
-      }
-
-      // Si no hay fecha para el producto, no lo incluimos en el filtro
       if (!lastDate) {
         return false;
       }
 
       const productDate = new Date(lastDate);
-
-      // Filtrar por fecha de inicio si existe
-      if (this.startDate && !this.endDate) {
-        return productDate >= new Date(this.startDate);
-      }
-
-      // Filtrar por fecha final si existe
-      if (!this.startDate && this.endDate) {
-        return productDate <= new Date(this.endDate);
-      }
-
-      // Filtrar por rango de fechas si ambas existen
-      return productDate >= new Date(this.startDate) && productDate <= new Date(this.endDate);
+      return this.startDate ? productDate >= new Date(this.startDate) : true;
     });
 
     this.updateDataTable();
   }
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value.toLowerCase();
 
+  //Filtra los productos cuya fecha es menor a startDate
+  onEndDateChange(): void {
     this.productosFiltered = this.productosALL.filter(producto => {
-      // Obtener todos los valores de las columnas excepto la primera (fecha)
-      const searchableValues = [
-        producto.name,
-        producto.category?.categoryName,
-        producto.reusable ? 'SI' : 'NO',
-        producto.detailProducts?.length.toString(),
-        producto.minQuantityWarning?.toString()
-      ].map(value => value?.toLowerCase() || '');
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
+        }
+      }
+      if (!lastDate) {
+        return false;
+      }
 
-      // Verificar si alguno de los valores coincide con el texto de búsqueda
-      return searchableValues.some(value => value.includes(filterValue));
+      const productDate = new Date(lastDate);
+      return this.endDate ? productDate <= new Date(this.endDate) : true;
     });
 
     this.updateDataTable();
+  }
+
+  applyDateFilter(): void {
+    this.productosFiltered = this.productosALL.filter(producto => {
+      // Obtener la última fecha de actualización de los detalles del producto
+    });
+
+    this.updateDataTable();
+  }
+
+  filtersValues: any = {
+    startDate: '',
+    endDate: '',
+  };
+
+  globalFilter: string = '';
+
+
+  //Método para filtrar productos con estado Activo e Inactivo
+  stateFilter(event: Event) {
+    
+  }
+
+  // Método para aplicar el filtro global.
+  applyFilter(): void {
+    const globalFilterLower = this.globalFilter.toLowerCase();
+    this.productosFiltered = this.productosALL.filter(producto => {
+      return producto.name.toLowerCase().includes(globalFilterLower.toLowerCase()) ||
+        producto.category.categoryName.toLowerCase().includes(globalFilterLower.toLowerCase()) ||
+        (producto.reusable ? 'SI' : 'NO').toLowerCase().includes(globalFilterLower.toLowerCase()) ||
+        producto.detailProducts.length.toString().includes(globalFilterLower);
+    });
+
+    //Seccion para filtrar por fecha startDate
+    this.productosFiltered = this.productosFiltered.filter(producto => {
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
+        }
+      }
+      if (!lastDate) {
+        return false;
+      }
+
+      const productDate = new Date(lastDate);
+      return this.startDate ? productDate >= new Date(this.startDate) : true;
+    });
+
+    //Seccion para filtrar por fecha endDate
+    this.productosFiltered = this.productosFiltered.filter(producto => {
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
+        }
+      }
+      if (!lastDate) {
+        return false;
+      }
+
+      const productDate = new Date(lastDate);
+      return this.endDate ? productDate <= new Date(this.endDate) : true;
+    });
+
+
+    this.updateDataTable();
+
+    console.log('Filtro global:', this.globalFilter);
+    console.log('startDate:', this.startDate);
+    console.log('endDate:', this.endDate);
   }
 
   filtersVisible = false; // Controla la visibilidad de los filtros
@@ -411,10 +448,23 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   showNuevoProductoModal: boolean = false;
   selectedProductId: number | null = null;
 
+
+  // Variables necesarias para el filtrado por fecha
+  startDate: string | undefined;
+  endDate: string | undefined;
+
+
+
   ngOnInit(): void {
-    this.endDate = new Date().toISOString().split('T')[0];
+    const hoy = new Date();
+    const hace30Dias = new Date();
+    this.endDate = hoy.toISOString().split('T')[0];
     // Inicializar la fecha de inicio con la fecha actual menos 30 dias
-    this.startDate = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
+    hace30Dias.setDate(hoy.getDate() - 30);
+    this.startDate = hace30Dias.toISOString().split('T')[0];
+    console.log('startDate', this.startDate);
+    console.log('endDate', this.endDate);
+    console.log('hoy', hoy);
     this.initializeDataTable();
     this.cargarDatos();
     console.log(this.categories);
@@ -488,9 +538,9 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         this.reutilizableSeleccionado.includes(producto.reusable ? 1 : 2);
 
       const amount = producto.detailProducts.length;
-      const minQuantityWarningCumple = 
+      const minQuantityWarningCumple =
         this.cantMinima === null || amount >= this.cantMinima;
-      const maxQuantityWarningCumple = 
+      const maxQuantityWarningCumple =
         this.cantMaxima === null || amount <= this.cantMaxima;
 
       return (
@@ -508,8 +558,13 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.updateDataTable();
   }
 
+
+
   // Modifica el método cleanFilters() para limpiar también las categorías seleccionadas
   cleanFilters(): void {
+    this.globalFilter = '';
+    this.startDate = '';
+    this.endDate = '';
     this.filters = {
       categoriasSeleccionadas: [],
       reutilizableSeleccionado: [],
@@ -551,7 +606,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         '<"mb-3"t>' +
         '<"d-flex justify-content-between"lp>',
       data: this.productosFiltered,
-      
+
       columns: [
         {
           data: 'detailProducts',
@@ -588,11 +643,11 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           render: (row: any) => {
             const quantity = row.detailProducts.length;
             const warning = row.minQuantityWarning;
-            
-            if (quantity <= warning+10 && quantity > warning) {
+
+            if (quantity <= warning + 10 && quantity > warning) {
               return `<span style="color: #FF8C00; font-weight: bold;">${quantity}</span>`;
-            }else{
-              if(9 >= quantity && quantity > 0){
+            } else {
+              if (9 >= quantity && quantity > 0) {
                 return `<span style="color: #FF0000; font-weight: bold;">${quantity}</span>`;
               }
             }
@@ -602,11 +657,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         {
           data: 'minQuantityWarning',
           title: 'Min. Alerta',
-        },
-        {
-          data:'discontinued',
-          title: 'Estado',
-          render: (data: boolean) => (data ? 'Inactivo' : 'Activo'),
         },
         {
           data: null,
@@ -619,7 +669,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
                   &#8942;
                 </a>
                 <ul class="dropdown-menu">
-                  <li><button class="dropdown-item btn botonAumentoStock" data-id="${row.id}">Agregar</button></li>
+                  <li><button class="dropdown-item btn botonAumentoStock" data-bs-target="#aumentoStock" data-bs-toggle="modal"  data-id="${row.id}">Agregar</button></li>
                   <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
                   <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" (click)="giveLogicalLow(${row.id})">Eliminar</button></li>
                 </ul>
@@ -648,7 +698,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           previous: '<',
         },
       },
-      createdRow: function(row: any, data: any) {
+      createdRow: function (row: any, data: any) {
         // Verifica si la cantidad es menor o igual al mínimo de alerta
         if (data.detailProducts.length <= data.minQuantityWarning) {
           // Aplicar la clase de Bootstrap para warning
@@ -693,7 +743,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
-  setProductToDelete(id: number): void {  
+  setProductToDelete(id: number): void {
     console.log('Eliminando producto con id: ' + id);
     this.selectedProductId = id;
   }
@@ -735,12 +785,12 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   deleteProduct(): void {
     console.log('Eliminando producto');
-    if(this.selectedProductId!==null){
+    if (this.selectedProductId !== null) {
       const logicalLow$ = this.productoService.giveLogicalLow(this.selectedProductId);
       logicalLow$.subscribe({
         next: (response) => {
           console.log(response);
-          this.showSuccessDeleteModal();  
+          this.showSuccessDeleteModal();
           this.cargarProductos();
         },
         error: (error) => {
@@ -751,7 +801,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           console.log('Petición completada');
         },
       });
-    }else{
+    } else {
       console.log('No se ha seleccionado un producto');
       this.showErrorDeleteModal();
     }
@@ -759,13 +809,13 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   handleErrorMessage(error: any): void {
     console.error(error);
-    if(error.error.message === '404 Product not found') {
+    if (error.error.message === '404 Product not found') {
       this.errorMessage = 'El producto no fue encontrado';
     }
     this.showErrorDeleteModal();
   }
 
-  giveLogicalLow(id: number) {  
+  giveLogicalLow(id: number) {
     console.log('Eliminando producto con id: ' + id);
   }
 

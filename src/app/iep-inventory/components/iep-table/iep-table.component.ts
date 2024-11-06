@@ -9,11 +9,12 @@ import { GenerateExcelPdfService } from '../../../common-services/generate-excel
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Producto } from '../../models/producto';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-iep-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './iep-table.component.html',
   styleUrls: ['./iep-table.component.css'],
 })
@@ -23,36 +24,43 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isApplyButtonDisabled) {
       return; // No aplicar filtros si el botón está deshabilitado
     }
-
+  
     this.filteredProductos = this.productos.filter((producto) => {
       // Filtro por tipo de movimiento
       const matchesMovementType = this.selectedMovementTypes.length === 0 || 
         this.selectedMovementTypes.includes(producto.modificationType.toLowerCase());
-
+  
       // Filtro por cantidad
       const amount = producto.amount;
       const matchesAmountFilter =
         (this.minAmount === null || amount >= this.minAmount) &&
         (this.maxAmount === null || amount <= this.maxAmount);
-
+  
       // Filtros por texto
       const matchesProduct = producto['product'].toLowerCase().includes(this.filterValues['product']);
       const matchesSupplier = producto['supplier'].toLowerCase().includes(this.filterValues['supplier']);
       const matchesDescription = producto['description'].toLowerCase().includes(this.filterValues['description']);
       
-
-      return matchesMovementType && 
-             matchesAmountFilter && 
-             matchesProduct && 
-             matchesSupplier && 
-             matchesDescription;
+      // Filtro por fecha
+      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
+      const matchesDateFilter =
+        (!this.startDate || productDate >= new Date(this.startDate)) &&
+        (!this.endDate || productDate <= new Date(this.endDate));
+  
+      return matchesMovementType &&
+        matchesAmountFilter &&
+        matchesProduct &&
+        matchesSupplier &&
+        matchesDescription &&
+        matchesDateFilter;
     });
-
+  
     // Actualizar DataTable
     if (this.table) {
       this.table.clear().rows.add(this.filteredProductos).draw();
     }
   }
+  
 
   selectedMovementTypes: string[] = [];
   minAmount: number | null = null;
@@ -78,10 +86,12 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     private excelPdfService: GenerateExcelPdfService
   ) { }
 
-  applyFilter(event: Event): void {
-    const input = event.target as HTMLInputElement; // Obtener el valor del input
-    const filterValue = input.value.toLowerCase(); // Convertir a minúsculas para una comparación insensible
-
+  globalFilter: string = ''; // Filtro global para la búsqueda
+  
+  applyFilter(): void {
+    const filterValue = this.globalFilter.toLowerCase(); // Convertir a minúsculas para una comparación insensible
+    console.log('Filtro global:', filterValue);
+  
     // Filtrar los productos según el valor del input
     this.filteredProductos = this.productos.filter((producto) => {
       return (
@@ -91,61 +101,40 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
         producto.description.toLowerCase().includes(filterValue) // Filtrar por justificativo
       );
     });
-
+  
+    // Filtrar por fecha startDate y endDate (solo una vez)
+    this.filteredProductos = this.filteredProductos.filter((producto) => {
+      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
+      return (
+        (!this.startDate || productDate >= new Date(this.startDate)) &&
+        (!this.endDate || productDate <= new Date(this.endDate))
+      );
+    });
+  
     // Actualizar el DataTable con los productos filtrados
     if (this.table) {
       this.table.clear().rows.add(this.filteredProductos).draw();
     }
   }
+  
 
+  // Variables necesarias para el filtrado por fecha
+  startDate: string | undefined;
+  endDate: string | undefined;
 
   onStartDateChange(): void {
-    const startDateInput: HTMLInputElement = document.getElementById(
-      'startDate'
-    ) as HTMLInputElement;
-    const endDateInput: HTMLInputElement = document.getElementById(
-      'endDate'
-    ) as HTMLInputElement;
-
-    const startDate = new Date(startDateInput.value);
-    const today = new Date(); // Fecha actual
-
-    // Actualiza el valor máximo del campo "Hasta". No puede ser mayor a al fecha actual. Se deben bloquear las fechas futuras
-    // Bloquear fechas futuras en el campo "Hasta"
-    const formattedToday = today.toISOString().split('T')[0]; // Obtener la fecha actual en formato yyyy-MM-dd
-    endDateInput.max = formattedToday; // Establecer el valor máximo como la fecha actual
-
-    // Actualiza el valor mínimo del campo "Hasta"
-    if (startDate) {
-      endDateInput.min = startDateInput.value; // Deshabilitar fechas anteriores a la fecha de inicio
-    } else {
-      endDateInput.min = ''; // Restablecer si no hay fecha de inicio
-    }
-
-    this.filterByDate(); // Filtrar los productos
   }
 
   onEndDateChange(): void {
-    const startDateInput: HTMLInputElement = document.getElementById(
-      'startDate'
-    ) as HTMLInputElement;
-    const endDateInput: HTMLInputElement = document.getElementById(
-      'endDate'
-    ) as HTMLInputElement;
-
-    const endDate = new Date(endDateInput.value);
-
-    // Actualiza el valor máximo del campo "Desde"
-    if (endDate) {
-      startDateInput.max = endDateInput.value; // Deshabilitar fechas posteriores a la fecha de fin
-    } else {
-      startDateInput.max = ''; // Restablecer si no hay fecha de fin
-    }
-
-    this.filterByDate(); // Filtrar los productos
   }
 
   ngOnInit(): void {
+    const hoy = new Date();
+    const hace30Dias = new Date();
+    this.endDate = hoy.toISOString().split('T')[0];
+    // Inicializar la fecha de inicio con la fecha actual menos 30 dias
+    hace30Dias.setDate(hoy.getDate() - 30);
+    this.startDate = hace30Dias.toISOString().split('T')[0];
     this.setInitialDates();
     this.loadProductos(); // Carga los productos al inicializar el componente
   }
@@ -164,12 +153,6 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     startDateInput.value = this.formatDateForInput(thirtyDaysAgo);
     endDateInput.value = this.formatDateForInput(today);
-
-    // Establecer los límites de las fechas
-    endDateInput.max = this.formatDateForInput(today);
-    startDateInput.max = endDateInput.value;
-    endDateInput.min = startDateInput.value;
-
     // Trigger the filter
     this.filterByDate();
   }
@@ -519,6 +502,10 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   cleanColumnFilters(): void {
+    //resetar los ngModel de los inputs
+    this.globalFilter = '';
+    this.startDate = '';
+    this.endDate = '';
     // Resetear todos los valores de filtro
     this.minAmount = null;
     this.maxAmount = null;

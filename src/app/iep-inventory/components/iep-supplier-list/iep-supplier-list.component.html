@@ -18,13 +18,13 @@
         <!-- Dropdown de Proveedor con el doble de ancho -->
         <div class="dropdown me-2" style="flex: 1">
           <button
-            class="btn btn-secondary dropdown-toggle text-start w-100"
+            class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
             type="button"
             id="dropdownProveedor"
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            Proveedor @if (selectedTypeCount > 0) { ({{ selectedTypeCount }}) }
+            Tipo proveedor @if (selectedTypeCount > 0) { ({{ selectedTypeCount }}) }
           </button>
           <ul class="dropdown-menu w-100" aria-labelledby="dropdownProveedor">
             <li>
