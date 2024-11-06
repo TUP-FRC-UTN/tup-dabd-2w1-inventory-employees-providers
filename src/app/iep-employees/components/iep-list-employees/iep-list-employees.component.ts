@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
+import { FormsModule, NgSelectOption } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+
 import { EmpListadoEmpleados } from '../../Models/emp-listado-empleados';
 import { EmpListadoAsistencias } from '../../Models/emp-listado-asistencias';
 import { EmployeePerformance } from '../../Models/listado-desempeño';
@@ -29,7 +30,7 @@ interface EmployeeFilters {
 @Component({
   selector: 'app-iep-list-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgSelectModule],
   templateUrl: './iep-list-employees.component.html',
   styleUrls: ['./iep-list-employees.component.css'],
 })
@@ -64,8 +65,12 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         const positionMatch = this.selectedPositions.length === 0 ||
           this.selectedPositions.includes(empleado.position);
 
+        // Filtrar por estado
+        const stateMatch = this.selectedState.length === 0 ||
+          this.selectedState.includes(empleado.active ? empleado.license ? 'Licencia' : 'Activo' : 'Inactivo');
+
         // Aplicar todos los filtros en conjunto
-        return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch;
+        return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch && stateMatch;
       });
 
       this.table.rows.add(filteredData).draw();
@@ -93,6 +98,25 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
+  salarioMin: number | null = null;
+  salarioMax: number | null = null;
+  errorMessage: string | null = null;
+
+  validacionSalario(): boolean {
+    if (this.salarioMin === null || this.salarioMax === null) {
+      return false;
+    }
+    if (this.salarioMin > this.salarioMax) {
+      this.errorMessage = 'El salario mínimo no puede ser mayor al salario máximo';
+    } else {
+      this.errorMessage = null;
+    }
+    return this.salarioMin <= this.salarioMax;
+  }
+
+  //validacion de salario no negativo, tanto minimo como maximo
+  
+
   applyAmountFilter(type: string, event: Event): void {
     const value = Number((event.target as HTMLInputElement).value) || 0;
 
@@ -102,8 +126,16 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       this.filters.salarioMax = value || Number.MAX_VALUE;
     }
 
+    //Validar que el salario minimo no sea mayor al salario maximo, en caso de serlo, mostrar mensaje de error
+    if (!this.validacionSalario()) {
+      return;
+    }
+
     this.applyFilters();
   }
+
+  apellidoNombre: string = '';
+  documento: string = '';
 
   cleanColumnFilters(): void {
     // Limpiar los valores de los filtros
@@ -114,6 +146,14 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       salarioMin: 0,
       salarioMax: Number.MAX_VALUE
     };
+
+    this.documento = '';
+    this.apellidoNombre = '';
+    this.salarioMin = null;
+    this.salarioMax = null;
+
+    // Limpia los estados seleccionados
+    this.selectedState = [];
 
     // Limpiar las posiciones seleccionadas
     this.selectedPositions = [];
@@ -161,6 +201,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   private searchFilter: string = '';
   private positionFilter: string = '';
   uniquePositions: string[] = [];
+  selecteduniquePositions: string[] = [];
+  uniqueStates: string[] = [];
 
 
   constructor(
@@ -297,6 +339,34 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     }
   }
 
+  private updateStateFilter(): void {
+    const comboFiltroEstado = document.getElementById('comboFiltroEstado') as HTMLSelectElement;
+    if (comboFiltroEstado) {
+      const currentValue = comboFiltroEstado.value; // Guardar el valor actual
+
+      // Limpiar opciones existentes excepto la primera
+      while (comboFiltroEstado.options.length > 1) {
+        comboFiltroEstado.remove(1);
+      }
+
+      // Agregar las nuevas opciones
+      this.uniqueStates.forEach(state => {
+        if (state) {
+          const option = document.createElement('option');
+          option.value = state;
+          option.text = state;
+          comboFiltroEstado.appendChild(option);
+        }
+      });
+
+      // Restaurar el valor seleccionado si existía
+      if (currentValue && this.uniqueStates.includes(currentValue)) {
+        comboFiltroEstado.value = currentValue;
+        this.estadoFiltrado = currentValue;
+      }
+    }
+  }
+
   selectedPositions: string[] = []; // Array para almacenar las posiciones seleccionadas
 
   onPositionFilterChange(event: Event, position: string): void {
@@ -306,6 +376,20 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       this.selectedPositions.push(position);
     } else {
       this.selectedPositions = this.selectedPositions.filter(p => p !== position);
+    }
+
+    this.applyFilters();
+  }
+
+  selectedState: string[] = []; // Variable para almacenar el estado seleccionado
+
+  onStateFilterChange(event: Event, position: string): void {
+    const checkbox = event.target as HTMLInputElement;
+
+    if (checkbox.checked) {
+      this.selectedState.push(position);
+    } else {
+      this.selectedState = this.selectedState.filter(p => p !== position);
     }
 
     this.applyFilters();
@@ -364,6 +448,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         this.ventana = 'Informacion';
         // Obtener posiciones únicas
         this.uniquePositions = [...new Set(empleados.map(emp => emp.position))].sort();
+        //cargar estados unicos, en caso de que sea activo, validar si esta en licencia
+        this.uniqueStates = [...new Set(empleados.map(emp => emp.active ? emp.license ? 'Licencia' : 'Activo' : 'Inactivo'))].sort();
 
         // Guardar el filtro actual si existe
         const currentFilter = this.positionFilter;
@@ -378,7 +464,9 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             this.positionFilter = currentFilter;
             this.applyFilters();
           }
-        });
+        }
+
+        );
       },
       error: (err) => console.error('Error al cargar empleados:', err),
     });
@@ -455,11 +543,23 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         '<"mb-3"t>' +                           //Tabla
         '<"d-flex justify-content-between"lp>', //Paginacion
       data: this.Empleados,
-      order: [[4, 'asc']], // Ordenar por fecha de forma descendente
+      order: [[0, 'asc']], // Ordenar por fecha de forma descendente
       columns: [
         {
+          data: 'active',
+          title: 'Estado',
+          className: 'text-center',
+          render: (data: boolean, type: any, row: any) => {
+            // Si el empleado está activo, valida la clave 'license' y si es true, retorna "Licencia"
+            if (data) {
+              return row.license ? 'Licencia' : 'Activo';
+            }
+            return 'Inactivo';
+          }
+        },
+        {
           data: 'fullName',
-          title: 'Apellido y Nombre',
+          title: 'Apellido, Nombre',
           render: (data: string, type: string, row: any) => {
             if (type === 'display') {
               return `<span class="searchable">${data}</span>`;
@@ -500,19 +600,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             }
             return data;
           }
-        },
-        {
-          data: 'active',
-          title: 'Estado',
-          className: 'text-center',
-          render: (data: boolean, type: any, row: any) => {
-            // Si el empleado está activo, valida la clave 'license' y si es true, retorna "Licencia"
-            if (data) {
-              return row.license ? 'Licencia' : 'Activo';
-            }
-            return 'Inactivo';
-          }
-          
         },
         {
           data: null,
