@@ -315,9 +315,13 @@ onEndDateChange(value: string): void {
         columns: [
           {
             data: 'dateTime',
-            title: 'Fecha y Hora',
-
-            
+            title: 'Fecha',
+            render: (data: string) => data ? data.substring(0, 10) : ''
+          },
+          {
+            data: 'dateTime',
+            title: 'Hora',
+            render: (data: string) => data ? data.substring(11) : ''
           },
 
           { data: 'applicant', title: 'Solicitante' },
@@ -342,14 +346,8 @@ onEndDateChange(value: string): void {
               }
             }
           },
-          { data: 'responsible', title: 'Responsable' },
-          {
-            data: null,
-            title: 'Acciones',
-            render: (data: any) => {
-              return `<button class="btn btn-sm btn-info btn-ver-mas" data-bs-toggle="modal" data-bs-target="#infoModal" data-id="${data.id}">Ver más</button>`;
-            }
-          }
+          { data: 'responsible', title: 'Responsable' }
+
         ],
         order: [[0, 'desc']],
         pageLength: 5,
