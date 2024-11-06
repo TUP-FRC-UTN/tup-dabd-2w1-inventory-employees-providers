@@ -24,36 +24,43 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isApplyButtonDisabled) {
       return; // No aplicar filtros si el botón está deshabilitado
     }
-
+  
     this.filteredProductos = this.productos.filter((producto) => {
       // Filtro por tipo de movimiento
       const matchesMovementType = this.selectedMovementTypes.length === 0 || 
         this.selectedMovementTypes.includes(producto.modificationType.toLowerCase());
-
+  
       // Filtro por cantidad
       const amount = producto.amount;
       const matchesAmountFilter =
         (this.minAmount === null || amount >= this.minAmount) &&
         (this.maxAmount === null || amount <= this.maxAmount);
-
+  
       // Filtros por texto
       const matchesProduct = producto['product'].toLowerCase().includes(this.filterValues['product']);
       const matchesSupplier = producto['supplier'].toLowerCase().includes(this.filterValues['supplier']);
       const matchesDescription = producto['description'].toLowerCase().includes(this.filterValues['description']);
       
-
-      return matchesMovementType && 
-             matchesAmountFilter && 
-             matchesProduct && 
-             matchesSupplier && 
-             matchesDescription;
+      // Filtro por fecha
+      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
+      const matchesDateFilter =
+        (!this.startDate || productDate >= new Date(this.startDate)) &&
+        (!this.endDate || productDate <= new Date(this.endDate));
+  
+      return matchesMovementType &&
+        matchesAmountFilter &&
+        matchesProduct &&
+        matchesSupplier &&
+        matchesDescription &&
+        matchesDateFilter;
     });
-
+  
     // Actualizar DataTable
     if (this.table) {
       this.table.clear().rows.add(this.filteredProductos).draw();
     }
   }
+  
 
   selectedMovementTypes: string[] = [];
   minAmount: number | null = null;
@@ -81,11 +88,10 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   globalFilter: string = ''; // Filtro global para la búsqueda
   
-  // Método para aplicar el filtro global.
   applyFilter(): void {
     const filterValue = this.globalFilter.toLowerCase(); // Convertir a minúsculas para una comparación insensible
     console.log('Filtro global:', filterValue);
-
+  
     // Filtrar los productos según el valor del input
     this.filteredProductos = this.productos.filter((producto) => {
       return (
@@ -95,9 +101,8 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
         producto.description.toLowerCase().includes(filterValue) // Filtrar por justificativo
       );
     });
-
-    
-    //Seccion para filtrar por fecha startDate
+  
+    // Filtrar por fecha startDate y endDate (solo una vez)
     this.filteredProductos = this.filteredProductos.filter((producto) => {
       const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
       return (
@@ -105,21 +110,13 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
         (!this.endDate || productDate <= new Date(this.endDate))
       );
     });
-    
-    //Seccion para filtrar por fecha endDate
-    this.filteredProductos = this.filteredProductos.filter((producto) => {
-      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
-      return (
-        (!this.startDate || productDate >= new Date(this.startDate)) &&
-        (!this.endDate || productDate <= new Date(this.endDate))
-      );
-    });
-
+  
     // Actualizar el DataTable con los productos filtrados
     if (this.table) {
       this.table.clear().rows.add(this.filteredProductos).draw();
     }
   }
+  
 
   // Variables necesarias para el filtrado por fecha
   startDate: string | undefined;
@@ -156,12 +153,6 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     startDateInput.value = this.formatDateForInput(thirtyDaysAgo);
     endDateInput.value = this.formatDateForInput(today);
-
-    // Establecer los límites de las fechas
-    endDateInput.max = this.formatDateForInput(today);
-    startDateInput.max = endDateInput.value;
-    endDateInput.min = startDateInput.value;
-
     // Trigger the filter
     this.filterByDate();
   }
