@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { FormsModule, NgSelectOption } from '@angular/forms';
-import { NgSelectModule } from '@ng-select/ng-select';
 
 import { EmpListadoEmpleados } from '../../Models/emp-listado-empleados';
 import { EmpListadoAsistencias } from '../../Models/emp-listado-asistencias';
@@ -31,7 +30,7 @@ interface EmployeeFilters {
 @Component({
   selector: 'app-iep-list-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgSelectModule],
+  imports: [CommonModule, FormsModule,],
   templateUrl: './iep-list-employees.component.html',
   styleUrls: ['./iep-list-employees.component.css'],
 })
