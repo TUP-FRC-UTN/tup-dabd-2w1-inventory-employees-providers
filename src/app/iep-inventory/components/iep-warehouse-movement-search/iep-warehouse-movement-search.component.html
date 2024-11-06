@@ -3,26 +3,62 @@
     <div class="container p-3 border border-2 rounded shadow-lg"> <!-- Sección de filtros por columna -->
 
         <!-- Fila para los botones de exportación alineados a la derecha -->
-        <div class="row mb-2 d-flex align-items-center flex-nowrap">
+        <div class="row mb-3 d-flex align-items-center flex-nowrap">
 
             <!-- Campo de Búsqueda -->
-            <div class="me-3" style="flex: 1 1 auto;">
+            <div class="" style="flex: 1 1 auto;">
                 <input type="text" id="filterInput" class="form-control" placeholder="Buscar"
-                    (change)="applyFilter($event)" />
+                    (input)="applyFilters()" [(ngModel)]="tempFilters.general"/>
             </div>
 
             <!-- Campo Desde para seleccionar la fecha de inicio -->
-            <div class="me-3" style="flex: 1 1 auto;">
-                <input type="date" id="startDate" class="form-control" #startDateInput [(ngModel)]="startDate"
-                    (change)="onStartDateChange()" />
-            </div>
+            <div class="" style="flex: 1 1 auto;">
+                <input type="date" id="startDate" class="form-control" #startDateInput
+                  (change)="onStartDateChange(startDateInput.value)" />
+              </div>
+              
 
             <!-- Campo Hasta para seleccionar la fecha de fin -->
-            <div class="me-3" style="flex: 1 1 auto;">
-                <input type="date" id="endDate" class="form-control" #endDateInput [(ngModel)]="endDate"
-                    (change)="onEndDateChange()" />
+            <div class="" style="flex: 1 1 auto;">
+                <input type="date" id="endDate" class="form-control" #endDateInput 
+                (change)="onEndDateChange(endDateInput.value)" />
             </div>
-
+                <div class="dropdown" style="width: fit-content;">
+                    <button class="btn btn-outline-secondary dropdown-toggle text-start" type="button"
+                        id="dropdownReusable" data-bs-toggle="dropdown" aria-expanded="false">
+                        Tipo de Movimiento
+                        @if (tempFilters.movement_type.length > 0) {
+                        ({{ tempFilters.movement_type.length }})
+                        }@else {
+                        (0)
+                        }
+                        <span class="selected-movimiento"></span>
+                    </button>
+                    <ul class="dropdown-menu " aria-labelledby="dropdownTipoMovimiento">
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" class="form-check-input me-2" name="movement_type"
+                                    value="RETURN" (change)="applyColumnFilter('RETURN')">
+                                Devolución
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" class="form-check-input me-2" name="movement_type"
+                                    value="LOAN" (change)="applyColumnFilter('LOAN')">
+                                Préstamo
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" class="form-check-input me-2" name="movement_type"
+                                    value="TO_MAINTENANCE"
+                                    (change)="applyColumnFilter('TO_MAINTENANCE')">
+                                Uso
+                            </label>
+                        </li>
+                    </ul>
+                </div>
             <!-- Contenedor de botones alineados a la derecha -->
             <div class="d-flex justify-content-end align-items-center" style="flex: 1 1 auto;">
 
@@ -30,7 +66,7 @@
                 <div class="col-mb-3">
                     <button class="btn btn-primary me-2" data-bs-toggle="modal" title="Filtros Avanzados"
                         data-bs-target="#filtrosAvanzados">
-                        <i class="bi bi-funnel-fill"></i>
+                        <i class="bi bi-sort-down-alt"></i>
                     </button>
                 </div>
 
@@ -51,37 +87,14 @@
             </div>
         </div>
 
-        <table id="movementsTable" class="table table-striped mt-4">
+        <div class="row">
+            <table id="movementsTable" class="table table-striped mt-4 ">
 
-        </table>
-    </div>
-
-    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="detailsModalLabel">Detalles del Movimiento</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-
-                    <p><strong>Fecha:</strong> {{ selectedMovement?.date | date: 'dd/MM/yyyy HH:mm' }}</p>
-                    <p><strong>Solicitante:</strong> {{ selectedMovement?.applicant }}</p>
-                    <p><strong>Tipo:</strong> {{ selectedMovement?.movement_type ?? '' | warehouseType }}</p>
-                    <p class="mb-0"><strong>Productos:</strong> </p>
-                    <ul>
-                        @for (product of selectedMovement?.detailProducts; track $index) {
-                        <li>{{ product.description}}</li>
-                        }
-                    </ul>
-                    <p><strong>Responsable: </strong>{{ selectedMovement?.responsible }} </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
+            </table>
         </div>
     </div>
+
+    
 
     <!-- Advanced Filters Modal -->
     <div class="modal fade" id="filtrosAvanzados" tabindex="-1" aria-labelledby="filtrosAvanzadosLabel"
@@ -99,18 +112,23 @@
                 <div class="modal-body">
 
                     <!-- Min Amount Section -->
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="" class="form-label">Solicitante</label>
                         <input type="text" placeholder="Solicitante" data-column="applicant"
-                            (change)="applyColumnFilter($event, 'applicant')" class="form-control" />
-                    </div>
+                        class="form-control" [(ngModel)]="tempFilters.applicant"
+                        (input)="applyFilters()"    
+                        />
+                    </div> -->
 
 
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="" class="form-label">Producto</label>
                         <input type="text" placeholder="Productos" data-column="detailProducts"
-                            (change)="applyColumnFilter($event, 'detailProducts')" class="form-control" />
-                    </div>
+                             class="form-control" 
+                             [(ngModel)]="tempFilters.detailProducts"
+                             (input)="applyFilters()"
+                             />
+                    </div> -->
 
                     <!-- Period Section -->
                     <div class="mb-3">
@@ -128,14 +146,14 @@
                                 <li>
                                     <label class="dropdown-item">
                                         <input type="checkbox" class="form-check-input me-2" name="movement_type"
-                                            value="RETURN" (change)="applyColumnFilter($event, 'movement_type')">
+                                            value="RETURN" (change)="applyColumnFilter('RETURN')">
                                         Devolución
                                     </label>
                                 </li>
                                 <li>
                                     <label class="dropdown-item">
                                         <input type="checkbox" class="form-check-input me-2" name="movement_type"
-                                            value="LOAN" (change)="applyColumnFilter($event, 'movement_type')">
+                                            value="LOAN" (change)="applyColumnFilter('LOAN')">
                                         Préstamo
                                     </label>
                                 </li>
@@ -143,7 +161,7 @@
                                     <label class="dropdown-item">
                                         <input type="checkbox" class="form-check-input me-2" name="movement_type"
                                             value="TO_MAINTENANCE"
-                                            (change)="applyColumnFilter($event, 'movement_type')">
+                                            (change)="applyColumnFilter('TO_MAINTENANCE')">
                                         Uso
                                     </label>
                                 </li>
@@ -155,10 +173,7 @@
                     <!-- Modal Footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="button" class="btn btn-primary" (click)="applyAllFilters()"
-                            data-bs-dismiss="modal">
-                            Aplicar
-                        </button>
+                        
                     </div>
 
                 </div>
