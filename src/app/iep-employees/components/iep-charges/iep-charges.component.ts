@@ -95,14 +95,9 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
     (doc as any).autoTable({
       head: [['Cargo', 'Descripción', 'Estado']],
       body: dataToExport,
-      startY: 30, 
-      theme: 'grid',  
-      margin: { top: 30, bottom: 20 },  
-      styles: {
-        fontSize: 10,  
-        cellPadding: 5,  
-        halign: 'center', 
-      },
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
   
     const formattedDate = this.getFormattedDate(); 
