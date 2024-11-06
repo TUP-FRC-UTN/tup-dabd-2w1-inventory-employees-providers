@@ -367,13 +367,6 @@ onEndDateChange(value: string): void {
           emptyTable: "No hay datos disponibles en la tabla",
         }
       });
-
-
-      $('#movementsTable tbody').on('click', '.btn-ver-mas', (event) => {
-        const id = $(event.currentTarget).data('id');
-        this.openModal(id);
-      });
-
       this.tableInitialized = true;
     });
   }
@@ -393,12 +386,5 @@ onEndDateChange(value: string): void {
 
  
 
-  openModal(id: number) {
-    this.movements.forEach((movement) => {
-      if (movement.id === id) {
-        this.selectedMovement = movement;
-
-      }
-    })
-  }
+  
 }
