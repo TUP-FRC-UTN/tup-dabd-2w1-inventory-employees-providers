@@ -16,6 +16,11 @@ interface SelectedTypes {
   OTHER: boolean;
 }
 
+interface SelectedStates {
+  ACTIVE: boolean;
+  INACTIVE: boolean;
+}
+
 @Component({
   selector: 'app-iep-supplier-list',
   standalone: true,
@@ -24,6 +29,13 @@ interface SelectedTypes {
   styleUrls: ['./iep-supplier-list.component.css']
 })
 export class IepSupplierListComponent implements AfterViewInit {
+
+  selectedStates: SelectedStates = {
+    ACTIVE: false,
+    INACTIVE: false
+  };
+
+  selectedStateCount: number = 0;
 
   selectedTypes: SelectedTypes = {
     OUTSOURCED_SERVICE: false,
@@ -55,11 +67,15 @@ export class IepSupplierListComponent implements AfterViewInit {
     Object.keys(this.columnFilters).forEach(key => {
       this.columnFilters[key as keyof typeof this.columnFilters] = '';
     });
-    // Limpiar los tipos seleccionados
+    // Limpiar los tipos y estados seleccionados
     Object.keys(this.selectedTypes).forEach(key => {
       this.selectedTypes[key as keyof SelectedTypes] = false;
     });
+    Object.keys(this.selectedStates).forEach(key => {
+      this.selectedStates[key as keyof SelectedStates] = false;
+    });
     this.selectedTypeCount = 0;
+    this.selectedStateCount = 0;
     this.filteredSuppliers = [...this.suppliers];
     this.updateDataTable(this.filteredSuppliers);
   }
@@ -69,13 +85,13 @@ export class IepSupplierListComponent implements AfterViewInit {
   applyFilters() {
     let filteredData = [...this.suppliers];
 
-    // Aplicar filtro global (excluyendo el tipo de proveedor)
+    // Aplicar filtro global (excluyendo el tipo de proveedor y estado)
     if (this.globalFilter) {
       const searchTerm = this.globalFilter.toLowerCase();
       filteredData = filteredData.filter(supplier => {
         return Object.entries(supplier).some(([key, value]) => {
-          // Excluir supplierType del filtro global
-          if (key === 'supplierType') return false;
+          // Excluir supplierType y discontinued del filtro global
+          if (key === 'supplierType' || key === 'discontinued') return false;
           return value && value.toString().toLowerCase().includes(searchTerm);
         });
       });
@@ -86,6 +102,14 @@ export class IepSupplierListComponent implements AfterViewInit {
     if (this.selectedTypeCount > 0) {
       filteredData = filteredData.filter(supplier => {
         return this.selectedTypes[supplier.supplierType as keyof SelectedTypes];
+      });
+    }
+
+    // Aplicar filtro de estado
+    this.selectedStateCount = Object.values(this.selectedStates).filter(Boolean).length;
+    if (this.selectedStateCount > 0) {
+      filteredData = filteredData.filter(supplier => {
+        return this.selectedStates[supplier.discontinued ? 'INACTIVE' : 'ACTIVE'];
       });
     }
 
