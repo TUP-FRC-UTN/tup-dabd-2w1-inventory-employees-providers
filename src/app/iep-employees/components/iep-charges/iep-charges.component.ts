@@ -8,12 +8,13 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import { NgSelectModule } from '@ng-select/ng-select';
 declare var bootstrap: any; // Añadir esta declaración al principio
 
 @Component({
   selector: 'app-iep-cargos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule, NgSelectModule],
   templateUrl: './iep-charges.component.html',
   styleUrl: './iep-charges.component.css'
 })
@@ -36,9 +37,17 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
   isErrorModalOpen = false;
   errorMessage = '';
   selectedStates: any;
+
+  stateOptions = [
+    { id: true, label: 'Activo' },
+    { id: false, label: 'Inactivo' }
+  ];
+
   filters = {
     reutilizableSeleccionado: [] as boolean[]
   };
+
+  cargoSeleccionado: ChargeResponse | null = null;
 
 
   constructor(
@@ -51,20 +60,9 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  stateFilter(event: Event) {
-    const checkbox = event.target as HTMLInputElement;
-  const value = checkbox.value === 'true';
-  
-  // Si se selecciona el estado, agregarlo a los filtros
-  if (checkbox.checked) {
-    this.filters.reutilizableSeleccionado.push(value);
-  } else {
-    // Si no se selecciona el estado, eliminarlo de los filtros
-    this.filters.reutilizableSeleccionado = this.filters.reutilizableSeleccionado.filter((v) => v !== value);
-  }
-
-  // Aplicar ambos filtros: texto y estado
-  this.filterData({ target: { value: this.searchTerm } });
+  stateFilter(): void {
+    // Aplicar ambos filtros: texto y estado
+    this.filterData({ target: { value: this.searchTerm } });
   }
   
   
@@ -178,21 +176,19 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-abrirModalConfirmarEliminacion(cargo: ChargeResponse): void {
-  Swal.fire({
-    title: '¿Está seguro?',
-    text: '¿Desea eliminar este cargo?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6'
-  }).then((result) => {
-    if (result.isConfirmed && cargo.id) {
-      this.eliminarCargo(cargo.id);
-    }
-  });
+  abrirModalConfirmarEliminacion(cargo: ChargeResponse): void {
+    this.cargoSeleccionado = cargo;
+    const modal = new bootstrap.Modal(document.getElementById('eliminarCargoModal') as HTMLElement);
+    modal.show();
+  }
+
+confirmarEliminacion(): void {
+  if (this.cargoSeleccionado?.id) {
+    this.eliminarCargo(this.cargoSeleccionado.id);
+    this.cargoSeleccionado = null;
+    const modal = bootstrap.Modal.getInstance(document.getElementById('eliminarCargoModal') as HTMLElement);
+    modal?.hide();
+  }
 }
 
 eliminarCargo(id: number): void {
@@ -206,7 +202,6 @@ eliminarCargo(id: number): void {
         text: 'El cargo ha sido eliminado correctamente.',
         icon: 'success',
         confirmButtonText: 'Aceptar'  // Solo un botón de "Aceptar" en caso de eliminación exitosa
-        ,confirmButtonColor: '#3085d6'
       });
       this.loadCargos();
       
@@ -263,9 +258,15 @@ closeInfoModal(): void{
       charge: cargo.charge,
       description: cargo.description
     });
+  
+    // Marcar los campos como tocados para que la validación visual se muestre de inmediato
+    this.cargoForm.get('charge')?.markAsTouched();
+    this.cargoForm.get('description')?.markAsTouched();
+  
     this.isEditModalOpen = true;
     document.body.classList.add('modal-open');
   }
+  
 
   closeEditModal(): void {
     this.isEditModalOpen = false;
@@ -336,15 +337,26 @@ closeInfoModal(): void{
            '<"d-flex justify-content-between"lp>',
       data: this.filteredData,
       columns: [
-        { data: 'charge', title: 'Cargo' },
-        { data: 'description', title: 'Descripción' },
         {
           data: 'active',
           title: 'Estado',
           render: (data: boolean) => {
-            return data ? 'Activo' : 'Inactivo'; // Muestra "Activo" o "Inactivo" según el valor de `active`
+            let colorClass;
+            let text;
+        
+            if (data) {
+              colorClass = '#198754'; // Verde para "Activo"
+              text = 'Activo';
+            } else {
+              colorClass = '#dc3545'; // Rojo para "Inactivo"
+              text = 'Inactivo';
+            }
+        
+            return `<span class="badge" style="background-color: ${colorClass};">${text}</span>`;
           }
         },
+        { data: 'charge', title: 'Cargo' },
+        { data: 'description', title: 'Descripción' },
         {
           data: null,
           title: 'Acciones',
@@ -456,8 +468,7 @@ onSubmitCreate(): void {
                     title: 'Error',
                     text: `El cargo "${chargeValue}" ya existe. Por favor, elige otro nombre.`,
                     icon: 'error',
-                    confirmButtonText: 'Aceptar',
-                    confirmButtonColor: '#3085d6'
+                    confirmButtonText: 'Aceptar'
                 }).then(() => {
                     this.closeModale('createChargeModal'); // Cerrar modal en caso de error
                     this.loadCargos();
@@ -471,8 +482,7 @@ onSubmitCreate(): void {
                         title: '¡Creado!',
                         text: 'El cargo ha sido creado correctamente.',
                         icon: 'success',
-                        confirmButtonText: 'Aceptar',
-                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Aceptar'
                     }).then(() => {
                         this.closeModale('createChargeModal'); // Cerrar modal tras éxito
                         this.cargoForm.reset();
@@ -512,8 +522,7 @@ onSubmitEdit(): void {
                     title: 'Error',
                     text: `El cargo "${chargeValue}" ya existe. Por favor, elige otro nombre.`,
                     icon: 'error',
-                    confirmButtonText: 'Aceptar',
-                    confirmButtonColor: '#3085d6'
+                    confirmButtonText: 'Aceptar'
                 }).then(() => {
                     this.closeModale('editChargeModal'); // Cerrar modal en caso de error
                     this.loadCargos();
@@ -537,8 +546,7 @@ onSubmitEdit(): void {
                                 title: '¡Actualizado!',
                                 text: 'El cargo ha sido actualizado correctamente.',
                                 icon: 'success',
-                                confirmButtonText: 'Aceptar',
-                                confirmButtonColor: '#3085d6'
+                                confirmButtonText: 'Aceptar'
                             }).then(() => {
                                 this.closeModale('editChargeModal'); // Cerrar modal tras éxito
                                 this.loadCargos();
