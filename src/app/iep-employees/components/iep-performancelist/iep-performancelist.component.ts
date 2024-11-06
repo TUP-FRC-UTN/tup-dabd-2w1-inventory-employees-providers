@@ -23,6 +23,7 @@ import { IepAttentionCallComponent } from '../iep-attention-call/iep-attention-c
   styleUrl: './iep-performancelist.component.css'
 })
 export class IepPerformancelistComponent implements OnInit {
+  selectedPeriod: string[] = []; // Cambiar a un arreglo para permitir múltiples selecciones
   paginatedDetails: WakeUpCallDetail[] = [];
   currentPage: number = 1;
   itemsPerPage: number = 5;
@@ -97,21 +98,35 @@ export class IepPerformancelistComponent implements OnInit {
     }, 100);
   }
 
+   // Actualizar toggleYear y toggleMonth para ser togglePeriod
+   togglePeriod(period: string): void {
+    const index = this.selectedPeriod.indexOf(period);
+    if (index > -1) {
+      // Si el periodo ya está seleccionado, eliminarlo
+      this.selectedPeriod.splice(index, 1);
+    } else {
+      // Si no está seleccionado, añadirlo
+      this.selectedPeriod.push(period);
+    }
+    this.filterData();
+  }
+  
+
   // Método para establecer el ID de empleado, obtener su nombre y cargar sus datos de desempeño
   // Dentro de tu componente principal (ej. IepPerformancelistComponent)
-setEmployeeById(employeeId: number): void {
-  this.selectedEmployeeId = employeeId;
+  setEmployeeById(employeeId: number): void {
+    this.selectedEmployeeId = employeeId;
 
-  // Llama al servicio para obtener el empleado por ID y actualizar el nombre
-  this.employeeService.getEmployees().subscribe(employees => {
-    const employee = employees.find(emp => emp.id === employeeId);
-    if (employee) {
-      this.selectedEmployeeName = employee.fullName;
-      this.searchTerm = employee.fullName; // Establece el término de búsqueda con el nombre
-      this.loadData(); // Carga los datos del desempeño del empleado
-    }
-  });
-}
+    // Llama al servicio para obtener el empleado por ID y actualizar el nombre
+    this.employeeService.getEmployees().subscribe(employees => {
+      const employee = employees.find(emp => emp.id === employeeId);
+      if (employee) {
+        this.selectedEmployeeName = employee.fullName;
+        this.searchTerm = employee.fullName; // Establece el término de búsqueda con el nombre
+        this.loadData(); // Carga los datos del desempeño del empleado
+      }
+    });
+  }
 
 // Al abrir el modal
 openNewCallModal(employeeId: number) {
@@ -335,41 +350,35 @@ openNewCallModal(employeeId: number) {
 }
 
 
-  // Modificar el método filterData() para trabajar con la nueva estructura
-  filterData(): void {
-    if (!this.dataTable) return;
-
-    this.dataTable.search(this.searchTerm);
-
-    while ($.fn.dataTable.ext.search.length > 0) {
-      $.fn.dataTable.ext.search.pop();
+     // Actualización del filtro de datos para que filtre con el periodo seleccionado
+     filterData(): void {
+      if (!this.dataTable) return;
+    
+      this.dataTable.search(this.searchTerm);
+    
+      while ($.fn.dataTable.ext.search.length > 0) {
+        $.fn.dataTable.ext.search.pop();
+      }
+    
+      $.fn.dataTable.ext.search.push((settings: any, data: any[]) => {
+        const period = data[0]; // El periodo ahora está en la primera columna
+    
+        // Filtra por cualquier periodo que esté seleccionado
+        const periodMatch = this.selectedPeriod.length === 0 || this.selectedPeriod.includes(period);
+    
+        // Mantén los otros filtros si es necesario
+        const performanceTypeMatch = this.selectedPerformanceType.length === 0 ||
+          this.selectedPerformanceType.includes(data[3]);
+        const observationCountMatch = this.selectedObservationCount === null ||
+          parseInt(data[2], 10) === this.selectedObservationCount;
+    
+        return periodMatch && performanceTypeMatch && observationCountMatch;
+      });
+    
+      this.dataTable.draw();
     }
+    
 
-    $.fn.dataTable.ext.search.push((settings: any, data: any[]) => {
-      const period = data[0]; // El período ahora está en la primera columna
-      const [yearStr, monthStr] = period.split('-');
-      const rowYear = yearStr;
-      const rowMonth = this.getMonthName(parseInt(monthStr, 10));
-      const rowPerformanceType = data[3];
-      const rowObservationCount = parseInt(data[2], 10);
-
-      const yearMatch = this.selectedYears.length === 0 ||
-        this.selectedYears.includes(rowYear);
-
-      const monthMatch = this.selectedMonths.length === 0 ||
-        this.selectedMonths.includes(rowMonth);
-
-      const performanceTypeMatch = this.selectedPerformanceType.length === 0 ||
-        this.selectedPerformanceType.includes(rowPerformanceType);
-
-      const observationCountMatch = this.selectedObservationCount === null ||
-        rowObservationCount === this.selectedObservationCount;
-
-      return yearMatch && monthMatch && performanceTypeMatch && observationCountMatch;
-    });
-
-    this.dataTable.draw();
-  }
 
 
   getMonthName(month: number): string {

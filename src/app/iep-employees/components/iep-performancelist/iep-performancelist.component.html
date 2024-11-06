@@ -12,49 +12,27 @@
           </div>
 
 
-          <!-- Dropdown de Año -->
+          <!-- Dropdown de Periodo -->
           <div class="col-md-2 d-flex align-items-center">
             <div class="dropdown w-100">
-              <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownYearSelect"
+              <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownPeriodSelect"
                 data-bs-toggle="dropdown" aria-expanded="false">
-                Año
-                @if (selectedYears.length > 0) {
-                  <span> ({{ selectedYears.length }})</span>
-                }
+                Periodo
               </button>
-              <ul class="dropdown-menu w-100" aria-labelledby="dropdownYearSelect">
-                <li *ngFor="let year of availableYears">
+              <ul class="dropdown-menu w-100" aria-labelledby="dropdownPeriodSelect">
+                <li *ngFor="let performance of performances">
                   <label class="dropdown-item">
                     <input type="checkbox" class="form-check-input me-2"
-                      [checked]="selectedYears.includes(year.toString())" (change)="toggleYear(year.toString())">
-                    {{ year }}
+                      [checked]="selectedPeriod.includes(performance.year + '-' + (performance.month.toString().padStart(2, '0')))"
+                      (change)="togglePeriod(performance.year + '-' + (performance.month.toString().padStart(2, '0')))">
+                    {{ performance.year }}-{{ performance.month.toString().padStart(2, '0') }}
                   </label>
                 </li>
               </ul>
             </div>
           </div>
-
-          <!-- Dropdown de Mes -->
-          <div class="col-md-2 d-flex align-items-center">
-            <div class="dropdown w-100">
-              <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownMonthSelect"
-                data-bs-toggle="dropdown" aria-expanded="false">
-                Mes
-                @if (selectedMonths.length > 0) {
-                  <span> ({{ selectedMonths.length }})</span>
-                }
-              </button>
-              <ul class="dropdown-menu w-100" aria-labelledby="dropdownMonthSelect">
-                <li *ngFor="let month of months; let i = index">
-                  <label class="dropdown-item">
-                    <input type="checkbox" class="form-check-input me-2" [checked]="selectedMonths.includes(month)"
-                      (change)="toggleMonth(month)">
-                    {{ month }}
-                  </label>
-                </li>
-              </ul>
-            </div>
-          </div>
+          
+          
 
           <!-- Botones de filtro, limpiar y exportación -->
           <div class="col-md-4 d-flex justify-content-end align-items-center">
