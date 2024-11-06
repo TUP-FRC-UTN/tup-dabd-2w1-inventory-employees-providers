@@ -7,6 +7,7 @@ import { Supplier } from '../models/suppliers';
   providedIn: 'root',
 })
 export class SuppliersService {
+  
   private readonly INVENTORY_BASE_URL: string = 'http://localhost:8081/';
 
   private readonly SUPPLIERS_URL: string = `${this.INVENTORY_BASE_URL}suppliers`;
@@ -74,6 +75,16 @@ export class SuppliersService {
 
   getAll(): Observable<Supplier[]> {
     return this.http.get<Supplier[]>(this.SUPPLIERS_URL + '/all');
+  }
+
+  getSupplierByCuit(cuit:string):Observable<boolean>{
+    return this.http.get<boolean>(this.SUPPLIERS_URL+'/getByCuit/'+cuit);
+  }
+  getSupplierByEmail(email:string):Observable<boolean>{
+    return this.http.get<boolean>(this.SUPPLIERS_URL+'/getByEmail/'+email);
+  }
+  getSupplierByName(name:string):Observable<boolean>{
+    return this.http.get<boolean>(this.SUPPLIERS_URL+'/getByName/'+name);
   }
 
   constructor(private http: HttpClient) { }
