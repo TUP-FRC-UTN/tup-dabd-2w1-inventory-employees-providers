@@ -267,12 +267,6 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
         search: 'Buscar:',
         info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
         emptyTable: 'No se encontraron registros', // Mensaje personalizado si no hay datos        
-        paginate: {
-          first: '<<',
-          last: '>>',
-          next: '>',
-          previous: '<',
-        },
       },
     });
   }

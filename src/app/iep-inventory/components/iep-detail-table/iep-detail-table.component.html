@@ -137,7 +137,7 @@
 
         <!-- Botón filtros avanzados -->
         <button class="btn btn-primary me-2" data-bs-toggle="modal" title="Filtros Avanzados" data-bs-target="#filtrosAvanzados">
-          <i class="bi bi-sort-down-alt"></i>
+          <i class="bi bi-funnel-fill"></i>
         </button>
 
         <!-- Botón para limpiar filtros -->
@@ -146,16 +146,16 @@
         </button>
 
         <!-- Botón Volver -->
-        <button class="btn btn-secondary me-2 px-3" (click)="volverInventario()">
+        <button class="btn btn-secondary me-2" (click)="volverInventario()">
           <i class="bi bi-arrow-left"></i>
         </button>
 
         <!-- Botones que antes eran flotantes -->
-        <button class="btn btn-danger me-2 px-3" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+        <button class="btn btn-danger me-2" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
           <i class="bi bi-x-circle-fill"></i>
         </button>
 
-        <button class="btn btn-primary me-2 px-3" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#warehouseModal">
+        <button class="btn btn-primary me-2" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#warehouseModal">
           <i class="bi bi-arrow-left-right"></i>
         </button>
 

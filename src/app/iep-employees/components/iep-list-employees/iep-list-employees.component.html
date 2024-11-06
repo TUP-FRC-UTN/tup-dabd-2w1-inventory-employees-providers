@@ -86,16 +86,16 @@
                 </div>
             </div>
 
+            <div class="col"></div>
+
             <!-- Botones de exportación alineados a la derecha del selector -->
             <div class="col-md-2 d-flex align-items-center justify-content-end">
 
                 <!-- Botón para mostrar/ocultar filtros -->
-                <div class="me-1">
-                    <button class="btn btn-primary" data-bs-toggle="modal" title="Filtros Avanzados"
-                        data-bs-target="#filtrosAvanzados">
-                        <i class="bi bi-funnel-fill"></i>
-                    </button>
-                </div>
+                <button class="btn btn-primary me-2" data-bs-toggle="modal" title="Filtros Avanzados"
+                    data-bs-target="#filtrosAvanzados">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
                 <button class="btn btn-secondary me-2" (click)="cleanColumnFilters()">
                     <i class="bi bi-trash"></i>
                 </button>

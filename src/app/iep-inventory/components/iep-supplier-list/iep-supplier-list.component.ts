@@ -260,13 +260,14 @@ export class IepSupplierListComponent implements AfterViewInit {
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <li><a class="dropdown-item edit-btn" href="#" data-id="${data.id}">Editar</a></li>
+                    <li class="dropdown-divider"></li>
                     <li><a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${data.id}">Eliminar</a></li>
                   </ul>
                 </div>`;
             }
           }
         ],
-        pageLength: 10,
+        pageLength: 5,
         lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
         lengthMenu: [5, 10, 25, 50],
         searching: false,
@@ -275,12 +276,6 @@ export class IepSupplierListComponent implements AfterViewInit {
           lengthMenu: '_MENU_', // Esto eliminará el texto "entries per page"
           search: "Buscar:",
           info: "Mostrando _START_ a _END_ de _TOTAL_ proveedores",
-          paginate: {
-            first: '<<',
-            last: '>>',
-            next: '>',
-            previous: '<',
-          },
 
           emptyTable: "No hay datos disponibles en la tabla",
         }

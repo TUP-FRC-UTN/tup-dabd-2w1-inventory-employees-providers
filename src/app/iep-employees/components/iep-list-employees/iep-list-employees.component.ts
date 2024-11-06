@@ -13,6 +13,7 @@ import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados
 import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 declare var $: any;
 declare var DataTable: any;
@@ -502,7 +503,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     }
 
     const commonConfig = {
-      pageLength: 10,
+      pageLength: 5,
       lengthChange: true,
       searching: false,
       language: {
@@ -510,6 +511,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
         lengthMenu:
           `<select class="form-select">
+            <option value="5">5</option>
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
@@ -615,6 +617,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
                   <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
                   <li><button class="dropdown-item consultar-asistencias" data-empleado-id="${data.id}">Ver asistencias</button></li>
                   <li><button class="dropdown-item consultar-desempeño" data-empleado-id="${data.id}">Ver desempeño</button></li>
+                  <li class="dropdown-divider"></li>
                   <li><button class="dropdown-item eliminar-btn" data-empleado-id="${data.id}">Eliminar</button></li> 
                 </ul>
               </div>`;

@@ -669,8 +669,10 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
                   &#8942;
                 </a>
                 <ul class="dropdown-menu">
-                  <li><button class="dropdown-item btn botonAumentoStock" data-bs-target="#aumentoStock" data-bs-toggle="modal"  data-id="${row.id}">Agregar</button></li>
                   <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
+                    <li class="dropdown-divider"></li>
+                  <li><button class="dropdown-item btn botonAumentoStock" data-bs-target="#aumentoStock" data-bs-toggle="modal"  data-id="${row.id}">Agregar</button></li>
+                    <li class="dropdown-divider"></li>
                   <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" (click)="giveLogicalLow(${row.id})">Eliminar</button></li>
                 </ul>
               </div>
@@ -691,12 +693,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         lengthMenu: '_MENU_', // Esto eliminará el texto "entries per page"
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
         emptyTable: 'No se encontraron registros',
-        paginate: {
-          first: '<<',
-          last: '>>',
-          next: '>',
-          previous: '<',
-        },
       },
       createdRow: function (row: any, data: any) {
         // Verifica si la cantidad es menor o igual al mínimo de alerta
@@ -822,7 +818,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   /* METODO PARA PASAR DE FECHAS "2024-10-17" A FORMATO dd/mm/yyyy*/
   formatDate(inputDate: string): string {
     const [year, month, day] = inputDate.split('-');
-    return `${day}-${month}-${year}`;
+    return `${day}/${month}/${year}`;
   }
 
   updateDataTable(): void {

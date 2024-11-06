@@ -307,7 +307,7 @@ openNewCallModal(employeeId: number) {
           infoFiltered: "",
           search: ""
         },
-        pageLength: 10,
+        pageLength: 5,
         order: [[0, 'desc']],
         dom: 'rt<"d-flex justify-content-between mt-3"l<"pagination-container"p>>',
         lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]]

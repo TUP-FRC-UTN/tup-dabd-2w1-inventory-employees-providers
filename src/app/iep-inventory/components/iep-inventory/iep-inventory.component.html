@@ -80,24 +80,24 @@
             </div>
 
             <!-- Botón para mostrar/ocultar filtros -->
-            <div class="me-1">
-              <button class="btn btn-primary" data-bs-toggle="modal" title="Filtros Avanzados"
-                data-bs-target="#filtrosAvanzados">
-                <i class="bi bi-sort-down-alt"></i>
-              </button>
-            </div>
-
+            <!-- <div class="ms-2">
+            </div> -->
+            
             <!-- Botón para limpiar filtros -->
-            <div class="me-1">
-              <button class="btn btn-secondary" (click)="cleanFilters()">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
+            <!-- <div class="ms-2">
+            </div> -->
           </div>
-
-          <!-- Botones para exportar datos a PDF y Excel -->
+          
+          <!-- Botones para mostrar/ocultar y limpiar filtros, exportar datos a PDF y Excel -->
           <div class="d-flex align-items-center ms-2">
-            <button class="btn btn-success" (click)="generarExcel()" title="Exportar a Excel">
+            <button class="btn btn-primary ms-2" data-bs-toggle="modal" title="Filtros Avanzados"
+              data-bs-target="#filtrosAvanzados">
+              <i class="bi bi-funnel-fill"></i>
+            </button>
+            <button class="btn btn-secondary ms-2" (click)="cleanFilters()">
+              <i class="bi bi-trash"></i>
+            </button>
+            <button class="btn btn-success ms-2" (click)="generarExcel()" title="Exportar a Excel">
               <i class="fa-solid bi-file-earmark-excel"></i>
             </button>
             <button class="btn btn-danger ms-2" (click)="generarPdf()" title="Exportar a PDF">

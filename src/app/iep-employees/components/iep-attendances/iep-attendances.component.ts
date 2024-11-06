@@ -161,7 +161,7 @@ export class IepAttendancesComponent implements OnInit{
             let dropdown = '';   
             if (row.state === "AUSENTE") {
               dropdown = `
-                <div class="dropdown text-center">
+                <div class="dropdown">
                   <a class="btn btn-light" href="#" role="button" 
                   ${isHidden} data-bs-toggle="dropdown" aria-expanded="false"
                   style="width: 40px; height: 40px; display: flex; justify-content: center; 
@@ -173,7 +173,7 @@ export class IepAttendancesComponent implements OnInit{
                 </div>`;
             } else if (row.state === "JUSTIFICADO") {
               dropdown = `
-                <div class="dropdown text-center">
+                <div class="dropdown">
                   <a class="btn btn-light" href="#" role="button" 
                   ${isHidden} data-bs-toggle="dropdown" aria-expanded="false"
                   style="width: 40px; height: 40px; display: flex; justify-content: center; 
