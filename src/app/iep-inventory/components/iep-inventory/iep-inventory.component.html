@@ -118,20 +118,15 @@
 
 
     <!-- Modal para aumento de stock -->
-    <div class="modal fade" [class.show]="showAumentoStockModal"
-      [style.display]="showAumentoStockModal ? 'block' : 'none'" id="aumentoStockModal" tabindex="-1"
-      aria-labelledby="aumentoStockModalLabel" [attr.aria-modal]="showAumentoStockModal"
-      [attr.aria-hidden]="!showAumentoStockModal" (click)="handleModalBackdropClick($event)">
-      <div class="modal-dialog modal-lg" style="max-width: 50%;" (click)="$event.stopPropagation()">
+    <div class="modal fade" id="aumentoStock" tabindex="-1">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Agregar Aumento de Stock</h5>
-            <button type="button" class="btn-close" (click)="cerrarModalAumentoStock()" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <app-iep-stock-increase *ngIf="showAumentoStockModal"></app-iep-stock-increase>
-
-
           </div>
         </div>
       </div>
@@ -140,6 +135,8 @@
     <div class="modal-backdrop fade" [class.show]="showNuevoProductoModal || showAumentoStockModal"
       *ngIf="showNuevoProductoModal || showAumentoStockModal" (click)="handleModalBackdropClick($event)">
     </div>
+
+
 
   </div>
 

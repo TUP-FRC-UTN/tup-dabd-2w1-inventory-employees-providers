@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-
+import Swal from 'sweetalert2';
 import { EmpListadoEmpleados } from '../../Models/emp-listado-empleados';
 import { EmpListadoAsistencias } from '../../Models/emp-listado-asistencias';
 import { EmployeePerformance } from '../../Models/listado-desempeño';
@@ -527,7 +527,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
                   <li><button class="dropdown-item consultar-asistencias" data-empleado-id="${data.id}">Ver asistencias</button></li>
-                  <li><a class="dropdown-item eliminar-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-empleado-id="${data.id}" href="#">Eliminar</a></li>
+                  <li><button class="dropdown-item consultar-desempeño" data-empleado-id="${data.id}">Ver desempeño</button></li>
+                  <li><button class="dropdown-item eliminar-btn" data-empleado-id="${data.id}">Eliminar</button></li> 
                 </ul>
               </div>`;
           }
@@ -548,6 +549,11 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       this.router.navigate([`home/employee/attendance/${empleadoId}`]);
     });
 
+    $('#empleadosTable').on('click', '.consultar-desempeño', (event: any) => {
+      event.preventDefault();
+      const empleadoId = $(event.currentTarget).data('empleado-id');
+      this.router.navigate([`home/employee/performance/${empleadoId}`]); // Redirige al componente de desempeño con el ID del empleado
+    });
 
     $('#empleadosTable').on('click', '.modificar-btn', (event: any) => {
       event.preventDefault();
@@ -555,10 +561,11 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       this.editarEmpleado(id);
     });
 
-    // Event handler for eliminar (delete) button
+    // Event handler para el botón de eliminar
     $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
       event.preventDefault();
       this.empleadoIdToDelete = $(event.currentTarget).data('empleado-id');
+      this.confirmDelete(); // Llama a confirmDelete al hacer clic
     });
 
     // Aplicar filtros iniciales si existen
@@ -566,24 +573,53 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       this.applyFilters();
     }
   }
+  
+
   // Agrega esta propiedad a la clase
   empleadoIdToDelete: number | null = null;
 
-  // Agrega esta nueva función para manejar la confirmación
   confirmDelete(): void {
-    if (this.empleadoIdToDelete) {
-      this.empleadoService.changeEmployeeStatus(this.empleadoIdToDelete).subscribe({
-        next: () => {
-          this.loadEmpleados();
-          this.empleadoIdToDelete = null;
-        },
-        error: (error) => {
-          console.error('Error al eliminar el empleado:', error);
-          alert('Error al eliminar el empleado');
-          this.empleadoIdToDelete = null;
+    if (this.empleadoIdToDelete !== null) {  // Aseguramos que el ID no sea null
+      Swal.fire({
+        title: '¿Está seguro?',
+        text: '¡Esta acción no se puede deshacer!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545', // Color rojo de Bootstrap
+        cancelButtonColor: '#6c757d', // Color gris de Bootstrap
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+      }).then((result) => {
+        if (result.isConfirmed && this.empleadoIdToDelete !== null) {  // Re-verificar antes de llamar al servicio
+          this.empleadoService.changeEmployeeStatus(this.empleadoIdToDelete).subscribe({
+            next: () => {
+              this.loadEmpleados();  // Recargar la lista de empleados
+              this.empleadoIdToDelete = null;  // Limpiar el ID después de eliminar
+              Swal.fire(
+                '¡Eliminado!',
+                'El empleado ha sido eliminado con éxito.',
+                'success'
+              );
+            },
+            error: (error) => {
+              console.error('Error al eliminar el empleado:', error);
+              Swal.fire(
+                '¡Error!',
+                'Hubo un problema al eliminar al empleado.',
+                'error'
+              );
+              this.empleadoIdToDelete = null;
+            }
+          });
         }
       });
-
+    } else {
+      // Opcional: mensaje si empleadoIdToDelete es null al intentar confirmar
+      Swal.fire(
+        'ID no válido',
+        'No se ha seleccionado un empleado para eliminar.',
+        'warning'
+      );
     }
   }
 

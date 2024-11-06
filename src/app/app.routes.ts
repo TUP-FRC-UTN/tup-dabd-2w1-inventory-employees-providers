@@ -123,7 +123,13 @@ export const routes: Routes = [
                     path: 'employee/attendance/:id',
                     component:IepAttendancesComponent,
                     title: 'Asistencias'
+                },
+                {
+                    path: 'employee/performance/:id',
+                    component: IepPerformancelistComponent,
+                    title: 'Desempeño de empleados'
                 }
+                
             ]
     }
 ];
