@@ -2,9 +2,7 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Subscription } from 'rxjs';
-import { FormsModule, NgSelectOption } from '@angular/forms';
-import { NgSelectModule } from '@ng-select/ng-select';
+import { Subscription } from 'rxjs';;
 
 import { EmpListadoEmpleados } from '../../Models/emp-listado-empleados';
 import { EmpListadoAsistencias } from '../../Models/emp-listado-asistencias';
@@ -14,6 +12,7 @@ import { ListadoDesempeñoService } from '../../services/listado-desempeño.serv
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import { FormsModule } from '@angular/forms';
 
 declare var $: any;
 declare var DataTable: any;
@@ -31,7 +30,7 @@ interface EmployeeFilters {
 @Component({
   selector: 'app-iep-list-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgSelectModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './iep-list-employees.component.html',
   styleUrls: ['./iep-list-employees.component.css'],
 })
