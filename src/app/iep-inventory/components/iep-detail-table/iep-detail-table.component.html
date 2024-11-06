@@ -142,7 +142,8 @@
         </button> -->
 
         <!-- Botón filtros avanzados -->
-        <button class="btn btn-primary me-2" data-bs-toggle="modal" title="Filtros Avanzados" data-bs-target="#filtrosAvanzados">
+        <button class="btn btn-primary me-2" data-bs-toggle="modal" title="Filtros Avanzados"
+          data-bs-target="#filtrosAvanzados">
           <i class="bi bi-funnel-fill"></i>
         </button>
 
@@ -152,11 +153,13 @@
         </button>
 
         <!-- Botones que antes eran flotantes -->
-        <button class="btn btn-danger me-2" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+        <button class="btn btn-danger me-2" [disabled]="selectedIds.length === 0" data-bs-toggle="modal"
+          data-bs-target="#confirmDeleteModal">
           <i class="bi bi-x-circle-fill"></i>
         </button>
 
-        <button class="btn btn-primary me-2" [disabled]="selectedIds.length === 0" data-bs-toggle="modal" data-bs-target="#warehouseModal">
+        <button class="btn btn-primary me-2" [disabled]="selectedIds.length === 0" data-bs-toggle="modal"
+          data-bs-target="#warehouseModal">
           <i class="bi bi-arrow-left-right"></i>
         </button>
 
@@ -173,10 +176,10 @@
 
     <!-- Sección de filtros por columna -->
     <!-- <div *ngIf="filtersVisible" class="row mb-3"> -->
-      <!--       <div class="col-md-2">
+    <!--       <div class="col-md-2">
         <input type="text" placeholder="Fecha" (input)="applyColumnFilter($event, 'date')" class="form-control" />
       </div> -->
-      <!-- <div class="col-md-4">
+    <!-- <div class="col-md-4">
         <input type="text" placeholder="Descripción" (input)="applyColumnFilter($event, 'product')"
           class="form-control" />
       </div>
@@ -197,68 +200,41 @@
 
 
     <!-- Advanced Filters Modal -->
-<div class="modal fade" id="filtrosAvanzados" tabindex="-1" aria-labelledby="filtrosAvanzadosLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="filtrosAvanzadosLabel">Filtros Avanzados</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!-- Descripción -->
-        <div class="mb-3">
-          <label for="descripcion" class="form-label">Descripción</label>
-          <input 
-            type="text" 
-            class="form-control"
-            id="descripcion"
-            placeholder="Descripción" />
-        </div>
-        <!-- Proveedor -->
-        <div class="mb-3">
-          <label for="proveedor" class="form-label">Proveedor</label>
-          <input 
-            type="text" 
-            class="form-control"
-            id="proveedor"
-            placeholder="Proveedor" />
-        </div>
-        <!-- Precio Mínimo -->
-        <div class="mb-3">
-          <label for="precioMin" class="form-label">Precio Mínimo</label>
-          <input 
-            type="number" 
-            class="form-control text-end"
-            id="precioMin"
-            placeholder="Precio Mín." />
-        </div>
-        <!-- Precio Máximo -->
-        <div class="mb-3">
-          <label for="precioMax" class="form-label">Precio Máximo</label>
-          <input 
-            type="number" 
-            class="form-control text-end"
-            id="precioMax"
-            placeholder="Precio Máx." />
-            @if (minPrice&&maxPrice) {
+    <div class="modal fade" id="filtrosAvanzados" tabindex="-1" aria-labelledby="filtrosAvanzadosLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="filtrosAvanzadosLabel">Filtros Avanzados</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Precio Mínimo -->
+            <div class="mb-3">
+              <label for="precioMin" class="form-label">Precio Mínimo</label>
+              <input type="number" class="form-control text-end" id="precioMin" placeholder="Precio Mín." (ngModelChange)="applyAllFilters2()" [(ngModel)]="minPrice" name="minPrice" />
+            </div>
+            <!-- Precio Máximo -->
+            <div class="mb-3">
+              <label for="precioMax" class="form-label">Precio Máximo</label>
+              <input type="number" class="form-control text-end" id="precioMax" placeholder="Precio Máx." (ngModelChange)="applyAllFilters2()" [(ngModel)]="maxPrice"  name="maxPrice"/>
+              @if (minPrice&&maxPrice) {
               @if (minPrice > maxPrice) {
               <div class="error-container mt-1 text-danger">
                 La cantidad mínima no puede ser mayor que la cantidad máxima.
               </div>
               }
-            }
+              }
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+
         </div>
       </div>
-    
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary" (click)="applyAllFilters2()" data-bs-dismiss="modal">Aplicar</button>
-        <button type="button" class="btn btn-primary bi bi-trash" title="Limpiar Filtros" (click)="cleanColumnFilters()"></button>
-      </div>
-    
     </div>
-  </div>
-</div>
 
 
     <!-- Sección: Tabla de Detalles de Productos -->
