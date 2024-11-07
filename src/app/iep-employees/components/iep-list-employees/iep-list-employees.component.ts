@@ -133,8 +133,10 @@ this.table.rows.add(filteredData).draw();
 
     if (type === 'min') {
       this.filters.salarioMin = value;
+      this.applyFilters();
     } else if (type === 'max') {
       this.filters.salarioMax = value || Number.MAX_VALUE;
+      this.applyFilters();
     }
 
     //Validar que el salario minimo no sea mayor al salario maximo, en caso de serlo, mostrar mensaje de error
