@@ -423,6 +423,7 @@ openNewCallModal(employeeId: number) {
     this.selectedMonths = [];
     this.selectedPerformanceType = [];
     this.selectedObservationCount = null;
+    this.selectedPeriod = [];
 
     // Limpiar el campo de observaciones
     const observationInput = document.getElementById('observationCount') as HTMLInputElement;
