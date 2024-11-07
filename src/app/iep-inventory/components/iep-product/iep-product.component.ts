@@ -41,6 +41,7 @@ export class IepProductComponent {
   newCategory: string = ''; 
   categoryOfModal: number | undefined;
 
+
   constructor(productService: ProductService,
     providersService: SuppliersService,
     private categoryService:CategoriaService,
@@ -131,7 +132,7 @@ export class IepProductComponent {
       }
       this.abrirModal = true;
       console.log("enviadoo"+JSON.stringify(this.dto))
-
+      this.dto.state_id = 1;
       this.createProduct$ = this.productService.createProduct(this.dto, 1);
       console.log(this.createProduct$);
       
@@ -161,7 +162,6 @@ export class IepProductComponent {
           console.error(error);
           this.success = false;
           this.showErrorAlert();
-          form.reset();
         },
         complete: () => {
           console.log('Petición completada');
