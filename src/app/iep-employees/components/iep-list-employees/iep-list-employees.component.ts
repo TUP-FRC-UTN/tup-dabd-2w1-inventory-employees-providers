@@ -115,7 +115,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   //validacion de salario no negativo, tanto minimo como maximo
-  
+
 
   applyAmountFilter(type: string, event: Event): void {
     const value = Number((event.target as HTMLInputElement).value) || 0;
@@ -151,6 +151,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     this.apellidoNombre = '';
     this.salarioMin = null;
     this.salarioMax = null;
+    this.errorMessage = null;
 
     // Limpia los estados seleccionados
     this.selectedState = [];
@@ -205,7 +206,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
-    private employeePerformanceService: ListadoDesempeñoService,
     private sanitizer: DomSanitizer
 
   ) { }
@@ -447,7 +447,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             <option value="50">50</option>
           </select>`,
         zeroRecords: "No se encontraron registros",
-        emptyTable: "No hay datos disponibles",
+        emptyTable: "No se encontraron empleados",
       }
     };
 
@@ -474,18 +474,19 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         {
           data: 'active',
           title: 'Estado',
-          className: 'text-center',
+          className: 'align-middle text-center',
           render: (data: boolean, type: any, row: any) => {
             // Si el empleado está activo, valida la clave 'license' y si es true, retorna "Licencia"
             if (data) {
-              return row.license ? 'Licencia' : 'Activo';
+              return row.license ? '<span class="badge" style="background-color: #ffc107;">Licencia</span>' : '<span class="badge" style="background-color: #0d6efd;">Activo</span>';
             }
-            return 'Inactivo';
+            return '<span class="badge" style="background-color: #dc3545;">Inactivo</span>';
           }
         },
         {
           data: 'fullName',
           title: 'Apellido, Nombre',
+          className: 'align-middle',
           render: (data: string, type: string, row: any) => {
             if (type === 'display') {
               return `<span class="searchable">${data}</span>`;
@@ -496,6 +497,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         {
           data: 'document',
           title: 'Documento',
+          className: 'align-middle',
           render: (data: string, type: string) => {
             if (type === 'display') {
               return `<span class="searchable">${data}</span>`;
@@ -506,6 +508,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         {
           data: 'position',
           title: 'Posición',
+          className: 'align-middle',
           render: (data: string, type: string) => {
             if (type === 'display') {
               return data;
@@ -516,33 +519,38 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         {
           data: 'salary',
           title: 'Salario',
-          className: 'text-end searchable',
-          render: (data: number, type: string) => {
-            if (type === 'display') {
-              return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-              }).format(data);
-            }
-            return data;
+          className: 'align-middle',
+          render: (data: number | bigint) => {
+            let formattedAmount = new Intl.NumberFormat('es-AR', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }).format(data);
+            return `<div>$ ${formattedAmount} </div>`;
           }
+
         },
         {
           data: null,
           title: 'Acciones',
+          className: 'text-center',
           render: (data: any) => {
+            const puedeEliminar = data.active; // true si está activo o en licencia
+
             return `
-              <div class="dropdown text-center">
+                <div class="dropdown d-flex justify-content-center">
                 <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                   style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
-                  &#8942; <!-- Tres puntos verticales -->
+                  &#8942;
                 </a>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
                   <li><button class="dropdown-item consultar-asistencias" data-empleado-id="${data.id}">Ver asistencias</button></li>
                   <li><button class="dropdown-item consultar-desempeño" data-empleado-id="${data.id}">Ver desempeño</button></li>
-                  <li class="dropdown-divider"></li>
-                  <li><button class="dropdown-item eliminar-btn" data-empleado-id="${data.id}">Eliminar</button></li> 
+                  
+                  ${puedeEliminar ? `
+                    <li class="dropdown-divider"></li>
+                    <li><button class="dropdown-item eliminar-btn" data-empleado-id="${data.id}">Eliminar</button></li>
+                  ` : ''}
                 </ul>
               </div>`;
           }
@@ -587,7 +595,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       this.applyFilters();
     }
   }
-  
+
 
   // Agrega esta propiedad a la clase
   empleadoIdToDelete: number | null = null;
@@ -665,13 +673,13 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
           <div class="container">
             <div class="row mb-3">
               <div class="col-md-6">
-                <h6>Información Personal</h6>
+                <h6><strong>Información Personal</strong></h6>
                 <p><strong>Nombre completo:</strong> ${empleado.surname}, ${empleado.name}</p>
                 <p><strong>Documento:</strong> ${empleado.documentType} ${empleado.documentValue}</p>
                 <p><strong>CUIL:</strong> ${empleado.cuil}</p>
               </div>
               <div class="col-md-6">
-                <h6>Información Laboral</h6>
+                <h6><strong>Información Laboral</strong></h6>
                 <p><strong>Cargo:</strong> ${empleado.charge.charge}</p>
                 <p><strong>Fecha de contrato:</strong> ${fechaContrato}</p>
                 <p><strong>Salario:</strong> $${empleado.salary.toLocaleString()}</p>
@@ -698,7 +706,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             </div>
             <div class="row">
               <div class="col-12">
-                <h6>Información adicional</h6>
+                <h6><strong>Información adicional</strong></h6>
                 <!-- <p><strong>Obra Social:</strong> ${empleado.healthInsurance ? 'Sí' : 'No'}</p> -->
                 <p><strong>Estado:</strong> ${empleado.active ? 'Activo' : 'Inactivo'}</p>
                 <p><strong>Licencia:</strong> ${empleado.license ? 'Sí' : 'No'}</p>
