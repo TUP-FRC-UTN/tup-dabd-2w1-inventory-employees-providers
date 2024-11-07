@@ -273,6 +273,11 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+
+  goTo(path : string){
+    this.router.navigate([path])
+  }
+
   //Filtra los productos cuya fecha es mayor a startDate
   onStartDateChange(): void {
     this.productosFiltered = this.productosALL.filter(producto => {
