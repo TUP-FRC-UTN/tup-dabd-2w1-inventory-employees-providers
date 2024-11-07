@@ -664,7 +664,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       columns: [
         {
           data: 'detailProducts',
-          title: 'Último ingreso', // Título más corto
+          title: 'Último Ingreso', // Título más corto
           render: (data: any) => {
             let lastDate;
             for (let i = 0; i < data.length; i++) {
@@ -745,10 +745,10 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
                       <li><button class="dropdown-item btn botonAumentoStock" data-bs-target="#aumentoStock" 
                         data-bs-toggle="modal"  data-id="${row.id}">Agregar stock</button>
                       </li>
-                          <li class="dropdown-divider"></li>
+                       <!--    <li class="dropdown-divider"></li>
                       <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" 
                         (click)="giveLogicalLow(${row.id})">Eliminar</button>
-                      </li>
+                      </li> -->
                     </ul>
                 </div>
               </div>

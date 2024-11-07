@@ -353,6 +353,7 @@ closeInfoModal(): void{
         {
           data: 'active',
           title: 'Estado',
+          className: 'text-center',
           render: (data: boolean) => {
             let colorClass;
             let text;
