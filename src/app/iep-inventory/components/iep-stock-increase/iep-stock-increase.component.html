@@ -3,8 +3,10 @@
     <form [formGroup]="stockForm" (ngSubmit)="onSubmit()">
       <div class="row">
         <!-- Proveedor usando ng-select -->
-        <div class="mb-3 col-md-6">
+         <div class="col-4 text-end"> 
           <label for="supplierId" class="form-label text-end">Proveedor</label>
+         </div>
+        <div class="mb-3 col-md-8">    
           <ng-select
             id="supplierId"
             formControlName="supplierId"
@@ -20,43 +22,56 @@
 
           </div>
         </div>
-
-        <!-- Cantidad -->
-        <div class="mb-3 col-md-6">
-          <label for="quantity" class="form-label text-end">Cantidad</label>
-          <input id="quantity" type="number" formControlName="quantity" class="form-control"
-            [ngClass]="{'is-invalid': stockForm.get('quantity')?.invalid && stockForm.get('quantity')?.touched, 'is-valid': stockForm.get('quantity')?.valid && stockForm.get('quantity')?.touched}">
-          <!-- Solo ícono de check cuando es válido -->
-          <div *ngIf="stockForm.get('quantity')?.valid && stockForm.get('quantity')?.touched" class="valid-feedback">
-          
-          </div>
-        </div>
+       
+       
+  
       </div>
 
       <div class="row">
-        <!-- Precio Unitario -->
-        <div class="mb-3 col-md-6">
-          <label for="unitPrice" class="form-label text-end">Precio Unitario</label>
-          <input id="unitPrice" type="number" formControlName="unitPrice" class="form-control"
-            [ngClass]="{'is-invalid': stockForm.get('unitPrice')?.invalid && stockForm.get('unitPrice')?.touched, 'is-valid': stockForm.get('unitPrice')?.valid && stockForm.get('unitPrice')?.touched}">
-          <!-- Solo ícono de check cuando es válido -->
-          <div *ngIf="stockForm.get('unitPrice')?.valid && stockForm.get('unitPrice')?.touched" class="valid-feedback">
-          
-          </div>
-        </div>
-
         <!-- Descripción -->
-        <div class="mb-3 col-md-6">
+
+        <div class="col-4 text-end">
           <label for="description" class="form-label text-end">Descripción</label>
+        </div>
+        <div class="mb-3 col-md-8">
           <input id="description" formControlName="description" class="form-control"
             [ngClass]="{'is-invalid': stockForm.get('description')?.invalid && stockForm.get('description')?.touched, 'is-valid': stockForm.get('description')?.valid && stockForm.get('description')?.touched}">
           <!-- Solo ícono de check cuando es válido -->
           <div *ngIf="stockForm.get('description')?.valid && stockForm.get('description')?.touched" class="valid-feedback">
-            
           </div>
         </div>
+
+
       </div>
 
+      <div class="row">
+           <!-- Precio Unitario -->
+           
+           <div class="mb-3 col-md-4 text-end">
+            <label for="unitPrice" class="form-label text-end">Precio unitario</label>
+          </div>
+          <div class=" col-md-8">
+            <input id="unitPrice" type="number" formControlName="unitPrice" class="form-control text-end"
+            [ngClass]="{'is-invalid': stockForm.get('unitPrice')?.invalid && stockForm.get('unitPrice')?.touched, 'is-valid': stockForm.get('unitPrice')?.valid && stockForm.get('unitPrice')?.touched}">
+            <div *ngIf="(!stockForm.get('unitPrice')?.valid )&& (stockForm.get('unitPrice')?.touched)" class="invalid-feedback">
+              <span>Debe ingresar un numero entero positivo</span>
+            </div>
+          </div>
+      
+      </div>
+      <div class="row">
+               <!-- Cantidad -->
+               <div class="col-4 text-end"> <label for="quantity" class="form-label ">Cantidad</label></div>
+               <div class="mb-3 col-md-8">
+                
+                 <input id="quantity" type="number" formControlName="quantity" class="form-control text-end"
+                   [ngClass]="{'is-invalid': stockForm.get('quantity')?.invalid && stockForm.get('quantity')?.touched, 'is-valid': stockForm.get('quantity')?.valid && stockForm.get('quantity')?.touched}">
+                 <!-- Solo ícono de check cuando es válido -->
+                 <div *ngIf="(!stockForm.get('quantity')?.valid )&& (stockForm.get('quantity')?.touched)" class="invalid-feedback">
+                      <span>Debe ingresar un numero entero positivo</span>
+                 </div>
+               </div>
+      </div>
       <!-- Justificación -->
       <div class="mb-3">
         <label for="justification" class="form-label text-end">Justificación</label>
