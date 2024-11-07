@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import { PutCategoryDTO } from '../../models/putCategoryDTO';
 import { CategoriaService } from '../../services/categoria.service';
 import { ProductCategory } from '../../models/product-category';

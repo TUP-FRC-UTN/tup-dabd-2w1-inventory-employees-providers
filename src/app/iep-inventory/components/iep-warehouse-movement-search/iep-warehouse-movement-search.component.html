@@ -23,42 +23,29 @@
                 <input type="date" id="endDate" class="form-control" #endDateInput 
                 (change)="onEndDateChange(endDateInput.value)" />
             </div>
-                <div class="dropdown" style="width: fit-content;">
-                    <button class="form-control dropdown-toggle text-start" type="button"
-                        id="dropdownReusable" data-bs-toggle="dropdown" aria-expanded="false">
-                        Tipo de Movimiento
-                        @if (tempFilters.movement_type.length > 0) {
-                        ({{ tempFilters.movement_type.length }})
-                        }@else {
-                        (0)
-                        }
-                        <span class="selected-movimiento"></span>
-                    </button>
-                    <ul class="dropdown-menu " aria-labelledby="dropdownTipoMovimiento">
-                        <li>
-                            <label class="dropdown-item">
-                                <input type="checkbox" class="form-check-input me-2" name="movement_type"
-                                    value="RETURN" (change)="applyColumnFilter('RETURN')">
-                                Devolución
-                            </label>
-                        </li>
-                        <li>
-                            <label class="dropdown-item">
-                                <input type="checkbox" class="form-check-input me-2" name="movement_type"
-                                    value="LOAN" (change)="applyColumnFilter('LOAN')">
-                                Préstamo
-                            </label>
-                        </li>
-                        <li>
-                            <label class="dropdown-item">
-                                <input type="checkbox" class="form-check-input me-2" name="movement_type"
-                                    value="TO_MAINTENANCE"
-                                    (change)="applyColumnFilter('TO_MAINTENANCE')">
-                                Uso
-                            </label>
-                        </li>
-                    </ul>
-                </div>
+            <div class="dropdown" style="width: fit-content;">
+                <ng-select 
+                  [items]="movementTypes" 
+                  [(ngModel)]="tempFilters.movement_type" 
+                  bindLabel="label" 
+                  bindValue="value" 
+                  [multiple]="true" 
+                  placeholder="Tipo de Movimiento" 
+                  (change)="applyFilters()">
+
+                  <ng-template ng-multi-label-tmp let-items="items">
+                    Seleccionar Tipo
+                    <span *ngIf="items.length > 0">({{ items.length }})</span>
+                  </ng-template>
+              
+                  <!-- Template para las opciones del dropdown -->
+                  <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                    <input type="checkbox" [checked]="item$.selected"/> {{item.label}}
+                  </ng-template>
+
+                </ng-select>
+              </div>
+              
             <!-- Contenedor de botones alineados a la derecha -->
             <div class="d-flex justify-content-end align-items-center" style="flex: 1 1 auto;">
 
