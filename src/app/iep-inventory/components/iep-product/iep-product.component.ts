@@ -44,7 +44,7 @@ export class IepProductComponent {
   constructor(productService: ProductService,
     providersService: SuppliersService,
     private categoryService:CategoriaService,
-  private router : Router ) {
+    private router : Router ) {
     this.productService = productService;
     this.providerService = providersService;
     this.success = false;
@@ -52,8 +52,13 @@ export class IepProductComponent {
 
   logear(){
     console.log(this.dto.reusable)
+
   }
 
+  logearrr(){
+    console.log("pasoo este es el valor "+this.dto.minAmountWarning)
+
+  }
 
   goTo(path: string){
 
@@ -112,7 +117,6 @@ export class IepProductComponent {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
-     
       if (this.dto.supplier_id == null || this.dto.supplier_id === 0) {
         this.dto.supplier_id = undefined;
       }

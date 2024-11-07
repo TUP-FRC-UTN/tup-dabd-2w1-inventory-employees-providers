@@ -122,7 +122,6 @@
           required>
         </ng-select>
       </div>
-  
   </div>
 </div>
 
@@ -132,12 +131,16 @@
   <div class="row text-end">
       <label class="col-2 col-form-label">Stock Inicial</label>
       <div class="col-10">
-        <input type="number" name="stock" class="form-control text-end" 
-               [(ngModel)]="dto.amount" 
-               #stock="ngModel" 
-               id="inputStock"
-               min="1" required
-               [ngClass]="{
+        <input 
+        type="number" 
+        name="stock"
+        class="form-control text-end" 
+        [(ngModel)]="dto.amount" 
+         #stock="ngModel" 
+         id="inputStock"
+         min="1" 
+         required
+        [ngClass]="{
                   'is-invalid': stock.invalid && stock.touched, 
                   'is-valid': stock.valid && stock.touched
                }">
@@ -161,11 +164,16 @@
   <div class="row text-end">
       <label class="col-2 col-form-label">Stock Mín.</label>
       <div class="col-10">
-        <input type="number" name="min" class="form-control text-end" 
-               [(ngModel)]="dto.minAmountWarning" 
-               #min="ngModel" 
-               id="inputMinStock"
-               min="1" required
+        <input
+       
+         type="number"
+         name="min"
+         class="form-control text-end" 
+         [(ngModel)]="dto.minAmountWarning" 
+          #min="ngModel" 
+           id="inputMinStock"
+           min="1" 
+           required
                [ngClass]="{
                   'is-invalid': min.invalid && min.touched, 
                   'is-valid': min.valid && min.touched
