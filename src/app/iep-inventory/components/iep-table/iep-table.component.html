@@ -44,50 +44,34 @@
       </div>
 
       <!-- Period Section -->
-      <div class="dropdown me-2" style="width: 350px">
-        <button
-          class="btn btn-outline-secondary dropdown-toggle text-start w-100"
-          type="button"
-          id="dropdownReusable"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
+      <div  style="width: 350px;">
+        <ng-select
+          [items]="movementTypeOptions"
+          [(ngModel)]="selectedMovementTypes"
+          bindLabel="label"
+          bindValue="value"
+          [multiple]="true"
+          placeholder="Seleccionar Tipo"
+          (change)="applyAllFilters()"
+          class="w-100"
         >
-          <span class="selected-movimiento">
-            Seleccionar Tipo de Movimiento @if (selectedMovementTypes.length >
-            0) { ({{ selectedMovementTypes.length }}) }
-          </span>
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownTipoMovimiento">
-          <li>
-            <label class="dropdown-item">
-              <input
-                type="checkbox"
-                class="form-check-input me-2"
-                name="modificationType"
-                value="Disminución"
-                (change)="applyColumnFilter($event, 'modificationType')"
-              />
-              Disminución
-            </label>
-          </li>
-          <li>
-            <label class="dropdown-item">
-              <input
-                type="checkbox"
-                class="form-check-input me-2"
-                name="modificationType"
-                value="Aumento"
-                (change)="applyColumnFilter($event, 'modificationType')"
-              />
-              Aumento
-            </label>
-          </li>
-        </ul>
+        <ng-template ng-multi-label-tmp let-items="items">
+          Seleccionar Estado
+          <span *ngIf="items.length > 0">({{ items.length }})</span>
+        </ng-template>
+
+        <!-- Template para las opciones del dropdown -->
+        <ng-template ng-option-tmp let-item="item" let-item$="item$">
+          <input type="checkbox" [checked]="item$.selected" />
+          {{ item.label }}
+        </ng-template>
+        </ng-select>
       </div>
+      
 
       <!-- Botones de acción -->
       <div class="d-flex align-items-center">
-        <div class="me-2">
+        <div class="m-2">
           <button
             class="btn btn-primary"
             data-bs-toggle="modal"

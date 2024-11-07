@@ -10,11 +10,12 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Producto } from '../../models/producto';
 import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-iep-table',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgSelectModule],
   templateUrl: './iep-table.component.html',
   styleUrls: ['./iep-table.component.css'],
 })
@@ -22,6 +23,11 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
   private table: any;
   productos: Producto[] = [];
   filteredProductos: Producto[] = [];
+
+  movementTypeOptions = [
+    { label: 'Disminución', value: 'disminución' },
+    { label: 'Aumento', value: 'aumento' }
+  ];
 
   // Filtros
   globalFilter: string = '';
@@ -70,6 +76,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.table.clear().rows.add(this.filteredProductos).draw();
     }
   }
+
 
 
   minAmount: number | null = null;

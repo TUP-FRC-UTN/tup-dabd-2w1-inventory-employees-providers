@@ -9,6 +9,7 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { iepBackButtonComponent } from '../../../common-components/iep-back-button/iep-back-button.component';
 import { SupplierTypePipe } from '../../pipes/supplier-type.pipe';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 interface SelectedTypes {
   OUTSOURCED_SERVICE: boolean;
@@ -24,11 +25,26 @@ interface SelectedStates {
 @Component({
   selector: 'app-iep-supplier-list',
   standalone: true,
-  imports: [iepBackButtonComponent, FormsModule, CommonModule, RouterModule, SupplierTypePipe],
+  imports: [iepBackButtonComponent, FormsModule, CommonModule, RouterModule, SupplierTypePipe, NgSelectModule],
   templateUrl: './iep-supplier-list.component.html',
   styleUrls: ['./iep-supplier-list.component.css']
 })
 export class IepSupplierListComponent implements AfterViewInit {
+
+  stateOptions = [
+    { label: 'Activo', value: 'ACTIVE' },
+    { label: 'Inactivo', value: 'INACTIVE' }
+  ];
+
+  providerTypeOptions = [
+    { label: 'Servicio externo', value: 'OUTSOURCED_SERVICE' },
+    { label: 'Proveedor de Inventario', value: 'INVENTORY_SUPPLIER' },
+    { label: 'Otro', value: 'OTHER' }
+  ];
+
+  selectedProviderTypesList: string[] = [];
+  selectedStatesList: string[] = []; // Lista para almacenar los estados seleccionados
+
 
   selectedStates: SelectedStates = {
     ACTIVE: false,
@@ -78,38 +94,41 @@ export class IepSupplierListComponent implements AfterViewInit {
     this.selectedStateCount = 0;
     this.filteredSuppliers = [...this.suppliers];
     this.updateDataTable(this.filteredSuppliers);
+    this.stateOptions = [];
+    this.selectedStatesList = [];
+    this.selectedProviderTypesList = [];
   }
 
   selectedTypeCount: number = 0;
   // Método para aplicar todos los filtros
-  applyFilters() {
+  applyFilters(): void {
     let filteredData = [...this.suppliers];
 
-    // Aplicar filtro global (excluyendo el tipo de proveedor y estado)
+    // Aplicar filtro global
     if (this.globalFilter) {
       const searchTerm = this.globalFilter.toLowerCase();
       filteredData = filteredData.filter(supplier => {
         return Object.entries(supplier).some(([key, value]) => {
-          // Excluir supplierType y discontinued del filtro global
           if (key === 'supplierType' || key === 'discontinued') return false;
           return value && value.toString().toLowerCase().includes(searchTerm);
         });
       });
     }
 
-    // Aplicar filtro de tipo de proveedor
-    this.selectedTypeCount = Object.values(this.selectedTypes).filter(Boolean).length;
+    // Aplicar filtro de tipo de proveedor usando `selectedProviderTypesList`
+    this.selectedTypeCount = this.selectedProviderTypesList.length;
     if (this.selectedTypeCount > 0) {
       filteredData = filteredData.filter(supplier => {
-        return this.selectedTypes[supplier.supplierType as keyof SelectedTypes];
+        return this.selectedProviderTypesList.includes(supplier.supplierType);
       });
     }
 
-    // Aplicar filtro de estado
-    this.selectedStateCount = Object.values(this.selectedStates).filter(Boolean).length;
+    // Aplicar filtro de estado usando la lista `selectedStatesList`
+    this.selectedStateCount = this.selectedStatesList.length;
     if (this.selectedStateCount > 0) {
       filteredData = filteredData.filter(supplier => {
-        return this.selectedStates[supplier.discontinued ? 'INACTIVE' : 'ACTIVE'];
+        const state = supplier.discontinued ? 'INACTIVE' : 'ACTIVE';
+        return this.selectedStatesList.includes(state);
       });
     }
 
