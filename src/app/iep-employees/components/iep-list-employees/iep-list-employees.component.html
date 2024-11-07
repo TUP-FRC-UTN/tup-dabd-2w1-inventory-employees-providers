@@ -137,20 +137,20 @@
       <div class="col-md-2 d-flex align-items-center justify-content-end">
         <!-- Botón para mostrar/ocultar filtros -->
         <button
-          class="btn btn-primary me-2"
+          class="btn btn-primary me-2 filterbutton"
           data-bs-toggle="modal"
           title="Filtros Avanzados"
           data-bs-target="#filtrosAvanzados"
         >
           <i class="bi bi-funnel-fill"></i>
         </button>
-        <button class="btn btn-secondary me-2" (click)="cleanColumnFilters()">
+        <button class="btn btn-secondary me-2 filterbutton" (click)="cleanColumnFilters()">
           <i class="bi bi-trash"></i>
         </button>
-        <button class="btn btn-success me-2" (click)="exportToExcel()">
+        <button class="btn btn-success me-2 filterbutton" (click)="exportToExcel()">
           <i class="fa-solid bi-file-earmark-excel"></i>
         </button>
-        <button class="btn btn-danger" (click)="exportToPdf()">
+        <button class="btn btn-danger filterbutton" (click)="exportToPdf()">
           <i class="fas bi-file-earmark-pdf"></i>
         </button>
       </div>

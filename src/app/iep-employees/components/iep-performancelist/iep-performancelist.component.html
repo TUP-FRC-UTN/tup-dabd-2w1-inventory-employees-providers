@@ -40,16 +40,16 @@
 
           <!-- Botones a la derecha -->
           <div class="col-md-5 d-flex justify-content-end align-items-center">
-            <button class="btn btn-primary me-2" (click)="openFilterModal()">
+            <button class="btn btn-primary me-2 filterbutton" (click)="openFilterModal()">
               <i class="bi bi-funnel-fill"></i> 
             </button>
-            <button class="btn btn-secondary me-2" (click)="resetFilters()">
+            <button class="btn btn-secondary me-2 filterbutton" (click)="resetFilters()">
               <i class="bi bi-trash"></i>
             </button>
-            <button class="btn btn-success me-2" (click)="exportToExcel()">
+            <button class="btn btn-success me-2 filterbutton" (click)="exportToExcel()">
               <i class="fa-solid bi-file-earmark-excel"></i>
             </button>
-            <button class="btn btn-danger me-2" (click)="exportToPdf()">
+            <button class="btn btn-danger me-2 filterbutton" (click)="exportToPdf()">
               <i class="fas bi-file-earmark-pdf"></i>
             </button>
           </div>

@@ -16,3 +16,8 @@
   .text-bg-indigo{
     background-color: #6610f2;
   }
+
+  .btn.filterbutton:hover{
+    background-color: #333333 !important;
+    transform: translateY(-2px);
+  }
