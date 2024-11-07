@@ -1,5 +1,4 @@
 @import "@ng-select/ng-select/themes/default.theme.css";
-
 .floating-btn {
     position: fixed;             /* Fija el botón en una posición relativa a la ventana del navegador, manteniéndolo siempre visible en el mismo lugar */
     bottom: 20px;                /* Coloca el botón a 20 píxeles desde la parte inferior de la pantalla */
@@ -12,4 +11,8 @@
     align-items: center;         /* Centra verticalmente el contenido (icono o texto) dentro del botón */
     justify-content: center;     /* Centra horizontalmente el contenido dentro del botón */
     z-index: 15;                 /* Establece el nivel de superposición del botón sobre otros elementos; un valor más alto asegura que esté sobre otros contenidos */
+  }
+
+  .text-bg-indigo{
+    background-color: #6610f2;
   }

@@ -28,7 +28,6 @@ interface EmployeeFilters {
   salarioMax: number;
 }
 
-
 @Component({
   selector: 'app-iep-list-employees',
   standalone: true,
@@ -90,13 +89,12 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
 this.table.rows.add(filteredData).draw();
   }
 
-
   private filters: EmployeeFilters = {
     apellidoNombre: '',
     position: '', // Cargo del empleado
     documento: '',
     salarioMin: 0,
-    salarioMax: Number.MAX_VALUE
+    salarioMax: Number.MAX_VALUE,
   };
 
   applyColumnFilter(event: Event, field: string): void {
@@ -120,7 +118,8 @@ this.table.rows.add(filteredData).draw();
       return false;
     }
     if (this.salarioMin > this.salarioMax) {
-      this.errorMessage = 'El salario mínimo no puede ser mayor al salario máximo';
+      this.errorMessage =
+        'El salario mínimo no puede ser mayor al salario máximo';
     } else {
       this.errorMessage = null;
     }
@@ -128,7 +127,6 @@ this.table.rows.add(filteredData).draw();
   }
 
   //validacion de salario no negativo, tanto minimo como maximo
-  
 
   applyAmountFilter(type: string, event: Event): void {
     const value = Number((event.target as HTMLInputElement).value) || 0;
@@ -157,13 +155,14 @@ this.table.rows.add(filteredData).draw();
       position: '', // Cargo del empleado
       documento: '',
       salarioMin: 0,
-      salarioMax: Number.MAX_VALUE
+      salarioMax: Number.MAX_VALUE,
     };
 
     this.documento = '';
     this.apellidoNombre = '';
     this.salarioMin = null;
     this.salarioMax = null;
+    this.errorMessage = null;
 
     // Limpia los estados seleccionados
     this.selectedState = [];
@@ -172,14 +171,18 @@ this.table.rows.add(filteredData).draw();
     this.selectedPositions = [];
 
     // Limpiar los inputs
-    const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
-    inputs.forEach(input => {
+    const inputs = document.querySelectorAll(
+      '.filtros input'
+    ) as NodeListOf<HTMLInputElement>;
+    inputs.forEach((input) => {
       input.value = ''; // Clear input values
       input.dispatchEvent(new Event('input')); // Trigger input event to update the model
     });
 
-    const selects = document.querySelectorAll('.filtros select') as NodeListOf<HTMLSelectElement>;
-    selects.forEach(select => {
+    const selects = document.querySelectorAll(
+      '.filtros select'
+    ) as NodeListOf<HTMLSelectElement>;
+    selects.forEach((select) => {
       select.value = ''; // Clear select values
       select.dispatchEvent(new Event('change')); // Trigger change event to update the model
     });
@@ -190,7 +193,6 @@ this.table.rows.add(filteredData).draw();
 
   filteredEmpleados: EmpListadoEmpleados[] = [];
 
-
   filtersVisible = false; // Indica si los filtros están visibles o no
 
   toggleFilters(): void {
@@ -200,14 +202,14 @@ this.table.rows.add(filteredData).draw();
   Empleados: EmpListadoEmpleados[] = [];
   employeePerformances: EmployeePerformance[] = [];
   private table: any;
-  ventana: string = "Informacion";
+  ventana: string = 'Informacion';
   router = inject(Router);
   showModal = false;
   modalContent: SafeHtml = '';
   startDate!: string;
   endDate!: string;
-  nombreFiltrado: string = "";
-  estadoFiltrado: string = "";
+  nombreFiltrado: string = '';
+  estadoFiltrado: string = '';
   private subscriptions: Subscription[] = [];
   private searchFilter: string = '';
   private positionFilter: string = '';
@@ -215,12 +217,10 @@ this.table.rows.add(filteredData).draw();
   selecteduniquePositions: string[] = [];
   uniqueStates: string[] = [];
 
-
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
     private sanitizer: DomSanitizer
-
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadEmpleados();
@@ -237,9 +237,7 @@ this.table.rows.add(filteredData).draw();
   }
 
   goTo(path: string) {
-
-    this.router.navigate([path])
-
+    this.router.navigate([path]);
   }
   exportToPdf(): void {
     const doc = new jsPDF();
@@ -295,13 +293,15 @@ this.table.rows.add(filteredData).draw();
 
     // Crea el libro de trabajo
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, `Lista de ${this.ventana}`);
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      `Lista de ${this.ventana}`
+    );
 
     // Descarga el archivo Excel
     XLSX.writeFile(workbook, `${this.getFormattedDate()}_Lista_Empleados.xlsx`);
 }
-
-
 
 
   onSearchFilterChange(event: Event): void {
@@ -311,7 +311,9 @@ this.table.rows.add(filteredData).draw();
   }
 
   private updatePositionFilter(): void {
-    const comboFiltroCargo = document.getElementById('comboFiltroCargo') as HTMLSelectElement;
+    const comboFiltroCargo = document.getElementById(
+      'comboFiltroCargo'
+    ) as HTMLSelectElement;
     if (comboFiltroCargo) {
       const currentValue = comboFiltroCargo.value; // Guardar el valor actual
 
@@ -321,7 +323,7 @@ this.table.rows.add(filteredData).draw();
       }
 
       // Agregar las nuevas opciones
-      this.uniquePositions.forEach(position => {
+      this.uniquePositions.forEach((position) => {
         if (position) {
           const option = document.createElement('option');
           option.value = position;
@@ -339,7 +341,9 @@ this.table.rows.add(filteredData).draw();
   }
 
   private updateStateFilter(): void {
-    const comboFiltroEstado = document.getElementById('comboFiltroEstado') as HTMLSelectElement;
+    const comboFiltroEstado = document.getElementById(
+      'comboFiltroEstado'
+    ) as HTMLSelectElement;
     if (comboFiltroEstado) {
       const currentValue = comboFiltroEstado.value; // Guardar el valor actual
 
@@ -349,7 +353,7 @@ this.table.rows.add(filteredData).draw();
       }
 
       // Agregar las nuevas opciones
-      this.uniqueStates.forEach(state => {
+      this.uniqueStates.forEach((state) => {
         if (state) {
           const option = document.createElement('option');
           option.value = state;
@@ -380,7 +384,7 @@ this.table.rows.add(filteredData).draw();
     if (checkbox.checked) {
       this.selectedState.push(position);
     } else {
-      this.selectedState = this.selectedState.filter(p => p !== position);
+      this.selectedState = this.selectedState.filter((p) => p !== position);
     }
 
     this.applyFilters();
@@ -391,7 +395,7 @@ this.table.rows.add(filteredData).draw();
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
     if (this.table) {
       this.table.destroy();
     }
@@ -399,8 +403,16 @@ this.table.rows.add(filteredData).draw();
 
   initializeDates(): void {
     const today = new Date();
-    const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 0, 1);
-    const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const firstDayOfLastMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() - 0,
+      1
+    );
+    const lastDayOfLastMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0
+    );
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(today.getDate() - 30);
     this.startDate = this.formatDate(thirtyDaysAgo);
@@ -414,9 +426,17 @@ this.table.rows.add(filteredData).draw();
         console.log('Empleados:', this.Empleados);
         this.ventana = 'Informacion';
         // Obtener posiciones únicas
-        this.uniquePositions = [...new Set(empleados.map(emp => emp.position))].sort();
+        this.uniquePositions = [
+          ...new Set(empleados.map((emp) => emp.position)),
+        ].sort();
         //cargar estados unicos, en caso de que sea activo, validar si esta en licencia
-        this.uniqueStates = [...new Set(empleados.map(emp => emp.active ? emp.license ? 'Licencia' : 'Activo' : 'Inactivo'))].sort();
+        this.uniqueStates = [
+          ...new Set(
+            empleados.map((emp) =>
+              emp.active ? (emp.license ? 'Licencia' : 'Activo') : 'Inactivo'
+            )
+          ),
+        ].sort();
 
         // Guardar el filtro actual si existe
         const currentFilter = this.positionFilter;
@@ -431,9 +451,7 @@ this.table.rows.add(filteredData).draw();
             this.positionFilter = currentFilter;
             this.applyFilters();
           }
-        }
-
-        );
+        });
       },
       error: (err) => console.error('Error al cargar empleados:', err),
     });
@@ -443,7 +461,6 @@ this.table.rows.add(filteredData).draw();
   loadDesempeno(): void {
     const start = new Date(this.startDate);
     const end = new Date(this.endDate);
-
   }
 
   initializeDataTable(): void {
@@ -457,18 +474,17 @@ this.table.rows.add(filteredData).draw();
       lengthChange: true,
       searching: false,
       language: {
-        search: "Buscar:",
-        info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-        lengthMenu:
-          `<select class="form-select">
+        search: 'Buscar:',
+        info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+        lengthMenu: `<select class="form-select">
             <option value="5">5</option>
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
           </select>`,
-        zeroRecords: "No se encontraron registros",
-        emptyTable: "No hay datos disponibles",
-      }
+        zeroRecords: 'No se encontraron registros',
+        emptyTable: 'No se encontraron empleados',
+      },
     };
 
     switch (this.ventana) {
@@ -483,10 +499,10 @@ this.table.rows.add(filteredData).draw();
       ...commonConfig,
       layout: {
         topStart: 'search',
-        topEnd: null
+        topEnd: null,
       },
       dom:
-        '<"mb-3"t>' +                           //Tabla
+        '<"mb-3"t>' + //Tabla
         '<"d-flex justify-content-between"lp>', //Paginacion
       data: this.Empleados,
       order: [[0, 'asc']], // Ordenar por fecha de forma descendente
@@ -494,82 +510,99 @@ this.table.rows.add(filteredData).draw();
         {
           data: 'active',
           title: 'Estado',
-          className: 'text-center',
+          className: 'align-middle text-center',
           render: (data: boolean, type: any, row: any) => {
             // Si el empleado está activo, valida la clave 'license' y si es true, retorna "Licencia"
             if (data) {
-              return row.license ? 'Licencia' : 'Activo';
+              return row.license
+                ? '<span class="badge" style="background-color: #ffc107;">Licencia</span>'
+                : '<span class="badge" style="background-color: #0d6efd;">Activo</span>';
             }
-            return 'Inactivo';
-          }
+            return '<span class="badge" style="background-color: #dc3545;">Inactivo</span>';
+          },
         },
         {
           data: 'fullName',
           title: 'Apellido, Nombre',
+          className: 'align-middle',
           render: (data: string, type: string, row: any) => {
             if (type === 'display') {
               return `<span class="searchable">${data}</span>`;
             }
             return data.toLowerCase();
-          }
+          },
         },
         {
           data: 'document',
           title: 'Documento',
+          className: 'align-middle',
           render: (data: string, type: string) => {
             if (type === 'display') {
               return `<span class="searchable">${data}</span>`;
             }
             return data;
-          }
+          },
         },
         {
           data: 'position',
           title: 'Posición',
+          className: 'align-middle',
           render: (data: string, type: string) => {
             if (type === 'display') {
               return data;
             }
             return data.toLowerCase();
-          }
+          },
         },
         {
           data: 'salary',
           title: 'Salario',
-          className: 'text-end searchable',
-          render: (data: number, type: string) => {
-            if (type === 'display') {
-              return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-              }).format(data);
-            }
-            return data;
-          }
+          className: 'align-middle',
+          render: (data: number | bigint) => {
+            let formattedAmount = new Intl.NumberFormat('es-AR', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).format(data);
+            return `<div>$ ${formattedAmount} </div>`;
+          },
         },
         {
           data: null,
           title: 'Acciones',
+          className: 'text-center',
           render: (data: any) => {
+            const puedeEliminar = data.active; // true si está activo o en licencia
+
             return `
-              <div class="dropdown text-center">
+                <div class="dropdown d-flex justify-content-center">
                 <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                   style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
-                  &#8942; <!-- Tres puntos verticales -->
+                  &#8942;
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
-                  <li><button class="dropdown-item consultar-asistencias" data-empleado-id="${data.id}">Ver asistencias</button></li>
-                  <li><button class="dropdown-item consultar-desempeño" data-empleado-id="${data.id}">Ver desempeño</button></li>
+                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${
+                    data.id
+                  }" href="#">Ver más</a></li>
+                  <li><button class="dropdown-item consultar-asistencias" data-empleado-id="${
+                    data.id
+                  }">Ver asistencias</button></li>
+                  <li><button class="dropdown-item consultar-desempeño" data-empleado-id="${
+                    data.id
+                  }">Ver desempeño</button></li>
                   
-                  <li class="dropdown-divider"></li>
-                  <li><button class="dropdown-item eliminar-btn" data-empleado-id="${data.id}">Eliminar</button></li>
-
+                  ${
+                    puedeEliminar
+                      ? `
+                    <li class="dropdown-divider"></li>
+                    <li><button class="dropdown-item eliminar-btn" data-empleado-id="${data.id}">Eliminar</button></li>
+                  `
+                      : ''
+                  }
                 </ul>
               </div>`;
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     $('#empleadosTable').on('click', '.consultar-btn', (event: any) => {
@@ -597,25 +630,37 @@ this.table.rows.add(filteredData).draw();
       this.editarEmpleado(id);
     });
 
+      // Manejador de clics para los botones de eliminar
+  $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
+    event.preventDefault();
+    // Obtener el ID del empleado al que se hace clic
+    this.empleadoIdToDelete = $(event.currentTarget).data('empleado-id');
+    // Mostrar el modal
+    $('#deleteModal').modal('show');
+  });
+
     // Event handler para el botón de eliminar
-    $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
+/*     $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
       event.preventDefault();
       this.empleadoIdToDelete = $(event.currentTarget).data('empleado-id');
       this.confirmDelete(); // Llama a confirmDelete al hacer clic
-    });
+    }); */
 
     // Aplicar filtros iniciales si existen
     if (this.searchFilter || this.positionFilter) {
       this.applyFilters();
     }
   }
-  
 
   // Agrega esta propiedad a la clase
   empleadoIdToDelete: number | null = null;
 
-  confirmDelete(): void {
-    if (this.empleadoIdToDelete !== null) {  // Aseguramos que el ID no sea null
+  //swal para confirmar eliminacion
+
+
+   confirmDelete(): void {
+    if (this.empleadoIdToDelete !== null) {
+      // Aseguramos que el ID no sea null
       Swal.fire({
         title: '¿Está seguro?',
         text: '¡Esta acción no se puede deshacer!',
@@ -626,27 +671,30 @@ this.table.rows.add(filteredData).draw();
         confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar',
       }).then((result) => {
-        if (result.isConfirmed && this.empleadoIdToDelete !== null) {  // Re-verificar antes de llamar al servicio
-          this.empleadoService.changeEmployeeStatus(this.empleadoIdToDelete).subscribe({
-            next: () => {
-              this.loadEmpleados();  // Recargar la lista de empleados
-              this.empleadoIdToDelete = null;  // Limpiar el ID después de eliminar
-              Swal.fire(
-                '¡Eliminado!',
-                'El empleado ha sido eliminado con éxito.',
-                'success'
-              );
-            },
-            error: (error) => {
-              console.error('Error al eliminar el empleado:', error);
-              Swal.fire(
-                '¡Error!',
-                'Hubo un problema al eliminar al empleado.',
-                'error'
-              );
-              this.empleadoIdToDelete = null;
-            }
-          });
+        if (result.isConfirmed && this.empleadoIdToDelete !== null) {
+          // Re-verificar antes de llamar al servicio
+          this.empleadoService
+            .changeEmployeeStatus(this.empleadoIdToDelete)
+            .subscribe({
+              next: () => {
+                this.loadEmpleados(); // Recargar la lista de empleados
+                this.empleadoIdToDelete = null; // Limpiar el ID después de eliminar
+                Swal.fire(
+                  '¡Eliminado!',
+                  'El empleado ha sido eliminado con éxito.',
+                  'success'
+                );
+              },
+              error: (error) => {
+                console.error('Error al eliminar el empleado:', error);
+                Swal.fire(
+                  '¡Error!',
+                  'Hubo un problema al eliminar al empleado.',
+                  'error'
+                );
+                this.empleadoIdToDelete = null;
+              },
+            });
         }
       });
     } else {
@@ -657,8 +705,7 @@ this.table.rows.add(filteredData).draw();
         'warning'
       );
     }
-  }
-
+  } 
 
   editarEmpleado(id: any): void {
     this.router.navigate(['/empleados/modificar', id]);
@@ -673,27 +720,38 @@ this.table.rows.add(filteredData).draw();
   }
 
   consultarEmpleado(id: number): void {
-    const empByIdSubscription = this.empleadoService.getEmployeeById(id).subscribe({
-      next: (empleado) => {
-        const fechaContrato = new Date(empleado.contractStartTime[0],
-          empleado.contractStartTime[1] - 1,
-          empleado.contractStartTime[2])
-          .toLocaleDateString();
+    const empByIdSubscription = this.empleadoService
+      .getEmployeeById(id)
+      .subscribe({
+        next: (empleado) => {
+          const fechaContrato = new Date(
+            empleado.contractStartTime[0],
+            empleado.contractStartTime[1] - 1,
+            empleado.contractStartTime[2]
+          ).toLocaleDateString();
 
-        const horaInicio = `${empleado.startTime[0]}:${empleado.startTime[1].toString().padStart(2, '0')}`;
-        const horaFin = `${empleado.endTime[0]}:${empleado.endTime[1].toString().padStart(2, '0')}`;
+          const horaInicio = `${empleado.startTime[0]}:${empleado.startTime[1]
+            .toString()
+            .padStart(2, '0')}`;
+          const horaFin = `${empleado.endTime[0]}:${empleado.endTime[1]
+            .toString()
+            .padStart(2, '0')}`;
 
-        const content = `
+          const content = `
           <div class="container">
             <div class="row mb-3">
               <div class="col-md-6">
-                <h6>Información Personal</h6>
-                <p><strong>Nombre completo:</strong> ${empleado.surname}, ${empleado.name}</p>
-                <p><strong>Documento:</strong> ${empleado.documentType} ${empleado.documentValue}</p>
+                <h6><strong>Información Personal</strong></h6>
+                <p><strong>Nombre completo:</strong> ${empleado.surname}, ${
+            empleado.name
+          }</p>
+                <p><strong>Documento:</strong> ${empleado.documentType} ${
+            empleado.documentValue
+          }</p>
                 <p><strong>CUIL:</strong> ${empleado.cuil}</p>
               </div>
               <div class="col-md-6">
-                <h6>Información Laboral</h6>
+                <h6><strong>Información Laboral</strong></h6>
                 <p><strong>Cargo:</strong> ${empleado.charge.charge}</p>
                 <p><strong>Fecha de contrato:</strong> ${fechaContrato}</p>
                 <p><strong>Salario:</strong> $${empleado.salary.toLocaleString()}</p>
@@ -720,22 +778,28 @@ this.table.rows.add(filteredData).draw();
             </div>
             <div class="row">
               <div class="col-12">
-                <h6>Información adicional</h6>
-                <!-- <p><strong>Obra Social:</strong> ${empleado.healthInsurance ? 'Sí' : 'No'}</p> -->
-                <p><strong>Estado:</strong> ${empleado.active ? 'Activo' : 'Inactivo'}</p>
-                <p><strong>Licencia:</strong> ${empleado.license ? 'Sí' : 'No'}</p>
+                <h6><strong>Información adicional</strong></h6>
+                <!-- <p><strong>Obra Social:</strong> ${
+                  empleado.healthInsurance ? 'Sí' : 'No'
+                }</p> -->
+                <p><strong>Estado:</strong> ${
+                  empleado.active ? 'Activo' : 'Inactivo'
+                }</p>
+                <p><strong>Licencia:</strong> ${
+                  empleado.license ? 'Sí' : 'No'
+                }</p>
               </div>
             </div>
           </div>
         `;
 
-        this.modalContent = this.sanitizer.bypassSecurityTrustHtml(content);
-        this.showModal = true;
-      },
-      error: (error) => {
-        console.error('Error al obtener los datos del empleado:', error);
-      }
-    });
+          this.modalContent = this.sanitizer.bypassSecurityTrustHtml(content);
+          this.showModal = true;
+        },
+        error: (error) => {
+          console.error('Error al obtener los datos del empleado:', error);
+        },
+      });
     this.subscriptions.push(empByIdSubscription);
   }
 
@@ -746,8 +810,8 @@ this.table.rows.add(filteredData).draw();
   }
 
   limpiarFiltro() {
-    this.nombreFiltrado = "";
-    this.estadoFiltrado = "";
+    this.nombreFiltrado = '';
+    this.estadoFiltrado = '';
   }
 
   formatDateyyyyMMdd(dateString: string): string {
