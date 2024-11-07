@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { Provincia } from '../Models/emp-provincia';
 import { Charge, DocumentTypeEnum, PostEmployeeDto } from '../Models/emp-post-employee-dto';
-import { EmpPutEmployees } from '../Models/emp-put-employees';
+import { EmpPutEmployeeRequest } from '../Models/emp-put-employees-request';
 
 @Injectable({
   providedIn: 'root',
@@ -86,11 +86,12 @@ export class EmpPostEmployeeService {
     return this.client.post<any>(url, json, { headers });
   }
 
-  updateEmployee(dto: EmpPutEmployees): Observable<any> {
+  updateEmployee(dto: EmpPutEmployeeRequest): Observable<any> {
     const url = `${this.EMPLOYEE_URL}/put/${dto.id}`;
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    const json = JSON.stringify(dto);
+    //const json = JSON.stringify(dto);
 
-    return this.client.put<any>(url, json, { headers });
+    return this.client.put<any>(url, dto, { headers });
   }
+  
 }
