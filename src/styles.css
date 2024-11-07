@@ -13,3 +13,6 @@
     z-index: 15;                 /* Establece el nivel de superposición del botón sobre otros elementos; un valor más alto asegura que esté sobre otros contenidos */
   }
 
+  .text-bg-indigo{
+    background-color: #6610f2;
+  }
