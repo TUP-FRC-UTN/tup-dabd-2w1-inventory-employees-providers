@@ -356,13 +356,15 @@ openNewCallModal(employeeId: number) {
       ],
       language: {
         lengthMenu: "_MENU_",
-        zeroRecords: "No se encontraron registros",
+        zeroRecords: "No se encontraron desempeños",
         info: "", 
         infoEmpty: "",
         infoFiltered: "",
         search: ""
       },
       pageLength: 5,
+      // paginado de 5 10 15 20
+      lengthMenu: [5, 10, 25, 50],
       order: [[0, 'desc']],
       dom: 'rt<"d-flex justify-content-between mt-3"l<"pagination-container"p>>'
     });
