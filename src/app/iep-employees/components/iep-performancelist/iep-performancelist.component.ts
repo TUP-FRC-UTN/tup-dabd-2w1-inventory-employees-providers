@@ -90,6 +90,7 @@ export class IepPerformancelistComponent implements OnInit {
   ngOnInit(): void {
 
     this.initializePeriodOptions();
+    
     const empleadoId = this.route.snapshot.paramMap.get('id');
     if (empleadoId) {
       this.setEmployeeById(Number(empleadoId)); // Carga los datos del empleado específico
@@ -145,7 +146,6 @@ export class IepPerformancelistComponent implements OnInit {
 }
 
 private initializePeriodOptions(): void {
-  // Obtener períodos únicos de los datos
   const uniquePeriods = new Set<string>();
   
   this.performances.forEach(performance => {
@@ -154,7 +154,6 @@ private initializePeriodOptions(): void {
     uniquePeriods.add(period);
   });
 
-  // Convertir a array de opciones
   this.periodOptions = Array.from(uniquePeriods).map(period => ({
     id: period,
     label: period

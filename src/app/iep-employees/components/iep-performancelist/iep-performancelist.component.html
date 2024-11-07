@@ -18,23 +18,23 @@
             <label class="form-label me-2 mb-0">Período</label>
             <div class="ms-2" style="flex-grow: 1; max-width: 300px;">
               <ng-select
-                [items]="periodOptions"
-                [multiple]="true"
-                bindLabel="label"
-                bindValue="id"
-                [(ngModel)]="selectedPeriod"
-                (change)="onPeriodChange($event)"
-                [closeOnSelect]="true"
-                placeholder="Seleccionar Período"
-                [clearable]="true">
-                <ng-template ng-multi-label-tmp let-items="items">
-                  Seleccionar Período
-                  <span *ngIf="items.length > 0">({{ items.length }})</span>
-                </ng-template>
-                <ng-template ng-option-tmp let-item="item" let-item$="item$">
-                  <input type="checkbox" [checked]="item$.selected"/> {{item.label}}
-                </ng-template>
-              </ng-select>
+              [items]="periodOptions"
+              [multiple]="true"
+              bindLabel="label"
+              bindValue="id"
+              [(ngModel)]="selectedPeriod"
+              (change)="onPeriodChange($event)"
+              [closeOnSelect]="true"
+              placeholder="Seleccionar Período"
+              [clearable]="true">
+              <ng-template ng-multi-label-tmp let-items="items">
+                Seleccionar Período
+                <span *ngIf="items.length > 0">({{ items.length }})</span>
+              </ng-template>
+              <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                <input type="checkbox" [checked]="item$.selected"/> {{item.label}}
+              </ng-template>
+            </ng-select>
             </div>
           </div>
 
