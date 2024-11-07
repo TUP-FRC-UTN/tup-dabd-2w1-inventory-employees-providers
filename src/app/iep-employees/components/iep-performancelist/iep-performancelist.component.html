@@ -19,12 +19,12 @@
             <div class="ms-2" style="flex-grow: 1; max-width: 300px;">
               <ng-select
                 [items]="periodOptions"
-                [multiple]="true"
+                [multiple]="true" 
+                [closeOnSelect]="false"
                 bindLabel="label"
                 bindValue="id"
                 [(ngModel)]="selectedPeriod"
                 (change)="onPeriodChange($event)"
-                [closeOnSelect]="true"
                 placeholder="Seleccionar Período"
                 [clearable]="true">
                 <ng-template ng-multi-label-tmp let-items="items">
