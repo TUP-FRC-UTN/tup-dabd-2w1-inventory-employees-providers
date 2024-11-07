@@ -597,6 +597,7 @@ public applyAllFilters(): void {
       columns: [
         {
           data: 'state',
+          className: "text-center",
           title: 'Estado',
           render: (data: string) => {
             let colorClass;

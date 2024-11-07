@@ -689,7 +689,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         {
           data: 'reusable',
           title: 'Reutilizable',
-          className: "allgn-middle",
+          className: "text-center",
           render: (data: boolean) => {
             let color;
             let name;
