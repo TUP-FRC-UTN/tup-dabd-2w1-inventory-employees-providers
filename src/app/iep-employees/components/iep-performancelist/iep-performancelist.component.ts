@@ -565,7 +565,7 @@ openNewCallModal(employeeId: number) {
 }
 
   
-exportToExcel(): void {
+ exportToExcel(): void {
   const encabezado = [
     ['Listado de Desempeño'],
     [], // Fila vacía para separación

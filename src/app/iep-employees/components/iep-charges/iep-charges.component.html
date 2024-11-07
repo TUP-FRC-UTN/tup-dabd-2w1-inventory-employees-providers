@@ -109,7 +109,26 @@
 </div>
 
 
-  <!-- Modal para Editar Cargo -->
+  <!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmUpdateModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar cambios</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Deseas actualizar el cargo "{{cargoForm.get('charge')?.value}}"?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="confirmUpdate()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tu modal original de edición actualizado -->
 <div class="modal fade" id="editChargeModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -163,16 +182,18 @@
   </div>
 </div>
 
-  <!-- Modal para confirmar eliminación -->
+
+
+<!-- Modal para Confirmar Eliminación -->
 <div class="modal fade" id="eliminarCargoModal" tabindex="-1" aria-labelledby="eliminarCargoModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="eliminarCargoModalLabel">Confirmar Eliminación</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        ¿Está seguro que desea eliminar este cargo?
+        <p>¿Estás seguro de que deseas eliminar el cargo <strong>{{ cargoSeleccionado?.charge }}</strong>?</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -181,6 +202,28 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmUpdateModal" tabindex="-1" aria-labelledby="confirmUpdateModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmUpdateModalLabel">Confirmar cambios</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Deseas actualizar el cargo "{{cargoForm.get('charge')?.value}}"?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="confirmUpdate()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
 
 
