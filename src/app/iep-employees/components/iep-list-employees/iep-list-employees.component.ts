@@ -14,6 +14,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 declare var $: any;
 declare var DataTable: any;
@@ -30,78 +31,62 @@ interface EmployeeFilters {
 @Component({
   selector: 'app-iep-list-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgSelectModule],
   templateUrl: './iep-list-employees.component.html',
   styleUrls: ['./iep-list-employees.component.css'],
 })
 export class IepListEmployeesComponent implements OnInit, OnDestroy {
+
+  stateOptions =[
+    { id: 'Activo', label: 'Activo' },
+    { id: 'Inactivo', label: 'Inactivo' },
+    { id: 'Licencia', label: 'Licencia' }
+  ];
+
+  onStateChange(selectedItems: any[]): void {
+    this.selectedState = selectedItems ? selectedItems.map(item => item.id) : [];
+    this.applyFilters();
+  }
+
   applyFilters(): void {
-    if (this.table) {
-      this.table.clear();
+    if (!this.table) return;
 
-      const filteredData = this.Empleados.filter((empleado) => {
-        // Filtro por apellido y nombre
-        const nameMatch =
-          !this.filters.apellidoNombre ||
-          empleado.fullName
-            .toLowerCase()
-            .includes(this.filters.apellidoNombre.toLowerCase());
+    this.table.clear();
 
-        // Filtro por documento
-        const documentMatch =
-          !this.filters.documento ||
-          empleado.document
-            .toString()
-            .toLowerCase()
-            .includes(this.filters.documento.toLowerCase());
+    const filteredData = this.Empleados.filter(empleado => {
+      // Filtro por apellido y nombre
+      const nameMatch = !this.filters.apellidoNombre ||
+        empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre.toLowerCase());
 
-        // Filtro por rango de salario
-        const salaryMatch =
-          empleado.salary >= this.filters.salarioMin &&
-          empleado.salary <= this.filters.salarioMax;
+      // Filtro por documento
+      const documentMatch = !this.filters.documento ||
+        empleado.document.toString().toLowerCase().includes(this.filters.documento.toLowerCase());
 
-        // Filtro de búsqueda general (searchFilter)
-        const searchTerms = this.searchFilter
-          ? this.searchFilter.toLowerCase().split(' ')
-          : [];
-        const searchMatch =
-          !this.searchFilter ||
-          searchTerms.every(
-            (term) =>
-              empleado.fullName.toLowerCase().includes(term) ||
-              empleado.document.toString().toLowerCase().includes(term) ||
-              empleado.salary.toString().includes(term)
-          );
+      // Filtro por rango de salario
+      const salaryMatch = empleado.salary >= this.filters.salarioMin &&
+        empleado.salary <= this.filters.salarioMax;
 
-        // Filtro por posición (modificado para múltiples selecciones)
-        const positionMatch =
-          this.selectedPositions.length === 0 ||
-          this.selectedPositions.includes(empleado.position);
+      // Filtro de búsqueda general (searchFilter)
+      const searchTerms = this.searchFilter ? this.searchFilter.toLowerCase().split(' ') : [];
+      const searchMatch = !this.searchFilter || searchTerms.every(term =>
+        empleado.fullName.toLowerCase().includes(term) ||
+        empleado.document.toString().toLowerCase().includes(term) ||
+        empleado.salary.toString().includes(term)
+      );
 
-        // Filtrar por estado
-        const stateMatch =
-          this.selectedState.length === 0 ||
-          this.selectedState.includes(
-            empleado.active
-              ? empleado.license
-                ? 'Licencia'
-                : 'Activo'
-              : 'Inactivo'
-          );
+      // Filtro por posición
+    const positionMatch = this.selectedPositions.length === 0 ||
+    this.selectedPositions.includes(empleado.position);
 
-        // Aplicar todos los filtros en conjunto
-        return (
-          nameMatch &&
-          documentMatch &&
-          salaryMatch &&
-          searchMatch &&
-          positionMatch &&
-          stateMatch
-        );
-      });
+  // Filtrar por estado
+  const stateMatch = this.selectedState.length === 0 ||
+    this.selectedState.includes(empleado.active ? empleado.license ? 'Licencia' : 'Activo' : 'Inactivo');
 
-      this.table.rows.add(filteredData).draw();
-    }
+  // Aplicar todos los filtros en conjunto
+  return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch && stateMatch;
+});
+
+this.table.rows.add(filteredData).draw();
   }
 
   private filters: EmployeeFilters = {
@@ -387,17 +372,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
   selectedPositions: string[] = []; // Array para almacenar las posiciones seleccionadas
 
-  onPositionFilterChange(event: Event, position: string): void {
-    const checkbox = event.target as HTMLInputElement;
-
-    if (checkbox.checked) {
-      this.selectedPositions.push(position);
-    } else {
-      this.selectedPositions = this.selectedPositions.filter(
-        (p) => p !== position
-      );
-    }
-
+  onPositionFilterChange(): void {
     this.applyFilters();
   }
 

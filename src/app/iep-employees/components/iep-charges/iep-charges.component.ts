@@ -154,6 +154,8 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.searchTerm = ''; // Limpiar el término de búsqueda
     this.filteredData = [...this.cargos]; // Restaurar los datos completos
     this.refreshDataTable(); // Refrescar la tabla para mostrar todos los registros
+    this.filters.reutilizableSeleccionado = []; // Limpiar el filtro de estado
+
   }
   
   ngAfterViewInit(): void {
@@ -204,6 +206,7 @@ eliminarCargo(id: number): void {
         confirmButtonText: 'Aceptar'  // Solo un botón de "Aceptar" en caso de eliminación exitosa
       });
       this.loadCargos();
+      this.closeModale('eliminarCargoModal');
       
     },
     error: (err) => {
@@ -238,7 +241,6 @@ closeInfoModal(): void{
 }
 
 
-
   // Modal management methods
   openCreateModal(): void {
     this.cargoForm.reset();
@@ -266,7 +268,18 @@ closeInfoModal(): void{
     this.isEditModalOpen = true;
     document.body.classList.add('modal-open');
   }
-  
+
+  private openModal(modalId: string): void {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      const modalInstance = new bootstrap.Modal(modal, {
+        backdrop: 'static',  // Esto evita que se cierre al hacer clic fuera
+        keyboard: false      // Evita que se cierre con la tecla ESC
+      });
+      modalInstance.show();
+    }
+  }
+
 
   closeEditModal(): void {
     this.isEditModalOpen = false;
@@ -417,6 +430,12 @@ closeInfoModal(): void{
   
 
   closeModale(modalId: string) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      const modalInstance = bootstrap.Modal.getInstance(modal);
+      modalInstance?.hide();
+    }
+
     const modalElement = document.getElementById(modalId);
     if (modalElement) {
       const modal = bootstrap.Modal.getInstance(modalElement);
@@ -508,67 +527,68 @@ onSubmitCreate(): void {
 }
 
 onSubmitEdit(): void {
-    if (this.cargoForm.valid && this.selectedCargo?.id) {
-        const chargeValue = this.cargoForm.get('charge')?.value;
-        const selectedCargoId = this.selectedCargo.id;
+  if (this.cargoForm.valid && this.selectedCargo?.id) {
+      const chargeValue = this.cargoForm.get('charge')?.value;
+      const selectedCargoId = this.selectedCargo.id;
 
-        this.cargoService.getAllCargos().subscribe(cargos => {
-            const exists = cargos.some(cargo => 
-                cargo.charge === chargeValue && cargo.id !== selectedCargoId
-            );
+      this.cargoService.getAllCargos().subscribe(cargos => {
+          const exists = cargos.some(cargo => 
+              cargo.charge === chargeValue && cargo.id !== selectedCargoId
+          );
 
-            if (exists) {
-                Swal.fire({
-                    title: 'Error',
-                    text: `El cargo "${chargeValue}" ya existe. Por favor, elige otro nombre.`,
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                }).then(() => {
-                    this.closeModale('editChargeModal'); // Cerrar modal en caso de error
-                    this.loadCargos();
-                });
-                return;
-            }
+          if (exists) {
+              Swal.fire({
+                  title: 'Error',
+                  text: `El cargo "${chargeValue}" ya existe. Por favor, elige otro nombre.`,
+                  icon: 'error',
+                  confirmButtonText: 'Aceptar'
+              }).then(() => {
+                  this.closeModale('editChargeModal');
+                  this.loadCargos();
+              });
+              return;
+          }
 
-            // Mostrar confirmación antes de actualizar
-            Swal.fire({
-                title: '¿Confirmar cambios?',
-                text: `¿Deseas actualizar el cargo "${chargeValue}"?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Confirmar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    this.cargoService.updateCargo(selectedCargoId, this.cargoForm.value).subscribe({
-                        next: () => {
-                            Swal.fire({
-                                title: '¡Actualizado!',
-                                text: 'El cargo ha sido actualizado correctamente.',
-                                icon: 'success',
-                                confirmButtonText: 'Aceptar'
-                            }).then(() => {
-                                this.closeModale('editChargeModal'); // Cerrar modal tras éxito
-                                this.loadCargos();
-                                this.cargoForm.reset();
-                            });
-                        },
-                        error: () => {
-                            Swal.fire({
-                                title: 'Error',
-                                text: 'Ocurrió un error al actualizar el cargo.',
-                                icon: 'error',
-                                confirmButtonText: 'Aceptar',
-                                confirmButtonColor: '#3085d6'
-                            }).then(() => {
-                                this.closeModale('editChargeModal'); // Cerrar modal en caso de error
-                                this.loadCargos();
-                            });
-                        }
-                    });
-                }
-            });
-        });
-    }
+          // Cerrar el modal de edición y abrir el de confirmación
+          this.closeModale('editChargeModal');
+          setTimeout(() => {
+              this.openModal('confirmUpdateModal');
+          }, 200); // Pequeño delay para asegurar que el primer modal se cierre completamente
+      });
+  }
 }
+
+
+  confirmUpdate(): void {
+    if (this.selectedCargo?.id) {
+      this.cargoService.updateCargo(this.selectedCargo.id, this.cargoForm.value).subscribe({
+        next: () => {
+          this.closeModale('confirmUpdateModal');
+          Swal.fire({
+            title: '¡Actualizado!',
+            text: 'El cargo ha sido actualizado correctamente.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          }).then(() => {
+            this.loadCargos();
+            this.cargoForm.reset();
+          });
+        },
+        error: () => {
+          this.closeModale('confirmUpdateModal');
+          Swal.fire({
+            title: 'Error',
+            text: 'Ocurrió un error al actualizar el cargo.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#3085d6'
+          }).then(() => {
+            this.loadCargos();
+          });
+        }
+      });
+    }
+  }
+
+
 }
