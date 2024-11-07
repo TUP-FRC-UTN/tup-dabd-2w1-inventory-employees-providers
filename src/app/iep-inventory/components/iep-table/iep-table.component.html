@@ -73,7 +73,7 @@
       <div class="d-flex align-items-center">
         <div class="m-2">
           <button
-            class="btn btn-primary"
+            class="btn btn-primary filterbutton"
             data-bs-toggle="modal"
             title="Filtros Avanzados"
             data-bs-target="#filtrosAvanzados"
@@ -83,20 +83,20 @@
         </div>
 
         <div class="me-2">
-          <button class="btn btn-secondary" (click)="cleanColumnFilters()">
+          <button class="btn btn-secondary filterbutton" (click)="cleanColumnFilters()">
             <i class="bi bi-trash"></i>
           </button>
         </div>
 
         <button
-          class="btn btn-success me-2"
+          class="btn btn-success me-2 filterbutton"
           (click)="exportToExcel()"
           title="Exportar a Excel"
         >
           <i class="fa-solid bi-file-earmark-excel"></i>
         </button>
         <button
-          class="btn btn-danger"
+          class="btn btn-danger filterbutton"
           (click)="exportToPdf()"
           title="Exportar a PDF"
         >
