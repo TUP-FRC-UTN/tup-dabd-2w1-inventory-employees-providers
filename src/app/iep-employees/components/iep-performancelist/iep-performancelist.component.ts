@@ -344,14 +344,21 @@ openNewCallModal(employeeId: number) {
         {
           data: null,
           render: (data: any) => `
-            <button class="btn btn-sm btn-primary view-details" 
-              data-bs-target="#viewDetail" 
-              data-bs-toggle="modal" 
-              data-id="${data.id}" 
-              data-year="${data.year}" 
-              data-month="${data.month}">
-              Ver más
-            </button>`
+            <div class="text-center">
+                  <div class="btn-group">
+                    <div class="dropdown">
+                      <button type="button" class="btn border border-2 bi-three-dots-vertical btn-cambiar-estado" data-bs-toggle="dropdown"></button>
+                        <ul class="dropdown-menu">
+                          <li>
+                            <button class="dropdown-item btn-sm btn-primary view-details" data-bs-target="#viewDetail" 
+                            data-bs-toggle="modal" data-id="${data.id}" data-year="${data.year}" data-month="${data.month}">
+                            Ver más
+                            </button>
+                          </li>
+                        </ul>
+                    </div>
+                  </div>
+              </div>`
         }
       ],
       language: {
