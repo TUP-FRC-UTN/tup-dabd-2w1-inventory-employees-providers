@@ -510,22 +510,21 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
 
     // Ajustar los datos exportados para que coincidan con la tabla
     const dataToExport = this.movements.map((movement) => [
-      new Date(movement.date).toLocaleString('es-ES'),
+      new Date(movement.date).toLocaleDateString('es-ES'),
+      new Date(movement.date).toLocaleTimeString('es-ES'), 
       movement.applicant,
       movement.detailProducts.map((product) => this.getProductNameById(product.productId)).join(', '),
       this.translateMovementType(movement.movement_type),
-      movement.responsible
     ]);
-
-    // Configuración de la tabla en el PDF
+    
     (doc as any).autoTable({
-      head: [['Fecha y Hora', 'Solicitante', 'Productos', 'Tipo', 'Responsable']],
+      head: [['Fecha', 'Hora', 'Solicitante', 'Producto', 'Tipo']],
       body: dataToExport,
       startY: 30,
       theme: 'grid',
       margin: { top: 30, bottom: 20 },
     });
-
+    
     const formattedDate = this.getFormattedDate();
     doc.save(`${formattedDate}_Lista_Movimientos.pdf`);
   }

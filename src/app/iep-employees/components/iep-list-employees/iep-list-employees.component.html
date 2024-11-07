@@ -65,26 +65,32 @@
             </div> -->
 
             <div class="col-md-3">
-                <div class="dropdown w-100 m-2">
-                    <button class="btn btn-secondary dropdown-toggle w-100 text-start" type="button" id="dropdownCargo"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        Estado
-                        @if (selectedState.length>0) {
-                        ({{selectedState.length}})
-                        }
-                    </button>
-                    <ul class="dropdown-menu w-100" aria-labelledby="dropdownCargo">
-                        <li *ngFor="let state of uniqueStates">
-                            <label class="dropdown-item">
-                                <input type="checkbox" class="form-check-input me-2" [value]="state"
-                                    [checked]="selectedState.includes(state)"
-                                    (change)="onStateFilterChange($event, state)">
-                                {{ state }}
-                            </label>
-                        </li>
-                    </ul>
+                <div class="w-100 m-2">
+                  <ng-select
+                    [items]="stateOptions"
+                    [multiple]="true"
+                    bindLabel="label"
+                    bindValue="id"
+                    [(ngModel)]="selectedState"
+                    (change)="onStateChange($event)"
+                    [closeOnSelect]="false"
+                    placeholder="Seleccionar Estado"
+                    [clearable]="true"
+                    [ngClass]="'custom-select'">
+                    
+                    <!-- Template para el texto del placeholder con contador -->
+                    <ng-template ng-multi-label-tmp let-items="items">
+                      Estado
+                      <span *ngIf="items.length > 0">({{ items.length }})</span>
+                    </ng-template>
+                    
+                    <!-- Template para las opciones con checkbox -->
+                    <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                      <input type="checkbox" [checked]="item$.selected"/> {{item.label}}
+                    </ng-template>
+                  </ng-select>
                 </div>
-            </div>
+              </div>
 
             <div class="col"></div>
 
@@ -211,26 +217,22 @@
 
 
                     <!-- Selector de posicion -->
-                    <div class="mb-3">
-                        <label for="dropdownReusable" class="form-label">Reutilizables</label>
-                        <button class="btn btn-secondary dropdown-toggle w-100 text-start" type="button"
-                            id="dropdownCargo" data-bs-toggle="dropdown" aria-expanded="false">
-                            Posición
-                            @if (selectedPositions.length>0) {
-                            ({{selectedPositions.length}})
-                            }
-                        </button>
-                        <ul class="dropdown-menu w-100" aria-labelledby="dropdownCargo">
-                            <li *ngFor="let position of uniquePositions">
-                                <label class="dropdown-item">
-                                    <input type="checkbox" class="form-check-input me-2" [value]="position"
-                                        [checked]="selectedPositions.includes(position)"
-                                        (change)="onPositionFilterChange($event, position)">
-                                    {{ position }}
-                                </label>
-                            </li>
-                        </ul>
-                    </div>
+                    <!-- Selector de posiciones -->
+                        <div class="mb-3">
+                            <label for="dropdownReusable" class="form-label">Reutilizables</label>
+                            <ng-select
+                            [items]="uniquePositions"
+                            bindLabel="position"
+                            [(ngModel)]="selectedPositions"
+                            placeholder="Selecciona las posiciones"
+                            [multiple]="true"
+                            [closeOnSelect]="false"
+                            (change)="onPositionFilterChange()"
+                            [clearable]="true"
+                            >
+                            </ng-select>
+                        </div>
+  
 
                     <!--                     <div class="mb-3 btn btn-secondary dropdown-toggle w-100 text-star">
                         <ng-select [items]="uniquePositions" bindLabel="name" bindValue="id"

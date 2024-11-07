@@ -154,6 +154,8 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.searchTerm = ''; // Limpiar el término de búsqueda
     this.filteredData = [...this.cargos]; // Restaurar los datos completos
     this.refreshDataTable(); // Refrescar la tabla para mostrar todos los registros
+    this.filters.reutilizableSeleccionado = []; // Limpiar el filtro de estado
+
   }
   
   ngAfterViewInit(): void {
