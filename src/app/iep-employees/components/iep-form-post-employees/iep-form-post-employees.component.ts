@@ -97,8 +97,10 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
   isValidCuil:boolean=true;
 
-
-
+  cambio() {
+    console.log("Lunes:", this.lunes); // Debería mostrar true o false
+    console.log("Martes:", this.martes); // Debería mostrar true o false
+}
 
  
 
