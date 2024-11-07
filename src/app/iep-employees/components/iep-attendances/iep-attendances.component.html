@@ -67,11 +67,10 @@
         </table>
 
         <!-- Modal put Justificacion -->
-        <div #modalConfirmDelete class="modal" id="modalPutJustificacion"
-        tabindex="-1" role="dialog" >
+        <div #modalConfirmDelete class="modal" id="modalPutJustificacion" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    
+        
                     <!-- HEADER -->
                     <div class="modal-header">
                         <h5 class="modal-title">Confirmación</h5>
@@ -79,28 +78,35 @@
         
                     <!-- BODY -->
                     <div class="modal-body">
-                    <p class="mb-4">¿Está seguro de justificar la falta?</p>
-                    
-                    <div class="row align-items-center">
-                        <label for="justification" class="col-3 form-label mb-0">Justificación:</label>
-                        <div class="col-9">
-                        <textarea id="justification" class="form-control" rows="3"
-                        [(ngModel)]="justificationPutText"></textarea>
+                        <p class="mb-4">¿Está seguro de justificar la falta?</p>
+                        
+                        <div class="row align-items-center">
+                            <label for="justification" class="col-3 form-label mb-0">Justificación:</label>
+                            <div class="col-9">
+                                <textarea id="justification" class="form-control"
+                                          rows="3" required maxlength="155"
+                                          [(ngModel)]="justificationPutText"
+                                          #justificationText="ngModel"
+                                          [ngClass]="{'is-invalid': justificationText.invalid && justificationText.touched, 'is-valid': justificationText.valid}"
+                                          ></textarea>
+                            </div>
+                        </div>
+                        <div *ngIf="justificationText.invalid && justificationText.touched" class="invalid-feedback">
+                            Este campo es obligatorio.
                         </div>
                     </div>
-                    </div>
-            
+        
                     <!-- FOOTER -->
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Cancelar
-                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="button" class="btn btn-primary"
-                        (click)="confirmarJustificacion()"> Guardar
-                        </button>
+                                [disabled]="justificationText.invalid"
+                                (click)="confirmarJustificacion()">Guardar</button>
                     </div>
                 </div>
             </div>
         </div>
+        
 
          <!-- Modal get Justificacion -->
          <div #modalConfirmDelete class="modal" id="modalGetJustificacion"

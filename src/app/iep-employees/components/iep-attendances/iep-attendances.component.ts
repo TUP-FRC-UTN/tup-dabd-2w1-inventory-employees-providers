@@ -21,6 +21,7 @@ declare var bootstrap: any;
   styleUrl: './iep-attendances.component.css'
 })
 export class IepAttendancesComponent implements OnInit{
+  
 
   Asistencias: EmpListadoAsistencias[] = [];
   filteredAsistencias: EmpListadoAsistencias[] = [];

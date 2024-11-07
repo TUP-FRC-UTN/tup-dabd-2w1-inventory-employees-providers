@@ -366,7 +366,7 @@ closeInfoModal(): void{
               text = 'Inactivo';
             }
         
-            return `<span class="badge" style="background-color: ${colorClass};">${text}</span>`;
+            return `<span class="badge border rounded-pill" style="background-color: ${colorClass};">${text}</span>`;
           }
         },
         { data: 'charge', title: 'Cargo' },
