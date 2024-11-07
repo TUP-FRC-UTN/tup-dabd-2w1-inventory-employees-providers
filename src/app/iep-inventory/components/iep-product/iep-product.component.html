@@ -225,7 +225,10 @@
 
     <div class="mb-3 mt-4 row justify-content-end">
       <div class="col-auto">
-        <button [disabled]="!myForm.valid" type="submit" class="btn btn-primary" style="width: 100%;">Registrar</button>
+        <button  type="button" class="btn btn-secondary" (click)="goTo('home/inventory')" style="width: 100%;">Volver</button>
+      </div>
+      <div class="col-auto">
+        <button [disabled]="!myForm.valid" type="submit" class="btn btn-success" style="width: 100%;">Registrar</button>
       </div>
     </div>
 

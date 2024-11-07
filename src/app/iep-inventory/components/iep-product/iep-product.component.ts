@@ -3,7 +3,7 @@ import { ProductService } from '../../services/product.service';
 import { Observable } from 'rxjs';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ProductCategory } from '../../models/product-category';
 import { Supplier } from '../../models/suppliers';
 import { SuppliersService } from '../../services/suppliers.service';
@@ -12,6 +12,7 @@ import { CreateProductDtoClass } from '../../models/create-product-dto-class';
 import { CategoriaService } from '../../services/categoria.service';
 import { CreateCategoryDto } from '../../models/create-category-dto';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { routes } from '../../../app.routes';
 
 @Component({
   selector: 'app-product',
@@ -42,7 +43,8 @@ export class IepProductComponent {
 
   constructor(productService: ProductService,
     providersService: SuppliersService,
-    private categoryService:CategoriaService) {
+    private categoryService:CategoriaService,
+  private router : Router ) {
     this.productService = productService;
     this.providerService = providersService;
     this.success = false;
@@ -52,6 +54,12 @@ export class IepProductComponent {
     console.log(this.dto.reusable)
   }
 
+
+  goTo(path: string){
+
+      this.router.navigate([path])
+
+  }
 
   ngOnInit() {
 
