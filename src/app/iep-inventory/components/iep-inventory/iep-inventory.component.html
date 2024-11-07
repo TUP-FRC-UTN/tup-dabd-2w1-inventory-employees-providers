@@ -79,6 +79,9 @@
                 (ngModelChange)="applyFilter()" />
             </div>
 
+            <!-- Dropdown para Categorías -->
+             
+
             <!-- Botón para mostrar/ocultar filtros -->
             <!-- <div class="ms-2">
             </div> -->
@@ -110,7 +113,20 @@
 
 
       <div>
-        <table class="table table-striped" id="productsList"></table>
+        <table class="table table-striped table-hover border border-4 rounded" id="productsList">
+          <thead>
+            <tr>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th scope="col" class="text-center">Acción</th>
+          </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
 
       <!-- Botones de navegación: Volver y agregar nuevo producto -->
@@ -155,35 +171,14 @@
         <div class="modal-body">
 
           <!-- Filtro por nombre -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="Nombre" class="form-label">Nombre</label>
             <input type="text" id="Nombre" name="Nombre" class="form-control" [(ngModel)]="nombre" #Nombre="ngModel"
               placeholder="" />
-          </div>
-
-          <!-- Dropdown para Categorías -->
-          <div class="mb-3">
-            <label for="dropdownCategorias" class="form-label">Categoría</label>
-            <br>
-            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
-              id="dropdownCategorias" data-bs-toggle="dropdown" aria-expanded="false">
-              Seleccionar categorías
-              <span
-                *ngIf="filters.categoriasSeleccionadas.length > 0">({{filters.categoriasSeleccionadas.length}})</span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownCategorias">
-              <li *ngFor="let c of categories">
-                <label class="dropdown-item">
-                  <input type="checkbox" class="form-check-input me-2" [value]="c.id"
-                    (change)="onCategoriaChange($event, c.id)">
-                  {{ c.category }}
-                </label>
-              </li>
-            </ul>
-          </div>
+          </div> -->
 
           <!-- Selector de reutilizables -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="dropdownReusable" class="form-label">Reutilizables</label>
             <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
               id="dropdownReusable" data-bs-toggle="dropdown" aria-expanded="false">
@@ -207,7 +202,7 @@
                 </label>
               </li>
             </ul>
-          </div>
+          </div> -->
 
           <!-- Cantidad mínima -->
           <div class="mb-3">
@@ -235,8 +230,6 @@
           <!-- Modal Footer -->
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-primary" [disabled]="botonDeshabilitado"
-              (click)="aplicarFiltrosCompletos()" data-bs-dismiss="modal">Aplicar</button>
           </div>
 
         </div>

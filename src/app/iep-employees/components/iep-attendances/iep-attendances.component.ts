@@ -327,7 +327,7 @@ export class IepAttendancesComponent implements OnInit{
   exportToExcel(): void {
     let dataToExport: any[] = []; // Define un array vacío por defecto
       // Extrae datos de la tabla de asistencias
-      dataToExport = this.Asistencias.map((asistencia) => ({
+      dataToExport = this.filteredAsistencias.map((asistencia) => ({
         'Nombre del Empleado': asistencia.employeeName,
         'Fecha': asistencia.date,
         'Hora de Llegada': asistencia.arrivalTime,
@@ -348,7 +348,7 @@ export class IepAttendancesComponent implements OnInit{
     const doc = new jsPDF();
 
     // Extrae datos de la tabla de asistencias
-    const dataToExport = this.Asistencias.map((asistencia) => [
+    const dataToExport = this.filteredAsistencias.map((asistencia) => [
       asistencia.employeeName,
       asistencia.date,
       asistencia.arrivalTime,
@@ -375,7 +375,7 @@ export class IepAttendancesComponent implements OnInit{
     return `${day}/${month}/${year}`;
   }
 
-    // Add the volverInventario method
+    // Volver al menu de empleados
     volverInventario(): void {
       this.router.navigate(["home/employee-list"]);
     }

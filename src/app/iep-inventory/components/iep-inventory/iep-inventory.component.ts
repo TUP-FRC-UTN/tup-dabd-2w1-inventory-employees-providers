@@ -73,10 +73,10 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   aplicarFiltrosCompletos(): void {
     // Recoger valores de los inputs
-    const nombreInput = document.getElementById('Nombre') as HTMLInputElement;
-    if (nombreInput) {
-      this.filters.nombre = nombreInput.value;
-    }
+    // const nombreInput = document.getElementById('Nombre') as HTMLInputElement;
+    // if (nombreInput) {
+    //   this.filters.nombre = nombreInput.value;
+    // }
 
     const cantMinimaInput = document.getElementById('CantMinima') as HTMLInputElement;
     if (cantMinimaInput) {
@@ -635,24 +635,38 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         {
           data: 'reusable',
           title: 'Reutilizable',
-          render: (data: boolean) => (data ? 'SI' : 'NO'),
+          className: "allgn-middle",
+          render: (data: boolean) => {
+            let color;
+            let name;
+
+            switch (data) {
+              case true: color = "text-bg-success"; name = "SI"; break;
+              case false: color = "text-bg-danger"; name = "NO"; break;
+            }
+            
+            return `
+            <div class=text-center">
+              <div class="badge border rounded-pill ${color}">${name}</div>
+            </div>`;
+          },
         },
         {
-          data: null,
+          data: 'detailProducts.length',
           title: 'Cantidad',
-          render: (row: any) => {
-            const quantity = row.detailProducts.length;
-            const warning = row.minQuantityWarning;
+          // render: (row: any) => {
+          //   const quantity = row.detailProducts.length;
+          //   const warning = row.minQuantityWarning;
 
-            if (quantity <= warning + 10 && quantity > warning) {
-              return `<span style="color: #FF8C00; font-weight: bold;">${quantity}</span>`;
-            } else {
-              if (9 >= quantity && quantity > 0) {
-                return `<span style="color: #FF0000; font-weight: bold;">${quantity}</span>`;
-              }
-            }
-            return quantity;
-          }
+          //   if (quantity <= warning + 10 && quantity > warning) {
+          //     return `<span style="color: #FF8C00; font-weight: bold;">${quantity}</span>`;
+          //   } else {
+          //     if (9 >= quantity && quantity > 0) {
+          //       return `<span style="color: #FF0000; font-weight: bold;">${quantity}</span>`;
+          //     }
+          //   }
+          //   return quantity;
+          // }
         },
         {
           data: 'minQuantityWarning',
@@ -661,22 +675,27 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         {
           data: null,
           title: 'Acciones',
+          className: 'align-middle',
           render: (data: any, type: any, row: any) => {
             return `
-              <div class="dropdown">
-                <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
-                   style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
-                  &#8942;
-                </a>
-                <ul class="dropdown-menu">
-                  <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
-                    <li class="dropdown-divider"></li>
-                  <li><button class="dropdown-item btn botonAumentoStock" data-bs-target="#aumentoStock" data-bs-toggle="modal"  data-id="${row.id}">Agregar</button></li>
-                    <li class="dropdown-divider"></li>
-                  <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" (click)="giveLogicalLow(${row.id})">Eliminar</button></li>
-                </ul>
+            <div class="text-center">
+              <div class="btn-group">
+                <div class="dropdown">
+                  <button type="button" class="btn border border-2 bi-three-dots-vertical btn-cambiar-estado" data-bs-toggle="dropdown"></button>
+                    <ul class="dropdown-menu">
+                      <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
+                          <li class="dropdown-divider"></li>
+                      <li><button class="dropdown-item btn botonAumentoStock" data-bs-target="#aumentoStock" 
+                        data-bs-toggle="modal"  data-id="${row.id}">Agregar stock</button>
+                      </li>
+                          <li class="dropdown-divider"></li>
+                      <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" 
+                        (click)="giveLogicalLow(${row.id})">Eliminar</button>
+                      </li>
+                    </ul>
+                </div>
               </div>
-            `;
+            </div>`;
           },
         },
       ],
