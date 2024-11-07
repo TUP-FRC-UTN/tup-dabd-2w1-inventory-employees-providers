@@ -541,7 +541,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             if (data) {
               return row.license
                 ? '<span class="badge" style="background-color: #ffc107;">Licencia</span>'
-                : '<span class="badge" style="background-color: #0d6efd;">Activo</span>';
+                : '<span class="badge" style="background-color: #198754;">Activo</span>';
             }
             return '<span class="badge" style="background-color: #dc3545;">Inactivo</span>';
           },
