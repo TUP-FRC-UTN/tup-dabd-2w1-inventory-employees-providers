@@ -23,7 +23,7 @@
                 <input type="date" id="endDate" class="form-control" #endDateInput 
                 (change)="onEndDateChange(endDateInput.value)" />
             </div>
-            <div class="dropdown" style="width: fit-content;">
+            <div class="dropdown" style="flex-grow: 1; max-width: 300px;">
                 <ng-select 
                   [items]="movementTypes" 
                   [(ngModel)]="tempFilters.movement_type" 
