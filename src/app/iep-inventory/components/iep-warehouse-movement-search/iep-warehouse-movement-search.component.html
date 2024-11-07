@@ -80,17 +80,17 @@
                 </div> -->
 
         <!-- Botón para limpiar filtros -->
-        <button class="btn btn-secondary me-2" (click)="cleanColumnFilters()">
+        <button class="btn btn-secondary me-2 filterbutton" (click)="cleanColumnFilters()">
           <i class="bi bi-trash"></i>
         </button>
 
         <!-- Botón para exportar a Excel -->
-        <button class="btn btn-success me-2" (click)="exportToExcel()">
+        <button class="btn btn-success me-2 filterbutton" (click)="exportToExcel()">
           <i class="fa-solid bi-file-earmark-excel"></i>
         </button>
 
         <!-- Botón para exportar a PDF -->
-        <button class="btn btn-danger" (click)="exportToPdf()">
+        <button class="btn btn-danger filterbutton" (click)="exportToPdf()">
           <i class="fas bi-file-earmark-pdf"></i>
         </button>
       </div>
