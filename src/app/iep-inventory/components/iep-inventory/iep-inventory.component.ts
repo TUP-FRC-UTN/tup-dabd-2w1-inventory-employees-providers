@@ -685,7 +685,21 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         {
           data: 'reusable',
           title: 'Reutilizable',
-          render: (data: boolean) => (data ? 'SI' : 'NO'),
+          className: "allgn-middle",
+          render: (data: boolean) => {
+            let color;
+            let name;
+
+            switch (data) {
+              case true: color = "text-bg-success"; name = "Si"; break;
+              case false: color = "text-bg-danger"; name = "No"; break;
+            }
+
+            return  `
+            <div class=text-center">
+              <div class="badge border rounded-pill ${color}">${name}</div>
+            </div > `;
+          },
         },
         {
           data: null,
