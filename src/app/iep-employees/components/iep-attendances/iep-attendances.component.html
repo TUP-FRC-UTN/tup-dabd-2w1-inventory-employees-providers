@@ -9,17 +9,7 @@
                 </button>
             </div>
             <div class="col-2">
-                <h4 class="text-center">{{empleadoName}}</h4>
-            </div>
-            <!-- Filtro de estado  -->
-            <div class="col-2">
-                <select class="form-select" id="" [(ngModel)]="estadoFiltrado" (ngModelChange)="loadAsistencias()">
-                    <option value="" selected>Estado</option>
-                    <option value="PRESENTE">PRESENTE</option>
-                    <option value="TARDE">TARDE</option>
-                    <option value="AUSENTE">AUSENTE</option>
-                    <option value="JUSTIFICADO">JUSTIFICADO</option>
-                </select>
+                <input type="text" id="searchTerm" [(ngModel)]="empleadoName" placeholder="Buscar" class="form-control" readonly>
             </div>
             <!-- Filtros por fecha -->
             <div class="col-2">
@@ -30,6 +20,22 @@
                 <input type="date" id="endDate" class="form-control" [(ngModel)]="endDate"
                 (change)="onEndDateChange()" />
             </div>
+            <!-- Filtro de estado  -->
+             <div class="col-2">
+                <app-iep-attendances-ngselect [(selectedProviders)]="estadosFiltrados"
+                [emptyValue]="true" [multiple]="false" (selectedProvidersChange)="loadAsistencias()"></app-iep-attendances-ngselect>
+             </div>
+             
+
+            <!-- <div class="col-2">
+                <select class="form-select" id="" [(ngModel)]="estadoFiltrado" (ngModelChange)="loadAsistencias()">
+                    <option value="" selected>Estado</option>
+                    <option value="PRESENTE">PRESENTE</option>
+                    <option value="TARDE">TARDE</option>
+                    <option value="AUSENTE">AUSENTE</option>
+                    <option value="JUSTIFICADO">JUSTIFICADO</option>
+                </select>
+            </div> -->
             
             <!-- Botones de exportación en Asistencias y Desempeño -->
             <div class="col text-end">
@@ -54,10 +60,10 @@
                     <th></th>
                     <th></th>
                     <th></th>
+                    <th scope="col" class="text-center">Acción</th>
                 </tr>
             </thead>
-            <tbody>
-            </tbody>
+            <tbody></tbody>
         </table>
 
         <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">

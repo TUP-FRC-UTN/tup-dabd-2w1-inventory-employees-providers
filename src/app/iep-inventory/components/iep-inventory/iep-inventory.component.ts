@@ -21,6 +21,7 @@ import { DetailServiceService } from '../../services/detail-service.service';
 import { EstadoService } from '../../services/estado.service';
 import { Row } from 'jspdf-autotable';
 import Swal from 'sweetalert2';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 interface Filters {
@@ -36,7 +37,7 @@ interface Filters {
 @Component({
   selector: 'app-iep-inventory',
   standalone: true,
-  imports: [FormsModule, CommonModule, IepStockIncreaseComponent],
+  imports: [FormsModule, CommonModule, IepStockIncreaseComponent, NgSelectModule],
   templateUrl: './iep-inventory.component.html',
   styleUrl: './iep-inventory.component.css',
 })
@@ -664,22 +665,28 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         {
           data: null,
           title: 'Acciones',
+          className: 'align-middle',
           render: (data: any, type: any, row: any) => {
             return `
-              <div class="dropdown">
-                <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
-                   style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
-                  &#8942;
-                </a>
-                <ul class="dropdown-menu">
-                  <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
-                    <li class="dropdown-divider"></li>
-                  <li><button class="dropdown-item btn botonAumentoStock" data-bs-target="#aumentoStock" data-bs-toggle="modal"  data-id="${row.id}">Agregar</button></li>
-                <!--    <li class="dropdown-divider"></li> -->
-                <!--  <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" (click)="giveLogicalLow(${row.id})">Eliminar</button></li> -->
-                </ul>
+                         
+            <div class="text-center">
+              <div class="btn-group">
+                <div class="dropdown">
+                  <button type="button" class="btn border border-2 bi-three-dots-vertical btn-cambiar-estado" data-bs-toggle="dropdown"></button>
+                    <ul class="dropdown-menu">
+                      <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
+                          <li class="dropdown-divider"></li>
+                      <li><button class="dropdown-item btn botonAumentoStock" data-bs-target="#aumentoStock" 
+                        data-bs-toggle="modal"  data-id="${row.id}">Agregar stock</button>
+                      </li>
+                          <li class="dropdown-divider"></li>
+                      <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" 
+                        (click)="giveLogicalLow(${row.id})">Eliminar</button>
+                      </li>
+                    </ul>
+                </div>
               </div>
-            `;
+            </div>`;
           },
         },
       ],
