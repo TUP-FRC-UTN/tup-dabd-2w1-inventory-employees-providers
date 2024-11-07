@@ -783,33 +783,33 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       ],
     });
 
-    $('#empleadosTable').off('click', 'button').on('click', 'button', (event: any) => {
-      const button = $(event.currentTarget);
-      const id = button.data('id');
-      const nuevoEstado = button.data('nuevoestado');
+    // $('#empleadosTable').off('click', 'button').on('click', 'button', (event: any) => {
+    //   const button = $(event.currentTarget);
+    //   const id = button.data('id');
+    //   const nuevoEstado = button.data('nuevoestado');
 
-      // Deshabilitar el botón para evitar múltiples clics
-      button.prop('disabled', true);
+    //   // Deshabilitar el botón para evitar múltiples clics
+    //   button.prop('disabled', true);
 
-      if (id && nuevoEstado) {
-        this.empleadoService.putAttendances(id, nuevoEstado).subscribe({
-          next: (response) => {
-            console.log('Asistencia actualizada:', response);
-            this.loadAsistencias();
-          },
-          error: (error) => {
-            console.error('Error al actualizar asistencia:', error);
-          },
-          complete: () => {
-            // Habilitar el botón nuevamente si es necesario
-            button.prop('disabled', false);
-          }
-        });
-      } else {
-        // Habilitar el botón nuevamente si no hay id o nuevoEstado
-        button.prop('disabled', false);
-      }
-    });
+    //   if (id && nuevoEstado) {
+    //     this.empleadoService.putAttendances(id, nuevoEstado).subscribe({
+    //       next: (response) => {
+    //         console.log('Asistencia actualizada:', response);
+    //         this.loadAsistencias();
+    //       },
+    //       error: (error) => {
+    //         console.error('Error al actualizar asistencia:', error);
+    //       },
+    //       complete: () => {
+    //         // Habilitar el botón nuevamente si es necesario
+    //         button.prop('disabled', false);
+    //       }
+    //     });
+    //   } else {
+    //     // Habilitar el botón nuevamente si no hay id o nuevoEstado
+    //     button.prop('disabled', false);
+    //   }
+    // });
   }
 
   private initializeDesempenoTable(commonConfig: any): void {
