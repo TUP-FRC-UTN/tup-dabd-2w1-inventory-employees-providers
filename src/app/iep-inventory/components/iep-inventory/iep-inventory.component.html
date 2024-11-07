@@ -55,92 +55,63 @@
 
       <!-- Botones para generar PDF o Excel -->
       <div class="row mb-2">
+        <!-- Sección de filtros y botones de exportación -->
+        <div class="d-flex mb-3 justify-content-between align-items-center w-100">
 
-        <!-- Sección de filtros y botones de exportación en una sola línea -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center">
-
-          <!-- Grupo de filtros -->
-          <div class="d-flex align-items-center flex-grow-1 flex-wrap">
+          <!-- Contenedor de filtros -->
+          <div class="d-flex align-items-center flex-grow-1">
 
             <!-- Campo de Búsqueda -->
-            <div class="col-md-3 mb-2 me-2">
-              <input type="text" id="filterInput" class="form-control" placeholder="Buscar"
-                (input)="applyFilter($event)" />
+            <div class="me-3" style="min-width: 200px;">
+              <input type="text" id="filterInput" class="form-control" placeholder="Buscar" [(ngModel)]="globalFilter"
+                name="globalFilter" (input)="applyFilter()" />
             </div>
 
-            <!-- Selección de Estado -->
-            <div class="col-md-2 dropdown mb-2 me-2" style="min-width: 200px;">
-              <button class="btn btn-secondary dropdown-toggle text-start w-100" type="button" id="dropdownEstado"
-                data-bs-toggle="dropdown" aria-expanded="true">
-                Seleccionar Estado @if (selectedStatusCount > 0) { ({{ selectedStatusCount }}) }
-              </button>
-              <ul class="dropdown-menu w-100" aria-labelledby="dropdownEstado">
-                <li>
-                  <label class="dropdown-item">
-                    <input type="checkbox" 
-                           id="active"
-                           class="form-check-input me-2" 
-                           [(ngModel)]="selectedStatus.active"
-                           (change)="onStatusChange($event)" /> Activo
-                  </label>
-                </li>
-                <li>
-                  <label class="dropdown-item">
-                    <input type="checkbox" 
-                           id="inactive"
-                           class="form-check-input me-2" 
-                           [(ngModel)]="selectedStatus.inactive"
-                           (change)="onStatusChange($event)" /> Inactivo
-                  </label>
-                </li>
-              </ul>
+            <!-- Campo Desde para seleccionar la fecha de inicio -->
+            <div class="me-3" style="min-width: 160px;">
+              <input type="date" id="startDate" class="form-control" #startDateInput [(ngModel)]="startDate"
+                name="startDate" (ngModelChange)="applyFilter()" />
             </div>
 
-            <!-- Campo Desde (fecha de inicio) -->
-            <div class="col-md-2 mb-2 me-2">
-              <input type="date" id="startDate" class="form-control" [value]="startDate" #startDateInput
-                (change)="onStartDateChange()" />
+            <!-- Campo Hasta para seleccionar la fecha de fin -->
+            <div class="me-3" style="min-width: 160px;">
+              <input type="date" id="endDate" class="form-control" #endDateInput [(ngModel)]="endDate" name="endDate"
+                (ngModelChange)="applyFilter()" />
             </div>
 
-            <!-- Campo Hasta (fecha de fin) -->
-            <div class="col-md-2 mb-2 me-2">
-              <input type="date" id="endDate" class="form-control" [value]="endDate" #endDateInput
-                (change)="onEndDateChange()" />
-            </div>
-
-            <!-- Botón de filtros avanzados -->
-            <div class="mb-2 me-2">
-              <button class="btn btn-primary" data-bs-toggle="modal" title="Filtros Avanzados"
-                data-bs-target="#filtrosAvanzados">
-                <i class="bi bi-sort-down-alt"></i>
-              </button>
-            </div>
-
+            <!-- Botón para mostrar/ocultar filtros -->
+            <!-- <div class="ms-2">
+            </div> -->
+            
             <!-- Botón para limpiar filtros -->
-            <div class="mb-2 me-2">
-              <button class="btn btn-secondary" (click)="cleanFilters()">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
+            <!-- <div class="ms-2">
+            </div> -->
           </div>
-
-          <!-- Botones para exportar datos a PDF y Excel -->
-          <div class="d-flex align-items-center">
-            <button class="btn btn-success me-2" (click)="generarExcel()" title="Exportar a Excel">
-              <i class="bi bi-file-earmark-excel"></i>
+          
+          <!-- Botones para mostrar/ocultar y limpiar filtros, exportar datos a PDF y Excel -->
+          <div class="d-flex align-items-center ms-2">
+            <button class="btn btn-primary ms-2" data-bs-toggle="modal" title="Filtros Avanzados"
+              data-bs-target="#filtrosAvanzados">
+              <i class="bi bi-funnel-fill"></i>
             </button>
-            <button class="btn btn-danger" (click)="generarPdf()" title="Exportar a PDF">
-              <i class="bi bi-file-earmark-pdf"></i>
+            <button class="btn btn-secondary ms-2" (click)="cleanFilters()">
+              <i class="bi bi-trash"></i>
+            </button>
+            <button class="btn btn-success ms-2" (click)="generarExcel()" title="Exportar a Excel">
+              <i class="fa-solid bi-file-earmark-excel"></i>
+            </button>
+            <button class="btn btn-danger ms-2" (click)="generarPdf()" title="Exportar a PDF">
+              <i class="fas bi-file-earmark-pdf"></i>
             </button>
           </div>
 
         </div>
-
       </div>
 
 
       <div>
-        <table class="table table-striped" id="productsList"></table>
+        <table 
+        class="table table-striped border border-4 rounded table-hover" id="productsList"></table>
       </div>
 
       <!-- Botones de navegación: Volver y agregar nuevo producto -->
@@ -148,20 +119,15 @@
 
 
     <!-- Modal para aumento de stock -->
-    <div class="modal fade" [class.show]="showAumentoStockModal"
-      [style.display]="showAumentoStockModal ? 'block' : 'none'" id="aumentoStockModal" tabindex="-1"
-      aria-labelledby="aumentoStockModalLabel" [attr.aria-modal]="showAumentoStockModal"
-      [attr.aria-hidden]="!showAumentoStockModal" (click)="handleModalBackdropClick($event)">
-      <div class="modal-dialog modal-lg" style="max-width: 50%;" (click)="$event.stopPropagation()">
+    <div class="modal fade" id="aumentoStock" tabindex="-1">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Agregar Aumento de Stock</h5>
-            <button type="button" class="btn-close" (click)="cerrarModalAumentoStock()" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <app-iep-stock-increase *ngIf="showAumentoStockModal"></app-iep-stock-increase>
-
-
           </div>
         </div>
       </div>
@@ -170,6 +136,8 @@
     <div class="modal-backdrop fade" [class.show]="showNuevoProductoModal || showAumentoStockModal"
       *ngIf="showNuevoProductoModal || showAumentoStockModal" (click)="handleModalBackdropClick($event)">
     </div>
+
+
 
   </div>
 
@@ -244,8 +212,8 @@
 
           <!-- Cantidad mínima -->
           <div class="mb-3">
-            <label for="CantMinima" class="form-label">Cantidad Mínima</label>
-            <input type="number" id="CantMinima" name="CantMinima" class="form-control text-end"
+            <label for="CantMinima" class="form-label">Cantidad mínima</label>
+            <input type="number" id="CantMinima" name="CantMinima" class="form-control text-start"
               [(ngModel)]="cantMinima" (ngModelChange)="validarCantidades()" #CantMinima="ngModel" min="0"
               placeholder="" />
             <div *ngIf="!validoMin" class="error-container mt-1 text-danger">
@@ -255,8 +223,8 @@
 
           <!-- Cantidad máxima -->
           <div class="mb-3">
-            <label for="CantMaxima" class="form-label">Cantidad Máxima</label>
-            <input type="number" id="CantMaxima" name="CantMaxima" class="form-control text-end"
+            <label for="CantMaxima" class="form-label">Cantidad máxima</label>
+            <input type="number" id="CantMaxima" name="CantMaxima" class="form-control text-start"
               [(ngModel)]="cantMaxima" (ngModelChange)="validarCantidades()" #CantMaxima="ngModel" min="0"
               placeholder="" />
             <div *ngIf="!validoMax" class="error-container mt-1 text-danger">

@@ -103,12 +103,6 @@ export class UsersNavbarComponent {
             roles: ["SuperAdmin", "Admin", "Encargado de empleados"]
           },
           {
-            icon: "bi-card-checklist",
-            title: "Listado de desempeño",
-            route: "home/performance",
-            roles: ["SuperAdmin", "Admin", "Encargado de empleados"]
-          },
-          {
             icon: "bi-person-badge-fill",
             title: "Cargos de empleados",
             route: "home/charges",

@@ -4,8 +4,10 @@ import { ListadoDesempeñoService } from '../../services/listado-desempeño.serv
 import { EmployeePerformance } from '../../Models/listado-desempeño';
 import { FormsModule, NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { WakeUpCallDetail } from '../../Models/listado-desempeño';
 import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import $ from 'jquery';
 declare var bootstrap: any; // Añadir esta declaración al principio
@@ -22,6 +24,7 @@ import { IepAttentionCallComponent } from '../iep-attention-call/iep-attention-c
   styleUrl: './iep-performancelist.component.css'
 })
 export class IepPerformancelistComponent implements OnInit {
+  selectedPeriod: string[] = []; // Cambiar a un arreglo para permitir múltiples selecciones
   paginatedDetails: WakeUpCallDetail[] = [];
   currentPage: number = 1;
   itemsPerPage: number = 5;
@@ -38,7 +41,7 @@ export class IepPerformancelistComponent implements OnInit {
   confirmationMessage = '';
   errorMessage = '';
   selectedObservationCount: number | null = null;  // Nuevo filtro de observaciones
-  performanceTypes: string[] = ['BUENO', 'REGULAR', 'MALO'];  // Opciones de tipo de desempeño
+  performanceTypes: string[] = ['Bueno', 'Regular', 'Malo'];  // Opciones de tipo de desempeño
   performances: EmployeePerformance[] = [];
   searchTerm: string = '';
   selectedYear: string = '';
@@ -56,7 +59,8 @@ export class IepPerformancelistComponent implements OnInit {
 
   constructor(
     private employeeService: ListadoDesempeñoService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     // Inicializar los arrays
     this.selectedYears = [];
@@ -74,11 +78,30 @@ export class IepPerformancelistComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.setEmployeeById(1);
+    const empleadoId = this.route.snapshot.paramMap.get('id');
+    if (empleadoId) {
+      this.setEmployeeById(Number(empleadoId)); // Carga los datos del empleado específico
+    }
+
+    // Cargar datos y refrescar el servicio de empleados
     this.loadData();
     this.employeeService.refreshData();
-    
-    // Agregar evento para el modal
+
+    // Calcula el año y mes actuales y marca como seleccionados
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0'); // Formato "MM"
+    const currentPeriod = `${currentYear}-${currentMonth}`;
+
+    // Añadir el período actual a selectedPeriod
+    this.selectedPeriod.push(currentPeriod);
+
+    // Filtrar los datos con el período actual al cargar la página
+    setTimeout(() => {
+      this.filterData(); // Aplica el filtro con el período actual
+    }, 100); // Puedes ajustar el tiempo si es necesario
+
+    // Agregar evento para el modal y recargar datos cuando se cierre
     const modalElement = document.getElementById('newCall');
     if (modalElement) {
       modalElement.addEventListener('hidden.bs.modal', () => {
@@ -86,27 +109,42 @@ export class IepPerformancelistComponent implements OnInit {
       });
     }
 
-    // Marcar los checkboxes del año y mes actual
+    // Marcar los checkboxes del período actual (opcional si los checkboxes están enlazados a selectedPeriod)
     setTimeout(() => {
       this.updateCheckboxes();
     }, 100);
+}
+
+
+   // Actualizar toggleYear y toggleMonth para ser togglePeriod
+   togglePeriod(period: string): void {
+    const index = this.selectedPeriod.indexOf(period);
+    if (index > -1) {
+      // Si el período ya está seleccionado, lo quitamos
+      this.selectedPeriod.splice(index, 1);
+    } else {
+      // Si no está seleccionado, lo agregamos
+      this.selectedPeriod.push(period);
+    }
+    this.filterData(); // Actualiza la tabla con el nuevo filtro
   }
+  
 
   // Método para establecer el ID de empleado, obtener su nombre y cargar sus datos de desempeño
   // Dentro de tu componente principal (ej. IepPerformancelistComponent)
-setEmployeeById(employeeId: number): void {
-  this.selectedEmployeeId = employeeId;
+  setEmployeeById(employeeId: number): void {
+    this.selectedEmployeeId = employeeId;
 
-  // Llama al servicio para obtener el empleado por ID y actualizar el nombre
-  this.employeeService.getEmployees().subscribe(employees => {
-    const employee = employees.find(emp => emp.id === employeeId);
-    if (employee) {
-      this.selectedEmployeeName = employee.fullName;
-      this.searchTerm = employee.fullName; // Establece el término de búsqueda con el nombre
-      this.loadData(); // Carga los datos del desempeño del empleado
-    }
-  });
-}
+    // Llama al servicio para obtener el empleado por ID y actualizar el nombre
+    this.employeeService.getEmployees().subscribe(employees => {
+      const employee = employees.find(emp => emp.id === employeeId);
+      if (employee) {
+        this.selectedEmployeeName = employee.fullName;
+        this.searchTerm = employee.fullName; // Establece el término de búsqueda con el nombre
+        this.loadData(); // Carga los datos del desempeño del empleado
+      }
+    });
+  }
 
 // Al abrir el modal
 openNewCallModal(employeeId: number) {
@@ -227,13 +265,21 @@ openNewCallModal(employeeId: number) {
   
     const table = $('.data-table');
     if (table.length > 0) {
+      const uniquePeriods = new Set();
+      
       this.dataTable = table.DataTable({
-        data: this.performances,
+        data: this.performances.filter(performance => {
+          const period = `${performance.year}-${performance.month.toString().padStart(2, '0')}`;
+          if (!uniquePeriods.has(period)) {
+            uniquePeriods.add(period);
+            return true;
+          }
+          return false;
+        }),
         columns: [
           { 
             data: null,
             render: (data: any) => {
-              // Formatear el mes para asegurar que tenga dos dígitos
               const month = data.month.toString().padStart(2, '0');
               return `${data.year}-${month}`;
             },
@@ -262,23 +308,35 @@ openNewCallModal(employeeId: number) {
           infoFiltered: "",
           search: ""
         },
-        pageLength: 10,
+        pageLength: 5,
         order: [[0, 'desc']],
         dom: 'rt<"d-flex justify-content-between mt-3"l<"pagination-container"p>>',
         lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]]
       });
   
-      // Listener para el botón de detalles
       $('.data-table tbody').on('click', '.view-details', (event) => {
         const button = $(event.currentTarget);
         const employeeId = button.data('id');
         const year = button.data('year');
         const month = button.data('month');
-        
         this.viewDetails(employeeId, year, month);
       });
     }
   }
+  
+
+  get uniquePeriods(): { year: number, month: number }[] {
+    const uniqueSet = new Set();
+    return this.performances.filter(performance => {
+      const period = `${performance.year}-${performance.month.toString().padStart(2, '0')}`;
+      if (!uniqueSet.has(period)) {
+        uniqueSet.add(period);
+        return true;
+      }
+      return false;
+    });
+  }
+  
   
 
   setAvailableYears(): void {
@@ -330,7 +388,6 @@ openNewCallModal(employeeId: number) {
 }
 
 
-  // Modificar el método filterData() para trabajar con la nueva estructura
   filterData(): void {
     if (!this.dataTable) return;
 
@@ -341,31 +398,23 @@ openNewCallModal(employeeId: number) {
     }
 
     $.fn.dataTable.ext.search.push((settings: any, data: any[]) => {
-      const period = data[0]; // El período ahora está en la primera columna
-      const [yearStr, monthStr] = period.split('-');
-      const rowYear = yearStr;
-      const rowMonth = this.getMonthName(parseInt(monthStr, 10));
-      const rowPerformanceType = data[3];
-      const rowObservationCount = parseInt(data[2], 10);
+      const period = data[0]; // Supone que el período está en la primera columna
 
-      const yearMatch = this.selectedYears.length === 0 ||
-        this.selectedYears.includes(rowYear);
+      // Filtra por cualquier período que esté seleccionado
+      const periodMatch = this.selectedPeriod.length === 0 || this.selectedPeriod.includes(period);
 
-      const monthMatch = this.selectedMonths.length === 0 ||
-        this.selectedMonths.includes(rowMonth);
-
+      // Aplica otros filtros si es necesario
       const performanceTypeMatch = this.selectedPerformanceType.length === 0 ||
-        this.selectedPerformanceType.includes(rowPerformanceType);
-
+        this.selectedPerformanceType.includes(data[3]);
       const observationCountMatch = this.selectedObservationCount === null ||
-        rowObservationCount === this.selectedObservationCount;
+        parseInt(data[2], 10) === this.selectedObservationCount;
 
-      return yearMatch && monthMatch && performanceTypeMatch && observationCountMatch;
+      return periodMatch && performanceTypeMatch && observationCountMatch;
     });
 
-    this.dataTable.draw();
+    this.dataTable.draw(); // Redibuja la tabla
   }
-
+    
 
   getMonthName(month: number): string {
     return this.months[month - 1];
@@ -457,58 +506,106 @@ openNewCallModal(employeeId: number) {
     return `${day}-${month}-${year}`;
   }
 
+  splitObservation(observacion: string): string[] {
+    const lineLength = 50;
+    const lines = [];
+    
+    for (let i = 0; i < observacion.length; i += lineLength) {
+      lines.push(observacion.slice(i, i + lineLength));
+    }
+    
+    return lines;
+  }
+
+  // En tu componente Angular
+  formatObservation(observation: string): string[] {
+    const chunkSize = 50;
+    const result = [];
+    for (let i = 0; i < observation.length; i += chunkSize) {
+      result.push(observation.slice(i, i + chunkSize));
+    }
+    return result;
+  }
+
+  
+
   // Funciones de exportación
   exportToPdf(): void {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text('Lista de Desempeños de Empleados (Filtrados)', 10, 10);
-  
+    doc.text(`Lista de Desempeños de ${this.selectedEmployeeName}`, 10, 10);
+
+
+    // Añadir el texto del período debajo del título
+    doc.setFontSize(12);
+
     // Obtener los datos filtrados de la tabla DataTables
     const filteredData = this.dataTable
       .rows({ search: 'applied' })
       .data()
       .toArray();
-  
+
     const dataToExport = filteredData.map((performance: any) => [
-      performance.year,
-      this.months[performance.month - 1],
+      `${performance.year}-${(performance.month).toString().padStart(2, '0')}`,
       performance.fullName,
       performance.totalObservations,
       performance.performanceType,
     ]);
-  
+
     (doc as any).autoTable({
-      head: [['Año', 'Mes', 'Empleado', 'Observaciones', 'Desempeño']],
+      head: [['Periodo', 'Empleado', 'Observaciones', 'Desempeño']],
       body: dataToExport,
-      startY: 20,
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
-  
-    const formattedDate = this.getFormattedDate();
-    doc.save(`Lista_Desempeños_Filtrados_${formattedDate}.pdf`);
-  }
-  
-  exportToExcel(): void {
-    // Obtener los datos filtrados de la tabla DataTables
-    const filteredData = this.dataTable
-      .rows({ search: 'applied' })
-      .data()
-      .toArray();
-  
-    const dataToExport = filteredData.map((performance: any) => ({
-      'Año': performance.year,
-      'Mes': this.months[performance.month - 1],
-      'Empleado': performance.fullName,
-      'Observaciones': performance.totalObservations,
-      'Desempeño': performance.performanceType,
-    }));
-  
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Desempeños Filtrados');
 
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Desempeños_Filtrados_${formattedDate}.xlsx`);
-  }
+    doc.save(`${formattedDate}_Lista_Desempeños_${this.selectedEmployeeName}.pdf`);
+}
+
+  
+exportToExcel(): void {
+  const encabezado = [
+    ['Listado de Desempeño'],
+    [], // Fila vacía para separación
+    ['Periodo', 'Empleado', 'Observaciones', 'Desempeño']
+  ];
+
+  // Obtener los datos filtrados de la tabla DataTables
+  const filteredData = this.dataTable
+    .rows({ search: 'applied' })
+    .data()
+    .toArray();
+
+  // Convertir datos a un formato de array para compatibilidad con aoa_to_sheet
+  const dataToExport = filteredData.map((performance: any) => [
+    `${performance.year}-${(performance.month).toString().padStart(2, '0')}`,
+    performance.fullName,
+    performance.totalObservations,
+    performance.performanceType
+  ]);
+
+  // Combina encabezado y datos
+  const worksheetData = [...encabezado, ...dataToExport];
+  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+  // Configuración de ancho de columnas
+  worksheet['!cols'] = [
+    { wch: 20 },
+    { wch: 30 },
+    { wch: 15 },
+    { wch: 15 }
+  ];
+
+  // Crear y descargar el archivo Excel
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Desempeños Filtrados');
+
+  const formattedDate = this.getFormattedDate();
+  XLSX.writeFile(workbook, `${formattedDate}_Lista_Desempeños_Filtrados.xlsx`);
+}
+
 
   // Método para manejar la selección de años
   toggleYear(year: string): void {
@@ -545,6 +642,11 @@ openNewCallModal(employeeId: number) {
       this.selectedPerformanceType.splice(index, 1);
     }
     this.filterData();
+  }
+
+  // Add the volverInventario method
+  volverInventario(): void {
+    this.router.navigate(["home/employee-list"]);
   }
 
   

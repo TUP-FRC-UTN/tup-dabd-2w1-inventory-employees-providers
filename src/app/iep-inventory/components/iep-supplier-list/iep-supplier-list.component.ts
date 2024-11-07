@@ -16,6 +16,11 @@ interface SelectedTypes {
   OTHER: boolean;
 }
 
+interface SelectedStates {
+  ACTIVE: boolean;
+  INACTIVE: boolean;
+}
+
 @Component({
   selector: 'app-iep-supplier-list',
   standalone: true,
@@ -24,6 +29,13 @@ interface SelectedTypes {
   styleUrls: ['./iep-supplier-list.component.css']
 })
 export class IepSupplierListComponent implements AfterViewInit {
+
+  selectedStates: SelectedStates = {
+    ACTIVE: false,
+    INACTIVE: false
+  };
+
+  selectedStateCount: number = 0;
 
   selectedTypes: SelectedTypes = {
     OUTSOURCED_SERVICE: false,
@@ -55,11 +67,15 @@ export class IepSupplierListComponent implements AfterViewInit {
     Object.keys(this.columnFilters).forEach(key => {
       this.columnFilters[key as keyof typeof this.columnFilters] = '';
     });
-    // Limpiar los tipos seleccionados
+    // Limpiar los tipos y estados seleccionados
     Object.keys(this.selectedTypes).forEach(key => {
       this.selectedTypes[key as keyof SelectedTypes] = false;
     });
+    Object.keys(this.selectedStates).forEach(key => {
+      this.selectedStates[key as keyof SelectedStates] = false;
+    });
     this.selectedTypeCount = 0;
+    this.selectedStateCount = 0;
     this.filteredSuppliers = [...this.suppliers];
     this.updateDataTable(this.filteredSuppliers);
   }
@@ -69,13 +85,13 @@ export class IepSupplierListComponent implements AfterViewInit {
   applyFilters() {
     let filteredData = [...this.suppliers];
 
-    // Aplicar filtro global (excluyendo el tipo de proveedor)
+    // Aplicar filtro global (excluyendo el tipo de proveedor y estado)
     if (this.globalFilter) {
       const searchTerm = this.globalFilter.toLowerCase();
       filteredData = filteredData.filter(supplier => {
         return Object.entries(supplier).some(([key, value]) => {
-          // Excluir supplierType del filtro global
-          if (key === 'supplierType') return false;
+          // Excluir supplierType y discontinued del filtro global
+          if (key === 'supplierType' || key === 'discontinued') return false;
           return value && value.toString().toLowerCase().includes(searchTerm);
         });
       });
@@ -86,6 +102,14 @@ export class IepSupplierListComponent implements AfterViewInit {
     if (this.selectedTypeCount > 0) {
       filteredData = filteredData.filter(supplier => {
         return this.selectedTypes[supplier.supplierType as keyof SelectedTypes];
+      });
+    }
+
+    // Aplicar filtro de estado
+    this.selectedStateCount = Object.values(this.selectedStates).filter(Boolean).length;
+    if (this.selectedStateCount > 0) {
+      filteredData = filteredData.filter(supplier => {
+        return this.selectedStates[supplier.discontinued ? 'INACTIVE' : 'ACTIVE'];
       });
     }
 
@@ -149,11 +173,11 @@ export class IepSupplierListComponent implements AfterViewInit {
   translateSupplierType(type: string): string {
     switch (type) {
       case 'OTHER':
-        return 'OTRO';
+        return 'Otro';
       case 'OUTSOURCED_SERVICE':
-        return 'SERVICIO TERCERIZADO';
+        return 'Sservicio Tercerizado';
       case 'INVENTORY_SUPPLIER':
-        return 'PROVEEDOR DE INVENTARIO';
+        return 'Proveedor de Inventario';
       default:
         return type;
     }
@@ -164,45 +188,66 @@ export class IepSupplierListComponent implements AfterViewInit {
     doc.setFontSize(16);
     doc.text('Lista de Proveedores', 10, 10);
 
-    // Datos a exportar, mapeando los proveedores con los campos específicos
     const dataToExport = this.suppliers.map((supplier) => [
+      supplier.cuit,
       supplier.name,
       this.translateSupplierType(supplier.supplierType),
       supplier.address,
-      supplier.description,
       supplier.phoneNumber,
-      supplier.email
+      supplier.email,
+      supplier.discontinued ? 'Inactivo' : 'Activo'
     ]);
 
-    // Configuración de la tabla en el PDF
     (doc as any).autoTable({
-      head: [['Razón Social', 'Tipo Proveedor', 'Dirección', 'Descripción', 'Teléfono', 'Email']],
+      head: [['Cuit', 'Nombre', 'Tipo Proveedor', 'Direccion', 'Teléfono', 'Email', 'Estado']],
       body: dataToExport,
-      startY: 20,
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
 
     const formattedDate = this.getFormattedDate();
-    doc.save(`Lista_Proveedores_${formattedDate}.pdf`);
+    doc.save(`${formattedDate}_Lista_Proveedores.pdf`);
   }
 
 
   exportToExcel(): void {
-    const dataToExport = this.suppliers.map((supplier) => ({
-      'Razón Social': supplier.name,
-      'Tipo Proveedor': this.translateSupplierType(supplier.supplierType),
-      'Dirección': supplier.address,
-      'Descripción': supplier.description,
-      'Teléfono': supplier.phoneNumber,
-      'Email': supplier.email
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const dataToExport = this.suppliers.map((supplier) => ([
+      supplier.cuit,
+      supplier.name,
+      this.translateSupplierType(supplier.supplierType),
+      supplier.address,
+      supplier.phoneNumber,
+      supplier.email,
+      supplier.discontinued ? 'Inactivo' : 'Activo'
+    ]));
+  
+    const encabezado = [
+      ['Listado de Proveedores'],
+      [],
+      ['Cuit', 'Nombre', 'Tipo Proveedor', 'Dirección', 'Teléfono', 'Email', 'Estado']
+    ];
+  
+    const worksheetData = [...encabezado, ...dataToExport];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  
+    worksheet['!cols'] = [
+      { wch: 15 }, 
+      { wch: 30 }, 
+      { wch: 25 }, 
+      { wch: 40 }, 
+      { wch: 20 }, 
+      { wch: 30 },
+      { wch: 15 } 
+    ];
+  
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Proveedores');
-
+  
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Proveedores_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Proveedores.xlsx`);
   }
+  
 
   ngAfterViewChecked(): void {
     // Asegurarse de que la tabla solo se inicialice una vez
@@ -227,27 +272,27 @@ export class IepSupplierListComponent implements AfterViewInit {
             render: (data: string) => {
               switch (data) {
                 case 'OTHER':
-                  return 'OTRO';
+                  return 'Otro';
                 case 'OUTSOURCED_SERVICE':
-                  return 'SERVICIO TERCERIZADO';
+                  return 'Servicio Tercerizado';
                 case 'INVENTORY_SUPPLIER':
-                  return 'PROVEEDOR DE INVENTARIO';
+                  return 'Proveedor de Inventario';
                 default:
                   return data;
               }
             }
           },
           { data: 'address', title: 'Dirección' },
-          
+
           { data: 'phoneNumber', title: 'Teléfono' },
           { data: 'email', title: 'Email' },
-          { 
-            data: 'discontinued', 
+          {
+            data: 'discontinued',
             title: 'Estado',
-            render: function(data) {
-                return data ? 'Inactivo' : 'Activo';
+            render: function (data) {
+              return data ? 'Inactivo' : 'Activo';
             }
-        },
+          },
           {
             data: null,
             title: 'Acciones',
@@ -260,27 +305,22 @@ export class IepSupplierListComponent implements AfterViewInit {
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <li><a class="dropdown-item edit-btn" href="#" data-id="${data.id}">Editar</a></li>
+                    <li class="dropdown-divider"></li>
                     <li><a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${data.id}">Eliminar</a></li>
                   </ul>
                 </div>`;
             }
           }
         ],
-        pageLength: 10,
+        pageLength: 5,
         lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
-        lengthMenu: [5,10, 25, 50],
+        lengthMenu: [5, 10, 25, 50],
         searching: false,
         destroy: true,
         language: {
           lengthMenu: '_MENU_', // Esto eliminará el texto "entries per page"
           search: "Buscar:",
           info: "Mostrando _START_ a _END_ de _TOTAL_ proveedores",
-          paginate: {
-            first: '<<',
-            last: '>>',
-            next: '>',
-            previous: '<',
-          },
 
           emptyTable: "No hay datos disponibles en la tabla",
         }

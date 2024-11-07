@@ -1,55 +1,132 @@
 <section class="py-5">
-
   <div class="container p-3 border border-2 rounded shadow-lg">
-
     <!-- Sección de filtros y botones de exportación -->
-    <div class="d-flex mb-3 justify-content-between align-items-center">
-      <div class="d-flex align-items-center flex-grow-1">
-        <!-- Campo de Búsqueda -->
-        <div class="col-md-4 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-          <input type="text" id="filterInput" class="form-control" placeholder="Buscar" (input)="applyFilter($event)" />
-        </div>
-
-        <!-- Campo Desde para seleccionar la fecha de inicio -->
-        <div class="col-md-3 mb-3 mb-md-0 me-3"> <!-- Añadido me-3 para margen derecho -->
-          <input type="date" id="startDate" class="form-control" #startDateInput (change)="onStartDateChange()" />
-        </div>
-
-        <!-- Campo Hasta para seleccionar la fecha de fin -->
-        <div class="col-md-3 mb-3 mb-md-0">
-          <input type="date" id="endDate" class="form-control" #endDateInput (change)="onEndDateChange()" />
-        </div>
+    <div
+      class="d-flex mb-2 justify-content-between align-items-center flex-nowrap"
+    >
+      <!-- Campo de Búsqueda -->
+      <div class="me-2" style="width: 300px">
+        <input
+          type="text"
+          id="filterInput"
+          class="form-control"
+          placeholder="Buscar"
+          [(ngModel)]="globalFilter"
+          name="globalFilter"
+          (input)="applyFilter()"
+        />
       </div>
 
-      <!-- Botón para mostrar/ocultar filtros -->
-      <div class="col-mb-3">
-        <button class="btn btn-primary ms-2" data-bs-toggle="modal" title="Filtros Avanzados"
-          data-bs-target="#filtrosAvanzados">
-          <i class="bi bi-sort-down-alt"></i>
+      <!-- Campo Desde para seleccionar la fecha de inicio -->
+      <div class="me-2" style="width: 200px">
+        <input
+          type="date"
+          id="startDate"
+          class="form-control"
+          #startDateInput
+          [(ngModel)]="startDate"
+          name="startDate"
+          (ngModelChange)="applyAllFilters()"
+        />
+      </div>
+
+      <!-- Campo Hasta para seleccionar la fecha de fin -->
+      <div class="me-2" style="width: 200px">
+        <input
+          type="date"
+          id="endDate"
+          class="form-control"
+          #endDateInput
+          [(ngModel)]="endDate"
+          name="endDate"
+          (ngModelChange)="applyAllFilters()"
+        />
+      </div>
+
+      <!-- Period Section -->
+      <div class="dropdown me-2" style="width: 350px">
+        <button
+          class="btn btn-outline-secondary dropdown-toggle text-start w-100"
+          type="button"
+          id="dropdownReusable"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <span class="selected-movimiento">
+            Seleccionar Tipo de Movimiento @if (selectedMovementTypes.length >
+            0) { ({{ selectedMovementTypes.length }}) }
+          </span>
         </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownTipoMovimiento">
+          <li>
+            <label class="dropdown-item">
+              <input
+                type="checkbox"
+                class="form-check-input me-2"
+                name="modificationType"
+                value="Disminución"
+                (change)="applyColumnFilter($event, 'modificationType')"
+              />
+              Disminución
+            </label>
+          </li>
+          <li>
+            <label class="dropdown-item">
+              <input
+                type="checkbox"
+                class="form-check-input me-2"
+                name="modificationType"
+                value="Aumento"
+                (change)="applyColumnFilter($event, 'modificationType')"
+              />
+              Aumento
+            </label>
+          </li>
+        </ul>
       </div>
 
-      <!-- Botón para limpiar filtros -->
-      <div class="col-mb-3 ms-2">
-        <button class="btn btn-secondary" (click)="cleanColumnFilters()">
-          <i class="bi bi-trash"></i></button>
-      </div>
+      <!-- Botones de acción -->
+      <div class="d-flex align-items-center">
+        <div class="me-2">
+          <button
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            title="Filtros Avanzados"
+            data-bs-target="#filtrosAvanzados"
+          >
+            <i class="bi bi-funnel-fill"></i>
+          </button>
+        </div>
 
-      <!-- Botones para exportar datos a PDF y Excel -->
-      <div class="d-flex align-items-center ms-2">
-        <button class="btn btn-success" (click)="exportToExcel()" title="Exportar a Excel">
+        <div class="me-2">
+          <button class="btn btn-secondary" (click)="cleanColumnFilters()">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+
+        <button
+          class="btn btn-success me-2"
+          (click)="exportToExcel()"
+          title="Exportar a Excel"
+        >
           <i class="fa-solid bi-file-earmark-excel"></i>
         </button>
-        <button class="btn btn-danger ms-2" (click)="exportToPdf()" title="Exportar a PDF">
+        <button
+          class="btn btn-danger"
+          (click)="exportToPdf()"
+          title="Exportar a PDF"
+        >
           <i class="fas bi-file-earmark-pdf"></i>
         </button>
       </div>
     </div>
 
-
     <!-- Tabla que muestra el historial de movimientos de productos -->
     <div class="table-responsive mt-4">
-      <table id="historialTable" class="table table-striped table-hover display">
+      <table
+        id="historialTable"
+        class="table table-striped border border-4 rounded table-hover"
+      >
         <thead class="table-light">
           <tr>
             <th>Fecha</th>
@@ -69,36 +146,63 @@
     </div>
 
     <!-- Modal de Información que se despliega al hacer clic en el botón de información -->
-    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="infoModal"
+      tabindex="-1"
+      aria-labelledby="infoModalLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="infoModalLabel">
               Información sobre la Página
             </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
             <p>
-              Esta página muestra el historial de movimientos de productos, permitiéndote realizar las siguientes
-              acciones:
+              Esta página muestra el historial de movimientos de productos,
+              permitiéndote realizar las siguientes acciones:
             </p>
             <ul>
-              <li><strong>Filtrar el historial por fechas:</strong> Utiliza los campos "Desde" y "Hasta" para
-                especificar
-                el rango de fechas que deseas consultar. Los datos de movimientos se actualizarán automáticamente según
-                tus selecciones.</li>
-              <li><strong>Exportar los datos a Excel o PDF:</strong> Haz clic en los botones de "Exportar a Excel" o
-                "Exportar a PDF" para obtener un archivo con la información visualizada en la tabla. Estos botones
-                estarán
-                habilitados solo si hay datos disponibles para exportar.</li>
-              <li><strong>Visualizar los detalles de cada movimiento de producto:</strong> La tabla te permite ver
-                información específica sobre cada movimiento, incluyendo la fecha, producto, tipo de movimiento,
-                proveedor, cantidad, justificativo y stock después del movimiento.</li>
+              <li>
+                <strong>Filtrar el historial por fechas:</strong> Utiliza los
+                campos "Desde" y "Hasta" para especificar el rango de fechas que
+                deseas consultar. Los datos de movimientos se actualizarán
+                automáticamente según tus selecciones.
+              </li>
+              <li>
+                <strong>Exportar los datos a Excel o PDF:</strong> Haz clic en
+                los botones de "Exportar a Excel" o "Exportar a PDF" para
+                obtener un archivo con la información visualizada en la tabla.
+                Estos botones estarán habilitados solo si hay datos disponibles
+                para exportar.
+              </li>
+              <li>
+                <strong
+                  >Visualizar los detalles de cada movimiento de
+                  producto:</strong
+                >
+                La tabla te permite ver información específica sobre cada
+                movimiento, incluyendo la fecha, producto, tipo de movimiento,
+                proveedor, cantidad, justificativo y stock después del
+                movimiento.
+              </li>
             </ul>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
               Cerrar
             </button>
           </div>
@@ -108,101 +212,125 @@
   </div>
 
   <!-- Advanced Filters Modal -->
-  <div class="modal fade" id="filtrosAvanzados" tabindex="-1" aria-labelledby="filtrosAvanzadosLabel"
-    aria-hidden="true">
+  <div
+    class="modal fade"
+    id="filtrosAvanzados"
+    tabindex="-1"
+    aria-labelledby="filtrosAvanzadosLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog">
       <div class="modal-content">
-
         <!-- Modal Header -->
         <div class="modal-header">
-          <h5 class="modal-title" id="filtrosAvanzadosLabel">Filtros Avanzados</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5 class="modal-title" id="filtrosAvanzadosLabel">
+            Filtros Avanzados
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
 
         <!-- Modal Body -->
         <div class="modal-body">
-
           <!-- Min Amount Section -->
-          <div class="mb-3">
+          <!--           <div class="mb-3">
             <label for="montoMinimo" class="form-label">Producto</label>
             <input type="text" placeholder="" (input)="applyColumnFilter($event, 'product')" class="form-control" />
-          </div>
+          </div> -->
 
-
-
-          <!-- Period Section -->
-          <div class="mb-3">
-            <label for="periodo" class="form-label">Seleccionar tipo movimiento</label>
-            <div class="dropdown">
-              <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
-                id="dropdownReusable" data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="selected-movimiento">
-                  Tipo Movimiento
-                  @if (selectedMovementTypes.length > 0) {
-                  ({{ selectedMovementTypes.length }})
-                  }
-                </span>
-              </button>
-              <ul class="dropdown-menu w-100" aria-labelledby="dropdownTipoMovimiento">
-                <li>
-                  <label class="dropdown-item">
-                    <input type="checkbox" class="form-check-input me-2" name="modificationType" value="Disminución"
-                      (change)="applyColumnFilter($event, 'modificationType')">
-                    Disminución
-                  </label>
-                </li>
-                <li>
-                  <label class="dropdown-item">
-                    <input type="checkbox" class="form-check-input me-2" name="modificationType" value="Aumento"
-                      (change)="applyColumnFilter($event, 'modificationType')">
-                    Aumento
-                  </label>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-
-          <div class="mb-3">
-            <label for="montoMinimo" class="form-label">Producto</label>
+          <!--           <div class="mb-3">
+            <label for="montoMinimo" class="form-label">Proveedor</label>
             <input type="text" placeholder="" (input)="applyColumnFilter($event, 'supplier')" class="form-control" />
-          </div>
+          </div> -->
 
           <div class="mb-3">
-            <label for="montoMinimo" class="form-label">Cantidad mínima</label>
-            <input type="number" placeholder="" (input)="applyAmountFilter('min', $event)"
-              class="form-control text-end" />
-            @if (minAmount&&maxAmount) {
-            @if (minAmount > maxAmount) {
-            <div class="error-container mt-1 text-danger">
-              La cantidad mínima no puede ser mayor que la cantidad máxima.
+            <div class="row">
+              <!-- Primer grupo: Cantidad Mínima -->
+              <div class="mb-4">
+                <!-- Aumentamos el margin-bottom -->
+                <div class="row align-items-start">
+                  <div class="col-4">
+                    <label for="montoMinimo" class="form-label"
+                      >Cantidad Mínima</label
+                    >
+                  </div>
+                  <div class="col-8">
+                    <input
+                      type="number"
+                      id="montoMinimo"
+                      (input)="applyAmountFilter('min', $event)"
+                      class="form-control text-end"
+                    />
+                    <!-- Contenedor con altura fija para mensajes de error -->
+                    <div class="error-container" style="min-height: 40px">
+                      @if (minAmount) { @if (minAmount < 0) {
+                      <div class="text-danger mt-1 small">
+                        La cantidad mínima no puede ser menor a 0.
+                      </div>
+                      } @if (minAmount && maxAmount) { @if (minAmount >
+                      maxAmount) {
+                      <div class="text-danger mt-1 small">
+                        La cantidad mínima no puede ser mayor que la cantidad
+                        máxima.
+                      </div>
+                      } } }
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Segundo grupo: Cantidad Máxima -->
+              <div class="mb-0">
+                <div class="row align-items-start">
+                  <div class="col-4">
+                    <label for="montoMaximo" class="form-label"
+                      >Cantidad Máxima</label
+                    >
+                  </div>
+                  <div class="col-8">
+                    <input
+                      type="number"
+                      id="montoMaximo"
+                      (input)="applyAmountFilter('max', $event)"
+                      class="form-control text-end"
+                    />
+                    <!-- Contenedor con altura fija para mensajes de error -->
+                    <div class="error-container" style="min-height: 40px">
+                      @if (maxAmount) { @if (maxAmount < 0) {
+                      <div class="text-danger mt-1 small">
+                        La cantidad máxima no puede ser menor a 0.
+                      </div>
+                      } }
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            }
-            }
           </div>
 
-
-          <div class="mb-3">
-            <label for="montoMinimo" class="form-label">Cantidad Máxima</label>
-            <input type="number" placeholder="" (input)="applyAmountFilter('max', $event)"
-              class="form-control text-end" />
-          </div>
-
-
-          <div class="mb-3">
+          <!--           <div class="mb-3">
             <label for="montoMinimo" class="form-label">Justificativo</label>
             <input type="text" placeholder="" (input)="applyColumnFilter($event, 'description')" class="form-control" />
-          </div>
+          </div> -->
 
           <!-- Modal Footer -->
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-primary" [disabled]="isApplyButtonDisabled" (click)="applyAllFilters()"
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+            <!--             <button type="button" class="btn btn-primary" [disabled]="isApplyButtonDisabled" (click)="applyAllFilters()"
               data-bs-dismiss="modal">
               Aplicar
-            </button>
+            </button> -->
           </div>
-
         </div>
       </div>
     </div>

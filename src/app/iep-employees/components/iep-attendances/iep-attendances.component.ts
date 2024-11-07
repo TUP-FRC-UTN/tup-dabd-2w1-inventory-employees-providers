@@ -5,7 +5,8 @@ import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 declare var $: any;
 declare var DataTable: any;
@@ -99,7 +100,7 @@ export class IepAttendancesComponent implements OnInit{
     }
 
     this.table = $('#empleadosTable').DataTable({
-      pageLength: 10,
+      pageLength: 5,
       lengthChange: true,
       searching: false,
       language: {
@@ -126,15 +127,16 @@ export class IepAttendancesComponent implements OnInit{
           data: 'state', title: 'Estado', className: 'text-center',
           render: (data: any) => {
             let color;
+            let name;
 
             switch (data) {
-              case "PRESENTE": color = "#28a745"; break;
-              case "AUSENTE": color = "#dc3545"; break;
-              case "JUSTIFICADO": color = "#6f42c1"; break;
-              case "TARDE": color = "#ffc107"; break;
+              case "PRESENTE": color = "#28a745"; name = "Presente"; break;
+              case "AUSENTE": color = "#dc3545"; name = "Ausente"; break;
+              case "JUSTIFICADO": color = "#6f42c1"; name = "Justificado"; break;
+              case "TARDE": color = "#ffc107"; name = "Tarde"; break;
             }
-            return `<button class="btn border rounded-pill w-75" 
-            style="background-color: ${color}; color: white;">${data}</button>`;
+            return `<button class="btn border rounded-pill" 
+            style="background-color: ${color}; color: white;">${name}</button>`;
           }
         },
         {
@@ -151,16 +153,44 @@ export class IepAttendancesComponent implements OnInit{
         },
         {
           data: null,
-          title: 'Seleccionar',
+          title: 'Acciones',
           className: 'text-center',
           render: (data: any, type: any, row: any, meta: any) => {
             const isHidden = row.state === "PRESENTE" || row.state === "TARDE" ? 'style="display: none;"' : '';
-            const accion = row.state === "AUSENTE" ? "Justificar" : "Injustificar";
-            const nuevoEstado = row.state === "AUSENTE" ? "JUSTIFICADO" : "AUSENTE";
-            const checkbox = `<button class="btn border w-75" 
-            ${isHidden} data-id="${row.id}" data-nuevoestado="${nuevoEstado}">${accion}</button>`;
+  
+            // Lógica para los estados AUSENTE y JUSTIFICADO
+            let dropdown = '';   
+            if (row.state === "AUSENTE") {
+              dropdown = `
+                <div class="dropdown">
+                  <a class="btn btn-light" href="#" role="button" 
+                  ${isHidden} data-bs-toggle="dropdown" aria-expanded="false"
+                  style="width: 40px; height: 40px; display: flex; justify-content: center; 
+                  align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;"> &#8942;
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><button class="dropdown-item btn-cambiar-estado" data-id="${row.id}" data-nuevoestado="JUSTIFICADO">Justificar</button></li>
+                  </ul>
+                </div>`;
+            } else if (row.state === "JUSTIFICADO") {
+              dropdown = `
+                <div class="dropdown">
+                  <a class="btn btn-light" href="#" role="button" 
+                  ${isHidden} data-bs-toggle="dropdown" aria-expanded="false"
+                  style="width: 40px; height: 40px; display: flex; justify-content: center; 
+                  align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;"> &#8942;
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-id="${row.id}" data-bs-toggle="modal" data-bs-target="#infoModal" 
+                    data-nuevoestado="JUSTIFICADO">Ver Justificación</a></li>
+                    <li class="dropdown-divider"></li>
+                    <li><button class="dropdown-item btn-cambiar-estado" data-id="${row.id}" data-nuevoestado="AUSENTE">Injustificar</button></li>
+                  </ul>
+                </div>`;
+              }
 
-            const indicator = row.state === "PRESENTE" || row.state === "TARDE" ? '' : checkbox;
+            // Si el estado es PRESENTE o TARDE, no mostramos el dropdown
+            const indicator = row.state === "PRESENTE" || row.state === "TARDE" ? '' : dropdown;
 
             return indicator;
           },
@@ -168,7 +198,7 @@ export class IepAttendancesComponent implements OnInit{
       ],
     });
 
-    $('#empleadosTable').off('click', 'button').on('click', 'button', (event: any) => {
+    $('#empleadosTable').off('click', 'button').on('click', '.btn-cambiar-estado', (event: any) => {
       const button = $(event.currentTarget);
       const id = button.data('id');
       const nuevoEstado = button.data('nuevoestado');
@@ -282,31 +312,33 @@ export class IepAttendancesComponent implements OnInit{
     return `${year}-${month}-${day}`;
   }
 
-  exportToExcel(): void {
-    let dataToExport: any[] = []; // Define un array vacío por defecto
-      // Extrae datos de la tabla de asistencias
-      dataToExport = this.Asistencias.map((asistencia) => ({
-        'Nombre del Empleado': asistencia.employeeName,
-        'Fecha': asistencia.date,
-        'Hora de Llegada': asistencia.arrivalTime,
-        'Hora de Salida': asistencia.departureTime,
-        'Estado': asistencia.state,
-      }));
-    
-
-    // Aquí se asegura de que dataToExport nunca sea undefined
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, `Lista de asistencias`);
-
-    XLSX.writeFile(workbook, `Lista_asistencias_${this.empleadoName}_${this.getFormattedDate()}.xlsx`);
+  private formatDate2(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${day}-${month}-${year}`;
   }
 
-  exportToPdf(): void {
-    const doc = new jsPDF();
+  exportToExcel(): void {
+    const encabezado = [
+      ['Listado de Asistencias'],
+      [], // Fila en blanco
+      ['Nombre del Empleado', 'Fecha', 'Hora de Llegada', 'Hora de Salida', 'Estado'] 
+    ];
 
-    // Extrae datos de la tabla de asistencias
-    const dataToExport = this.Asistencias.map((asistencia) => [
+    // Filtra las asistencias del empleado que estás visualizando
+    const filteredAsistencias = this.Asistencias.filter(
+      asistencia => asistencia.employeeName === this.empleadoName
+    );
+
+    // Verifica si existen asistencias para el empleado seleccionado
+    if (filteredAsistencias.length === 0) {
+      console.error(`No hay datos de asistencia para el empleado ${this.empleadoName}`);
+      return;
+    }
+
+    // Extrae los datos de las asistencias filtradas como arreglos de arreglos
+    const dataToExport = filteredAsistencias.map((asistencia) => [
       asistencia.employeeName,
       asistencia.date,
       asistencia.arrivalTime,
@@ -314,16 +346,70 @@ export class IepAttendancesComponent implements OnInit{
       asistencia.state,
     ]);
 
+    // Crea una hoja de cálculo (worksheet)
+    const worksheetData = [...encabezado, ...dataToExport];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // Crea un libro de trabajo
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Asistencias');
+
+    // Descarga el archivo Excel
+    XLSX.writeFile(workbook, `${this.getFormattedDate()}_Lista_Asistencias_${this.empleadoName}.xlsx`);
+}
+
+
+  exportToPdf(): void {
+    console.log('Exportando a PDF...');
+    const doc = new jsPDF();
+  
+    // Verifica si hay datos en Asistencias
+    if (!this.Asistencias || this.Asistencias.length === 0) {
+      console.error('No hay datos de asistencias');
+      return;
+    }
+  
+    // Filtra las asistencias del empleado que estás visualizando
+    const filteredAsistencias = this.Asistencias.filter(
+      asistencia => asistencia.employeeName === this.empleadoName
+    );
+  
+    // Verifica si existen asistencias para el empleado seleccionado
+    if (filteredAsistencias.length === 0) {
+      console.error(`No hay datos de asistencia para el empleado ${this.empleadoName}`);
+      return;
+    }
+  
+    const dataToExport = filteredAsistencias.map((asistencia) => [
+      asistencia.date,
+      asistencia.employeeName,
+      asistencia.state,
+      asistencia.arrivalTime,
+      asistencia.departureTime,
+      asistencia.justification
+    ]);
+  
+
+  
     doc.setFontSize(16);
-    doc.text('Lista de Asistencias', 10, 10);
+    doc.text(`Lista de Asistencias de ${this.empleadoName}`, 10, 10);
+  
+    // Agrega las fechas al PDF
+    doc.setFontSize(12);
+  
     (doc as any).autoTable({
-      head: [['Nombre del Empleado', 'Fecha', 'Hora de Llegada', 'Hora de Salida', 'Estado']],
+      head: [['Fecha', 'Apellido y nombre', 'Estado', 'Hora de entrada', 'Hora de salida', 'Observaciones']],
       body: dataToExport,
-      startY: 20,
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 }
     });
     
-    doc.save(`Lista_asistencias_${this.empleadoName}_${this.getFormattedDate()}.pdf`);
+    doc.save(`${this.getFormattedDate()}_Lista_asistencias_${this.empleadoName}.pdf`);
   }
+  
+ 
+
 
   getFormattedDate(): string {
     const today = new Date();
@@ -332,4 +418,9 @@ export class IepAttendancesComponent implements OnInit{
     const year = today.getFullYear();
     return `${day}/${month}/${year}`;
   }
+
+    // Add the volverInventario method
+    volverInventario(): void {
+      this.router.navigate(["home/employee-list"]);
+    }
 }

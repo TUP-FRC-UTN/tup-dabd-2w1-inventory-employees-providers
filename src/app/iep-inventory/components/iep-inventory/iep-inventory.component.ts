@@ -11,6 +11,7 @@ import 'datatables.net';
 import 'datatables.net-dt';
 import 'datatables.net-bs5';
 import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import { IepStockIncreaseComponent } from '../iep-stock-increase/iep-stock-increase.component';
 import { Details } from '../../models/details';
 import { ProductCategory } from '../../models/product-category';
@@ -25,7 +26,6 @@ import Swal from 'sweetalert2';
 interface Filters {
   categoriasSeleccionadas: number[];
   reutilizableSeleccionado: number[];
-  estadosSeleccionados: string[];  // Nuevo campo para estados
   nombre: string;
   startDate: string;
   endDate: string;
@@ -42,23 +42,17 @@ interface Filters {
 })
 export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  selectedStatus = {
-    active: false,
-    inactive: false
-  };
-  selectedStatusCount = 0;
-
   errorMessage: string = '';
   // Objeto que mantiene el estado de todos los filtros
   filters: Filters = {
     categoriasSeleccionadas: [],
     reutilizableSeleccionado: [],
-    estadosSeleccionados: [],  // Nuevo campo para estados
     nombre: '',
     startDate: '',
     endDate: '',
     cantMinima: 0,
     cantMaxima: 0
+
   };
 
   botonDeshabilitado: boolean = false;
@@ -257,9 +251,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
 
-  // Variables necesarias para el filtrado por fecha
-  startDate: string = '';
-  endDate: string = '';
 
   filtrarPorUltimos30Dias(): void {
     const hoy = new Date();
@@ -281,107 +272,115 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-
+  //Filtra los productos cuya fecha es mayor a startDate
   onStartDateChange(): void {
-    const startDateInput = document.getElementById('startDate') as HTMLInputElement;
-    this.filters.startDate = startDateInput.value;
-    this.aplicarFiltrosCombinados();
-  }
-
-  onEndDateChange(): void {
-    const endDateInput = document.getElementById('endDate') as HTMLInputElement;
-    this.filters.endDate = endDateInput.value;
-    this.aplicarFiltrosCombinados();
-  }
-
-  applyDateFilter(): void {
     this.productosFiltered = this.productosALL.filter(producto => {
-      // Obtener la última fecha de actualización de los detalles del producto
       let lastDate = '';
       for (const detail of producto.detailProducts) {
-        if (detail.lastUpdatedDatetime) {
-          if (!lastDate || detail.lastUpdatedDatetime > lastDate) {
-            lastDate = detail.lastUpdatedDatetime;
-          }
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
         }
       }
-
-      // Si no hay fecha de inicio ni fin, mostrar todos los productos
-      if (!this.startDate && !this.endDate) {
-        return true;
-      }
-
-      // Si no hay fecha para el producto, no lo incluimos en el filtro
       if (!lastDate) {
         return false;
       }
 
       const productDate = new Date(lastDate);
-
-      // Filtrar por fecha de inicio si existe
-      if (this.startDate && !this.endDate) {
-        return productDate >= new Date(this.startDate);
-      }
-
-      // Filtrar por fecha final si existe
-      if (!this.startDate && this.endDate) {
-        return productDate <= new Date(this.endDate);
-      }
-
-      // Filtrar por rango de fechas si ambas existen
-      return productDate >= new Date(this.startDate) && productDate <= new Date(this.endDate);
+      return this.startDate ? productDate >= new Date(this.startDate) : true;
     });
 
     this.updateDataTable();
   }
 
-  applyFilter(event: Event): void {
-    // Actualizar contador de estados seleccionados independientemente del tipo de evento
-    this.selectedStatusCount = Object.values(this.selectedStatus).filter(value => value).length;
-    console.log('Estados seleccionados:', this.selectedStatusCount);
-    console.log('Estado actual:', this.selectedStatus);
-  
+  //Filtra los productos cuya fecha es menor a startDate
+  onEndDateChange(): void {
     this.productosFiltered = this.productosALL.filter(producto => {
-      // Verificar el estado del producto
-      let estadoCumple = true;
-      if (this.selectedStatusCount > 0) {
-        estadoCumple = (this.selectedStatus.active && !producto.discontinued) ||
-                       (this.selectedStatus.inactive && producto.discontinued);
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
+        }
       }
-  
-      // Filtros existentes
-      const nombreCumple = !this.filters.nombre ||
-        producto.name.toLowerCase().includes(this.filters.nombre.toLowerCase());
-  
-      const categoriaCumple = this.filters.categoriasSeleccionadas.length === 0 ||
-        this.filters.categoriasSeleccionadas.includes(producto.category.categoryId);
-  
-      const reusableCumple = this.filters.reutilizableSeleccionado.length === 0 ||
-        this.filters.reutilizableSeleccionado.includes(producto.reusable ? 1 : 2);
-  
-      // Combinar todos los filtros
-      return estadoCumple && nombreCumple && categoriaCumple && reusableCumple;
+      if (!lastDate) {
+        return false;
+      }
+
+      const productDate = new Date(lastDate);
+      return this.endDate ? productDate <= new Date(this.endDate) : true;
     });
-  
+
     this.updateDataTable();
   }
 
-  onStatusChange(event: Event): void {
-    const checkbox = event.target as HTMLInputElement;
-    const status = checkbox.id || checkbox.name; // Asegúrate de que los checkboxes tengan id o name
-  
-    // Actualizar el estado correspondiente
-    if (status === 'active') {
-      this.selectedStatus.active = checkbox.checked;
-    } else if (status === 'inactive') {
-      this.selectedStatus.inactive = checkbox.checked;
-    }
-  
-    // Actualizar el contador
-    this.selectedStatusCount = Object.values(this.selectedStatus).filter(value => value).length;
+  applyDateFilter(): void {
+    this.productosFiltered = this.productosALL.filter(producto => {
+      // Obtener la última fecha de actualización de los detalles del producto
+    });
+
+    this.updateDataTable();
+  }
+
+  filtersValues: any = {
+    startDate: '',
+    endDate: '',
+  };
+
+  globalFilter: string = '';
+
+
+  //Método para filtrar productos con estado Activo e Inactivo
+  stateFilter(event: Event) {
     
-    // Aplicar el filtro
-    this.applyFilter(event);
+  }
+
+  // Método para aplicar el filtro global.
+  applyFilter(): void {
+    const globalFilterLower = this.globalFilter.toLowerCase();
+    this.productosFiltered = this.productosALL.filter(producto => {
+      return producto.name.toLowerCase().includes(globalFilterLower.toLowerCase()) ||
+        producto.category.categoryName.toLowerCase().includes(globalFilterLower.toLowerCase()) ||
+        (producto.reusable ? 'SI' : 'NO').toLowerCase().includes(globalFilterLower.toLowerCase()) ||
+        producto.detailProducts.length.toString().includes(globalFilterLower);
+    });
+
+    //Seccion para filtrar por fecha startDate
+    this.productosFiltered = this.productosFiltered.filter(producto => {
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
+        }
+      }
+      if (!lastDate) {
+        return false;
+      }
+
+      const productDate = new Date(lastDate);
+      return this.startDate ? productDate >= new Date(this.startDate) : true;
+    });
+
+    //Seccion para filtrar por fecha endDate
+    this.productosFiltered = this.productosFiltered.filter(producto => {
+      let lastDate = '';
+      for (const detail of producto.detailProducts) {
+        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
+          lastDate = detail.lastUpdatedDatetime;
+        }
+      }
+      if (!lastDate) {
+        return false;
+      }
+
+      const productDate = new Date(lastDate);
+      return this.endDate ? productDate <= new Date(this.endDate) : true;
+    });
+
+
+    this.updateDataTable();
+
+    console.log('Filtro global:', this.globalFilter);
+    console.log('startDate:', this.startDate);
+    console.log('endDate:', this.endDate);
   }
 
   filtersVisible = false; // Controla la visibilidad de los filtros
@@ -450,12 +449,26 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   showNuevoProductoModal: boolean = false;
   selectedProductId: number | null = null;
 
+
+  // Variables necesarias para el filtrado por fecha
+  startDate: string | undefined;
+  endDate: string | undefined;
+
+
+
   ngOnInit(): void {
-    this.endDate = new Date().toISOString().split('T')[0];
+    const hoy = new Date();
+    const hace30Dias = new Date();
+    this.endDate = hoy.toISOString().split('T')[0];
     // Inicializar la fecha de inicio con la fecha actual menos 30 dias
-    this.startDate = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
+    hace30Dias.setDate(hoy.getDate() - 30);
+    this.startDate = hace30Dias.toISOString().split('T')[0];
+    console.log('startDate', this.startDate);
+    console.log('endDate', this.endDate);
+    console.log('hoy', hoy);
     this.initializeDataTable();
     this.cargarDatos();
+    console.log(this.categories);
     this.cargarProductos();
   }
 
@@ -546,12 +559,16 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.updateDataTable();
   }
 
+
+
   // Modifica el método cleanFilters() para limpiar también las categorías seleccionadas
   cleanFilters(): void {
+    this.globalFilter = '';
+    this.startDate = '';
+    this.endDate = '';
     this.filters = {
       categoriasSeleccionadas: [],
       reutilizableSeleccionado: [],
-      estadosSeleccionados: [],  // Limpiar estados seleccionados
       nombre: '',
       startDate: '',
       endDate: '',
@@ -559,22 +576,28 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       cantMaxima: 0
     };
 
-    // Reiniciar estados del dropdown
-    this.selectedStatus = {
-      active: false,
-      inactive: false
-    };
-    this.selectedStatusCount = 0;
-
-    // Limpiar los checkboxes
+    // Limpia los checkboxes
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach((checkbox: any) => checkbox.checked = false);
 
-    // Limpiar los campos de texto
+    // Limpia los campos de texto
     const textInputs = document.querySelectorAll('input.form-control');
     textInputs.forEach(input => (input as HTMLInputElement).value = '');
 
     this.aplicarFiltrosCombinados();
+  }
+
+  getCountByategoryAndState(categoryId: number, state: string): number {
+    return this.productosFiltered.reduce((count, producto) => {
+      if (producto.category.categoryId === categoryId) {
+        for (let i = 0; i < producto.detailProducts.length; i++) {
+          if (producto.detailProducts[i].state === state) {
+            count++;
+          }
+        }
+      }
+      return count;
+    }, 0);
   }
 
 
@@ -620,26 +643,23 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           title: 'Cantidad',
           render: (row: any) => {
             const quantity = row.detailProducts.length;
+
             const warning = row.minQuantityWarning;
 
-            if (quantity <= warning + 10 && quantity > warning) {
+/*             if (quantity <= warning + 10 && quantity > warning) {
               return `<span style="color: #FF8C00; font-weight: bold;">${quantity}</span>`;
             } else {
               if (9 >= quantity && quantity > 0) {
                 return `<span style="color: #FF0000; font-weight: bold;">${quantity}</span>`;
               }
-            }
+            } */
+
             return quantity;
           }
         },
         {
           data: 'minQuantityWarning',
           title: 'Min. Alerta',
-        },
-        {
-          data: 'discontinued',
-          title: 'Estado',
-          render: (data: boolean) => (data ? 'Inactivo' : 'Activo'),
         },
         {
           data: null,
@@ -652,9 +672,11 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
                   &#8942;
                 </a>
                 <ul class="dropdown-menu">
-                  <li><button class="dropdown-item btn botonAumentoStock" data-id="${row.id}">Agregar</button></li>
                   <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
-                  <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" (click)="giveLogicalLow(${row.id})">Eliminar</button></li>
+                    <li class="dropdown-divider"></li>
+                  <li><button class="dropdown-item btn botonAumentoStock" data-bs-target="#aumentoStock" data-bs-toggle="modal"  data-id="${row.id}">Agregar</button></li>
+                <!--    <li class="dropdown-divider"></li> -->
+                <!--  <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" (click)="giveLogicalLow(${row.id})">Eliminar</button></li> -->
                 </ul>
               </div>
             `;
@@ -674,12 +696,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         lengthMenu: '_MENU_', // Esto eliminará el texto "entries per page"
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
         emptyTable: 'No se encontraron registros',
-        paginate: {
-          first: '<<',
-          last: '>>',
-          next: '>',
-          previous: '<',
-        },
       },
       createdRow: function (row: any, data: any) {
         // Verifica si la cantidad es menor o igual al mínimo de alerta
@@ -724,26 +740,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       this.showConfirmDeleteModal();
     });
 
-  }
-
-  updateDataTable(): void {
-    if (this.table) {
-      this.table.clear().rows.add(this.productosFiltered).draw();
-    }
-  }
-
-
-  getCountByategoryAndState(categoryId: number, state: string): number {
-    return this.productosFiltered.reduce((count, producto) => {
-      if (producto.category.categoryId === categoryId) {
-        for (let i = 0; i < producto.detailProducts.length; i++) {
-          if (producto.detailProducts[i].state === state) {
-            count++;
-          }
-        }
-      }
-      return count;
-    }, 0);
   }
 
   setProductToDelete(id: number): void {
@@ -817,16 +813,23 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.showErrorDeleteModal();
   }
-  
-  /* METODO PARA PASAR DE FECHAS "2024-10-17" A FORMATO dd/mm/yyyy*/
-  formatDate(inputDate: string): string {
-    const [year, month, day] = inputDate.split('-');
-    return `${day}-${month}-${year}`;
-  }
 
   giveLogicalLow(id: number) {
     console.log('Eliminando producto con id: ' + id);
   }
+
+  /* METODO PARA PASAR DE FECHAS "2024-10-17" A FORMATO dd/mm/yyyy*/
+  formatDate(inputDate: string): string {
+    const [year, month, day] = inputDate.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
+  updateDataTable(): void {
+    if (this.table) {
+      this.table.clear().rows.add(this.productosFiltered).draw();
+    }
+  }
+
 
   getFormattedDate(): string {
     const date = new Date();
@@ -867,12 +870,14 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         ],
       ],
       body: dataToExport,
-      startY: 20,
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
 
     // Guardar archivo PDF
     const formattedDate = this.getFormattedDate();
-    doc.save(`Lista_Productos_${formattedDate}.pdf`);
+    doc.save(`${formattedDate}_Lista_Productos.pdf`);
   }
 
   // Método auxiliar para obtener la última fecha de ingreso
@@ -889,26 +894,43 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   generarExcel(): void {
+    const encabezado = [
+      ['Listado de Productos'],
+      [],
+      ['Último Ingreso', 'Nombre', 'Categoría', 'Reutilizable', 'Cantidad', 'Min. Alerta']
+    ];
+
     // Reordenamos los datos según el orden de columnas en la tabla HTML
-    const dataToExport = this.productosFiltered.map((producto) => ({
-      'Último ingreso': producto.detailProducts
+    const excelData = this.productosFiltered.map((producto) => [
+      producto.detailProducts
         ? this.getLastIngreso(producto.detailProducts)
         : '',
-      Nombre: producto.name,
-      Categoría: producto.category ? producto.category.categoryName : '',
-      Reutilizable: producto.reusable ? 'SI' : 'NO',
-      Cantidad: producto.detailProducts ? producto.detailProducts.length : 0,
-      'Min. Alerta': producto.minQuantityWarning || '',
-    }));
+      producto.name,
+      producto.category ? producto.category.categoryName : '',
+      producto.reusable ? 'SI' : 'NO',
+      producto.detailProducts ? producto.detailProducts.length : 0,
+      producto.minQuantityWarning || '',
+    ]);
 
-    // Crear hoja y libro de Excel
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const worksheetData = [...encabezado, ...excelData];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    worksheet['!cols'] = [
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 10 },
+      { wch: 15 }
+    ];
+
+    // Crear el libro de trabajo y agregar la hoja
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Productos');
 
-    // Guardar archivo Excel
+    // Guardar el archivo con la fecha
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Productos_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Productos.xlsx`);
   }
 
   irMenu() {
@@ -919,6 +941,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.detalleProductoService.setId(id);
     this.router.navigate(['home/inventory-detail']);
   }
+
+
 
   irAgregarProducto() {
     /* this.modalVisible = true; // Muestra el modal */

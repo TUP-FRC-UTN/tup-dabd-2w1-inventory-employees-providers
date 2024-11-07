@@ -8,16 +8,18 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import { NgSelectModule } from '@ng-select/ng-select';
 declare var bootstrap: any; // Añadir esta declaración al principio
 
 @Component({
   selector: 'app-iep-cargos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule, NgSelectModule],
   templateUrl: './iep-charges.component.html',
   styleUrl: './iep-charges.component.css'
 })
 export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
+
   cargoForm: FormGroup;
   cargos: ChargeResponse[] = [];
   selectedCargo: ChargeResponse | null = null;
@@ -34,6 +36,18 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
   isConfirmDeleteModalOpen = false;
   isErrorModalOpen = false;
   errorMessage = '';
+  selectedStates: any;
+
+  stateOptions = [
+    { id: true, label: 'Activo' },
+    { id: false, label: 'Inactivo' }
+  ];
+
+  filters = {
+    reutilizableSeleccionado: [] as boolean[]
+  };
+
+  cargoSeleccionado: ChargeResponse | null = null;
 
 
   constructor(
@@ -46,10 +60,17 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  stateFilter(): void {
+    // Aplicar ambos filtros: texto y estado
+    this.filterData({ target: { value: this.searchTerm } });
+  }
+  
+  
+
   getFormattedDate(): string {
     const date = new Date();
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     
     return `${day}-${month}-${year}`;
@@ -57,40 +78,64 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
   
   
   exportToPdf(): void {
-    // Usar filteredData en lugar de cargos
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text('Lista de Cargos', 10, 10);
+  
+    const pageTitle = 'Listado de Cargos';
+    doc.setFontSize(18);
+    doc.text(pageTitle, 15, 10);
   
     const dataToExport = this.filteredData.map((cargo) => [
       cargo.charge,
       cargo.description,
+      cargo.active ? 'Activo' : 'Inactivo',
     ]);
   
     (doc as any).autoTable({
-      head: [['Cargo', 'Descripción']],
+      head: [['Cargo', 'Descripción', 'Estado']],
       body: dataToExport,
-      startY: 20,
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
   
-    const formattedDate = this.getFormattedDate();
-    doc.save(`Lista_Cargos_${formattedDate}.pdf`);
+    const formattedDate = this.getFormattedDate(); 
+    doc.save(`${formattedDate}_Lista_Cargos.pdf`);
   }
   
-  exportToExcel(): void {
-    // Usar filteredData en lugar de cargos
-    const dataToExport = this.filteredData.map((cargo) => ({
-      'Cargo': cargo.charge,
-      'Descripción': cargo.description,
-    }));
   
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  
+  exportToExcel(): void {
+    const encabezado = [
+      ['Listado de Cargos'],
+      [],
+      ['Cargo', 'Descripción', 'Estado'] 
+    ];
+  
+    // Datos a exportar
+    const excelData = this.filteredData.map((cargo) => {
+      return [
+        cargo.charge,                         
+        cargo.description,                     
+        cargo.active ? 'Activo' : 'Inactivo',  
+      ];
+    });
+  
+    const worksheetData = [...encabezado, ...excelData];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  
+    worksheet['!cols'] = [
+      { wch: 20 }, 
+      { wch: 30 }, 
+      { wch: 15 }
+    ];
+  
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Cargos');
   
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Cargos_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Cargos.xlsx`);
   }
+  
 
 
   markAllControlsAsTouched(): void {
@@ -131,21 +176,19 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-abrirModalConfirmarEliminacion(cargo: ChargeResponse): void {
-  Swal.fire({
-    title: '¿Está seguro?',
-    text: '¿Desea eliminar este cargo?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6'
-  }).then((result) => {
-    if (result.isConfirmed && cargo.id) {
-      this.eliminarCargo(cargo.id);
-    }
-  });
+  abrirModalConfirmarEliminacion(cargo: ChargeResponse): void {
+    this.cargoSeleccionado = cargo;
+    const modal = new bootstrap.Modal(document.getElementById('eliminarCargoModal') as HTMLElement);
+    modal.show();
+  }
+
+confirmarEliminacion(): void {
+  if (this.cargoSeleccionado?.id) {
+    this.eliminarCargo(this.cargoSeleccionado.id);
+    this.cargoSeleccionado = null;
+    const modal = bootstrap.Modal.getInstance(document.getElementById('eliminarCargoModal') as HTMLElement);
+    modal?.hide();
+  }
 }
 
 eliminarCargo(id: number): void {
@@ -159,7 +202,6 @@ eliminarCargo(id: number): void {
         text: 'El cargo ha sido eliminado correctamente.',
         icon: 'success',
         confirmButtonText: 'Aceptar'  // Solo un botón de "Aceptar" en caso de eliminación exitosa
-        ,confirmButtonColor: '#3085d6'
       });
       this.loadCargos();
       
@@ -216,9 +258,15 @@ closeInfoModal(): void{
       charge: cargo.charge,
       description: cargo.description
     });
+  
+    // Marcar los campos como tocados para que la validación visual se muestre de inmediato
+    this.cargoForm.get('charge')?.markAsTouched();
+    this.cargoForm.get('description')?.markAsTouched();
+  
     this.isEditModalOpen = true;
     document.body.classList.add('modal-open');
   }
+  
 
   closeEditModal(): void {
     this.isEditModalOpen = false;
@@ -234,16 +282,27 @@ closeInfoModal(): void{
 
   filterData(event: any): void {
     const searchTerm = event.target.value.toLowerCase().trim();
-    
-    if (!searchTerm) {
-      this.filteredData = [...this.cargos];
-    } else {
-      this.filteredData = this.cargos.filter(cargo => 
-        cargo.charge.toLowerCase().includes(searchTerm)
-      );
-    }
-    
-    this.refreshDataTable();
+  
+  // Filtrar por texto (cargo o descripción)
+  let filteredByText = this.cargos.filter(cargo => 
+    cargo.charge.toLowerCase().includes(searchTerm) || 
+    cargo.description.toLowerCase().includes(searchTerm)
+  );
+
+  // Filtrar por estado si se ha seleccionado alguno
+  if (this.filters.reutilizableSeleccionado.length > 0) {
+    filteredByText = filteredByText.filter(cargo =>
+      this.filters.reutilizableSeleccionado.includes(cargo.active)
+    );
+  }
+
+  // Asignar los resultados filtrados
+  this.filteredData = filteredByText;
+
+  // Actualizar la tabla
+  if (this.table) {
+    this.table.clear().rows.add(this.filteredData).draw();
+  }
   }
 
   loadCargos(): void {
@@ -272,13 +331,30 @@ closeInfoModal(): void{
     if (!this.cargos || this.cargos.length === 0) {
       return;
     }
-
+  
     this.table = $('#cargosTable').DataTable({
-      dom:
-          '<"mb-3"t>' +
-          '<"d-flex justify-content-between"lp>',
+      dom: '<"mb-3"t>' +
+           '<"d-flex justify-content-between"lp>',
       data: this.filteredData,
       columns: [
+        {
+          data: 'active',
+          title: 'Estado',
+          render: (data: boolean) => {
+            let colorClass;
+            let text;
+        
+            if (data) {
+              colorClass = '#198754'; // Verde para "Activo"
+              text = 'Activo';
+            } else {
+              colorClass = '#dc3545'; // Rojo para "Inactivo"
+              text = 'Inactivo';
+            }
+        
+            return `<span class="badge" style="background-color: ${colorClass};">${text}</span>`;
+          }
+        },
         { data: 'charge', title: 'Cargo' },
         { data: 'description', title: 'Descripción' },
         {
@@ -294,15 +370,16 @@ closeInfoModal(): void{
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li><a class="dropdown-item edit-btn" href="#" data-bs-target="#editChargeModal" data-bs-toggle="modal" data-id="${data.id}">Editar</a></li>
+                  <li class="dropdown-divider"></li>
                   <li><a class="dropdown-item delete-btn" href="#" data-id="${data.id}">Eliminar</a></li>
                 </ul>
               </div>`;
           }
         }
       ],
-      pageLength: 10,
+      pageLength: 5,
       lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
-      lengthMenu:[10, 25, 50],
+      lengthMenu:[5, 10, 25, 50],
       searching: false, // Desactivar la búsqueda
       language: {
         emptyTable: "No hay datos disponibles en la tabla",
@@ -311,19 +388,13 @@ closeInfoModal(): void{
         infoEmpty: "Mostrando 0 a 0 de 0 entradas",
         infoFiltered: "(filtrado de _MAX_ entradas totales)",
         search: 'Buscar:',
-        paginate: {
-          first: '<<',
-          last: '>>',
-          next: '>',
-          previous: '<',
-        },
         lengthMenu: '_MENU_',
       }
     });
-
+  
     this.setupTableListeners();
   }
-
+  
   private setupTableListeners(): void {
     this.table.on('click', '.edit-btn', (event: { preventDefault: () => void; currentTarget: any; }) => {
       event.preventDefault();
@@ -343,6 +414,7 @@ closeInfoModal(): void{
       }
     });
   }
+  
 
   closeModale(modalId: string) {
     const modalElement = document.getElementById(modalId);
@@ -396,8 +468,7 @@ onSubmitCreate(): void {
                     title: 'Error',
                     text: `El cargo "${chargeValue}" ya existe. Por favor, elige otro nombre.`,
                     icon: 'error',
-                    confirmButtonText: 'Aceptar',
-                    confirmButtonColor: '#3085d6'
+                    confirmButtonText: 'Aceptar'
                 }).then(() => {
                     this.closeModale('createChargeModal'); // Cerrar modal en caso de error
                     this.loadCargos();
@@ -411,8 +482,7 @@ onSubmitCreate(): void {
                         title: '¡Creado!',
                         text: 'El cargo ha sido creado correctamente.',
                         icon: 'success',
-                        confirmButtonText: 'Aceptar',
-                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Aceptar'
                     }).then(() => {
                         this.closeModale('createChargeModal'); // Cerrar modal tras éxito
                         this.cargoForm.reset();
@@ -452,8 +522,7 @@ onSubmitEdit(): void {
                     title: 'Error',
                     text: `El cargo "${chargeValue}" ya existe. Por favor, elige otro nombre.`,
                     icon: 'error',
-                    confirmButtonText: 'Aceptar',
-                    confirmButtonColor: '#3085d6'
+                    confirmButtonText: 'Aceptar'
                 }).then(() => {
                     this.closeModale('editChargeModal'); // Cerrar modal en caso de error
                     this.loadCargos();
@@ -477,8 +546,7 @@ onSubmitEdit(): void {
                                 title: '¡Actualizado!',
                                 text: 'El cargo ha sido actualizado correctamente.',
                                 icon: 'success',
-                                confirmButtonText: 'Aceptar',
-                                confirmButtonColor: '#3085d6'
+                                confirmButtonText: 'Aceptar'
                             }).then(() => {
                                 this.closeModale('editChargeModal'); // Cerrar modal tras éxito
                                 this.loadCargos();

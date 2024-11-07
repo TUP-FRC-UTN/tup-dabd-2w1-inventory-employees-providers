@@ -44,8 +44,9 @@ export class IepAttentionCallComponent implements OnInit{
     this.wakeUpCallForm = this.fb.group({
       fecha: [today, [Validators.required, this.fechaMaximaValidator]],
       desempeno: ['', Validators.required],
-      observaciones: ['', Validators.required]
+      observaciones: ['', [Validators.required, Validators.maxLength(200)]]
     });
+    
   }
 
 

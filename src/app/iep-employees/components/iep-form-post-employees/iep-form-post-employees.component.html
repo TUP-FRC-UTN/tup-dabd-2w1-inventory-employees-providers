@@ -107,7 +107,7 @@
                 </div>
 
 
-                <div class="form-group row mb-3">
+                <div class="form-group row mb-5">
 
 
                     <!-- tipo doc  -->
@@ -185,7 +185,7 @@
                 <p class="text-start mb-3 mt-3">Datos de contacto:</p>
                 <hr>
 
-                <div class="form-group row mb-3 pb-2 ">
+                <div class="form-group row mb-5 pb-2 ">
                     <!-- tel  -->
 
                     <div class="col-md-6">
@@ -234,40 +234,64 @@
            
                 <p class="text-start mb-3 mt-3 ">Datos de domicilio:</p>
                 <hr>
+                <div class="mb-5">
                 <div class="form-group row mb-3 ">
-                    <!-- provincia  -->
 
-                    <div class="col-md-6">
+                         <!-- provincia -->
+                    <div class="col-md-6 mb-3">
                         <div class="row text-end">
-                            <label for="provincia" class="col-form-label col-md-3">Provincia</label>
-                            <div class="col-md-9">
-                                <select id="provincia" name="provincia" class="form-select"
-                                    [(ngModel)]="provinciaSelect" (change)="loadLocalidades()" required>
-                                    <option disabled [ngValue]="undefined">Seleccionar provincia</option>
-                                    @for (p of provincias; track $index) {
-                                    <option [ngValue]="p">{{p.nombre}}</option>
-                                    }
-                                </select>
-                            </div>
+                          <label class="col-form-label col-md-3" for="provincia">Provincia</label>
+                          <div class="col-md-9">
+                            <ng-select
+                                class="text-start"
+                              id="provincia"
+                              name="provincia"                             
+                              [items]="provincias"
+                              [(ngModel)]="provinciaSelect"
+                              [clearable]="false"
+                              bindLabel="nombre"
+                              (change)="loadLocalidades()"
+                              required
+                              >
+                            </ng-select>
+                          </div>
                         </div>
-                    </div>
-                    <!-- localidad  -->
-                    <div class="col-md-6">
-                        <div class="row text-end">
-                            <label for="localidad" class="col-form-label col-md-3 ">Localidad</label>
-                            <div class="col-md-9">
-                                <select id="localidad" name="localidad" class="form-select"
-                                    [(ngModel)]="localidadSelect" required>
-                                    <option disabled [ngValue]="undefined">Seleccionar localidad</option>
-                                    @for (l of provinciaSelect?.ciudades; track $index) {
+                      </div>
 
-                                    <option selected [ngValue]="l">{{l.nombre}}</option>
-                                    }
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+
+
+
+
+         <!-- localidad -->
+         <div class="col-md-6 mb-3">
+            <div class="row text-end">
+              <label class="col-form-label col-md-3" for="localidad">Localidad</label>
+              <div class="col-md-9 ">
+                <ng-select
+                class="text-start"
+                  id="localidad"
+                  name="localidad"                             
+                  [items]="localidades"
+                  [(ngModel)]="localidadSelect"
+                  [clearable]="false"
+                  bindLabel= "nombre"           
+                  required>
+                </ng-select>
+              </div>
+            </div>
+          </div>
+
+
+          </div>
+            
+
+
+
+
+
+
+
 
                 <div class="form-group row mb-3  ">
 
@@ -374,11 +398,14 @@
                         </div>
                     </div>
                 </div>
+        </div>
+
+      
     
                 <p class="text-start mb-3 mt-3">Datos del contrato:</p>
                 <hr>
 
-                <div class="form-group row mb-3">
+                <div class="form-group row mb-5">
                     <!-- Empleado tercerizado -->
                     <div class="col-md-6 mb-3 ">
                         <div class="row text-end">
@@ -387,7 +414,9 @@
                             <div class="col-md-9 text-center">
 
 
-                                <button style="width: 100%;"
+                                <button 
+                                type="button"
+                                style="width: 100%;"
                                 [ngClass]="terciorizedEmployee ? 'btn btn-success text-center' : 'btn btn-danger text-center'"  
                                 (click)="changeTerceorized()">
                                 {{ terciorizedEmployee ? 'SI' : 'NO' }}
@@ -421,41 +450,43 @@
                     <!-- Proveedores de servicio tercerizado -->
                     <div class="col-md-6 mb-3">
                         <div class="row text-end">
-
-                            <label class="col-form-label col-md-3" for="proveedores">Proveedores</label>
-                            <div class="col-md-9">
-
-                                <select id="proveedores" name="proveedores" class="form-select"
-                                    [(ngModel)]="selectedSupplier" required>
-                                    <option disabled selected [ngValue]="undefined">Seleccionar proveedor</option>
-
-                                    @for (x of suppliers; track $index) {
-                                    <option [ngValue]="x"> {{x.name}} </option>
-                                    }
-                                </select>
-                            </div>
-
+                          <label class="col-form-label col-md-3" for="proveedores">Proveedores</label>
+                          <div class="col-md-9 text-start">
+                            <ng-select
+                              id="proveedores"
+                              name="proveedores"
+                              [items]="suppliers"
+                              [(ngModel)]="selectedSupplier"
+                              [clearable]="false"
+                              bindLabel="name"
+                              required>
+                            </ng-select>
+                          </div>
                         </div>
-                    </div>
+                      </div>
                     }
                     <!-- Cargo -->
+
+
                     <div class="col-md-6 mb-3">
                         <div class="row text-end">
-                            <label for="cargo" class="col-form-label col-md-3">Cargo</label>
-                            <div class="col-md-9">
-                                <select id="cargo" name="cargo" class="form-select" [(ngModel)]="cargoSelected"
-                                    required>
-                                    <option disabled selected [ngValue]="undefined">Seleccionar Cargo</option>
-                                    @for (c of cargos; track $index) {
-                                    <option selected [ngValue]="c">{{c.charge}}</option>
-
-
-                                    }
-
-                                </select>
-                            </div>
+                          <label class="col-form-label col-md-3" for="cargo">Cargo</label>
+                          <div class="col-md-9 ">
+                            <ng-select
+                            class="text-start"
+                              id="cargo"
+                              name="cargo"                             
+                              [items]="cargos"
+                              [(ngModel)]="cargoSelected"
+                              [clearable]="false"
+                              bindLabel= "charge"           
+                              required>
+                            </ng-select>
+                          </div>
                         </div>
-                    </div>
+                      </div>
+
+
                     <!-- fecha inicio contrato -->
                     <div class="col-md-6 ">
                         <div class="row text-end">
@@ -491,43 +522,39 @@
             <!-- dias laborales -->
           
 
-                <p class="text-start mb-3 mt-3 ">Dias laborales</p>
+                <p class="text-start mb-3 mt-3  ">Dias laborales</p>
                 <hr>
-                <div class="form-group d-flex justify-content-center flex-wrap gap-3 px-3 ">
 
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="lunes" name="lunes" [(ngModel)]="lunes">
-                        <label class="form-check-label" for="lunes">Lunes</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="martes" name="martes" [(ngModel)]="martes">
-                        <label class="form-check-label" for="martes">Martes</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="miercoles" name="miercoles"
-                            [(ngModel)]="miercoles">
-                        <label class="form-check-label" for="miercoles">Miércoles</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="jueves" name="jueves" [(ngModel)]="jueves">
-                        <label class="form-check-label" for="jueves">Jueves</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="viernes" name="viernes"
-                            [(ngModel)]="viernes">
-                        <label class="form-check-label" for="viernes">Viernes</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="sabado" name="sabado" [(ngModel)]="sabado">
-                        <label class="form-check-label" for="sabado">Sábado</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="domingo" name="domingo"
-                            [(ngModel)]="domingo">
-                        <label class="form-check-label" for="domingo">Domingo</label>
-                    </div>
-                </div>
-          
+
+                <div class="btn-group d-flex flex-wrap mb-5 mt-5" role="group" aria-label="Dias laborales">
+                    <input type="checkbox" class="btn-check" name="lunes" id="btn-check-outlined1" autocomplete="off" [(ngModel)]="lunes" (change)="cambio()">
+                    <label class="btn btn-outline-primary" name="lunes"for="btn-check-outlined1">Lunes</label><br>
+
+                    <input type="checkbox" class="btn-check" name="martes" id="btn-check-outlined2" autocomplete="off" [(ngModel)]="martes" (change)="cambio()">
+                    <label class="btn btn-outline-primary"name="martes" for="btn-check-outlined2">Martes</label><br>
+
+                    <input type="checkbox" class="btn-check" name="miercoles" id="btn-check-outlined3" autocomplete="off" [(ngModel)]="miercoles" (change)="cambio()">
+                    <label class="btn btn-outline-primary"name="miercoles" for="btn-check-outlined3">Miercoles</label><br>
+
+                    <input type="checkbox" class="btn-check" name="jueves" id="btn-check-outlined4" autocomplete="off" [(ngModel)]="jueves" (change)="cambio()">
+                    <label class="btn btn-outline-primary"name="jueves" for="btn-check-outlined4">Jueves</label><br>
+
+                    <input type="checkbox" class="btn-check" name="viernes" id="btn-check-outlined5" autocomplete="off" [(ngModel)]="viernes" (change)="cambio()">
+                    <label class="btn btn-outline-primary"name="viernes" for="btn-check-outlined5">Viernes</label><br>
+
+                    <input type="checkbox" class="btn-check" name="sabado" id="btn-check-outlined6" autocomplete="off" [(ngModel)]="sabado" (change)="cambio()">
+                    <label class="btn btn-outline-primary"name="sabado" for="btn-check-outlined6">Sabado</label><br>
+
+                    <input type="checkbox" class="btn-check" name="domingo" id="btn-check-outlined7" autocomplete="off" [(ngModel)]="domingo" (change)="cambio()">
+                    <label class="btn btn-outline-primary"name="domingo" for="btn-check-outlined7">Domingo</label><br>
+                  </div>
+
+
+
+
+
+
+               
 
             <!-- Horarios -->
                 <p class="text-start mb-3 ">Horarios</p>
@@ -586,7 +613,7 @@
 
                 </div>
                 <div class="col-md-2  d-flex justify-content-end">
-                    <button [disabled]="!form.valid" type="submit" class="btn btn-primary">Guardar</button>
+                    <button [disabled]="!form.valid" type="submit" class="btn btn-success">Registrar</button>
                 </div>
             </div>
 
