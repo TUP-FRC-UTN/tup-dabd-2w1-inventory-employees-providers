@@ -130,10 +130,15 @@ export class IepProductComponent {
         this.dto.reusable = false;
       }
       this.abrirModal = true;
+      console.log("enviadoo"+JSON.stringify(this.dto))
+
       this.createProduct$ = this.productService.createProduct(this.dto, 1);
       console.log(this.createProduct$);
+      
+
       this.createProduct$.subscribe({
         next: response => {
+          console.log("aca ta la respuesta"+JSON.stringify(response))
           this.successMessage = response.message;
           this.showSuccessAlert();
           console.log("PASO: ", response);
