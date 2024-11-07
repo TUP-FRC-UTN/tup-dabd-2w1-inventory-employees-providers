@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 import { iepBackButtonComponent } from '../../../common-components/iep-back-button/iep-back-button.component';
 import { SupplierTypePipe } from '../../pipes/supplier-type.pipe';
 import { NgSelectModule } from '@ng-select/ng-select';
+import Swal from 'sweetalert2';
 
 interface SelectedTypes {
   OUTSOURCED_SERVICE: boolean;
@@ -282,6 +283,11 @@ export class IepSupplierListComponent implements AfterViewInit {
           '<"mb-3"t>' +                           //Tabla
           '<"d-flex justify-content-between"lp>', //Paginacion
         data: this.filteredSuppliers,
+        //PONE PRIMERO LA COLUMNA QUE QUERES Q APAREZCA PRIMERO
+        // OSEA CAMBIA DE LUGAR {data, tittle..}no entiendo nada de datatable borra
+        // la linea que tiene abajo el desempeño en la tabla en la cabezera
+
+        //Al HTML, copia un <thead de otro y reemplazalo
         columns: [
           {
             data: 'discontinued',
@@ -386,9 +392,19 @@ export class IepSupplierListComponent implements AfterViewInit {
         next: (response) => {
           console.log('Proveedor eliminado:', response);
           this.suppliers = this.suppliers.filter(supplier => supplier.id !== this.selectedSupplierId);
-          this.updateDataTable(this.suppliers);
+          Swal.fire({
+            title: '!Exito!',
+            text: "El proveedor ha sido eliminado",
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+            showCancelButton: false,
+            confirmButtonColor: '#3085d6'
+          }).then(() => {
+            this.updateDataTable(this.suppliers);
           this.selectedSupplierId = null;
-          this.deleteModal.hide(); // Ocultar el modal después de eliminar
+          this.deleteModal.hide();
+          });
+          // Ocultar el modal después de eliminar
           // Refrescar la tabla después de eliminar mediante suscripción
           
         },
