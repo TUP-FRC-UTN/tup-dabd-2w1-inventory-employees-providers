@@ -11,11 +11,12 @@ import Swal from 'sweetalert2';
 import { CreateProductDtoClass } from '../../models/create-product-dto-class';
 import { CategoriaService } from '../../services/categoria.service';
 import { CreateCategoryDto } from '../../models/create-category-dto';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [FormsModule,CommonModule,RouterModule],
+  imports: [FormsModule,CommonModule,RouterModule,NgSelectModule],
   templateUrl: './iep-product.component.html',
   styleUrl: './iep-product.component.css'
 })
@@ -46,6 +47,11 @@ export class IepProductComponent {
     this.providerService = providersService;
     this.success = false;
   }
+
+  logear(){
+    console.log(this.dto.reusable)
+  }
+
 
   ngOnInit() {
 
