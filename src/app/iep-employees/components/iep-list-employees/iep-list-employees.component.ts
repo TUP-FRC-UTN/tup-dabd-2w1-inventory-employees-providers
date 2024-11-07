@@ -693,19 +693,25 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             this.loadEmpleados(); // Recargar la lista de empleados
             this.empleadoIdToDelete = null; // Limpiar el ID después de eliminar
             // Mostrar el mensaje de éxito
-            Swal.fire(
-              '¡Eliminado!',
-              'El empleado ha sido eliminado con éxito.',
-              'success'
+            Swal.fire({
+              title: '¡Eliminado!',
+              text: 'El empleado ha sido eliminado correctamente.',
+              icon: 'success',
+              confirmButtonText: 'Aceptar'  // Solo un botón de "Aceptar" en caso de eliminación exitosa
+            }
             );
           },
           error: (error) => {
             console.error('Error al eliminar el empleado:', error);
             // Mostrar el mensaje de error
             Swal.fire(
-              '¡Error!',
-              'Hubo un problema al eliminar al empleado.',
-              'error'
+              {
+                title: 'Error',
+                text: 'Ocurrió un error al eliminar el empleado.',
+                icon: 'error',
+                confirmButtonText: 'Aceptar' , // Solo un botón de "Aceptar" en caso de error
+                confirmButtonColor: '#3085d6'
+              }
             );
             this.empleadoIdToDelete = null;
           },
