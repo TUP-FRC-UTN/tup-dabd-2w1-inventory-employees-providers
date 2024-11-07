@@ -129,7 +129,7 @@ export class IepAttendancesComponent implements OnInit{
       columns: [
         { data: 'date', title: 'Fecha' },
         {
-          data: 'state', title: 'Estado', className: "allgn-middle",
+          data: 'state', title: 'Estado', className: "text-center",
           render: (data: any) => {
             let color;
             let name;

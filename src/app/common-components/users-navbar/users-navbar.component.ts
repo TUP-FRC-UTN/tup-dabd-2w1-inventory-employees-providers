@@ -51,12 +51,6 @@ export class UsersNavbarComponent {
             roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
           },
           {
-            icon: "bi-plus",
-            title: "Nuevo producto",
-            route: "home/new-product",
-            roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
-          },
-          {
             icon: "bi-arrow-left-right",
             title: "Movimientos de inventario",
             route: "home/warehouse-movements",
@@ -94,12 +88,6 @@ export class UsersNavbarComponent {
             icon: "bi-person-lines-fill",
             title: "Listado de empleados",
             route: "home/employee-list",
-            roles: ["SuperAdmin", "Admin", "Encargado de empleados"]
-          },
-          {
-            icon: "bi-person-add",
-            title: "Nuevo empleado",
-            route: "home/employee-post",
             roles: ["SuperAdmin", "Admin", "Encargado de empleados"]
           },
           {

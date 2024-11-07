@@ -163,7 +163,7 @@ exportToExcel(): void {
         {
           data: 'discontinued',
                   title: 'Estado',
-                  className: 'text-start', // solo esta clase para alinear el texto a la izquierda
+                  className: 'text-center', // solo esta clase para alinear el texto a la izquierda
                   render: (data: any) => {
                     return `<div class="btn ${data ? 'btn-danger' : 'btn-success'}  badge">
                               ${data ? 'Inactivo' : 'Activo'}
