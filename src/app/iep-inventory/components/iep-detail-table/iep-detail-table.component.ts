@@ -17,11 +17,12 @@ import { catchError, delay, min, Observable } from 'rxjs';
 import { IepCreateWarehouseMovementDTO } from '../../models/iep-create-warehouse-movement-dto';
 import { DetailServiceService } from '../../services/detail-service.service';
 import Swal from 'sweetalert2';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-iep-detail-table',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgSelectModule],
   templateUrl: './iep-detail-table.component.html',
   styleUrls: ['./iep-detail-table.component.css'],
 })
@@ -33,7 +34,12 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
   maxPrice: number | null = null;
   priceValidationError: boolean = false;
 
-
+  stateOptions = [
+    { id: 'Disponible', label: 'Disponible' },
+    { id: 'Mantenimiento', label: 'Mantenimiento' },
+    { id: 'Prestado', label: 'Prestado' }
+  ];
+  
 
   // Método para aplicar filtro por estados seleccionados
   applyStateFilter($event: Event, state: string) {
@@ -107,36 +113,36 @@ export class IepDetailTableComponent implements OnInit, OnDestroy {
 
 
   // Método para aplicar todos los filtros
-  public applyAllFilters(): void {
-    this.filteredDetails = this.details.filter(detail => {
-      // Filtro de búsqueda general
-      const searchTerm = this.currentSearchTerm.toLowerCase();
-      const matchesSearch = !searchTerm ||
-        detail.description.toLowerCase().includes(searchTerm) ||
-        detail.supplierName.toLowerCase().includes(searchTerm) ||
-        detail.state.toLowerCase().includes(searchTerm);
+public applyAllFilters(): void {
+  this.filteredDetails = this.details.filter(detail => {
+    // Filtro de búsqueda general
+    const searchTerm = this.currentSearchTerm.toLowerCase();
+    const matchesSearch = !searchTerm ||
+      detail.description.toLowerCase().includes(searchTerm) ||
+      detail.supplierName.toLowerCase().includes(searchTerm) ||
+      detail.state.toLowerCase().includes(searchTerm);
 
-      // Filtro por estado - modificado para manejar múltiples estados
-      const matchesState = this.selectedStates.length === 0 ||
-        this.selectedStates.includes(detail.state);
+    // Filtro por estado - ng-select maneja automáticamente los estados seleccionados
+    const matchesState = this.selectedStates.length === 0 ||
+      this.selectedStates.includes(detail.state);
 
-      // Filtro por precio
-      const matchesPrice = this.applyPriceFilterLogic(detail.price);
+    // Filtro por precio
+    const matchesPrice = this.applyPriceFilterLogic(detail.price);
 
-      // Filtros por columnas específicas
-      const productFilter = (document.querySelector('input[placeholder="Descripción"]') as HTMLInputElement)?.value.toLowerCase();
-      const supplierFilter = (document.querySelector('input[placeholder="Proveedor"]') as HTMLInputElement)?.value.toLowerCase();
+    // Filtros por columnas específicas
+    const productFilter = (document.querySelector('input[placeholder="Descripción"]') as HTMLInputElement)?.value.toLowerCase();
+    const supplierFilter = (document.querySelector('input[placeholder="Proveedor"]') as HTMLInputElement)?.value.toLowerCase();
 
-      const matchesProduct = !productFilter || detail.description.toLowerCase().includes(productFilter);
-      const matchesSupplier = !supplierFilter || detail.supplierName.toLowerCase().includes(supplierFilter);
+    const matchesProduct = !productFilter || detail.description.toLowerCase().includes(productFilter);
+    const matchesSupplier = !supplierFilter || detail.supplierName.toLowerCase().includes(supplierFilter);
 
-      // Retorna true solo si cumple con todos los filtros
-      return matchesSearch && matchesState && matchesPrice && matchesProduct && matchesSupplier;
-    });
+    // Retorna true solo si cumple con todos los filtros
+    return matchesSearch && matchesState && matchesPrice && matchesProduct && matchesSupplier;
+  });
 
-    // Actualizar la tabla con los resultados filtrados
-    this.table.clear().rows.add(this.filteredDetails).draw();
-  }
+  // Actualizar la tabla con los resultados filtrados
+  this.table.clear().rows.add(this.filteredDetails).draw();
+}
   // Método para validar precios
   validatePrices(min: number | null, max: number | null): boolean {
     if (min !== null && max !== null) {

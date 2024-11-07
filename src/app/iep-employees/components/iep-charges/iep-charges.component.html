@@ -25,6 +25,16 @@
                 [closeOnSelect]="true"
                 placeholder="Seleccionar Estado"
                 [clearable]="true">
+
+                <ng-template ng-multi-label-tmp let-items="items">
+                  Seleccionar Estado
+                  <span *ngIf="items.length > 0">({{ items.length }})</span>
+                </ng-template>
+            
+                <!-- Template para las opciones del dropdown -->
+                <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                  <input type="checkbox" [checked]="item$.selected"/> {{item.label}}
+                </ng-template>
               </ng-select>
             </div>
           </div>
