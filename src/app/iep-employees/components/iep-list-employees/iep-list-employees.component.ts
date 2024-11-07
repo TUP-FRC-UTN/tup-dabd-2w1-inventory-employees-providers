@@ -683,54 +683,43 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   //swal para confirmar eliminacion
 
 
-   confirmDelete(): void {
+  confirmDelete(): void {
     if (this.empleadoIdToDelete !== null) {
-      // Aseguramos que el ID no sea null
-      Swal.fire({
-        title: '¿Está seguro?',
-        text: '¡Esta acción no se puede deshacer!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545', // Color rojo de Bootstrap
-        cancelButtonColor: '#6c757d', // Color gris de Bootstrap
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar',
-      }).then((result) => {
-        if (result.isConfirmed && this.empleadoIdToDelete !== null) {
-          // Re-verificar antes de llamar al servicio
-          this.empleadoService
-            .changeEmployeeStatus(this.empleadoIdToDelete)
-            .subscribe({
-              next: () => {
-                this.loadEmpleados(); // Recargar la lista de empleados
-                this.empleadoIdToDelete = null; // Limpiar el ID después de eliminar
-                Swal.fire(
-                  '¡Eliminado!',
-                  'El empleado ha sido eliminado con éxito.',
-                  'success'
-                );
-              },
-              error: (error) => {
-                console.error('Error al eliminar el empleado:', error);
-                Swal.fire(
-                  '¡Error!',
-                  'Hubo un problema al eliminar al empleado.',
-                  'error'
-                );
-                this.empleadoIdToDelete = null;
-              },
-            });
-        }
-      });
+      // Procedemos directamente a la eliminación sin preguntar confirmación
+      this.empleadoService
+        .changeEmployeeStatus(this.empleadoIdToDelete)
+        .subscribe({
+          next: () => {
+            this.loadEmpleados(); // Recargar la lista de empleados
+            this.empleadoIdToDelete = null; // Limpiar el ID después de eliminar
+            // Mostrar el mensaje de éxito
+            Swal.fire(
+              '¡Eliminado!',
+              'El empleado ha sido eliminado con éxito.',
+              'success'
+            );
+          },
+          error: (error) => {
+            console.error('Error al eliminar el empleado:', error);
+            // Mostrar el mensaje de error
+            Swal.fire(
+              '¡Error!',
+              'Hubo un problema al eliminar al empleado.',
+              'error'
+            );
+            this.empleadoIdToDelete = null;
+          },
+        });
     } else {
-      // Opcional: mensaje si empleadoIdToDelete es null al intentar confirmar
+      // Si no hay un empleado seleccionado para eliminar
       Swal.fire(
         'ID no válido',
         'No se ha seleccionado un empleado para eliminar.',
         'warning'
       );
     }
-  } 
+  }
+  
 
   editarEmpleado(id: any): void {
     this.router.navigate(['/empleados/modificar', id]);
