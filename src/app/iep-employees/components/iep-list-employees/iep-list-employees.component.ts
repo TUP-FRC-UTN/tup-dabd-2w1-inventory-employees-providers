@@ -517,10 +517,10 @@ this.table.rows.add(filteredData).draw();
             // Si el empleado está activo, valida la clave 'license' y si es true, retorna "Licencia"
             if (data) {
               return row.license
-                ? '<span class="badge" style="background-color: #ffc107;">Licencia</span>'
-                : '<span class="badge" style="background-color: #198754;">Activo</span>';
+                ? '<span class="badge border rounded-pill text-bg-yellow">Licencia</span>'
+                : '<span class="badge border rounded-pill text-bg-green">Activo</span>';
             }
-            return '<span class="badge" style="background-color: #dc3545;">Inactivo</span>';
+            return '<span class="badge border rounded-pill text-bg-red">Inactivo</span>';
           },
         },
         {
