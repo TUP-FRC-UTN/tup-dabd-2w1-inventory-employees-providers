@@ -283,6 +283,14 @@ export class IepSupplierListComponent implements AfterViewInit {
           '<"d-flex justify-content-between"lp>', //Paginacion
         data: this.filteredSuppliers,
         columns: [
+          {
+            data: 'discontinued',
+            title: 'Estado',
+            className: 'text-center',
+            render: function (data) {
+              return data ? 'Inactivo' : 'Activo';
+            }
+          },
           { data: 'cuit', title: 'Cuit' },
           { data: 'name', title: 'Nombre' },
           {
@@ -305,13 +313,6 @@ export class IepSupplierListComponent implements AfterViewInit {
 
           { data: 'phoneNumber', title: 'Teléfono' },
           { data: 'email', title: 'Email' },
-          {
-            data: 'discontinued',
-            title: 'Estado',
-            render: function (data) {
-              return data ? 'Inactivo' : 'Activo';
-            }
-          },
           {
             data: null,
             title: 'Acciones',
@@ -387,6 +388,8 @@ export class IepSupplierListComponent implements AfterViewInit {
           this.updateDataTable(this.suppliers);
           this.selectedSupplierId = null;
           this.deleteModal.hide(); // Ocultar el modal después de eliminar
+          // Refrescar la tabla después de eliminar mediante suscripción
+          
         },
         error: (error) => {
           console.error('Error al eliminar el proveedor', error);
