@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, AfterViewInit, } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, AfterViewInit, NgModule } from '@angular/core';
 import { debounceTime, min, Observable, Subscription } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { FormsModule } from '@angular/forms';
@@ -1094,19 +1094,53 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.modalVisible = false;
   }
 
-  handleModalBackdropClick(event: MouseEvent) {
-    if (event.target === event.currentTarget) {
-      if (this.showAumentoStockModal) {
-        this.cerrarModalAumentoStock();
-      }
-      if (this.modalVisible) {
-        this.cerrarModal();
-      }
-    }
-  }
 
   irAgregarDetalles(id: number) {
     this.stockAumentoService.setId(id);
     this.abrirModalAumentoStock(id);
+  }
+
+  // Nombre del producto para el título del modal
+  nombreProducto: string = ''; // Puedes cargar esto dinámicamente
+  selectedProveedor: any;
+
+  // Opciones para el proveedor en el ng-select
+  proveedorOptions = [
+    { id: 1, nombre: 'Proveedor A' },
+    { id: 2, nombre: 'Proveedor B' },
+    { id: 3, nombre: 'Proveedor C' }
+  ];
+
+
+
+  // Método para abrir el modal
+  openAumentoStockModal(nombreProducto: string) {
+    this.nombreProducto = nombreProducto;
+    this.showAumentoStockModal = true;
+  }
+
+  // Método para cerrar el modal y limpiar el fondo negro
+  closeAumentoStockModal() {
+    this.showAumentoStockModal = false;
+    document.body.classList.remove('modal-open');
+  }
+
+  // Método para manejar el clic en el fondo del modal
+  handleModalBackdropClick(event: MouseEvent) {
+    if (event.target === event.currentTarget) {
+      this.closeAumentoStockModal();
+    }
+  }
+
+  // Método para mostrar el mensaje de éxito con SweetAlert
+  onStockIncreaseSuccess() {
+    Swal.fire({
+      icon: 'success',
+      title: 'Éxito',
+      text: 'Aumento de stock registrado con éxito.',
+      confirmButtonColor: '#28a745' // Verde para el botón
+    }).then(() => {
+      this.closeAumentoStockModal(); // Cierra el modal después de mostrar el mensaje
+    });
   }
 }

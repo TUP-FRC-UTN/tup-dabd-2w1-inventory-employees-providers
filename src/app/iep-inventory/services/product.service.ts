@@ -37,7 +37,7 @@ export class ProductService {
   getAllCategories(): Observable<ProductCategory[]> {
     return this.http.get<ProductCategory[]>(this.CATEGORY_URL_GET_ALL);
   }
-
+  
   // AGUS
   getDtoProducts(
     category?: number,
