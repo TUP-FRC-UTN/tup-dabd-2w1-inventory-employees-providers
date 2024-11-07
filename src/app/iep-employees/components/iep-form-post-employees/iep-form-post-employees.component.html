@@ -235,39 +235,62 @@
                 <p class="text-start mb-3 mt-3 ">Datos de domicilio:</p>
                 <hr>
                 <div class="form-group row mb-3 ">
-                    <!-- provincia  -->
 
-                    <div class="col-md-6">
+                         <!-- provincia -->
+                    <div class="col-md-6 mb-3">
                         <div class="row text-end">
-                            <label for="provincia" class="col-form-label col-md-3">Provincia</label>
-                            <div class="col-md-9">
-                                <select id="provincia" name="provincia" class="form-select"
-                                    [(ngModel)]="provinciaSelect" (change)="loadLocalidades()" required>
-                                    <option disabled [ngValue]="undefined">Seleccionar provincia</option>
-                                    @for (p of provincias; track $index) {
-                                    <option [ngValue]="p">{{p.nombre}}</option>
-                                    }
-                                </select>
-                            </div>
+                          <label class="col-form-label col-md-3" for="provincia">Provincia</label>
+                          <div class="col-md-9">
+                            <ng-select
+                                class="text-start"
+                              id="provincia"
+                              name="provincia"                             
+                              [items]="provincias"
+                              [(ngModel)]="provinciaSelect"
+                              [clearable]="false"
+                              bindLabel="nombre"
+                              (change)="loadLocalidades()"
+                              required
+                              >
+                            </ng-select>
+                          </div>
                         </div>
-                    </div>
-                    <!-- localidad  -->
-                    <div class="col-md-6">
-                        <div class="row text-end">
-                            <label for="localidad" class="col-form-label col-md-3 ">Localidad</label>
-                            <div class="col-md-9">
-                                <select id="localidad" name="localidad" class="form-select"
-                                    [(ngModel)]="localidadSelect" required>
-                                    <option disabled [ngValue]="undefined">Seleccionar localidad</option>
-                                    @for (l of provinciaSelect?.ciudades; track $index) {
+                      </div>
 
-                                    <option selected [ngValue]="l">{{l.nombre}}</option>
-                                    }
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+
+
+
+
+         <!-- localidad -->
+         <div class="col-md-6 mb-3">
+            <div class="row text-end">
+              <label class="col-form-label col-md-3" for="localidad">Localidad</label>
+              <div class="col-md-9 ">
+                <ng-select
+                class="text-start"
+                  id="localidad"
+                  name="localidad"                             
+                  [items]="localidades"
+                  [(ngModel)]="localidadSelect"
+                  [clearable]="false"
+                  bindLabel= "nombre"           
+                  required>
+                </ng-select>
+              </div>
+            </div>
+          </div>
+
+
+          </div>
+            
+
+
+
+
+
+
+
 
                 <div class="form-group row mb-3  ">
 
@@ -374,6 +397,8 @@
                         </div>
                     </div>
                 </div>
+
+      
     
                 <p class="text-start mb-3 mt-3">Datos del contrato:</p>
                 <hr>
@@ -387,7 +412,9 @@
                             <div class="col-md-9 text-center">
 
 
-                                <button style="width: 100%;"
+                                <button 
+                                type="button"
+                                style="width: 100%;"
                                 [ngClass]="terciorizedEmployee ? 'btn btn-success text-center' : 'btn btn-danger text-center'"  
                                 (click)="changeTerceorized()">
                                 {{ terciorizedEmployee ? 'SI' : 'NO' }}
@@ -421,41 +448,43 @@
                     <!-- Proveedores de servicio tercerizado -->
                     <div class="col-md-6 mb-3">
                         <div class="row text-end">
-
-                            <label class="col-form-label col-md-3" for="proveedores">Proveedores</label>
-                            <div class="col-md-9">
-
-                                <select id="proveedores" name="proveedores" class="form-select"
-                                    [(ngModel)]="selectedSupplier" required>
-                                    <option disabled selected [ngValue]="undefined">Seleccionar proveedor</option>
-
-                                    @for (x of suppliers; track $index) {
-                                    <option [ngValue]="x"> {{x.name}} </option>
-                                    }
-                                </select>
-                            </div>
-
+                          <label class="col-form-label col-md-3" for="proveedores">Proveedores</label>
+                          <div class="col-md-9 text-start">
+                            <ng-select
+                              id="proveedores"
+                              name="proveedores"
+                              [items]="suppliers"
+                              [(ngModel)]="selectedSupplier"
+                              [clearable]="false"
+                              bindLabel="name"
+                              required>
+                            </ng-select>
+                          </div>
                         </div>
-                    </div>
+                      </div>
                     }
                     <!-- Cargo -->
+
+
                     <div class="col-md-6 mb-3">
                         <div class="row text-end">
-                            <label for="cargo" class="col-form-label col-md-3">Cargo</label>
-                            <div class="col-md-9">
-                                <select id="cargo" name="cargo" class="form-select" [(ngModel)]="cargoSelected"
-                                    required>
-                                    <option disabled selected [ngValue]="undefined">Seleccionar Cargo</option>
-                                    @for (c of cargos; track $index) {
-                                    <option selected [ngValue]="c">{{c.charge}}</option>
-
-
-                                    }
-
-                                </select>
-                            </div>
+                          <label class="col-form-label col-md-3" for="cargo">Cargo</label>
+                          <div class="col-md-9 ">
+                            <ng-select
+                            class="text-start"
+                              id="cargo"
+                              name="cargo"                             
+                              [items]="cargos"
+                              [(ngModel)]="cargoSelected"
+                              [clearable]="false"
+                              bindLabel= "charge"           
+                              required>
+                            </ng-select>
+                          </div>
                         </div>
-                    </div>
+                      </div>
+
+
                     <!-- fecha inicio contrato -->
                     <div class="col-md-6 ">
                         <div class="row text-end">
@@ -586,7 +615,7 @@
 
                 </div>
                 <div class="col-md-2  d-flex justify-content-end">
-                    <button [disabled]="!form.valid" type="submit" class="btn btn-primary">Guardar</button>
+                    <button [disabled]="!form.valid" type="submit" class="btn btn-success">Registrar</button>
                 </div>
             </div>
 

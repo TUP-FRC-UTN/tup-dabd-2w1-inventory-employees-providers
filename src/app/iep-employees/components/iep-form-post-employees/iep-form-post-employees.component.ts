@@ -10,10 +10,13 @@ import { post } from 'jquery';
 import { EmpPostEmployeeService } from '../../services/emp-post-employee.service';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
+import { NgSelectModule } from '@ng-select/ng-select';
+
+
 @Component({
   selector: 'app-iep-form-post-employees',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule,NgSelectModule],
   templateUrl: './iep-form-post-employees.component.html',
   styleUrl: './iep-form-post-employees.component.css',
 })
@@ -245,16 +248,10 @@ export class IEPFormPostEmployeesComponent implements OnInit {
             console.log(this.createEmployee$);
             
         // Primero mostrar confirmación
-        Swal.fire({
-          title: 'Confirmar',
-          text: `¿Seguro deseas guardar el empleado"?`,
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Confirmar',
-          cancelButtonText: 'Cancelar'
-        }).then((result) => {
+  
             this.createEmployee$.subscribe({
               next: response => {
+                console.log(JSON.stringify(response))
                 this.success = true;
                 this.successMessage = "Empleado guardado con exito. Credenciales de acceso habilitadas.";
                 Swal.fire({
@@ -291,7 +288,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
               complete: () => {     
                 }
              });
-           })
+      
           }
         }
       }
