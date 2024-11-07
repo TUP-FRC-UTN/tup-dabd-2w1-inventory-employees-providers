@@ -366,7 +366,7 @@
         <!-- Componente de aumento de stock -->
         <app-iep-stock-increase
           *ngIf="showAumentoStockModal"
-          (success)="onStockIncreaseSuccess()"
+          (closeModal)="closeAumentoStockModal()"
         >
           <!-- Llama al método de éxito aquí -->
         </app-iep-stock-increase>

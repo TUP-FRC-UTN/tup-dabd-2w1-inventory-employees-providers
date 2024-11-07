@@ -22,7 +22,7 @@ import { EstadoService } from '../../services/estado.service';
 import { Row } from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import { NgSelectModule } from '@ng-select/ng-select';
-
+declare var bootstrap: any; // Añadir esta declaración al principio
 // Interfaces existentes actualizadas
 interface Filters {
   categoriasSeleccionadas: number[];
@@ -1125,8 +1125,39 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Método para cerrar el modal y limpiar el fondo negro
   closeAumentoStockModal() {
-    this.showAumentoStockModal = false;
-    document.body.classList.remove('modal-open');
+    const modalElement = document.getElementById('aumentoStock'); // Cambia 'aumentoStock' por el ID de tu modal
+  if (modalElement) {
+    // Obtener instancia del modal de Bootstrap
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+      modal.hide(); // Oculta el modal usando Bootstrap
+    }
+    
+    // Limpieza completa del modal
+    setTimeout(() => {
+      // Remover clases del body relacionadas con el modal
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('padding-right');
+      document.body.style.removeProperty('overflow');
+
+      // Remover los elementos backdrops
+      const backdrops = document.querySelectorAll('.modal-backdrop');
+      backdrops.forEach(backdrop => backdrop.remove());
+
+      // Limpiar los atributos y estilos del modal para ocultarlo
+      modalElement.classList.remove('show');
+      modalElement.style.display = 'none';
+      modalElement.setAttribute('aria-hidden', 'true');
+      modalElement.removeAttribute('aria-modal');
+      modalElement.removeAttribute('role');
+
+      // Remover cualquier estilo inline que pueda haber quedado
+      const allModals = document.querySelectorAll('.modal');
+      allModals.forEach(modal => {
+        (modal as HTMLElement).style.display = 'none';
+      });
+    }, 100); // Esperar un momento para asegurarse de que Bootstrap haya terminado de ocultar el modal
+  }
   }
 
   // Método para manejar el clic en el fondo del modal

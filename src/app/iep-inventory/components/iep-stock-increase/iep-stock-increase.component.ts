@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { Supplier } from '../../models/suppliers';
 import Swal from 'sweetalert2';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-iep-stock-increase',
@@ -18,6 +19,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
   styleUrls: ['./iep-stock-increase.component.css']
 })
 export class IepStockIncreaseComponent implements OnInit {
+  @Output() closeModal = new EventEmitter<void>();
   stockForm!: FormGroup;
   suppliers: Supplier[] = [];
   productName: string = ''; // Para almacenar y mostrar el nombre del producto
@@ -90,6 +92,7 @@ export class IepStockIncreaseComponent implements OnInit {
           }).then(() => {
             this.stockForm.reset();
             this.initializeForm();
+            this.closeModal.emit();
           });
         },
         error => {
@@ -99,6 +102,10 @@ export class IepStockIncreaseComponent implements OnInit {
             text: `Error al modificar el stock: ${error.status} - ${error.message}`,
             confirmButtonColor: '#6f42c1', // Botón violeta, // Botón en verde
             confirmButtonText: 'Confirmar'  // Texto personalizado del botón
+          }).then(() => {
+            this.stockForm.reset();
+            this.initializeForm();
+            this.closeModal.emit();
           });
         }
       );
