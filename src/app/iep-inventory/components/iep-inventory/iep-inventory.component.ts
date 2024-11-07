@@ -870,19 +870,14 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         ],
       ],
       body: dataToExport,
-      startY: 30, 
-      theme: 'grid',  
-      margin: { top: 30, bottom: 20 },  
-      styles: {
-        fontSize: 10,  
-        cellPadding: 5,  
-        halign: 'center', 
-      },
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
 
     // Guardar archivo PDF
     const formattedDate = this.getFormattedDate();
-    doc.save(`Lista_Productos_${formattedDate}.pdf`);
+    doc.save(`${formattedDate}_Lista_Productos.pdf`);
   }
 
   // Método auxiliar para obtener la última fecha de ingreso
@@ -935,7 +930,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Guardar el archivo con la fecha
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Productos_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Productos.xlsx`);
   }
 
   irMenu() {

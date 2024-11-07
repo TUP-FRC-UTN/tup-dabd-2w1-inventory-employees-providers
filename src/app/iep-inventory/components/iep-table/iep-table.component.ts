@@ -317,7 +317,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const doc = new jsPDF();
 
-    const pageTitle = 'Listado Reporte de Productos';
+    const pageTitle = 'Lista Reporte de Productos';
     doc.setFontSize(18);
     doc.text(pageTitle, 15, 10);
 
@@ -344,18 +344,13 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     (doc as any).autoTable({
       head: [headers],
       body: tableData,
-      startY: 30, 
-      theme: 'grid',  
-      margin: { top: 30, bottom: 20 },  
-      styles: {
-        fontSize: 10,  
-        cellPadding: 5,  
-        halign: 'center', 
-      },
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
 
     const formattedDate = this.getFormattedDate();
-    doc.save(`Reporte_Productos_${formattedDate}.pdf`)
+    doc.save(`${formattedDate}_Reporte_Productos.pdf`)
   }
 
   exportToExcel(): void {
@@ -398,7 +393,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Historial');
   
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Reporte_Productos_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Reporte_Productos.xlsx`);
   }
   
   

@@ -201,18 +201,13 @@ export class IepSupplierListComponent implements AfterViewInit {
     (doc as any).autoTable({
       head: [['Cuit', 'Nombre', 'Tipo Proveedor', 'Direccion', 'Teléfono', 'Email', 'Estado']],
       body: dataToExport,
-      startY: 30, 
-      theme: 'grid',  
-      margin: { top: 30, bottom: 20 },  
-      styles: {
-        fontSize: 10,  
-        cellPadding: 5,  
-        halign: 'center', 
-      },
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
 
     const formattedDate = this.getFormattedDate();
-    doc.save(`Lista_Proveedores_${formattedDate}.pdf`);
+    doc.save(`${formattedDate}_Lista_Proveedores.pdf`);
   }
 
 
@@ -250,7 +245,7 @@ export class IepSupplierListComponent implements AfterViewInit {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Proveedores');
   
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Proveedores_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Proveedores.xlsx`);
   }
   
 

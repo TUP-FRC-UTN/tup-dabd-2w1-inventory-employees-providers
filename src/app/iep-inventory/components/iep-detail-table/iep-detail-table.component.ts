@@ -822,14 +822,14 @@ public applyAllFilters(): void {
     const encabezado = [
       ['Listado de Detalles de Productos'],
       [],
-      ['Descripción', 'Nombre del Proveedor', 'Estado', 'Precio']
+      ['Estado', 'Descripción', 'Nombre del Proveedor', 'Precio']
     ];
 
     // Datos a exportar
     const excelData = this.details.map(detail => [
+      detail.state,
       detail.description,
       detail.supplierName,
-      detail.state,
       new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -852,7 +852,7 @@ public applyAllFilters(): void {
 
     // Guardar el archivo con la fecha
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Detalle_Inventario_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Detalle_Inventario.xlsx`);
 }
 
 
@@ -863,9 +863,9 @@ public applyAllFilters(): void {
     doc.text('Listado de Inventario (Detalle)', 10, 10);
 
     const dataToExport = this.details.map(detail => [
+      detail.state,
       detail.description,
       detail.supplierName,
-      detail.state,
       new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -874,21 +874,16 @@ public applyAllFilters(): void {
 
     // Añadir la tabla al PDF
     (doc as any).autoTable({
-      head: [['Descripción', 'Nombre del Proveedor', 'Estado', 'Precio']],
+      head: [['Estado', 'Descripción', 'Nombre del Proveedor', 'Precio']],
       body: dataToExport,
-      startY: 30, 
-      theme: 'grid',  
-      margin: { top: 30, bottom: 20 },  
-      styles: {
-        fontSize: 10,  
-        cellPadding: 5,  
-        halign: 'center', 
-      },
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
 
     // Guardar el PDF
     const formattedDate = this.getFormattedDate();
-    doc.save(`Detalle_Inventario_${formattedDate}.pdf`);
+    doc.save(`${formattedDate}_Detalle_Inventario.pdf`);
   }
 
 }

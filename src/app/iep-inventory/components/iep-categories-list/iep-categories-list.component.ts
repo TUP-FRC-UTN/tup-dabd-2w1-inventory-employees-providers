@@ -68,17 +68,12 @@ export class IepCategoriesListComponent implements OnInit {
     (doc as any).autoTable({
       head: [['Categoría', 'Estado']],
       body: dataToExport,
-      startY: 30, 
-      theme: 'grid',  
-      margin: { top: 30, bottom: 20 },  
-      styles: {
-        fontSize: 10,  
-        cellPadding: 5,  
-        halign: 'center', 
-      },
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
 
-    doc.save(`Lista_Categorías_${this.getFormattedDate()}.pdf`);
+    doc.save(`${this.getFormattedDate()}_Lista_Categorías.pdf`);
   }
 
   exportToExcel(): void {
@@ -108,7 +103,7 @@ export class IepCategoriesListComponent implements OnInit {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Categorías');
 
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Categorías_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Categorías.xlsx`);
 }
 
   

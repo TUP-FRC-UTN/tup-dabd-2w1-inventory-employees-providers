@@ -99,7 +99,7 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   
     const formattedDate = this.getFormattedDate(); 
-    doc.save(`Lista_Cargos_${formattedDate}.pdf`);
+    doc.save(`${formattedDate}_Lista_Cargos.pdf`);
   }
   
   
@@ -133,7 +133,7 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Cargos');
   
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Cargos_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Cargos.xlsx`);
   }
   
 

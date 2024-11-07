@@ -533,69 +533,79 @@ openNewCallModal(employeeId: number) {
   exportToPdf(): void {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text('Lista de Desempeños de Empleados (Filtrados)', 10, 10);
-  
+    doc.text(`Lista de Desempeños de ${this.selectedEmployeeName}`, 10, 10);
+
+
+    // Añadir el texto del período debajo del título
+    doc.setFontSize(12);
+
     // Obtener los datos filtrados de la tabla DataTables
     const filteredData = this.dataTable
       .rows({ search: 'applied' })
       .data()
       .toArray();
-  
-      
+
     const dataToExport = filteredData.map((performance: any) => [
       `${performance.year}-${(performance.month).toString().padStart(2, '0')}`,
       performance.fullName,
       performance.totalObservations,
       performance.performanceType,
     ]);
-  
+
     (doc as any).autoTable({
       head: [['Periodo', 'Empleado', 'Observaciones', 'Desempeño']],
-      body: dataToExport, 
-      startY: 30, 
-      theme: 'grid',  
-      margin: { top: 30, bottom: 20 },  
-      styles: {
-        fontSize: 10,  
-        cellPadding: 5,  
-        halign: 'center', 
-      },
+      body: dataToExport,
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
-  
-    const formattedDate = this.getFormattedDate();
-    doc.save(`Lista_Desempeños_Filtrados_${formattedDate}.pdf`);
-  }
-  
- exportToExcel(): void {
-
-    // Obtener los datos filtrados de la tabla DataTables
-    const filteredData = this.dataTable
-      .rows({ search: 'applied' })
-      .data()
-      .toArray();
-  
-    const dataToExport = filteredData.map((performance: any) => ({
-      'Periodo': `${performance.year}-${(performance.month).toString().padStart(2, '0')}`,
-      'Empleado': performance.fullName,
-      'Observaciones': performance.totalObservations,
-      'Desempeño': performance.performanceType,
-    }));
-  
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-
-    worksheet['!cols'] = [
-      { wch: 20 }, 
-      { wch: 30 }, 
-      { wch: 15 },
-      { wch: 15 }
-    ];
-  
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Desempeños Filtrados');
 
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Desempeños_Filtrados_${formattedDate}.xlsx`);
-  }
+    doc.save(`${formattedDate}_Lista_Desempeños_${this.selectedEmployeeName}.pdf`);
+}
+
+  
+exportToExcel(): void {
+  const encabezado = [
+    ['Listado de Desempeño'],
+    [], // Fila vacía para separación
+    ['Periodo', 'Empleado', 'Observaciones', 'Desempeño']
+  ];
+
+  // Obtener los datos filtrados de la tabla DataTables
+  const filteredData = this.dataTable
+    .rows({ search: 'applied' })
+    .data()
+    .toArray();
+
+  // Convertir datos a un formato de array para compatibilidad con aoa_to_sheet
+  const dataToExport = filteredData.map((performance: any) => [
+    `${performance.year}-${(performance.month).toString().padStart(2, '0')}`,
+    performance.fullName,
+    performance.totalObservations,
+    performance.performanceType
+  ]);
+
+  // Combina encabezado y datos
+  const worksheetData = [...encabezado, ...dataToExport];
+  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+  // Configuración de ancho de columnas
+  worksheet['!cols'] = [
+    { wch: 20 },
+    { wch: 30 },
+    { wch: 15 },
+    { wch: 15 }
+  ];
+
+  // Crear y descargar el archivo Excel
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Desempeños Filtrados');
+
+  const formattedDate = this.getFormattedDate();
+  XLSX.writeFile(workbook, `${formattedDate}_Lista_Desempeños_Filtrados.xlsx`);
+}
+
 
   // Método para manejar la selección de años
   toggleYear(year: string): void {
