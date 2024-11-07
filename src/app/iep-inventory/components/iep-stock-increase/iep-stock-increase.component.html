@@ -12,19 +12,23 @@
             bindLabel="name"
             bindValue="id"
             placeholder="Selecciona un proveedor"
-            class="w-100">
+            class="w-100"
+            [ngClass]="{'is-invalid': stockForm.get('supplierId')?.invalid && stockForm.get('supplierId')?.touched, 'is-valid': stockForm.get('supplierId')?.valid && stockForm.get('supplierId')?.touched}">
           </ng-select>
-          <div *ngIf="stockForm.get('supplierId')?.invalid && stockForm.get('supplierId')?.touched" class="text-danger">
-            Proveedor es requerido
+          <!-- Solo ícono de check cuando es válido -->
+          <div *ngIf="stockForm.get('supplierId')?.valid && stockForm.get('supplierId')?.touched" class="valid-feedback">
+
           </div>
         </div>
 
         <!-- Cantidad -->
         <div class="mb-3 col-md-6">
           <label for="quantity" class="form-label text-end">Cantidad</label>
-          <input id="quantity" type="number" formControlName="quantity" class="form-control">
-          <div *ngIf="stockForm.get('quantity')?.invalid && stockForm.get('quantity')?.touched" class="text-danger">
-            Cantidad es requerida y debe ser mayor que 0
+          <input id="quantity" type="number" formControlName="quantity" class="form-control"
+            [ngClass]="{'is-invalid': stockForm.get('quantity')?.invalid && stockForm.get('quantity')?.touched, 'is-valid': stockForm.get('quantity')?.valid && stockForm.get('quantity')?.touched}">
+          <!-- Solo ícono de check cuando es válido -->
+          <div *ngIf="stockForm.get('quantity')?.valid && stockForm.get('quantity')?.touched" class="valid-feedback">
+          
           </div>
         </div>
       </div>
@@ -33,18 +37,22 @@
         <!-- Precio Unitario -->
         <div class="mb-3 col-md-6">
           <label for="unitPrice" class="form-label text-end">Precio Unitario</label>
-          <input id="unitPrice" type="number" formControlName="unitPrice" class="form-control">
-          <div *ngIf="stockForm.get('unitPrice')?.invalid && stockForm.get('unitPrice')?.touched" class="text-danger">
-            El precio unitario es requerido y debe ser mayor que 0 
+          <input id="unitPrice" type="number" formControlName="unitPrice" class="form-control"
+            [ngClass]="{'is-invalid': stockForm.get('unitPrice')?.invalid && stockForm.get('unitPrice')?.touched, 'is-valid': stockForm.get('unitPrice')?.valid && stockForm.get('unitPrice')?.touched}">
+          <!-- Solo ícono de check cuando es válido -->
+          <div *ngIf="stockForm.get('unitPrice')?.valid && stockForm.get('unitPrice')?.touched" class="valid-feedback">
+          
           </div>
         </div>
 
         <!-- Descripción -->
         <div class="mb-3 col-md-6">
           <label for="description" class="form-label text-end">Descripción</label>
-          <input id="description" formControlName="description" class="form-control">
-          <div *ngIf="stockForm.get('description')?.invalid && stockForm.get('description')?.touched" class="text-danger">
-            Descripción es requerida
+          <input id="description" formControlName="description" class="form-control"
+            [ngClass]="{'is-invalid': stockForm.get('description')?.invalid && stockForm.get('description')?.touched, 'is-valid': stockForm.get('description')?.valid && stockForm.get('description')?.touched}">
+          <!-- Solo ícono de check cuando es válido -->
+          <div *ngIf="stockForm.get('description')?.valid && stockForm.get('description')?.touched" class="valid-feedback">
+            
           </div>
         </div>
       </div>
@@ -52,9 +60,12 @@
       <!-- Justificación -->
       <div class="mb-3">
         <label for="justification" class="form-label text-end">Justificación</label>
-        <textarea id="justification" formControlName="justification" class="form-control" rows="3"></textarea>
-        <div *ngIf="stockForm.get('justification')?.invalid && stockForm.get('justification')?.touched" class="text-danger">
-          La justificación es requerida.
+        <textarea id="justification" formControlName="justification" class="form-control" rows="3"
+          [ngClass]="{'is-invalid': stockForm.get('justification')?.invalid && stockForm.get('justification')?.touched, 'is-valid': stockForm.get('justification')?.valid && stockForm.get('justification')?.touched}">
+        </textarea>
+        <!-- Solo ícono de check cuando es válido -->
+        <div *ngIf="stockForm.get('justification')?.valid && stockForm.get('justification')?.touched" class="valid-feedback">
+           
         </div>
       </div>
 

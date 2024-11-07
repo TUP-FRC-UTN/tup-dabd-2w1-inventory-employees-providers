@@ -239,7 +239,7 @@
       </div>
       <div class="modal-body">
         <!-- Componente de aumento de stock -->
-        <app-iep-stock-increase [productName]="nombreProducto"
+        <app-iep-stock-increase 
           *ngIf="showAumentoStockModal"
           (success)="onStockIncreaseSuccess()"> <!-- Llama al método de éxito aquí -->
         </app-iep-stock-increase>
