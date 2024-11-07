@@ -496,6 +496,8 @@ this.table.rows.add(filteredData).draw();
     }
   }
 
+  /// necesito que borres la linea de la tabla 
+
   private initializeInformacionTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
       ...commonConfig,

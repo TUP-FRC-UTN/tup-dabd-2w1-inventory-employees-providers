@@ -2,7 +2,7 @@
   <form [formGroup]="wakeUpCallForm" (ngSubmit)="onSubmit()" class="wake-up-call-form needs-validation">
     <!-- Fecha -->
     <div class="mb-3 row">
-      <label for="fecha" class="col-sm-3 col-form-label text-start">Fecha <span class="text-danger">*</span></label>
+      <label for="fecha" class="col-sm-3 col-form-label text-start">Fecha <span class="text-danger"></span></label>
       <div class="col-sm-9">
         <div class="input-group has-validation">
           <input 
@@ -22,7 +22,7 @@
 
     <!-- Desempeño -->
     <div class="mb-3 row">
-      <label class="col-sm-3 col-form-label text-start">Desempeño <span class="text-danger">*</span></label>
+      <label class="col-sm-3 col-form-label text-start">Desempeño <span class="text-danger"></span></label>
       <div class="col-sm-9">
         <div class="btn-group w-100" role="group">
           <input type="radio" class="btn-check" formControlName="desempeno" value="Leve" id="leve">
@@ -42,7 +42,7 @@
 
     <!-- Observaciones -->
     <div class="mb-3 row">
-      <label for="observaciones" class="col-sm-3 col-form-label text-start">Observaciones <span class="text-danger">*</span></label>
+      <label for="observaciones" class="col-sm-3 col-form-label text-start">Observaciones <span class="text-danger"></span></label>
       <div class="col-sm-9">
         <textarea 
           id="observaciones" 
