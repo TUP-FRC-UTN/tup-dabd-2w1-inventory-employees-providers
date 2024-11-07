@@ -42,6 +42,10 @@ export class ListadoDesempeñoService {
     return this.http.get<WakeUpCallDetail[]>(this.WAKE_UP_CALLS_DETAILS);
   }
   
+  // Método para refrescar los detalles (volver a hacer la petición)
+  refreshWakeUpCallDetails(): Observable<WakeUpCallDetail[]> {
+    return this.getWakeUpCallDetails(); // Esto es básicamente volver a llamar al método original
+  }
 
   getCombinedData(): Observable<EmployeePerformance[]> {
     return forkJoin({

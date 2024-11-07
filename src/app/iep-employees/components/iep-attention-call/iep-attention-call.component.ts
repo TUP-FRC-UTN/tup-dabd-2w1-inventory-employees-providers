@@ -49,7 +49,6 @@ export class IepAttentionCallComponent implements OnInit{
     
   }
 
-
   ngOnInit() {
     this.loadEmployees();
     console.log('ID del empleado:', this.employeeId);

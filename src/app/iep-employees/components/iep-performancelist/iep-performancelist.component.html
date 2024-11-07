@@ -5,19 +5,13 @@
     <div class="row mb-3">
       <div class="col-md-12 d-flex align-items-center justify-content-between">
         <div class="row w-100 align-items-center">
-          
-          
-          
-          
           <!-- Campo de búsqueda -->
           <div class="col-md-4 d-flex align-items-center">
-            <!-- Add the back button -->
             <button class="btn btn-secondary me-2" (click)="volverInventario()">
               <i class="bi bi-arrow-left"></i>
             </button>
-            <input type="text" id="searchTerm" [(ngModel)]="searchTerm" placeholder="Buscar" class="form-control" readonly>
+            <input type="text" id="searchTerm" [(ngModel)]="searchTerm" placeholder="Buscar" class="form-control" (input)="onSearch()">
           </div>
-
 
           <!-- Dropdown de Periodo -->
           <div class="col-md-2 d-flex align-items-center">
@@ -30,7 +24,7 @@
                 <li *ngFor="let performance of uniquePeriods">
                   <label class="dropdown-item">
                     <input type="checkbox" class="form-check-input me-2"
-                      [checked]="selectedPeriod.includes(performance.year + '-' + (performance.month.toString().padStart(2, '0')))"
+                      [checked]="selectedPeriod.includes(performance.year + '-' + (performance.month.toString().padStart(2, '0'))) "
                       (change)="togglePeriod(performance.year + '-' + (performance.month.toString().padStart(2, '0')))">
                     {{ performance.year }}-{{ performance.month.toString().padStart(2, '0') }}
                   </label>
@@ -38,17 +32,11 @@
               </ul>
             </div>
           </div>
-          
+
           <div class="col"></div>
 
           <!-- Botones de filtro, limpiar y exportación -->
           <div class="col-md-4 d-flex justify-content-end align-items-center">
-            <button class="btn btn-primary me-2" (click)="toggleFilters()">
-              <i class="bi bi-funnel-fill"></i>
-            </button>
-            <button class="btn btn-secondary me-2" (click)="resetFilters()">
-              <i class="bi bi-trash"></i>
-            </button>
             <button class="btn btn-success me-2" (click)="exportToExcel()">
               <i class="fa-solid bi-file-earmark-excel"></i>
             </button>
@@ -60,61 +48,7 @@
       </div>
     </div>
 
-    <!-- Fila de selectores adicionales (Tipo de Desempeño y Observaciones) -->
-    <div class="row mb-3" *ngIf="showFilters">
-      <div class="col-md-12 d-flex align-items-center">
-        
-        <!-- Dropdown de Tipo de Desempeño -->
-        <div class="col-md-4 d-flex align-items-center me-3">
-          <div class="dropdown w-100">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownPerformanceType"
-              data-bs-toggle="dropdown" aria-expanded="false">
-              Desempeño
-              <span *ngIf="selectedPerformanceType.length > 0"> ({{ selectedPerformanceType.length }})</span>
-            </button>
-            <ul class="dropdown-menu w-100" aria-labelledby="dropdownPerformanceType">
-              <li *ngFor="let type of performanceTypes">
-                <label class="dropdown-item">
-                  <input type="checkbox" class="form-check-input me-2"
-                    [checked]="selectedPerformanceType.includes(type)" (change)="togglePerformanceType(type)">
-                  {{ type }}
-                </label>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Selector de Cantidad de Observaciones -->
-        <div class="col-md-4 d-flex align-items-center">
-          <input type="number" id="observationCount" [(ngModel)]="selectedObservationCount" (input)="filterData()"
-            class="form-control" placeholder="Observaciones">
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de Información -->
-    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Información sobre la Página</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p>En esta página, puedes gestionar el desempeño de empleados del sistema. A continuación, se detallan las secciones y funcionalidades disponibles:</p>
-            <ul>
-              <li><strong>Buscar:</strong> Encuentra empleados por nombre o desempeño utilizando el campo de búsqueda.</li>
-              <li><strong>Filtros de Año y Mes:</strong> Selecciona un año y mes específicos para filtrar el rendimiento de los empleados.</li>
-              <li><strong>Tabla de Desempeño:</strong> Visualiza una lista detallada de empleados con información sobre su desempeño.</li>
-              <li><strong>Registrar Observaciones:</strong> Haz clic en el botón "Registrar observación" para añadir comentarios sobre el rendimiento de un empleado.</li>
-            </ul>
-            <p class="text-danger mt-3"><strong>Nota:</strong> No es posible añadir un desempeño para una fecha en la que ya se haya registrado o que se encuentre fuera del rango permitido.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Move the table section here -->
+    <!-- Tabla de Desempeño -->
     <table class="data-table table table-striped">
       <thead>
         <tr>
@@ -144,54 +78,6 @@
           <div class="modal-body">
             <app-iep-attention-call [employeeId]="selectedEmployeeId"
             (closeModal)="closeNewCallModal()"></app-iep-attention-call>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de Detalles -->
-    <div class="modal fade" id="viewDetail" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Detalles de Llamados de Atención</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Tipo</th>
-                    <th>Observación</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let detail of paginatedDetails">
-                    <td>{{ detail.dateReal[2] }}/{{ detail.dateReal[1] }}/{{ detail.dateReal[0] }}</td>
-                    <td>
-                      <span class="tag" [ngClass]="detail.wackeUpTypeEnum.toLowerCase()">
-                        {{ detail.wackeUpTypeEnum }}
-                      </span>
-                    </td>
-                    <td>
-                      <ng-container *ngFor="let line of formatObservation(detail.observation)">
-                        {{ line }}<br />
-                      </ng-container>
-                    </td>
-                    
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div *ngIf="selectedEmployeeDetails.length === 0" class="text-center p-3">
-              No hay llamados de atención para mostrar en este período.
-            </div>
-            <div class="d-flex justify-content-between mt-3">
-              <button class="btn btn-secondary" (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
-              <button class="btn btn-secondary" (click)="nextPage()" [disabled]="currentPage >= totalPages">Siguiente</button>
-            </div>
           </div>
         </div>
       </div>

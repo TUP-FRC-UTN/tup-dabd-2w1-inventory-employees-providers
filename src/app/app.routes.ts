@@ -19,6 +19,8 @@ import { IepCategoriesListComponent } from './iep-inventory/components/iep-categ
 import { IepChartsEmployeesComponent } from './iep-employees/components/iep-charts-employees/iep-charts-employees.component';
 import { IepChartsInventoryComponent } from './iep-inventory/components/iep-charts-inventory/iep-charts-inventory.component';
 import { IepAttendancesComponent } from './iep-employees/components/iep-attendances/iep-attendances.component';
+import { IepDetailObservationComponent } from './iep-employees/components/iep-detail-observation/iep-detail-observation.component';
+
 export const routes: Routes = [
     {
         path: "", redirectTo: "/home", pathMatch: "full" 
@@ -128,6 +130,13 @@ export const routes: Routes = [
                     path: 'employee/performance/:id',
                     component: IepPerformancelistComponent,
                     title: 'Desempeño de empleados'
+                },
+                { path: 'performance-list/:id', 
+                    component: IepPerformancelistComponent 
+                },
+                { 
+                    path: 'performance-details/:id/:year/:month', 
+                    component: IepDetailObservationComponent
                 }
                 
             ]

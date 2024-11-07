@@ -1,0 +1,28 @@
+<section class="py-5">
+    <div class="container p-3 border border-2 rounded shadow-lg">
+      <div class="row mb-3">
+        <!-- Contenedor flex para poner el botón y el campo de búsqueda en la misma fila -->
+        <div class="col-md-12 d-flex align-items-center">
+          <!-- Botón Volver -->
+          <button class="btn btn-secondary me-2" (click)="goBack()">
+            <i class="bi bi-arrow-left"></i> 
+          </button>
+          
+          <!-- Campo de búsqueda -->
+          <input type="text" class="form-control m-2" placeholder="Buscar" [(ngModel)]="searchTerm">
+        </div>
+      </div>
+    
+      <table class="details-table table table-striped">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Observación</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+  

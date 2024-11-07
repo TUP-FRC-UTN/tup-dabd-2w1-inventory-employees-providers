@@ -48,4 +48,10 @@ export interface WakeUpCallDetail {
   lastUpdateDate: number[];
   lastUpdateUser: number;
 } 
+
+  export interface PeriodOption {
+    year: number;
+    month: number;
+    label: string;
+  }
   

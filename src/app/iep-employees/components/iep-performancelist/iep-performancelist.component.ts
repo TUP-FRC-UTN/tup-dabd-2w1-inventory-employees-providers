@@ -13,27 +13,41 @@ declare var bootstrap: any; // Añadir esta declaración al principio
 import 'datatables.net'; // Importación de DataTables
 import 'datatables.net-dt'; // Estilos para DataTables
 import { BrowserModule } from '@angular/platform-browser';
+import { BehaviorSubject, Observable, map, tap } from 'rxjs';
 import { IepAttentionCallComponent } from '../iep-attention-call/iep-attention-call.component';
+import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
+import { IepDetailObservationComponent } from '../iep-detail-observation/iep-detail-observation.component';
 
 @Component({
   selector: 'app-iep-performancelist',
   standalone: true,
-  imports: [CommonModule, FormsModule, IepAttentionCallComponent],
+  imports: [CommonModule, FormsModule, IepAttentionCallComponent, IepDetailObservationComponent],
   templateUrl: './iep-performancelist.component.html',
   styleUrl: './iep-performancelist.component.css'
 })
 export class IepPerformancelistComponent implements OnInit {
-  selectedPeriod: string[] = []; // Cambiar a un arreglo para permitir múltiples selecciones
-  paginatedDetails: WakeUpCallDetail[] = [];
+  private wakeUpCallDetailsSubject = new BehaviorSubject<WakeUpCallDetail[]>([]);
+  private performancesSubject = new BehaviorSubject<EmployeePerformance[]>([]);
+  public wakeUpCallDetails$ = this.wakeUpCallDetailsSubject.asObservable();
+  public performances$ = this.performancesSubject.asObservable();
+  selectedPeriod: string[] = [];
   currentPage: number = 1;
   itemsPerPage: number = 5;
   totalPages: number = 0;
-  selectedEmployeeId: number | null = null; // Variable para almacenar el ID del empleado seleccionado
-  selectedEmployeeName: string = '';         // Nombre del empleado seleccionado
-  selectedYears: string[] = [];  // Cambiado a array
-  selectedMonths: string[] = []; // Cambiado a array
-  selectedPerformanceType: string[] = [];  // Cambiado de string a string[]
-  showFilters = false; // Inicializamos como oculto
+  selectedEmployeeId: number | null = null;
+  selectedEmployeeName: string = '';
+  selectedYears: string[] = [];
+  selectedMonths: string[] = [];
+  selectedPerformanceType: string[] = [];
+  showFilters = false;
+  performances: EmployeePerformance[] = [];
+  searchTerm: string = '';
+  dataTable: any;
+  months: string[] = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  paginatedDetails: WakeUpCallDetail[] = [];
   showNewCallModal = false; // Variable para controlar la visibilidad del modal
   showConfirmationModal = false;
   showErrorModal = false;
@@ -41,23 +55,17 @@ export class IepPerformancelistComponent implements OnInit {
   errorMessage = '';
   selectedObservationCount: number | null = null;  // Nuevo filtro de observaciones
   performanceTypes: string[] = ['Bueno', 'Regular', 'Malo'];  // Opciones de tipo de desempeño
-  performances: EmployeePerformance[] = [];
-  searchTerm: string = '';
   selectedYear: string = '';
   selectedMonth: string = '';
-  dataTable: any;
   selectedEmployeeDetails: WakeUpCallDetail[] = [];
   showDetailsModal = false;
   availableYears: number[] = [];
-  months: string[] = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
   
   showInfoModal = false; // Nueva variable para el modal de información
 
   constructor(
     private employeeService: ListadoDesempeñoService,
+    private listService: EmpListadoEmpleadosService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -73,10 +81,109 @@ export class IepPerformancelistComponent implements OnInit {
     // Establecer valores iniciales
     this.selectedYears.push(currentYear);
     this.selectedMonths.push(currentMonth);
+    this.refreshData();
   }
 
+  // Método para refrescar todos los datos
+  refreshData(): void {
+    this.refreshWakeUpCallDetails().subscribe();
+    this.refreshPerformances().subscribe();
+  }
+
+  // Método para refrescar los detalles de wake-up calls
+  refreshWakeUpCallDetails(): Observable<WakeUpCallDetail[]> {
+    // Simula una llamada HTTP - reemplazar con tu API real
+    return this.getWakeUpCallDetails().pipe(
+      tap(details => this.wakeUpCallDetailsSubject.next(details))
+    );
+  }
+
+  // Método para refrescar los performances
+  refreshPerformances(): Observable<EmployeePerformance[]> {
+    // Simula una llamada HTTP - reemplazar con tu API real
+    return this.getCombinedData().pipe(
+      tap(performances => this.performancesSubject.next(performances))
+    );
+  }
+
+  // Método para obtener detalles de wake-up calls
+  getWakeUpCallDetails(): Observable<WakeUpCallDetail[]> {
+    return this.wakeUpCallDetails$;
+  }
+
+  // Método para obtener detalles filtrados por empleado, año y mes
+  getFilteredDetails(employeeId: number, year: number, month: number): Observable<WakeUpCallDetail[]> {
+    return this.wakeUpCallDetails$.pipe(
+      map(details => details.filter(detail => {
+        const detailDate = new Date(detail.dateReal[0], detail.dateReal[1] - 1, detail.dateReal[2]);
+        return detail.employeeId === employeeId &&
+               detailDate.getFullYear() === year &&
+               detailDate.getMonth() === month - 1;
+      }))
+    );
+  }
+
+  // Método para agregar un nuevo detalle
+  addWakeUpCallDetail(detail: WakeUpCallDetail): Observable<void> {
+    return new Observable(subscriber => {
+      const currentDetails = this.wakeUpCallDetailsSubject.getValue();
+      currentDetails.push(detail);
+      this.wakeUpCallDetailsSubject.next(currentDetails);
+      
+      // Actualizar también los performances
+      this.updatePerformanceForDetail(detail);
+      
+      subscriber.next();
+      subscriber.complete();
+    });
+  }
+
+  private updatePerformanceForDetail(detail: WakeUpCallDetail): void {
+    const currentPerformances = this.performancesSubject.getValue();
+    const detailDate = new Date(detail.dateReal[0], detail.dateReal[1] - 1, detail.dateReal[2]);
+    
+    const performanceIndex = currentPerformances.findIndex(p => 
+      p.id === detail.employeeId &&
+      p.year === detailDate.getFullYear() &&
+      p.month === detailDate.getMonth() + 1
+    );
+
+    if (performanceIndex !== -1) {
+      const updatedPerformance = {
+        ...currentPerformances[performanceIndex],
+        totalObservations: currentPerformances[performanceIndex].totalObservations + 1
+      };
+      currentPerformances[performanceIndex] = updatedPerformance;
+    }
+
+    this.performancesSubject.next(currentPerformances);
+  }
+
+  // Otros métodos existentes...
+  getCombinedData(): Observable<EmployeePerformance[]> {
+    return this.performances$;
+  }
 
   ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.selectedEmployeeId = Number(params['id']);
+        this.loadEmployeeData();
+      }
+    });
+    // Agregar listener para el evento de cierre del modal
+    const modalElement = document.getElementById('newCall');
+    if (modalElement) {
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        // Recargar datos cuando se cierra el modal
+        setTimeout(() => {
+          this.loadData();
+        }, 500); // Pequeño delay para asegurar que los datos se hayan guardado
+      });
+    }
+
+    this.loadData();
+    this.employeeService.refreshData();
     const empleadoId = this.route.snapshot.paramMap.get('id');
     if (empleadoId) {
       this.setEmployeeById(Number(empleadoId)); // Carga los datos del empleado específico
@@ -92,6 +199,21 @@ export class IepPerformancelistComponent implements OnInit {
     const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0'); // Formato "MM"
     const currentPeriod = `${currentYear}-${currentMonth}`;
 
+    // Suscripción al observable para obtener los datos actualizados de desempeño
+  this.employeeService.performances$.subscribe({
+    next: (data) => {
+      // Filtra los datos para el empleado seleccionado
+      this.performances = data.filter(p => p.id === this.selectedEmployeeId);
+      this.updateDataTable();  // Actualiza la tabla con los datos filtrados
+    },
+    error: (error) => {
+      console.error('Error loading performance data:', error);
+    }
+  });
+
+  // Cargar los datos y refrescar la vista
+  this.loadData();
+  this.employeeService.refreshData();  // Asegúrate de que el servicio refresque los datos
     // Añadir el período actual a selectedPeriod
     this.selectedPeriod.push(currentPeriod);
 
@@ -100,18 +222,53 @@ export class IepPerformancelistComponent implements OnInit {
       this.filterData(); // Aplica el filtro con el período actual
     }, 100); // Puedes ajustar el tiempo si es necesario
 
-    // Agregar evento para el modal y recargar datos cuando se cierre
-    const modalElement = document.getElementById('newCall');
-    if (modalElement) {
-      modalElement.addEventListener('hidden.bs.modal', () => {
-        this.loadData();
-      });
-    }
+}
 
-    // Marcar los checkboxes del período actual (opcional si los checkboxes están enlazados a selectedPeriod)
-    setTimeout(() => {
-      this.updateCheckboxes();
-    }, 100);
+
+private updateDataTable(): void {
+  if (this.dataTable) {
+    this.dataTable.clear();
+    this.dataTable.rows.add(this.performances);
+    this.dataTable.draw();  // Refresca la tabla con los nuevos datos
+  } else {
+    this.initializeDataTable();  // Si la tabla aún no ha sido inicializada, lo hace
+  }
+}
+
+private loadEmployeeData(): void {
+  if (this.selectedEmployeeId) {
+    // Get employee details
+    this.listService.getEmployeeById(this.selectedEmployeeId).subscribe({
+      next: (employee) => {
+        this.selectedEmployeeName = `${employee.name} ${employee.surname}`;
+        this.searchTerm = this.selectedEmployeeName;
+        this.loadPerformanceData();
+      },
+      error: (error) => {
+        console.error('Error loading employee:', error);
+      }
+    });
+  }
+}
+
+private loadPerformanceData(): void {
+  this.employeeService.getCombinedData().subscribe({
+    next: (data) => {
+      // Filter performances for the selected employee
+      this.performances = data.filter(p => p.id === this.selectedEmployeeId);
+      
+      if (this.dataTable) {
+        this.dataTable.clear();
+        this.dataTable.rows.add(this.performances);
+        this.dataTable.draw();
+      } else {
+        this.initializeDataTable();
+      }
+    },
+    error: (error) => {
+      console.error('Error loading performance data:', error);
+    }
+  });
 }
 
 
@@ -191,7 +348,6 @@ openNewCallModal(employeeId: number) {
     }
   }
 
-  // Método auxiliar para recargar datos
   loadData(): void {
     this.employeeService.getCombinedData().subscribe({
       next: (data) => {
@@ -202,6 +358,9 @@ openNewCallModal(employeeId: number) {
           this.dataTable.clear();
           this.dataTable.rows.add(this.performances);
           this.dataTable.draw();
+          
+          // Reaplica los filtros después de actualizar los datos
+          this.filterData();
         } else {
           setTimeout(() => {
             this.initializeDataTable();
@@ -215,7 +374,29 @@ openNewCallModal(employeeId: number) {
   }
 
   closeNewCallModal() {
-    this.closeModal(); // Cierra el modal y al mismo tiempo se actualizan los datos
+    const modalElement = document.getElementById('newCall');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      if (modal) {
+        modal.hide();
+      }
+      
+      // Limpiar efectos del modal
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('padding-right');
+      document.body.style.removeProperty('overflow');
+      
+      // Remover backdrops
+      const backdrops = document.getElementsByClassName('modal-backdrop');
+      while (backdrops.length > 0) {
+        backdrops[0].remove();
+      }
+
+      // Forzar actualización de datos
+      setTimeout(() => {
+        this.loadData();
+      }, 500);
+    }
   }
   
 
@@ -257,24 +438,16 @@ openNewCallModal(employeeId: number) {
   }
 
 
-  initializeDataTable() {
+  initializeDataTable(): void {
     if (this.dataTable) {
-      this.dataTable.destroy();
+      this.dataTable.clear(); // Limpiar los datos anteriores
+      this.dataTable.destroy(); // Destruir la instancia anterior
     }
   
     const table = $('.data-table');
     if (table.length > 0) {
-      const uniquePeriods = new Set();
-      
       this.dataTable = table.DataTable({
-        data: this.performances.filter(performance => {
-          const period = `${performance.year}-${performance.month.toString().padStart(2, '0')}`;
-          if (!uniquePeriods.has(period)) {
-            uniquePeriods.add(period);
-            return true;
-          }
-          return false;
-        }),
+        data: this.performances, // Aquí se asignan los nuevos datos
         columns: [
           { 
             data: null,
@@ -284,44 +457,57 @@ openNewCallModal(employeeId: number) {
             },
             title: 'Periodo'
           },
-          { data: 'fullName' },
-          { data: 'totalObservations', className: 'text-center' },
+          { data: 'fullName', title: 'Nombre Completo' },
+          { data: 'totalObservations', className: 'text-center', title: 'Observaciones Totales' },
           { 
             data: 'performanceType',
             render: (data: string) => {
               return `<span class="tag ${data.toLowerCase()}">${data}</span>`;
-            }
+            },
+            title: 'Tipo de Desempeño'
           },
           {
-            data: 'totalObservations',
-            render: (data: number, type: string, row: any) => {
-              return `<button class="btn btn-sm btn-primary view-details" data-bs-target="#viewDetail" data-bs-toggle="modal" data-id="${row.id}" data-year="${row.year}" data-month="${row.month}">Ver más</button>`;
-            }
+            data: null,
+            render: (data: any) => {
+              return `<button class="btn btn-sm btn-primary view-details" data-id="${data.id}" data-year="${data.year}" data-month="${data.month}">Ver detalles</button>`;
+            },
+            title: 'Acciones'
           }
         ],
+        dom: '<"mb-3"t><"d-flex justify-content-between"lp>',
+        pageLength: 10,
+        lengthMenu: [5, 10, 20, 25],
+        order: [[0, 'asc']],
         language: {
-          lengthMenu: "_MENU_",
-          zeroRecords: "No se encontraron registros",
-          info: "", 
-          infoEmpty: "",
-          infoFiltered: "",
-          search: ""
-        },
-        pageLength: 5,
-        order: [[0, 'desc']],
-        dom: 'rt<"d-flex justify-content-between mt-3"l<"pagination-container"p>>',
-        lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]]
+          zeroRecords: "No se encontraron desempeños para este empleado",
+        }
       });
   
+      // Manejo del clic en el botón "Ver detalles"
       $('.data-table tbody').on('click', '.view-details', (event) => {
         const button = $(event.currentTarget);
-        const employeeId = button.data('id');
+        const id = button.data('id');
         const year = button.data('year');
         const month = button.data('month');
-        this.viewDetails(employeeId, year, month);
+        this.viewDetails(id, year, month); // Actualizar los detalles de la llamada de atención
       });
     }
   }
+  
+
+  
+
+  onSearch(): void {
+    if (this.dataTable) {
+      // Realiza el filtrado según el valor del campo de búsqueda
+      this.dataTable.search(this.searchTerm).draw();
+    }
+  }
+  
+  navigateToDetails(id: number, year: number, month: number): void {
+    this.router.navigate(['/home/performance-details', id, year, month]);
+  }
+  
   
 
   get uniquePeriods(): { year: number, month: number }[] {
@@ -452,24 +638,31 @@ openNewCallModal(employeeId: number) {
   
   
   viewDetails(employeeId: number, year: number, month: number): void {
-    this.employeeService.getWakeUpCallDetails().subscribe(details => {
-      this.selectedEmployeeDetails = details
-        .filter(detail => {
-          const detailDate = new Date(detail.dateReal[0], detail.dateReal[1] - 1, detail.dateReal[2]);
-          return detail.employeeId === employeeId && 
-                 detailDate.getFullYear() === year && 
-                 detailDate.getMonth() === month - 1;
-        })
-        .sort((a, b) => {
-          const dateA = new Date(a.dateReal[0], a.dateReal[1] - 1, a.dateReal[2]);
-          const dateB = new Date(b.dateReal[0], b.dateReal[1] - 1, b.dateReal[2]);
-          return dateB.getTime() - dateA.getTime(); // Ordenar de más reciente a más antiguo
-        });
+    this.employeeService.getWakeUpCallDetails().subscribe({
+      next: (details) => {
+        this.selectedEmployeeDetails = details
+          .filter(detail => {
+            const detailDate = new Date(detail.dateReal[0], detail.dateReal[1] - 1, detail.dateReal[2]);
+            return detail.employeeId === employeeId &&
+                   detailDate.getFullYear() === year &&
+                   detailDate.getMonth() === month - 1;
+          })
+          .sort((a, b) => {
+            const dateA = new Date(a.dateReal[0], a.dateReal[1] - 1, a.dateReal[2]);
+            const dateB = new Date(b.dateReal[0], b.dateReal[1] - 1, b.dateReal[2]);
+            return dateB.getTime() - dateA.getTime(); // Ordenar de manera descendente
+          });
   
-      this.totalPages = Math.ceil(this.selectedEmployeeDetails.length / this.itemsPerPage);
-      this.paginate();
-      this.showDetailsModal = true;
+        this.totalPages = Math.ceil(this.selectedEmployeeDetails.length / this.itemsPerPage);
+        this.paginate(); // Paginación
+        this.showDetailsModal = true; // Mostrar el modal con los detalles
+        this.loadData(); // Recargar los datos en la tabla principal
+      },
+      error: (error) => {
+        console.error('Error loading details:', error);
+      }
     });
+    this.navigateToDetails(employeeId, year, month); // Navegar a la vista de detalles
   }
   
   paginate(): void {
@@ -620,6 +813,7 @@ openNewCallModal(employeeId: number) {
 
   // Add the volverInventario method
   volverInventario(): void {
+    this.loadData();
     this.router.navigate(["home/employee-list"]);
   }
 
