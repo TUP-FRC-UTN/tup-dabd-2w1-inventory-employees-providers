@@ -274,12 +274,6 @@ onEndDateChange(value: string): void {
             title: 'Hora',
             render: (data: string) => data ? data.substring(11) : ''
           },
-          { data: 'applicant', title: 'Solicitante' },
-          {
-            data: 'product_name',
-            title: 'Producto',
-            
-          },
           {
             data: 'movement_type',
             title: 'Tipo',
@@ -299,7 +293,12 @@ onEndDateChange(value: string): void {
               }
             },
           },
-          
+          { data: 'applicant', title: 'Solicitante' },
+          {
+            data: 'product_name',
+            title: 'Producto',
+            
+          },
          // { data: 'responsible', title: 'Responsable' }
         ],
         order: [[0, 'desc']],
