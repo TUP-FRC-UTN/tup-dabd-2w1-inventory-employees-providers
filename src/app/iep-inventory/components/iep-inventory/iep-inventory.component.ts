@@ -678,14 +678,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
             return lastDate ? this.formatDate(lastDate) : '';
           },
         },
-        { data: 'name', title: 'Nombre' }, // Mantiene el título corto
-        {
-          data: 'category',
-          title: 'Categoría',
-          render: (data: any) => {
-            return data.categoryName;
-          },
-        },
         {
           data: 'reusable',
           title: 'Reutilizable',
@@ -703,6 +695,14 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
             <div class=text-center">
               <div class="badge border rounded-pill ${color}">${name}</div>
             </div > `;
+          },
+        },
+        { data: 'name', title: 'Nombre' }, // Mantiene el título corto
+        {
+          data: 'category',
+          title: 'Categoría',
+          render: (data: any) => {
+            return data.categoryName;
           },
         },
         {

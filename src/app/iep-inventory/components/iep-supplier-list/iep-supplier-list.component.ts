@@ -294,7 +294,18 @@ export class IepSupplierListComponent implements AfterViewInit {
             title: 'Estado',
             className: 'text-center',
             render: function (data) {
-              return data ? 'Inactivo' : 'Activo';
+              let colorClass;
+              let text;
+                  
+              if (data) {
+                colorClass = '#dc3545'; // Rojo para "Inactivo"
+                text = 'Inactivo';
+              } else {
+                colorClass = '#198754'; // Verde para "Activo"
+                text = 'Activo';
+              }
+                  
+              return `<span class="badge border rounded-pill" style="background-color: ${colorClass};">${text}</span>`;
             }
           },
           { data: 'cuit', title: 'Cuit' },

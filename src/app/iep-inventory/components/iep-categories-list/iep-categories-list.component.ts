@@ -162,12 +162,21 @@ exportToExcel(): void {
       columns: [
         {
           data: 'discontinued',
-                  title: 'Estado',
-                  className: 'text-center', // solo esta clase para alinear el texto a la izquierda
+          title: 'Estado',
+          className: 'text-center', // solo esta clase para alinear el texto a la izquierda
                   render: (data: any) => {
-                    return `<div class="btn ${data ? 'btn-danger' : 'btn-success'}  badge">
-                              ${data ? 'Inactivo' : 'Activo'}
-                            </div>`;
+                    let colorClass;
+                    let text;
+                        
+                    if (data) {
+                      colorClass = '#dc3545'; // Rojo para "Inactivo"
+                      text = 'Inactivo';
+                    } else {
+                      colorClass = '#198754'; // Verde para "Activo"
+                      text = 'Activo';
+                    }
+                        
+                    return `<span class="badge border rounded-pill" style="background-color: ${colorClass};">${text}</span>`;
                   }
         
              },

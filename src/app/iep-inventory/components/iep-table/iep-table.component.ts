@@ -227,7 +227,6 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
             return data;
           }
         },
-        { data: 'product', title: 'Producto' }, // Columna de producto
         {
           data: 'modificationType',
           title: 'Tipo de Movimiento',
@@ -243,6 +242,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           }
         }, // Columna de tipo de movimiento
+        { data: 'product', title: 'Producto' }, // Columna de producto
         { data: 'supplier', title: 'Proveedor' }, // Columna de proveedor
         { data: 'amount', title: 'Cantidad' }, // Columna de cantidad
         { data: 'description', title: 'Justificativo' }, // Columna de justificativo
