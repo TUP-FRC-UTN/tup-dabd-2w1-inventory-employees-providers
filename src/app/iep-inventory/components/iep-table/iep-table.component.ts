@@ -315,18 +315,20 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // Crear nuevo documento PDF
     const doc = new jsPDF();
 
-    // Usar los datos ya procesados de filteredProductos
+    const pageTitle = 'Lista Reporte de Productos';
+    doc.setFontSize(18);
+    doc.text(pageTitle, 15, 10);
+
     const tableData = this.filteredProductos.map((producto) => [
-      producto.date, // Ya está formateado por calculateRunningStock
+      producto.date, 
       producto.product,
       producto.modificationType,
       producto.supplier,
       producto.amount.toString(),
       producto.description,
-      producto.stockAfterModification, // Usamos el stock calculado
+      producto.stockAfterModification, 
     ]);
 
     const headers = [
@@ -336,50 +338,19 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       'Proveedor',
       'Cantidad',
       'Justificativo',
-      'Stock Después',
+      'Stock Resultante',
     ];
 
-    // Generar la tabla en el PDF
     (doc as any).autoTable({
       head: [headers],
       body: tableData,
+      startY: 30,
       theme: 'grid',
-      styles: {
-        fontSize: 8,
-        cellPadding: 2,
-        overflow: 'linebreak',
-        halign: 'center',
-      },
-      headStyles: {
-        fillColor: [66, 139, 202],
-        textColor: 255,
-        halign: 'center',
-      },
-      columnStyles: {
-        0: { cellWidth: 20 }, // Fecha
-        1: { cellWidth: 25 }, // Producto
-        2: { cellWidth: 25 }, // Tipo Movimiento
-        3: { cellWidth: 25 }, // Proveedor
-        4: { cellWidth: 15, halign: 'right' }, // Cantidad
-        5: { cellWidth: 50 }, // Justificativo
-        6: { cellWidth: 20, halign: 'right' }, // Stock Después
-      },
-      margin: { top: 10 },
-      didDrawPage: function (data: any) {
-        // Agregar número de página
-        //const str = 'Página ' + doc.internal.getNumberOfPages();
-        doc.setFontSize(8);
-        const pageSize = doc.internal.pageSize;
-        const pageHeight = pageSize.height
-          ? pageSize.height
-          : pageSize.getHeight();
-        //doc.text(str, data.settings.margin.left, pageHeight - 10);
-      },
+      margin: { top: 30, bottom: 20 },
     });
 
-    // Guardar el PDF
     const formattedDate = this.getFormattedDate();
-    doc.save(`Reporte_Productos_${formattedDate}.pdf`)
+    doc.save(`${formattedDate}_Reporte_Productos.pdf`)
   }
 
   exportToExcel(): void {
@@ -387,56 +358,60 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       console.error('No hay datos para exportar');
       return;
     }
-
-    // Usar los datos ya procesados de filteredProductos
-    const data = this.filteredProductos.map((producto) => ({
-      Fecha: producto.date, // Ya está formateado por calculateRunningStock
-      Producto: producto.product,
-      'Tipo Movimiento': producto.modificationType,
-      Proveedor: producto.supplier,
-      Cantidad: producto.amount,
-      Justificativo: producto.description,
-      'Stock Después': producto.stockAfterModification, // Usamos el stock calculado
-    }));
-
-    // Crear una nueva hoja de trabajo
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-
-    // Configurar el ancho de las columnas
-    const columnsWidth = [
-      { wch: 12 }, // Fecha
-      { wch: 20 }, // Producto
-      { wch: 20 }, // Tipo Movimiento
-      { wch: 20 }, // Proveedor
-      { wch: 15 }, // Cantidad
-      { wch: 30 }, // Justificativo
-      { wch: 15 }, // Stock Después
+  
+    const data = this.filteredProductos.map((producto) => [
+      producto.date, 
+      producto.product, 
+      producto.modificationType, 
+      producto.supplier, 
+      producto.amount, 
+      producto.description,
+      producto.stockAfterModification, 
+    ]);
+  
+    const encabezado = [
+      ['Historial de Productos'], 
+      [], 
+      ['Fecha', 'Producto', 'Tipo Movimiento', 'Proveedor', 'Cantidad', 'Justificativo', 'Stock Resultante'], // Nombres de las columnas
     ];
-    worksheet['!cols'] = columnsWidth;
-
-    // Crear un nuevo libro de trabajo y agregar la hoja
-    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+  
+    const worksheetData = [...encabezado, ...data];
+  
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  
+    worksheet['!cols'] = [
+      { wch: 12 }, 
+      { wch: 20 }, 
+      { wch: 20 }, 
+      { wch: 20 }, 
+      { wch: 15 }, 
+      { wch: 30 }, 
+      { wch: 15 }, 
+    ];
+  
+    const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Historial');
-
-    // Guardar el archivo
+  
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Reporte_Productos_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Reporte_Productos.xlsx`);
   }
+  
+  
 
   ngOnDestroy(): void {
     if (this.table) {
-      this.table.destroy(); // Destruye la instancia de DataTable al destruir el componente
+      this.table.destroy(); 
     }
   }
 
 
-  filtersVisible = true; // Controla la visibilidad de los filtros
+  filtersVisible = true; 
 
 
   toggleFilters(): void {
-    this.filtersVisible = !this.filtersVisible; // Alterna la visibilidad de los filtros
+    this.filtersVisible = !this.filtersVisible; 
     if (this.filtersVisible) {
-      this.cleanColumnFilters(); // Limpia los filtros al ocultarlos
+      this.cleanColumnFilters(); 
     }
   }
 

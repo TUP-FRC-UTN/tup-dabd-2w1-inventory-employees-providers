@@ -11,6 +11,7 @@ import { EmployeePerformance } from '../../Models/listado-desempeño';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
 import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
 
@@ -259,6 +260,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     if (this.ventana === 'Informacion') {
       // Extrae datos de la tabla de empleados
       const dataToExport = this.Empleados.map((empleado) => [
+        empleado.active ? empleado.license ? 'Licencia' : 'Activo' : 'Inactivo',
         empleado.fullName,
         empleado.document,
         empleado.position,
@@ -268,30 +270,43 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       doc.setFontSize(16);
       doc.text('Lista de Empleados', 10, 10);
       (doc as any).autoTable({
-        head: [['Nombre', 'Documento', 'Posición', 'Salario']],
+        head: [['Estado','Apellido y Nombre', 'Documento', 'Posición', 'Salario']],
         body: dataToExport,
-        startY: 20,
+        startY: 30,
+        theme: 'grid',
+        margin: { top: 30, bottom: 20 },
       });
     }
 
-    doc.save(`Lista_${this.ventana}_${this.getFormattedDate()}.pdf`);
+    doc.save(`${this.getFormattedDate()}_Lista_Empleados.pdf`);
   }
 
   exportToExcel(): void {
-    let dataToExport: any[] = []; // Define un array vacío por defecto
+
+    const encabezado = [
+      ['Listado de Empleados'],
+      [], // Fila en blanco
+      ['Estado', 'Nombre', 'Documento', 'Posición', 'Salario'] 
+    ];
+
+    // Extrae los datos de los empleados en formato de arreglo de arreglos
+    let dataToExport: any[] = [];
 
     if (this.ventana === 'Informacion') {
-      // Extrae datos de la tabla de empleados
-      dataToExport = this.Empleados.map((empleado) => ({
-        Nombre: empleado.fullName,
-        Documento: empleado.document,
-        Posición: empleado.position,
-        Salario: empleado.salary,
-      }));
+      dataToExport = this.Empleados.map((empleado) => [
+        empleado.active ? (empleado.license ? 'Licencia' : 'Activo') : 'Inactivo',
+        empleado.fullName,
+        empleado.document,
+        empleado.position,
+        empleado.salary
+      ]);
     }
 
-    // Aquí se asegura de que dataToExport nunca sea undefined
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    // Combina encabezado con los datos de exportación
+    const worksheetData = [...encabezado, ...dataToExport];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // Crea el libro de trabajo
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
       workbook,
@@ -299,11 +314,10 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       `Lista de ${this.ventana}`
     );
 
-    XLSX.writeFile(
-      workbook,
-      `Lista_${this.ventana}_${this.getFormattedDate()}.xlsx`
-    );
-  }
+    // Descarga el archivo Excel
+    XLSX.writeFile(workbook, `${this.getFormattedDate()}_Lista_Empleados.xlsx`);
+}
+
 
   onSearchFilterChange(event: Event): void {
     const input = event.target as HTMLInputElement;

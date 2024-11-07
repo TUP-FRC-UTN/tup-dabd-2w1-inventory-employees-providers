@@ -180,7 +180,9 @@ onEndDateChange(value: string): void {
     (doc as any).autoTable({
       head: [['Fecha y Hora', 'Solicitante', 'Productos', 'Tipo', 'Responsable']],
       body: dataToExport,
-      startY: 20,
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
     
     doc.save(`Lista_Movimientos_${Date.now}.pdf`);
@@ -199,6 +201,7 @@ onEndDateChange(value: string): void {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Movimientos');
     XLSX.writeFile(workbook, `Lista_Movimientos_${Date.now}.xlsx`);
   }
+  
 
 
   ngAfterViewChecked(): void {
@@ -211,8 +214,8 @@ onEndDateChange(value: string): void {
       this.dataTableInstance = $('#movementsTable').DataTable({
         data: this.filteredMovements,
         dom:
-          '<"mb-3"t>' +                           //Tabla
-          '<"d-flex justify-content-between"lp>', //Paginacion
+          '<"mb-3"t>' +                           
+          '<"d-flex justify-content-between"lp>', 
         columns: [
           {
             data: 'dateTime',

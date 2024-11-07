@@ -5,7 +5,8 @@ import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 declare var $: any;
 declare var DataTable: any;
@@ -311,31 +312,33 @@ export class IepAttendancesComponent implements OnInit{
     return `${year}-${month}-${day}`;
   }
 
-  exportToExcel(): void {
-    let dataToExport: any[] = []; // Define un array vacío por defecto
-      // Extrae datos de la tabla de asistencias
-      dataToExport = this.Asistencias.map((asistencia) => ({
-        'Nombre del Empleado': asistencia.employeeName,
-        'Fecha': asistencia.date,
-        'Hora de Llegada': asistencia.arrivalTime,
-        'Hora de Salida': asistencia.departureTime,
-        'Estado': asistencia.state,
-      }));
-    
-
-    // Aquí se asegura de que dataToExport nunca sea undefined
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, `Lista de asistencias`);
-
-    XLSX.writeFile(workbook, `Lista_asistencias_${this.empleadoName}_${this.getFormattedDate()}.xlsx`);
+  private formatDate2(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${day}-${month}-${year}`;
   }
 
-  exportToPdf(): void {
-    const doc = new jsPDF();
+  exportToExcel(): void {
+    const encabezado = [
+      ['Listado de Asistencias'],
+      [], // Fila en blanco
+      ['Nombre del Empleado', 'Fecha', 'Hora de Llegada', 'Hora de Salida', 'Estado'] 
+    ];
 
-    // Extrae datos de la tabla de asistencias
-    const dataToExport = this.Asistencias.map((asistencia) => [
+    // Filtra las asistencias del empleado que estás visualizando
+    const filteredAsistencias = this.Asistencias.filter(
+      asistencia => asistencia.employeeName === this.empleadoName
+    );
+
+    // Verifica si existen asistencias para el empleado seleccionado
+    if (filteredAsistencias.length === 0) {
+      console.error(`No hay datos de asistencia para el empleado ${this.empleadoName}`);
+      return;
+    }
+
+    // Extrae los datos de las asistencias filtradas como arreglos de arreglos
+    const dataToExport = filteredAsistencias.map((asistencia) => [
       asistencia.employeeName,
       asistencia.date,
       asistencia.arrivalTime,
@@ -343,16 +346,70 @@ export class IepAttendancesComponent implements OnInit{
       asistencia.state,
     ]);
 
+    // Crea una hoja de cálculo (worksheet)
+    const worksheetData = [...encabezado, ...dataToExport];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // Crea un libro de trabajo
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Asistencias');
+
+    // Descarga el archivo Excel
+    XLSX.writeFile(workbook, `${this.getFormattedDate()}_Lista_Asistencias_${this.empleadoName}.xlsx`);
+}
+
+
+  exportToPdf(): void {
+    console.log('Exportando a PDF...');
+    const doc = new jsPDF();
+  
+    // Verifica si hay datos en Asistencias
+    if (!this.Asistencias || this.Asistencias.length === 0) {
+      console.error('No hay datos de asistencias');
+      return;
+    }
+  
+    // Filtra las asistencias del empleado que estás visualizando
+    const filteredAsistencias = this.Asistencias.filter(
+      asistencia => asistencia.employeeName === this.empleadoName
+    );
+  
+    // Verifica si existen asistencias para el empleado seleccionado
+    if (filteredAsistencias.length === 0) {
+      console.error(`No hay datos de asistencia para el empleado ${this.empleadoName}`);
+      return;
+    }
+  
+    const dataToExport = filteredAsistencias.map((asistencia) => [
+      asistencia.date,
+      asistencia.employeeName,
+      asistencia.state,
+      asistencia.arrivalTime,
+      asistencia.departureTime,
+      asistencia.justification
+    ]);
+  
+
+  
     doc.setFontSize(16);
-    doc.text('Lista de Asistencias', 10, 10);
+    doc.text(`Lista de Asistencias de ${this.empleadoName}`, 10, 10);
+  
+    // Agrega las fechas al PDF
+    doc.setFontSize(12);
+  
     (doc as any).autoTable({
-      head: [['Nombre del Empleado', 'Fecha', 'Hora de Llegada', 'Hora de Salida', 'Estado']],
+      head: [['Fecha', 'Apellido y nombre', 'Estado', 'Hora de entrada', 'Hora de salida', 'Observaciones']],
       body: dataToExport,
-      startY: 20,
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 }
     });
     
-    doc.save(`Lista_asistencias_${this.empleadoName}_${this.getFormattedDate()}.pdf`);
+    doc.save(`${this.getFormattedDate()}_Lista_asistencias_${this.empleadoName}.pdf`);
   }
+  
+ 
+
 
   getFormattedDate(): string {
     const today = new Date();

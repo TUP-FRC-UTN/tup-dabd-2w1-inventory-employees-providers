@@ -188,45 +188,66 @@ export class IepSupplierListComponent implements AfterViewInit {
     doc.setFontSize(16);
     doc.text('Lista de Proveedores', 10, 10);
 
-    // Datos a exportar, mapeando los proveedores con los campos específicos
     const dataToExport = this.suppliers.map((supplier) => [
+      supplier.cuit,
       supplier.name,
       this.translateSupplierType(supplier.supplierType),
       supplier.address,
-      supplier.description,
       supplier.phoneNumber,
-      supplier.email
+      supplier.email,
+      supplier.discontinued ? 'Inactivo' : 'Activo'
     ]);
 
-    // Configuración de la tabla en el PDF
     (doc as any).autoTable({
-      head: [['Razón Social', 'Tipo Proveedor', 'Dirección', 'Descripción', 'Teléfono', 'Email']],
+      head: [['Cuit', 'Nombre', 'Tipo Proveedor', 'Direccion', 'Teléfono', 'Email', 'Estado']],
       body: dataToExport,
-      startY: 20,
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
 
     const formattedDate = this.getFormattedDate();
-    doc.save(`Lista_Proveedores_${formattedDate}.pdf`);
+    doc.save(`${formattedDate}_Lista_Proveedores.pdf`);
   }
 
 
   exportToExcel(): void {
-    const dataToExport = this.suppliers.map((supplier) => ({
-      'Razón Social': supplier.name,
-      'Tipo Proveedor': this.translateSupplierType(supplier.supplierType),
-      'Dirección': supplier.address,
-      'Descripción': supplier.description,
-      'Teléfono': supplier.phoneNumber,
-      'Email': supplier.email
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const dataToExport = this.suppliers.map((supplier) => ([
+      supplier.cuit,
+      supplier.name,
+      this.translateSupplierType(supplier.supplierType),
+      supplier.address,
+      supplier.phoneNumber,
+      supplier.email,
+      supplier.discontinued ? 'Inactivo' : 'Activo'
+    ]));
+  
+    const encabezado = [
+      ['Listado de Proveedores'],
+      [],
+      ['Cuit', 'Nombre', 'Tipo Proveedor', 'Dirección', 'Teléfono', 'Email', 'Estado']
+    ];
+  
+    const worksheetData = [...encabezado, ...dataToExport];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  
+    worksheet['!cols'] = [
+      { wch: 15 }, 
+      { wch: 30 }, 
+      { wch: 25 }, 
+      { wch: 40 }, 
+      { wch: 20 }, 
+      { wch: 30 },
+      { wch: 15 } 
+    ];
+  
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Proveedores');
-
+  
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Proveedores_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Proveedores.xlsx`);
   }
+  
 
   ngAfterViewChecked(): void {
     // Asegurarse de que la tabla solo se inicialice una vez

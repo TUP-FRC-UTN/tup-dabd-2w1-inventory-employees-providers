@@ -28,7 +28,7 @@ export class ChargeService {
   }
 
   getAllCargos(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.CHARGES_URL}/active`);
+    return this.http.get<any[]>(`${this.CHARGES_URL}`);
   }
 
   updateStatus(id: number): Observable<ChargeResponse> {

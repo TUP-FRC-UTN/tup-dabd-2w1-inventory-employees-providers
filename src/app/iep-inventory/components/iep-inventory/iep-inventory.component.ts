@@ -11,6 +11,7 @@ import 'datatables.net';
 import 'datatables.net-dt';
 import 'datatables.net-bs5';
 import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import { IepStockIncreaseComponent } from '../iep-stock-increase/iep-stock-increase.component';
 import { Details } from '../../models/details';
 import { ProductCategory } from '../../models/product-category';
@@ -869,12 +870,14 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         ],
       ],
       body: dataToExport,
-      startY: 20,
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
 
     // Guardar archivo PDF
     const formattedDate = this.getFormattedDate();
-    doc.save(`Lista_Productos_${formattedDate}.pdf`);
+    doc.save(`${formattedDate}_Lista_Productos.pdf`);
   }
 
   // Método auxiliar para obtener la última fecha de ingreso
@@ -891,26 +894,43 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   generarExcel(): void {
+    const encabezado = [
+      ['Listado de Productos'],
+      [],
+      ['Último Ingreso', 'Nombre', 'Categoría', 'Reutilizable', 'Cantidad', 'Min. Alerta']
+    ];
+
     // Reordenamos los datos según el orden de columnas en la tabla HTML
-    const dataToExport = this.productosFiltered.map((producto) => ({
-      'Último ingreso': producto.detailProducts
+    const excelData = this.productosFiltered.map((producto) => [
+      producto.detailProducts
         ? this.getLastIngreso(producto.detailProducts)
         : '',
-      Nombre: producto.name,
-      Categoría: producto.category ? producto.category.categoryName : '',
-      Reutilizable: producto.reusable ? 'SI' : 'NO',
-      Cantidad: producto.detailProducts ? producto.detailProducts.length : 0,
-      'Min. Alerta': producto.minQuantityWarning || '',
-    }));
+      producto.name,
+      producto.category ? producto.category.categoryName : '',
+      producto.reusable ? 'SI' : 'NO',
+      producto.detailProducts ? producto.detailProducts.length : 0,
+      producto.minQuantityWarning || '',
+    ]);
 
-    // Crear hoja y libro de Excel
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const worksheetData = [...encabezado, ...excelData];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    worksheet['!cols'] = [
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 10 },
+      { wch: 15 }
+    ];
+
+    // Crear el libro de trabajo y agregar la hoja
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Productos');
 
-    // Guardar archivo Excel
+    // Guardar el archivo con la fecha
     const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `Lista_Productos_${formattedDate}.xlsx`);
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Productos.xlsx`);
   }
 
   irMenu() {

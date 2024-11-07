@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import { PutCategoryDTO } from '../../models/putCategoryDTO';
 import { CategoriaService } from '../../services/categoria.service';
 import { ProductCategory } from '../../models/product-category';
@@ -55,31 +56,57 @@ export class IepCategoriesListComponent implements OnInit {
   exportToPdf(): void {
     const doc = new jsPDF();
 
-    // Extrae datos de la lista de categorías
+    const pageTitle = 'Listado de Categorias';
+    doc.setFontSize(18);
+    doc.text(pageTitle, 15, 10);
+
     const dataToExport = this.categories.map((category) => [
-      category.id,
       category.category,
+      category.discontinued ? 'Inactivo' : 'Activo'
     ]);
 
-    doc.setFontSize(16);
-    doc.text('Lista de Categorías', 10, 10);
     (doc as any).autoTable({
-      head: [['ID', 'Categoría']],
+      head: [['Categoría', 'Estado']],
       body: dataToExport,
-      startY: 20,
+      startY: 30,
+      theme: 'grid',
+      margin: { top: 30, bottom: 20 },
     });
 
-    doc.save(`Lista_Categorías_${this.getFormattedDate()}.pdf`);
+    doc.save(`${this.getFormattedDate()}_Lista_Categorías.pdf`);
   }
 
-  // Método para exportar a Excel
   exportToExcel(): void {
-    const worksheet = XLSX.utils.json_to_sheet(this.categories);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Categorías');
+    const encabezado = [
+      ['Listado de Categorías'],
+      [],
+      ['Categoría', 'Estado'] 
+    ];
 
-    XLSX.writeFile(workbook, `Lista_Categorías_${this.getFormattedDate()}.xlsx`);
-  }
+    // Datos a exportar
+    const excelData = this.categories.map((category) => {
+      return [
+        category.category,
+        category.discontinued ? 'Inactivo' : 'Activo',
+      ];
+    });
+
+    const worksheetData = [...encabezado, ...excelData];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    worksheet['!cols'] = [
+      { wch: 20 },
+      { wch: 15 }
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Categorías');
+
+    const formattedDate = this.getFormattedDate();
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Categorías.xlsx`);
+}
+
+  
 
   getFormattedDate(): string {
     const today = new Date();
