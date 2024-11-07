@@ -26,64 +26,89 @@ interface EmployeeFilters {
   salarioMax: number;
 }
 
-
 @Component({
   selector: 'app-iep-list-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule,],
+  imports: [CommonModule, FormsModule],
   templateUrl: './iep-list-employees.component.html',
   styleUrls: ['./iep-list-employees.component.css'],
 })
 export class IepListEmployeesComponent implements OnInit, OnDestroy {
-
   applyFilters(): void {
     if (this.table) {
       this.table.clear();
 
-      const filteredData = this.Empleados.filter(empleado => {
+      const filteredData = this.Empleados.filter((empleado) => {
         // Filtro por apellido y nombre
-        const nameMatch = !this.filters.apellidoNombre ||
-          empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre.toLowerCase());
+        const nameMatch =
+          !this.filters.apellidoNombre ||
+          empleado.fullName
+            .toLowerCase()
+            .includes(this.filters.apellidoNombre.toLowerCase());
 
         // Filtro por documento
-        const documentMatch = !this.filters.documento ||
-          empleado.document.toString().toLowerCase().includes(this.filters.documento.toLowerCase());
+        const documentMatch =
+          !this.filters.documento ||
+          empleado.document
+            .toString()
+            .toLowerCase()
+            .includes(this.filters.documento.toLowerCase());
 
         // Filtro por rango de salario
-        const salaryMatch = empleado.salary >= this.filters.salarioMin &&
+        const salaryMatch =
+          empleado.salary >= this.filters.salarioMin &&
           empleado.salary <= this.filters.salarioMax;
 
         // Filtro de búsqueda general (searchFilter)
-        const searchTerms = this.searchFilter ? this.searchFilter.toLowerCase().split(' ') : [];
-        const searchMatch = !this.searchFilter || searchTerms.every(term =>
-          empleado.fullName.toLowerCase().includes(term) ||
-          empleado.document.toString().toLowerCase().includes(term) ||
-          empleado.salary.toString().includes(term)
-        );
+        const searchTerms = this.searchFilter
+          ? this.searchFilter.toLowerCase().split(' ')
+          : [];
+        const searchMatch =
+          !this.searchFilter ||
+          searchTerms.every(
+            (term) =>
+              empleado.fullName.toLowerCase().includes(term) ||
+              empleado.document.toString().toLowerCase().includes(term) ||
+              empleado.salary.toString().includes(term)
+          );
 
         // Filtro por posición (modificado para múltiples selecciones)
-        const positionMatch = this.selectedPositions.length === 0 ||
+        const positionMatch =
+          this.selectedPositions.length === 0 ||
           this.selectedPositions.includes(empleado.position);
 
         // Filtrar por estado
-        const stateMatch = this.selectedState.length === 0 ||
-          this.selectedState.includes(empleado.active ? empleado.license ? 'Licencia' : 'Activo' : 'Inactivo');
+        const stateMatch =
+          this.selectedState.length === 0 ||
+          this.selectedState.includes(
+            empleado.active
+              ? empleado.license
+                ? 'Licencia'
+                : 'Activo'
+              : 'Inactivo'
+          );
 
         // Aplicar todos los filtros en conjunto
-        return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch && stateMatch;
+        return (
+          nameMatch &&
+          documentMatch &&
+          salaryMatch &&
+          searchMatch &&
+          positionMatch &&
+          stateMatch
+        );
       });
 
       this.table.rows.add(filteredData).draw();
     }
   }
 
-
   private filters: EmployeeFilters = {
     apellidoNombre: '',
     position: '', // Cargo del empleado
     documento: '',
     salarioMin: 0,
-    salarioMax: Number.MAX_VALUE
+    salarioMax: Number.MAX_VALUE,
   };
 
   applyColumnFilter(event: Event, field: string): void {
@@ -107,7 +132,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       return false;
     }
     if (this.salarioMin > this.salarioMax) {
-      this.errorMessage = 'El salario mínimo no puede ser mayor al salario máximo';
+      this.errorMessage =
+        'El salario mínimo no puede ser mayor al salario máximo';
     } else {
       this.errorMessage = null;
     }
@@ -115,7 +141,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   //validacion de salario no negativo, tanto minimo como maximo
-
 
   applyAmountFilter(type: string, event: Event): void {
     const value = Number((event.target as HTMLInputElement).value) || 0;
@@ -144,7 +169,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       position: '', // Cargo del empleado
       documento: '',
       salarioMin: 0,
-      salarioMax: Number.MAX_VALUE
+      salarioMax: Number.MAX_VALUE,
     };
 
     this.documento = '';
@@ -160,14 +185,18 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     this.selectedPositions = [];
 
     // Limpiar los inputs
-    const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
-    inputs.forEach(input => {
+    const inputs = document.querySelectorAll(
+      '.filtros input'
+    ) as NodeListOf<HTMLInputElement>;
+    inputs.forEach((input) => {
       input.value = ''; // Clear input values
       input.dispatchEvent(new Event('input')); // Trigger input event to update the model
     });
 
-    const selects = document.querySelectorAll('.filtros select') as NodeListOf<HTMLSelectElement>;
-    selects.forEach(select => {
+    const selects = document.querySelectorAll(
+      '.filtros select'
+    ) as NodeListOf<HTMLSelectElement>;
+    selects.forEach((select) => {
       select.value = ''; // Clear select values
       select.dispatchEvent(new Event('change')); // Trigger change event to update the model
     });
@@ -178,7 +207,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
   filteredEmpleados: EmpListadoEmpleados[] = [];
 
-
   filtersVisible = false; // Indica si los filtros están visibles o no
 
   toggleFilters(): void {
@@ -188,14 +216,14 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   Empleados: EmpListadoEmpleados[] = [];
   employeePerformances: EmployeePerformance[] = [];
   private table: any;
-  ventana: string = "Informacion";
+  ventana: string = 'Informacion';
   router = inject(Router);
   showModal = false;
   modalContent: SafeHtml = '';
   startDate!: string;
   endDate!: string;
-  nombreFiltrado: string = "";
-  estadoFiltrado: string = "";
+  nombreFiltrado: string = '';
+  estadoFiltrado: string = '';
   private subscriptions: Subscription[] = [];
   private searchFilter: string = '';
   private positionFilter: string = '';
@@ -203,12 +231,10 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   selecteduniquePositions: string[] = [];
   uniqueStates: string[] = [];
 
-
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
     private sanitizer: DomSanitizer
-
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadEmpleados();
@@ -225,9 +251,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   goTo(path: string) {
-
-    this.router.navigate([path])
-
+    this.router.navigate([path]);
   }
   exportToPdf(): void {
     const doc = new jsPDF();
@@ -259,22 +283,27 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     if (this.ventana === 'Informacion') {
       // Extrae datos de la tabla de empleados
       dataToExport = this.Empleados.map((empleado) => ({
-        'Nombre': empleado.fullName,
-        'Documento': empleado.document,
-        'Posición': empleado.position,
-        'Salario': empleado.salary,
+        Nombre: empleado.fullName,
+        Documento: empleado.document,
+        Posición: empleado.position,
+        Salario: empleado.salary,
       }));
     }
 
     // Aquí se asegura de que dataToExport nunca sea undefined
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, `Lista de ${this.ventana}`);
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      `Lista de ${this.ventana}`
+    );
 
-    XLSX.writeFile(workbook, `Lista_${this.ventana}_${this.getFormattedDate()}.xlsx`);
+    XLSX.writeFile(
+      workbook,
+      `Lista_${this.ventana}_${this.getFormattedDate()}.xlsx`
+    );
   }
-
-
 
   onSearchFilterChange(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -283,7 +312,9 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   private updatePositionFilter(): void {
-    const comboFiltroCargo = document.getElementById('comboFiltroCargo') as HTMLSelectElement;
+    const comboFiltroCargo = document.getElementById(
+      'comboFiltroCargo'
+    ) as HTMLSelectElement;
     if (comboFiltroCargo) {
       const currentValue = comboFiltroCargo.value; // Guardar el valor actual
 
@@ -293,7 +324,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       }
 
       // Agregar las nuevas opciones
-      this.uniquePositions.forEach(position => {
+      this.uniquePositions.forEach((position) => {
         if (position) {
           const option = document.createElement('option');
           option.value = position;
@@ -311,7 +342,9 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   private updateStateFilter(): void {
-    const comboFiltroEstado = document.getElementById('comboFiltroEstado') as HTMLSelectElement;
+    const comboFiltroEstado = document.getElementById(
+      'comboFiltroEstado'
+    ) as HTMLSelectElement;
     if (comboFiltroEstado) {
       const currentValue = comboFiltroEstado.value; // Guardar el valor actual
 
@@ -321,7 +354,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       }
 
       // Agregar las nuevas opciones
-      this.uniqueStates.forEach(state => {
+      this.uniqueStates.forEach((state) => {
         if (state) {
           const option = document.createElement('option');
           option.value = state;
@@ -346,7 +379,9 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     if (checkbox.checked) {
       this.selectedPositions.push(position);
     } else {
-      this.selectedPositions = this.selectedPositions.filter(p => p !== position);
+      this.selectedPositions = this.selectedPositions.filter(
+        (p) => p !== position
+      );
     }
 
     this.applyFilters();
@@ -360,7 +395,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     if (checkbox.checked) {
       this.selectedState.push(position);
     } else {
-      this.selectedState = this.selectedState.filter(p => p !== position);
+      this.selectedState = this.selectedState.filter((p) => p !== position);
     }
 
     this.applyFilters();
@@ -371,7 +406,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
     if (this.table) {
       this.table.destroy();
     }
@@ -379,8 +414,16 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
   initializeDates(): void {
     const today = new Date();
-    const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 0, 1);
-    const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const firstDayOfLastMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() - 0,
+      1
+    );
+    const lastDayOfLastMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0
+    );
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(today.getDate() - 30);
     this.startDate = this.formatDate(thirtyDaysAgo);
@@ -394,9 +437,17 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         console.log('Empleados:', this.Empleados);
         this.ventana = 'Informacion';
         // Obtener posiciones únicas
-        this.uniquePositions = [...new Set(empleados.map(emp => emp.position))].sort();
+        this.uniquePositions = [
+          ...new Set(empleados.map((emp) => emp.position)),
+        ].sort();
         //cargar estados unicos, en caso de que sea activo, validar si esta en licencia
-        this.uniqueStates = [...new Set(empleados.map(emp => emp.active ? emp.license ? 'Licencia' : 'Activo' : 'Inactivo'))].sort();
+        this.uniqueStates = [
+          ...new Set(
+            empleados.map((emp) =>
+              emp.active ? (emp.license ? 'Licencia' : 'Activo') : 'Inactivo'
+            )
+          ),
+        ].sort();
 
         // Guardar el filtro actual si existe
         const currentFilter = this.positionFilter;
@@ -411,9 +462,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             this.positionFilter = currentFilter;
             this.applyFilters();
           }
-        }
-
-        );
+        });
       },
       error: (err) => console.error('Error al cargar empleados:', err),
     });
@@ -423,7 +472,6 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   loadDesempeno(): void {
     const start = new Date(this.startDate);
     const end = new Date(this.endDate);
-
   }
 
   initializeDataTable(): void {
@@ -437,18 +485,17 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       lengthChange: true,
       searching: false,
       language: {
-        search: "Buscar:",
-        info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-        lengthMenu:
-          `<select class="form-select">
+        search: 'Buscar:',
+        info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+        lengthMenu: `<select class="form-select">
             <option value="5">5</option>
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
           </select>`,
-        zeroRecords: "No se encontraron registros",
-        emptyTable: "No se encontraron empleados",
-      }
+        zeroRecords: 'No se encontraron registros',
+        emptyTable: 'No se encontraron empleados',
+      },
     };
 
     switch (this.ventana) {
@@ -463,10 +510,10 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       ...commonConfig,
       layout: {
         topStart: 'search',
-        topEnd: null
+        topEnd: null,
       },
       dom:
-        '<"mb-3"t>' +                           //Tabla
+        '<"mb-3"t>' + //Tabla
         '<"d-flex justify-content-between"lp>', //Paginacion
       data: this.Empleados,
       order: [[0, 'asc']], // Ordenar por fecha de forma descendente
@@ -478,10 +525,12 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
           render: (data: boolean, type: any, row: any) => {
             // Si el empleado está activo, valida la clave 'license' y si es true, retorna "Licencia"
             if (data) {
-              return row.license ? '<span class="badge" style="background-color: #ffc107;">Licencia</span>' : '<span class="badge" style="background-color: #0d6efd;">Activo</span>';
+              return row.license
+                ? '<span class="badge" style="background-color: #ffc107;">Licencia</span>'
+                : '<span class="badge" style="background-color: #0d6efd;">Activo</span>';
             }
             return '<span class="badge" style="background-color: #dc3545;">Inactivo</span>';
-          }
+          },
         },
         {
           data: 'fullName',
@@ -492,7 +541,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
               return `<span class="searchable">${data}</span>`;
             }
             return data.toLowerCase();
-          }
+          },
         },
         {
           data: 'document',
@@ -503,7 +552,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
               return `<span class="searchable">${data}</span>`;
             }
             return data;
-          }
+          },
         },
         {
           data: 'position',
@@ -514,7 +563,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
               return data;
             }
             return data.toLowerCase();
-          }
+          },
         },
         {
           data: 'salary',
@@ -523,11 +572,10 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
           render: (data: number | bigint) => {
             let formattedAmount = new Intl.NumberFormat('es-AR', {
               minimumFractionDigits: 2,
-              maximumFractionDigits: 2
+              maximumFractionDigits: 2,
             }).format(data);
             return `<div>$ ${formattedAmount} </div>`;
-          }
-
+          },
         },
         {
           data: null,
@@ -543,19 +591,29 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
                   &#8942;
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
-                  <li><button class="dropdown-item consultar-asistencias" data-empleado-id="${data.id}">Ver asistencias</button></li>
-                  <li><button class="dropdown-item consultar-desempeño" data-empleado-id="${data.id}">Ver desempeño</button></li>
+                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${
+                    data.id
+                  }" href="#">Ver más</a></li>
+                  <li><button class="dropdown-item consultar-asistencias" data-empleado-id="${
+                    data.id
+                  }">Ver asistencias</button></li>
+                  <li><button class="dropdown-item consultar-desempeño" data-empleado-id="${
+                    data.id
+                  }">Ver desempeño</button></li>
                   
-                  ${puedeEliminar ? `
+                  ${
+                    puedeEliminar
+                      ? `
                     <li class="dropdown-divider"></li>
                     <li><button class="dropdown-item eliminar-btn" data-empleado-id="${data.id}">Eliminar</button></li>
-                  ` : ''}
+                  `
+                      : ''
+                  }
                 </ul>
               </div>`;
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     $('#empleadosTable').on('click', '.consultar-btn', (event: any) => {
@@ -583,12 +641,21 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
       this.editarEmpleado(id);
     });
 
+      // Manejador de clics para los botones de eliminar
+  $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
+    event.preventDefault();
+    // Obtener el ID del empleado al que se hace clic
+    this.empleadoIdToDelete = $(event.currentTarget).data('empleado-id');
+    // Mostrar el modal
+    $('#deleteModal').modal('show');
+  });
+
     // Event handler para el botón de eliminar
-    $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
+/*     $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
       event.preventDefault();
       this.empleadoIdToDelete = $(event.currentTarget).data('empleado-id');
       this.confirmDelete(); // Llama a confirmDelete al hacer clic
-    });
+    }); */
 
     // Aplicar filtros iniciales si existen
     if (this.searchFilter || this.positionFilter) {
@@ -596,12 +663,15 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     }
   }
 
-
   // Agrega esta propiedad a la clase
   empleadoIdToDelete: number | null = null;
 
-  confirmDelete(): void {
-    if (this.empleadoIdToDelete !== null) {  // Aseguramos que el ID no sea null
+  //swal para confirmar eliminacion
+
+
+   confirmDelete(): void {
+    if (this.empleadoIdToDelete !== null) {
+      // Aseguramos que el ID no sea null
       Swal.fire({
         title: '¿Está seguro?',
         text: '¡Esta acción no se puede deshacer!',
@@ -612,27 +682,30 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar',
       }).then((result) => {
-        if (result.isConfirmed && this.empleadoIdToDelete !== null) {  // Re-verificar antes de llamar al servicio
-          this.empleadoService.changeEmployeeStatus(this.empleadoIdToDelete).subscribe({
-            next: () => {
-              this.loadEmpleados();  // Recargar la lista de empleados
-              this.empleadoIdToDelete = null;  // Limpiar el ID después de eliminar
-              Swal.fire(
-                '¡Eliminado!',
-                'El empleado ha sido eliminado con éxito.',
-                'success'
-              );
-            },
-            error: (error) => {
-              console.error('Error al eliminar el empleado:', error);
-              Swal.fire(
-                '¡Error!',
-                'Hubo un problema al eliminar al empleado.',
-                'error'
-              );
-              this.empleadoIdToDelete = null;
-            }
-          });
+        if (result.isConfirmed && this.empleadoIdToDelete !== null) {
+          // Re-verificar antes de llamar al servicio
+          this.empleadoService
+            .changeEmployeeStatus(this.empleadoIdToDelete)
+            .subscribe({
+              next: () => {
+                this.loadEmpleados(); // Recargar la lista de empleados
+                this.empleadoIdToDelete = null; // Limpiar el ID después de eliminar
+                Swal.fire(
+                  '¡Eliminado!',
+                  'El empleado ha sido eliminado con éxito.',
+                  'success'
+                );
+              },
+              error: (error) => {
+                console.error('Error al eliminar el empleado:', error);
+                Swal.fire(
+                  '¡Error!',
+                  'Hubo un problema al eliminar al empleado.',
+                  'error'
+                );
+                this.empleadoIdToDelete = null;
+              },
+            });
         }
       });
     } else {
@@ -643,8 +716,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
         'warning'
       );
     }
-  }
-
+  } 
 
   editarEmpleado(id: any): void {
     this.router.navigate(['/empleados/modificar', id]);
@@ -659,23 +731,34 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   consultarEmpleado(id: number): void {
-    const empByIdSubscription = this.empleadoService.getEmployeeById(id).subscribe({
-      next: (empleado) => {
-        const fechaContrato = new Date(empleado.contractStartTime[0],
-          empleado.contractStartTime[1] - 1,
-          empleado.contractStartTime[2])
-          .toLocaleDateString();
+    const empByIdSubscription = this.empleadoService
+      .getEmployeeById(id)
+      .subscribe({
+        next: (empleado) => {
+          const fechaContrato = new Date(
+            empleado.contractStartTime[0],
+            empleado.contractStartTime[1] - 1,
+            empleado.contractStartTime[2]
+          ).toLocaleDateString();
 
-        const horaInicio = `${empleado.startTime[0]}:${empleado.startTime[1].toString().padStart(2, '0')}`;
-        const horaFin = `${empleado.endTime[0]}:${empleado.endTime[1].toString().padStart(2, '0')}`;
+          const horaInicio = `${empleado.startTime[0]}:${empleado.startTime[1]
+            .toString()
+            .padStart(2, '0')}`;
+          const horaFin = `${empleado.endTime[0]}:${empleado.endTime[1]
+            .toString()
+            .padStart(2, '0')}`;
 
-        const content = `
+          const content = `
           <div class="container">
             <div class="row mb-3">
               <div class="col-md-6">
                 <h6><strong>Información Personal</strong></h6>
-                <p><strong>Nombre completo:</strong> ${empleado.surname}, ${empleado.name}</p>
-                <p><strong>Documento:</strong> ${empleado.documentType} ${empleado.documentValue}</p>
+                <p><strong>Nombre completo:</strong> ${empleado.surname}, ${
+            empleado.name
+          }</p>
+                <p><strong>Documento:</strong> ${empleado.documentType} ${
+            empleado.documentValue
+          }</p>
                 <p><strong>CUIL:</strong> ${empleado.cuil}</p>
               </div>
               <div class="col-md-6">
@@ -707,21 +790,27 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             <div class="row">
               <div class="col-12">
                 <h6><strong>Información adicional</strong></h6>
-                <!-- <p><strong>Obra Social:</strong> ${empleado.healthInsurance ? 'Sí' : 'No'}</p> -->
-                <p><strong>Estado:</strong> ${empleado.active ? 'Activo' : 'Inactivo'}</p>
-                <p><strong>Licencia:</strong> ${empleado.license ? 'Sí' : 'No'}</p>
+                <!-- <p><strong>Obra Social:</strong> ${
+                  empleado.healthInsurance ? 'Sí' : 'No'
+                }</p> -->
+                <p><strong>Estado:</strong> ${
+                  empleado.active ? 'Activo' : 'Inactivo'
+                }</p>
+                <p><strong>Licencia:</strong> ${
+                  empleado.license ? 'Sí' : 'No'
+                }</p>
               </div>
             </div>
           </div>
         `;
 
-        this.modalContent = this.sanitizer.bypassSecurityTrustHtml(content);
-        this.showModal = true;
-      },
-      error: (error) => {
-        console.error('Error al obtener los datos del empleado:', error);
-      }
-    });
+          this.modalContent = this.sanitizer.bypassSecurityTrustHtml(content);
+          this.showModal = true;
+        },
+        error: (error) => {
+          console.error('Error al obtener los datos del empleado:', error);
+        },
+      });
     this.subscriptions.push(empByIdSubscription);
   }
 
@@ -732,8 +821,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   }
 
   limpiarFiltro() {
-    this.nombreFiltrado = "";
-    this.estadoFiltrado = "";
+    this.nombreFiltrado = '';
+    this.estadoFiltrado = '';
   }
 
   formatDateyyyyMMdd(dateString: string): string {
