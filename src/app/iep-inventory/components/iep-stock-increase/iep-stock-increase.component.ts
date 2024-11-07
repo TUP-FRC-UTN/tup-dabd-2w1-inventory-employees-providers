@@ -104,7 +104,7 @@ export class IepStockIncreaseComponent implements OnInit {
       );
     }
   }
-
+  
   // Método para corregir el fondo negro al cerrar el modal
   closeAumentoStockModal() {
     this.stockForm.reset(); // Opcional: Resetea el formulario al cerrar

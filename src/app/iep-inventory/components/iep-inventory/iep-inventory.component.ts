@@ -1012,6 +1012,23 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.stockAumentoService.setId(productId);
   }
 
+  // Método para cerrar el modal y quitar los estilos manualmente
+  closeModal() {
+    const modalElement = document.getElementById('aumentoStock');
+    if (modalElement) {
+      // Eliminar las clases que mantienen el modal visible
+      modalElement.classList.remove('show'); // Quita la clase 'show' que muestra el modal
+      modalElement.setAttribute('aria-hidden', 'true'); // Establece el aria-hidden para indicar que está cerrado
+      modalElement.style.display = 'none'; // Establece display: none para ocultar el modal completamente
+
+      // También puedes remover la clase 'modal-backdrop' que genera el fondo oscuro
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) {
+        backdrop.remove(); // Elimina el fondo oscuro
+      }
+    }
+  }
+
   cerrarModalAumentoStock() {
     this.showAumentoStockModal = false;
     this.selectedProductId = null;
@@ -1071,8 +1088,11 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       title: 'Éxito',
       text: 'Aumento de stock registrado con éxito.',
       confirmButtonColor: '#28a745' // Verde para el botón
-    }).then(() => {
-      this.closeAumentoStockModal(); // Cierra el modal después de mostrar el mensaje
+    }).then((result) => {
+      // Cuando el usuario hace clic en "OK", cerramos el modal
+      if (result.isConfirmed) {
+        this.closeModal(); // Cierra el modal cuando SweetAlert se cierra
+      }
     });
   }
 }

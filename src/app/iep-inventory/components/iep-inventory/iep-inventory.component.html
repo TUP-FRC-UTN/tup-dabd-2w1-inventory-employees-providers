@@ -232,17 +232,12 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <!-- Título del modal con el nombre del producto dinámico -->
         <h5 class="modal-title">Agregar</h5>
-
+        <!-- Botón para cerrar el modal -->
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <!-- Componente de aumento de stock -->
-        <app-iep-stock-increase 
-          *ngIf="showAumentoStockModal"
-          (success)="onStockIncreaseSuccess()"> <!-- Llama al método de éxito aquí -->
-        </app-iep-stock-increase>
+        <app-iep-stock-increase *ngIf="showAumentoStockModal" (success)="onStockIncreaseSuccess()"></app-iep-stock-increase>
       </div>
     </div>
   </div>
