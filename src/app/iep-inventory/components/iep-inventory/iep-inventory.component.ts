@@ -34,6 +34,7 @@ interface Filters {
   cantMaxima: number;
 }
 
+
 // Nuevas interfaces para ng-select
 interface CategoryOption {
   value: number;
@@ -91,6 +92,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       this.validoMin = true;
       this.validoMax = true;
     }
+    this.aplicarFiltrosCompletos();
   }
 
   aplicarFiltrosCompletos(): void {
@@ -612,6 +614,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Modifica el método cleanFilters() para limpiar también las categorías seleccionadas
   cleanFilters(): void {
+    this.cantMaxima = null;
+    this.cantMinima = null;
     this.globalFilter = '';
     this.startDate = '';
     this.endDate = '';
