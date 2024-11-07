@@ -374,9 +374,11 @@ closeInfoModal(): void{
         {
           data: null,
           title: 'Acciones',
+          className: 'text-center',
           orderable: false,
           render: (data: any) => {
             return `
+                <div class="dropdown d-flex justify-content-center">
               <div class="dropdown">
                 <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
                    style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
@@ -387,6 +389,7 @@ closeInfoModal(): void{
                   <li class="dropdown-divider"></li>
                   <li><a class="dropdown-item delete-btn" href="#" data-id="${data.id}">Eliminar</a></li>
                 </ul>
+              </div>
               </div>`;
           }
         }

@@ -316,9 +316,10 @@ export class IepSupplierListComponent implements AfterViewInit {
           {
             data: null,
             title: 'Acciones',
+            className: 'text-center',
             render: (data: any, type: any, row: any) => {
               return `
-                <div class="dropdown">
+                <div class="dropdown d-flex justify-content-center">
                   <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
                      style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
                     &#8942;
@@ -328,7 +329,7 @@ export class IepSupplierListComponent implements AfterViewInit {
                     <li class="dropdown-divider"></li>
                     <li><a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${data.id}">Eliminar</a></li>
                   </ul>
-                </div>`;
+              </div>`;
             }
           }
         ],
