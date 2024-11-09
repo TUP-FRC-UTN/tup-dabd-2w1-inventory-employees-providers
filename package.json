@@ -21,7 +21,9 @@
     "@angular/platform-browser-dynamic": "^18.2.9",
     "@angular/router": "^18.2.9",
     "@ng-select/ng-select": "^13.9.1",
+    "@types/datatables.net": "^1.12.3",
     "@types/datatables.net-buttons": "^1.4.10",
+    "@types/jasmine": "^5.1.4",
     "angular-datatables": "^18.0.0",
     "angular-google-charts": "^16.0.1",
     "bootstrap": "^5.3.3",
@@ -47,8 +49,6 @@
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.10",
     "@angular/cli": "^18.2.10",
-    "@types/datatables.net": "^1.12.0",
-    "@types/jasmine": "~5.1.0",
     "@types/jquery": "^3.5.31",
     "jasmine-core": "~5.2.0",
     "karma": "~6.4.0",
