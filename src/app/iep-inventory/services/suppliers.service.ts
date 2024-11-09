@@ -74,7 +74,7 @@ export class SuppliersService {
   }
 
   getAll(): Observable<Supplier[]> {
-    return this.http.get<Supplier[]>(this.SUPPLIERS_URL + '/all');
+    return this.http.get<Supplier[]>('http://localhost:8081/suppliers/all');
   }
 
   getSupplierByCuit(cuit:string):Observable<boolean>{

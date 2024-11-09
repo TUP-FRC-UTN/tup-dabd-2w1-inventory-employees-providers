@@ -16,7 +16,7 @@ export class ProductService {
 
   private readonly CATEGORY_URL_GET_ALL: string = `${this.INVENTORY_BASE_URL}category`; // Tomas C
 
-  private readonly PRODUCT_URL: string = `${this.INVENTORY_BASE_URL}product`; // Tomas C
+  private readonly PRODUCT_URL: string = `${this.INVENTORY_BASE_URL}products`; // Tomas C
   private readonly PRODUCT_URL_GET: string = `${this.PRODUCT_URL}/get`; // Agus
   private readonly PRODUCT_URL_GET_PDF: string = `${this.PRODUCT_URL}/getPdf`; // Agus
   private readonly PRODUCT_URL_GET_EXCEL: string = `${this.PRODUCT_URL}/getExcel`; // Agus
@@ -76,8 +76,9 @@ export class ProductService {
   }
 
   getAllProducts(): Observable<ProductXDetailDto[]> {
-    return this.http.get<any[]>(this.PRODUCT_URL + '/getAll');
-  }
+    return this.http.get<ProductXDetailDto[]>(this.PRODUCT_URL);
+}
+
 
   // ENZO
   getProductos(): Observable<Producto[]> {
