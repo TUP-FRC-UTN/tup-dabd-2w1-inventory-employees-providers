@@ -1,0 +1,15 @@
+.radio-button-label {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-check:checked + .radio-button-label {
+    
+    color: white;
+    transform: scale(1.05);
+}

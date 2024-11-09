@@ -11,6 +11,8 @@ import 'jspdf-autotable';
 import { Producto } from '../../models/producto';
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { routes } from '../../../app.routes';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-iep-table',
@@ -29,11 +31,19 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     { label: 'Aumento', value: 'aumento' }
   ];
 
+
   // Filtros
   globalFilter: string = '';
   startDate: string | undefined;
   endDate: string | undefined;
   selectedMovementTypes: string[] = [];
+
+
+
+  goTo(params:string) {
+    this.router.navigate([params])  
+   }
+
 
   applyAllFilters(): void {
     // Comenzar con todos los productos
@@ -49,6 +59,8 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
         producto.description.toLowerCase().includes(filterValue)
       );
     }
+
+    
 
     // 2. Aplicar filtro de fechas si existen
     if (this.startDate || this.endDate) {
@@ -96,7 +108,8 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private productService: ProductService,
-    private excelPdfService: GenerateExcelPdfService
+    private excelPdfService: GenerateExcelPdfService,
+    private router : Router
   ) { }
 
 

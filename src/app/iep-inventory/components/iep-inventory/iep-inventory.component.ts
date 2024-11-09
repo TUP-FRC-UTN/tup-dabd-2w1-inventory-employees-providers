@@ -663,21 +663,15 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
       columns: [
         {
-          data: 'detailProducts',
-          title: 'Último Ingreso', // Título más corto
-          render: (data: any) => {
-            let lastDate;
-            for (let i = 0; i < data.length; i++) {
-              if (data[i].lastUpdatedDatetime) {
-                lastDate = data[i].lastUpdatedDatetime;
-                if (data[i].lastUpdatedDatetime > lastDate) {
-                  lastDate = data[i].lastUpdatedDatetime;
-                }
-              }
-            }
-            return lastDate ? this.formatDate(lastDate) : '';
+          data: null,
+          title: 'Estado',
+          render: (row: any) => {
+            const quantity = row.data?.detailProducts?.length || 0; // Accedemos a detailProducts de forma segura
+            return quantity !== 0 ? "Activo" : "Inactivo";
           },
-        },
+
+        }
+        ,
         {
           data: 'reusable',
           title: 'Reutilizable',
@@ -696,8 +690,12 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
               <div class="badge border rounded-pill ${color}">${name}</div>
             </div > `;
           },
-        },
-        { data: 'name', title: 'Nombre' }, // Mantiene el título corto
+        }
+        ,
+        { 
+          data: 'name', title: 'Articulo'
+         }
+         , // Mantiene el título corto
         {
           data: 'category',
           title: 'Categoría',
@@ -707,7 +705,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         },
         {
           data: null,
-          title: 'Cantidad',
+          title: 'Stock',
           render: (row: any) => {
             const quantity = row.detailProducts.length;
 

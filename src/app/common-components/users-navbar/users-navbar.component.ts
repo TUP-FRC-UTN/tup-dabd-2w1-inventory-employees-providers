@@ -39,7 +39,7 @@ export class UsersNavbarComponent {
         childButtons: [
           {
             icon: "bi-inboxes-fill",
-            title: "Listado de productos",
+            title: "Listado de Articulos",
             roles: ["SuperAdmin", "Admin", "Encargado de inventario"],
             route: "home/inventory",
 
