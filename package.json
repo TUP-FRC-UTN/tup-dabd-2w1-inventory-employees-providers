@@ -24,6 +24,7 @@
     "@types/datatables.net": "^1.12.3",
     "@types/datatables.net-buttons": "^1.4.10",
     "@types/jasmine": "^5.1.4",
+    "@types/jquery": "^3.5.32",
     "angular-datatables": "^18.0.0",
     "angular-google-charts": "^16.0.1",
     "bootstrap": "^5.3.3",
@@ -55,7 +56,6 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.10",
-    "@angular/cli": "^18.2.10",
-    "@types/jquery": "^3.5.31"
+    "@angular/cli": "^18.2.10"
   }
 }
