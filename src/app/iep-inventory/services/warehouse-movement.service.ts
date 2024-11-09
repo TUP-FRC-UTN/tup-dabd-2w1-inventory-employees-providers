@@ -4,54 +4,35 @@ import { GetWarehouseMovementRequest } from '../models/GetWarehouseMovementReque
 import { WarehouseMovement } from '../models/getWarehouseMovementResponse';
 import { Observable } from 'rxjs';
 import { IepCreateWarehouseMovementDTO } from '../models/iep-create-warehouse-movement-dto';
-import { WarehouseMovementByProduct } from '../models/WarehouseMovementByProduct';
+import { CreateMovementDTO, MovementDTO } from '../models/WarehouseMovementByProduct';
 @Injectable({
   providedIn: 'root',
 })
 export class WarehouseMovementService {
-  private readonly INVENTORY_BASE_URL: string = 'http://localhost:8081/';
-  private readonly WAREHOUSE_MOVEMENT_URL: string = `${this.INVENTORY_BASE_URL}warehouseMovement`;
-  private readonly WAREHOUSE_MOVEMENT_URL_SEARCH: string = `${this.WAREHOUSE_MOVEMENT_URL}/search`;
-  constructor(private http: HttpClient) { }
-  public getWarehouseMovements(): Observable<WarehouseMovementByProduct[]> {
-    return this.http.get<WarehouseMovementByProduct[]>(`${this.WAREHOUSE_MOVEMENT_URL}/all`);
+  private apiUrl = 'http://localhost:8081/movements'; // Cambia esta URL a la del backend
+
+  constructor(private http: HttpClient) {}
+
+  /**
+   * Obtiene todos los movimientos
+   */
+  findAll(): Observable<MovementDTO[]> {
+    return this.http.get<MovementDTO[]>(this.apiUrl);
   }
-  public searchMovements(
-    searchParams: GetWarehouseMovementRequest
-  ): Observable<WarehouseMovement[]> {
-    let params = new HttpParams();
-    if (searchParams.createdDate) {
-      params = params.append('createdDate', searchParams.createdDate);
-    }
-    if (searchParams.applicantOrResponsible) {
-      params = params.append(
-        'applicantOrResponsible',
-        searchParams.applicantOrResponsible
-      );
-    }
-    if (searchParams.productId) {
-      params = params.append('productId', searchParams.productId);
-    }
-    if (searchParams.movementType) {
-      params = params.append('movementType', searchParams.movementType);
-    }
-    if (searchParams.detailCount) {
-      params = params.append('detailCount', searchParams.detailCount);
-    }
-    return this.http.get<WarehouseMovement[]>(
-      this.WAREHOUSE_MOVEMENT_URL_SEARCH,
-      { params }
-    );
+
+  /**
+   * Obtiene un movimiento por su ID
+   * @param id El ID del movimiento
+   */
+  findById(id: number): Observable<MovementDTO> {
+    return this.http.get<MovementDTO>(`${this.apiUrl}/${id}`);
   }
-  public postWarehouseMovement(
-    dto: IepCreateWarehouseMovementDTO,
-    idUser: number
-  ): Observable<any> {
-    const url = this.WAREHOUSE_MOVEMENT_URL;
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    const params = new HttpParams().set('idUser', idUser.toString());
-    const json = JSON.stringify(dto);
-    console.log(json);
-    return this.http.post<any>(url, json, { headers, params });
+
+  /**
+   * Crea un nuevo movimiento
+   * @param movementData Los datos del nuevo movimiento
+   */
+  create(movementData: CreateMovementDTO): Observable<MovementDTO> {
+    return this.http.post<MovementDTO>(this.apiUrl, movementData);
   }
 }

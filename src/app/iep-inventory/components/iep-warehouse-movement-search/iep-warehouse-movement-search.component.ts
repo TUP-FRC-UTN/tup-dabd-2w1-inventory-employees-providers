@@ -1,21 +1,21 @@
-
 import { CommonModule } from '@angular/common';
-import { Component, AfterViewInit, AfterViewChecked, ElementRef, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { GetWarehouseMovementRequest } from '../../models/GetWarehouseMovementRequest';
-import { WarehouseMovement } from '../../models/getWarehouseMovementResponse';
-import { ProductService } from '../../services/product.service';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
-import * as XLSX from 'xlsx';
-import { DtoProducto } from '../../models/dto-producto';
-import { WarehouseTypePipe } from '../../pipes/warehouse-type.pipe';
-import { fromEvent, distinctUntilChanged, debounceTime } from 'rxjs';
-import { WarehouseMovementService } from '../../services/warehouse-movement.service';
-import { WarehouseMovementByProduct } from '../../models/WarehouseMovementByProduct';
-import { NgSelectModule } from '@ng-select/ng-select';
 
+import { jsPDF } from 'jspdf';
+
+import * as XLSX from 'xlsx';
+import 'datatables.net-bs5'; // Asegúrate de que esto esté correctamente importado
+import { NgSelectModule } from '@ng-select/ng-select';
+import { MovementDTO, MovementFilterDTO, MovementType } from '../../models/WarehouseMovementByProduct';
+import { WarehouseMovementService } from '../../services/warehouse-movement.service';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+
+interface MovementTypeOption {
+  id: MovementType;
+  label: string;
+}
 // Definir un tipo para las columnas de filtro
 type FilterColumn = 'general' | 'applicant' | 'detailProducts' | 'movement_type';
 @Component({
@@ -25,314 +25,266 @@ type FilterColumn = 'general' | 'applicant' | 'detailProducts' | 'movement_type'
   templateUrl: './iep-warehouse-movement-search.component.html',
   styleUrls: ['./iep-warehouse-movement-search.component.css']
 })
-export class IepWarehouseMovementSearchComponent implements AfterViewInit, AfterViewChecked {
+export class IepWarehouseMovementSearchComponent implements OnInit {
+  movements: MovementDTO[] = [];
+  private table: any;
   
-  movements: WarehouseMovementByProduct[] = [];
-  filteredMovements: WarehouseMovementByProduct[] = [];
-  products: DtoProducto[] = [];
-
-  movementTypes = [
-    { label: 'Devolución', value: 'RETURN' },
-    { label: 'Préstamo', value: 'LOAN' },
-    { label: 'Uso', value: 'TO_MAINTENANCE' }
+  // Búsqueda y filtros
+  searchTerm: string = '';
+  selectedTypes: MovementType[] = [];
+  selectedDate: string = '';
+  private searchSubject = new Subject<string>();
+  
+  // Opciones para el ng-select con formato personalizado
+  movementTypeOptions: MovementTypeOption[] = [
+    { id: MovementType.Agregacion, label: 'Agregación' },
+    { id: MovementType.Disminucion, label: 'Disminución' }
   ];
 
-applyFilter($event: Event) {
-}
-cleanColumnFilters(): void {
-  this.tempFilters.movement_type = [];
-  this.tempFilters.general = '';
-  this.tempFilters.startDate = null;
-  this.tempFilters.endDate = null;
-  this.tempFilters.applicant = '';
-  this.tempFilters.detailProducts = '';
-  this.applyFilters();
-}
-applyFilters(): void {
-  this.filteredMovements = this.movements.filter(movement => {
-    // Filtro de texto general
-    const generalMatch = !this.tempFilters.general || 
-                         Object.values(movement).some(value => {
-                           // Convertir el tipo de movimiento a español
-                           if (typeof value === 'string' && value === movement.movement_type) {
-                             value = this.translateMovementType(value); // Traducir el tipo de movimiento
-                           }
-                           return value.toString().toLowerCase().includes(this.tempFilters.general.toLowerCase());
-                         });
-    // Función auxiliar para convertir la fecha de formato dd/MM/yyyy HH:mm a un objeto Date
-    const parseDate = (dateString: string): Date => {
-      const [datePart, timePart] = dateString.split(' ');
-      const [day, month, year] = datePart.split('/').map(Number);
-      const [hours, minutes] = timePart.split(':').map(Number);
-      return new Date(year, month - 1, day, hours, minutes);
-    };
-    // Filtro por fecha inicio
-    const startDateMatch = !this.tempFilters.startDate || 
-                           parseDate(movement.dateTime) >= this.tempFilters.startDate;
-    // Filtro por fecha fin
-    const endDateMatch = !this.tempFilters.endDate || 
-                         parseDate(movement.dateTime) <= this.tempFilters.endDate;
-    // Filtro por solicitante
-    const applicantMatch = !this.tempFilters.applicant || 
-                           movement.applicant.toLowerCase().includes(this.tempFilters.applicant.toLowerCase());
-    // Filtro por producto
-    const detailProductsMatch = !this.tempFilters.detailProducts || 
-                                movement.product_name.toLowerCase().includes(this.tempFilters.detailProducts.toLowerCase());
-    // Filtro por tipo de movimiento
-    const movementTypeMatch = !this.tempFilters.movement_type.length || 
-                              this.tempFilters.movement_type.includes(movement.movement_type);
-    // Devuelve true solo si todos los filtros coinciden
-    return generalMatch && startDateMatch && endDateMatch && applicantMatch && detailProductsMatch && movementTypeMatch;
-  });
-  this.updateDataTable(this.filteredMovements);
-}
-
-
-applyColumnFilter(value: string): void {
- 
-  if (!this.tempFilters.movement_type.includes(value)) {
-    this.tempFilters.movement_type.push(value); 
-  } else {
-    const index = this.tempFilters.movement_type.indexOf(value);
-    if (index !== -1) {
-      this.tempFilters.movement_type.splice(index, 1); 
-    }
-  }
-  this.applyFilters();  
-}
-
-onStartDateChange(value: string): void {
-  this.tempFilters.startDate = value ? new Date(value) : null;
-  this.applyFilters();  
-}
-onEndDateChange(value: string): void {
-  this.tempFilters.endDate = value ? new Date(value) : null;
-  this.applyFilters();  
-}
-  // Objeto para almacenar los filtros temporales
-  tempFilters: {
-    general: string;
-    startDate: Date | null;
-    endDate: Date | null;
-    applicant: string;
-    detailProducts: string;
-    movement_type: string[];
-  } = {
-      general: '',
-      startDate: null,
-      endDate: null,
-      applicant: '',
-      detailProducts: '',
-      movement_type: []
-    };
-
-  ngOnInit() {
-    // Cargar los datos con los filtros ya configurados
-    this.warehouseMovementService.getWarehouseMovements().subscribe((movements) => {
-      this.movements = movements;
-      this.filteredMovements = this.movements;
-      this.initializeDataTable()
+  constructor(private movementService: WarehouseMovementService) {
+    this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(() => {
+        this.filterData();
       });
-    
-  }
- 
- 
- 
- 
-  @ViewChild('startDateInput') startDateInput!: ElementRef;
-  @ViewChild('endDateInput') endDateInput!: ElementRef;
-  filtersVisible = false;
-
-  constructor(
-    private warehouseMovementService: WarehouseMovementService,
-    private productService: ProductService
-  ) { }
-  ngAfterViewInit() {
-    
   }
 
-  selectedMovement: WarehouseMovementByProduct | undefined;
-  dataTableInstance: any;
-  tableInitialized = false;
+  ngOnInit(): void {
+    this.loadMovements();
+  }
 
+  loadMovements(): void {
+    this.movementService.findAll().subscribe({
+      next: (data) => {
+        this.movements = data;
+        this.initializeDataTable();
+      },
+      error: (error) => {
+        console.error('Error fetching movements:', error);
+      }
+    });
+  }
 
+  onSearchChange(value: string): void {
+    this.searchSubject.next(value);
+  }
 
+  onTypeChange(): void {
+    this.filterData();
+  }
 
-  translateMovementType(type: string): string {
-    switch (type) {
-      case 'RETURN':
-        return 'Devolución';
-      case 'LOAN':
-        return 'Préstamo';
-      case 'TO_MAINTENANCE':
-        return 'Uso';
-      default:
-        return type;
+  onDateChange(): void {
+    this.filterData();
+  }
+
+  filterData(): void {
+    let filteredData = [...this.movements];
+  
+    // Filtrar por término de búsqueda en todos los campos
+    if (this.searchTerm) {
+      const searchLower = this.searchTerm.toLowerCase();
+      filteredData = filteredData.filter(movement => {
+        const dateStr = new Date(movement.movementDatetime).toLocaleString('es-ES');
+        const quantityStr = movement.quantity.toString();
+        const finalStockStr = movement.finalStock.toString();
+  
+        return dateStr.toLowerCase().includes(searchLower) ||
+               movement.movementType.toLowerCase().includes(searchLower) ||
+               movement.productName.toLowerCase().includes(searchLower) ||
+               quantityStr.includes(searchLower) ||
+               finalStockStr.includes(searchLower) ||
+               (movement.reason?.toLowerCase() || '').includes(searchLower);
+      });
     }
-  }
-
-  getFormattedDate(): string {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
-    const day = String(date.getDate()).padStart(2, '0');
-
-    return `${day}-${month}-${year}`;
-  }
-
-  private getProductNameById(productId: number): string {
-    const product = this.products.find((p) => p.id === productId);
-    return product ? product.name : 'Desconocido';
+  
+    // Filtrar por tipos seleccionados
+    if (this.selectedTypes.length > 0) {
+      filteredData = filteredData.filter(movement => 
+        this.selectedTypes.includes(movement.movementType)
+      );
+    }
+  
+    // Filtrar por fecha (comparando solo día, mes y año)
+    if (this.selectedDate) {
+      // Asegúrate de que `selectedDate` esté en formato "YYYY-MM-DD"
+      const [year, month, day] = this.selectedDate.split('-');
+      const selectedDateStart = new Date(`${year}-${month}-${day}T00:00:00`);
+      const selectedDateEnd = new Date(`${year}-${month}-${day}T23:59:59`);
+  
+      // Convertir la fecha del movimiento solo al formato "YYYY-MM-DD"
+      filteredData = filteredData.filter(movement => {
+        const movementDate = new Date(movement.movementDatetime);
+        const movementDateFormatted = `${movementDate.getFullYear()}-${(movementDate.getMonth() + 1).toString().padStart(2, '0')}-${movementDate.getDate().toString().padStart(2, '0')}`;
+  
+        // Comparar solo día, mes y año
+        const selectedDateFormatted = `${selectedDateStart.getFullYear()}-${(selectedDateStart.getMonth() + 1).toString().padStart(2, '0')}-${selectedDateStart.getDate().toString().padStart(2, '0')}`;
+        
+        return movementDateFormatted === selectedDateFormatted;
+      });
+    }
+  
+    // Actualizar la tabla
+    if (this.table) {
+      this.table.clear().rows.add(filteredData).draw();
+    }
   }
   
+  
+  
 
+  initializeDataTable(): void {
+    const table = $('#movementTable');
+  
+    if ($.fn.dataTable.isDataTable('#movementTable')) {
+      table.DataTable().clear().destroy();
+    }
+  
+    if (table.length) {
+      this.table = table.DataTable({
+        dom: '<"mb-3"t><"d-flex justify-content-between"lp>',
+        data: this.movements,
+        columns: [
+          {
+            data: 'movementDatetime',
+            title: 'Fecha y Hora',
+            render: (data: string) => new Date(data).toLocaleString('es-ES') // Formato de fecha
+          },
+          {
+            data: 'movementType',
+            title: 'Tipo',
+            render: (data: string) => {
+              const color = data === 'Agregacion' ? 'text-bg-success' : 'text-bg-danger';
+              return `<span class="badge ${color}">${data}</span>`;
+            }
+          },
+          { data: 'productName', title: 'Producto' },
+          { data: 'quantity', title: 'Cantidad', className: 'text-center' },
+          {
+            data: 'unitprice',
+            title: 'Precio',
+            className: 'text-center',
+            render: (data: number) => {
+              if (data > 0) {
+                return `$${data.toFixed(2)}`; // Solo formatea si el precio es mayor a 0
+              }
+              return '$0.00'; // Valor por defecto si el precio es 0 o no está disponible
+            }
+          }
+          
+          ,          
+          { 
+            data: 'finalStock', 
+            title: 'Stock Resultante', 
+            className: 'text-center'
+          }
+        ],
+        pageLength: 5,
+        lengthMenu: [5, 10, 25, 50],
+        searching: false,
+        ordering: true,
+        order: [[0, 'desc']], // Ordenar por fecha descendente
+        autoWidth: false,
+        language: {
+          lengthMenu: '_MENU_',
+          info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+          emptyTable: 'No se encontraron registros',
+        }
+      });
+    }
+  }
+
+  resetFilters(): void {
+    // Restablecer el término de búsqueda
+    this.searchTerm = '';
+  
+    // Restablecer los tipos seleccionados
+    this.selectedTypes = [];
+  
+    // Restablecer la fecha seleccionada
+    this.selectedDate = '';
+  
+    // Filtrar los datos nuevamente después de resetear
+    this.filterData();
+  }
+  
+  
   exportToPdf(): void {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text('Lista de Movimientos', 10, 10);
+    doc.text('Lista de Movimientos de Inventario', 10, 10);  // Título
   
-    // Ajustar los datos exportados para que coincidan con la tabla
-    const dataToExport = this.movements.map((movement) => [
-      new Date(movement.dateTime).toLocaleDateString('es-ES'),  // Fecha
-      new Date(movement.dateTime).toLocaleTimeString('es-ES'),  // Hora
-      movement.applicant,
-      movement.product_name,
-      this.translateMovementType(movement.movement_type),
+    // Añadir los datos filtrados de la tabla
+    const filteredData = this.table.rows({ search: 'applied' }).data().toArray();
+  
+    // Formatear los datos para exportarlos
+    const dataToExport = filteredData.map((movement: any) => [
+      new Date(movement.movementDatetime).toLocaleString('es-ES'),
+      movement.movementType,
+      movement.productName,
+      movement.quantity,
+      `$${movement.unitprice.toFixed(2)}`,
+      movement.finalStock
     ]);
   
-    // Configuración de la tabla en el PDF
+    // Configurar la tabla en el PDF
     (doc as any).autoTable({
-      head: [['Fecha', 'Hora', 'Solicitante', 'Producto', 'Tipo']],
+      head: [['Fecha y Hora', 'Tipo', 'Producto', 'Cantidad', 'Precio', 'Stock Resultante']],
       body: dataToExport,
       startY: 30,
       theme: 'grid',
       margin: { top: 30, bottom: 20 },
     });
   
-    const formattedDate = this.getFormattedDate();
-    doc.save(`${formattedDate}_Lista_Movimientos.pdf`);
+    // Guardar el archivo PDF
+    const formattedDate = new Date().toLocaleDateString('es-ES');
+    doc.save(`${formattedDate}_Lista_Movimientos_Inventario.pdf`);
   }
-  
 
   exportToExcel(): void {
-
-    // Encabezado de la tabla
     const encabezado = [
-      ['Listado de Movimientos'], // Título principal
-      [], // Espacio en blanco
-      ['Fecha', 'Hora', 'Solicitante', 'Producto', 'Tipo', 'Responsable'] // Encabezado de las columnas
+      ['Listado de Movimientos de Inventario'],
+      [],  // Fila vacía para separación
+      ['Fecha y Hora', 'Tipo', 'Producto', 'Cantidad', 'Precio', 'Stock Resultante']
     ];
   
-    // Mapeo de los datos
-    const dataToExport = this.movements.map((movement) => ([
-      new Date(movement.dateTime).toLocaleDateString('es-ES'), // Solo la fecha
-      new Date(movement.dateTime).toLocaleTimeString('es-ES'), // Solo la hora
-      movement.applicant,
-      movement.product_name,
-      this.translateMovementType(movement.movement_type),
-      movement.responsible
-    ]));
+    // Obtener los datos filtrados de la tabla DataTables
+    const filteredData = this.table.rows({ search: 'applied' }).data().toArray();
   
-    // Crear la hoja de trabajo con encabezado y los datos
-    const worksheet = XLSX.utils.aoa_to_sheet([...encabezado, ...dataToExport]);
-    
-    // Crear el libro de trabajo y añadir la hoja de trabajo
+    // Convertir los datos a un formato compatible con `aoa_to_sheet`
+    const dataToExport = filteredData.map((movement: any) => [
+      new Date(movement.movementDatetime).toLocaleString('es-ES'),
+      movement.movementType,
+      movement.productName,
+      movement.quantity,
+      `$${movement.unitprice.toFixed(2)}`,
+      movement.finalStock
+    ]);
+  
+    // Combinar el encabezado y los datos
+    const worksheetData = [...encabezado, ...dataToExport];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  
+    // Configuración de ancho de columnas
+    worksheet['!cols'] = [
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 }
+    ];
+  
+    // Crear y descargar el archivo Excel
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Movimientos');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Movimientos Inventario');  // Nombre de la hoja reducido
   
-    // Obtener la fecha actual formateada
-    const formattedDate = this.getFormattedDate();
-    
-    // Generar el archivo Excel
-    XLSX.writeFile(workbook, `${formattedDate}_Lista_Movimientos.xlsx`);
+    const formattedDate = new Date().toLocaleDateString('es-ES');
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Movimientos_Inventario_Filtrados.xlsx`);
   }
-  
-  
-  
-
-
-  ngAfterViewChecked(): void {
-    if (this.movements.length > 0 && !this.tableInitialized) {
-      this.initializeDataTable();
-    }
-  }
-  initializeDataTable(): void {
-    $(document).ready(() => {
-      this.dataTableInstance = $('#movementsTable').DataTable({
-        data: this.filteredMovements,
-        dom:
-          '<"mb-3"t>' +                           
-          '<"d-flex justify-content-between"lp>', 
-        columns: [
-          {
-            data: 'dateTime',
-            title: 'Fecha',
-            render: (data: string) => data ? data.substring(0, 10) : ''
-          },
-          {
-            data: 'dateTime',
-            title: 'Hora',
-            render: (data: string) => data ? data.substring(11) : ''
-          },
-          {
-            data: 'movement_type',
-            title: 'Tipo',
-            render: (data: string) => {
-              let colorClass;
-              switch (data) {
-                case 'RETURN':
-                  return `<span class="badge" style="background-color: #dc3545;">Devolución</span>`;
-                case 'LOAN':
-                  
-                  return `<span class="badge" style="background-color: #ffc107;">Préstamo</span>`;
-                case 'TO_MAINTENANCE':
-                  
-                  return `<span class="badge" style="background-color: #0d6efd;">Uso</span>`;
-                default:
-                  return data;
-              }
-            },
-          },
-          { data: 'applicant', title: 'Solicitante' },
-          {
-            data: 'product_name',
-            title: 'Producto',
-            
-          },
-         // { data: 'responsible', title: 'Responsable' }
-        ],
-        order: [[0, 'desc']],
-        pageLength: 5,
-        lengthChange: true,
-        searching: false,
-        destroy: true,
-        language: {
-          search: "Buscar:",
-          info: "Mostrando _START_ a _END_ de _TOTAL_ movimientos",
-          lengthMenu:
-            `<select class="form-select">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-          </select>`,
-          emptyTable: "No hay datos disponibles en la tabla",
-        }
-      });
-      this.tableInitialized = true;
-    });
-  }
-
-  
-  updateDataTable(newMovements: WarehouseMovementByProduct[]): void {
-    if (this.dataTableInstance) {
-      this.dataTableInstance.clear();
-      this.dataTableInstance.rows.add(newMovements);
-      this.dataTableInstance.draw();
-    } else {
-      this.initializeDataTable();
-    }
-  }
- 
   
 }
+
+

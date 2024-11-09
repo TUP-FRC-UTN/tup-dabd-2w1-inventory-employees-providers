@@ -1,0 +1,10 @@
+@import "@ng-select/ng-select/themes/default.theme.css";
+.table-responsive {
+    margin: 20px;
+  }
+  
+  .badge {
+    padding: 0.5em 0.75em;
+    font-size: 0.9em;
+  }
+  
