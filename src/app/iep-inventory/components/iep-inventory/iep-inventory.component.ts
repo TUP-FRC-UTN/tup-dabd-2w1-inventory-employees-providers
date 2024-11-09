@@ -530,7 +530,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.productos$ = this.productoService.getAllProducts();
     this.productos$.subscribe({
       next: (productos) => {
-        console.log(productos);
+        console.log("productos"+JSON.stringify(productos));
         this.productosALL = productos;
         this.filtrarPorUltimos30Dias(); // Aplica el filtro automáticamente
         this.updateDataTable(); // Actualiza la tabla con el filtro aplicado
@@ -667,7 +667,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           title: 'Estado',
           render: (row: any) => {
             const quantity = row.data?.detailProducts?.length || 0; // Accedemos a detailProducts de forma segura
-            return quantity !== 0 ? "Activo" : "Inactivo";
+            return quantity !== 0 ? "Inactivo":"Activo" ;
           },
 
         }
@@ -681,8 +681,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
             let name;
 
             switch (data) {
-              case true: color = "text-bg-success"; name = "Si"; break;
-              case false: color = "text-bg-danger"; name = "No"; break;
+              case true: color = "text-bg-primary"; name = "Si"; break;
+              case false: color = "text-bg-warning"; name = "No"; break;
             }
 
             return  `

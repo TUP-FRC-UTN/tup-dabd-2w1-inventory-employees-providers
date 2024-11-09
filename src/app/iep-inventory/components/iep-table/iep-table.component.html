@@ -1,4 +1,15 @@
 <section class="py-5">
+  
+
+  <button
+      class="floating-btn btn btn-primary"
+      style="right: 75px;"
+      (click)="goTo('home/nuevo-ingreso-egreso')"
+    >
+      <span class="m-icon">M</span>
+    </button>
+
+
   <div class="container p-3 border border-2 rounded shadow-lg">
     <!-- Sección de filtros y botones de exportación -->
     <div
@@ -103,16 +114,11 @@
           <i class="fas bi-file-earmark-pdf"></i>
         </button>
       </div>
-      <button
-      class="floating-btn btn btn-primary position-relative"
-      (click)="goTo('home/nuevo-ingreso-egreso')"
-  >
-      <span class="m-icon">M</span>
-  </button>
-  
+    
+  <!--piso del formulario-->
     </div>
 
-    <!-- Tabla que muestra el historial de movimientos de productos -->
+    
     <div class="table-responsive mt-4">
       <table
         id="historialTable"
@@ -121,9 +127,9 @@
         <thead class="table-light border border-4">
           <tr>
             <th>Fecha</th>
-            <th>Producto</th>
+            <th>Articulo</th>
             <th>Tipo movimiento</th>
-            <th>Proveedor</th>
+           
             <th>Cantidad</th>
             <th>Justificativo</th>
             <th>Stock resultante</th>

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ProductService } from '../../services/product.service';
 import 'datatables.net';
 import 'datatables.net-bs5';
-import $ from 'jquery';
+import $, { param } from 'jquery';
 import * as XLSX from 'xlsx';
 import { GenerateExcelPdfService } from '../../../common-services/generate-excel-pdf.service';
 import jsPDF from 'jspdf';
@@ -30,7 +30,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     { label: 'Disminución', value: 'disminución' },
     { label: 'Aumento', value: 'aumento' }
   ];
-
+  
 
   // Filtros
   globalFilter: string = '';
@@ -41,7 +41,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   goTo(params:string) {
-    this.router.navigate([params])  
+    this.router.navigate([params]) 
    }
 
 
@@ -55,7 +55,6 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       filteredResults = filteredResults.filter(producto =>
         producto.product.toLowerCase().includes(filterValue) ||
         producto.modificationType.toLowerCase().includes(filterValue) ||
-        producto.supplier.toLowerCase().includes(filterValue) ||
         producto.description.toLowerCase().includes(filterValue)
       );
     }
@@ -95,7 +94,6 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
   maxAmount: number | null = null;
   filterValues: { [key: string]: string } = {
     product: '',
-    supplier: '',
     description: ''
   };
 
@@ -111,6 +109,8 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     private excelPdfService: GenerateExcelPdfService,
     private router : Router
   ) { }
+
+
 
 
   applyFilter(): void {
@@ -255,8 +255,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           }
         }, // Columna de tipo de movimiento
-        { data: 'product', title: 'Producto' }, // Columna de producto
-        { data: 'supplier', title: 'Proveedor' }, // Columna de proveedor
+        { data: 'product', title: 'Articulo' }, // Columna de producto
         { data: 'amount', title: 'Cantidad' }, // Columna de cantidad
         { data: 'description', title: 'Justificativo' }, // Columna de justificativo
         { data: 'stockAfterModification', title: 'Stock Resultante' },
@@ -345,7 +344,6 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       producto.date, 
       producto.product,
       producto.modificationType,
-      producto.supplier,
       producto.amount.toString(),
       producto.description,
       producto.stockAfterModification, 
@@ -355,7 +353,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       'Fecha',
       'Producto',
       'Tipo Movimiento',
-      'Proveedor',
+     
       'Cantidad',
       'Justificativo',
       'Stock Resultante',
@@ -383,7 +381,6 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       producto.date, 
       producto.product, 
       producto.modificationType, 
-      producto.supplier, 
       producto.amount, 
       producto.description,
       producto.stockAfterModification, 
@@ -392,7 +389,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     const encabezado = [
       ['Historial de Productos'], 
       [], 
-      ['Fecha', 'Producto', 'Tipo Movimiento', 'Proveedor', 'Cantidad', 'Justificativo', 'Stock Resultante'], // Nombres de las columnas
+      ['Fecha', 'Articulo', 'Tipo Movimiento', 'Cantidad', 'Justificativo', 'Stock Resultante'], // Nombres de las columnas
     ];
   
     const worksheetData = [...encabezado, ...data];

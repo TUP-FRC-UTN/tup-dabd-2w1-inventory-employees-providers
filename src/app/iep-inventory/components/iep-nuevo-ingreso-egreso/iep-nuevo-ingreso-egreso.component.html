@@ -1,9 +1,9 @@
-<div class="container d-flex align-items-center justify-content-center min-vh-100">
-    <div class="row justify-content-center">
-        <div class="col-md-8 mx-auto">
-            <div class="card">
+<div class="container d-flex align-items-center justify-content-center min-vh-100 ">
+    <div class="row justify-content-center ">
+        <div class="col-md-8 mx-auto ">
+            <div class="card shadow">
                 <div class="card-body">
-                    <form>
+                    <form class="">
                         <div class="row">
                             <!-- Campo Tipo de Movimiento con label y botones en toda la primera fila -->
                             
@@ -24,6 +24,7 @@
                                                (click)="tipoMovimiento = 'I'">
                                         <label class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" 
                                                [ngClass]="{'btn-success': tipoMovimiento === 'I', 'btn-outline-secondary': tipoMovimiento !== 'I'}"
+                                               (click)="cambio('I')"
                                                style="width: 45px; height: 45px;"
                                                for="btnRadio1" 
                                                data-bs-toggle="tooltip" 
@@ -41,9 +42,11 @@
                                                [ngClass]="{'btn-danger': tipoMovimiento === 'E', 'btn-outline-secondary': tipoMovimiento !== 'E'}"
                                                style="width: 45px; height: 45px;"
                                                for="btnRadio2"
+                                               (click)="cambio('E')"
                                                data-bs-toggle="tooltip" 
                                                data-bs-placement="top" 
                                                title="Egreso">E</label>
+                                               
                                     </div>
                                 
                                 
@@ -60,10 +63,15 @@
                                         <ng-select type="text"  name="producto" placeholder="Buscar producto">
                                         </ng-select>
                                     </div>
+                                   
                                 </div>
+
+                            </div>
+                            <div class="col-1">
+                                    <button class="form-control">+</button>
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-5 mb-3">
                                 <div class="row align-items-center">
                                     <label class="col-4 text-end form-label">Cantidad</label>
                                     <div class="col-8">
@@ -71,8 +79,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                     
 
                             <!-- Campo SA/SCR -->
                              
@@ -84,10 +90,11 @@
                                         </div>
                                     </div>
                             </div>
-                                                      
+                                         
+                            <div class="col-1"></div>
                                <!-- Campo proveedores -->
                               
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-5 mb-3">
                                     <div class="row align-items-center">
                                         <label class="col-4 text-end form-label">Proveedor</label>
                                         <div class="col-8">
@@ -114,7 +121,37 @@
                             <!-- todo para la baja  -->
                             @else{
 
+                                <div class="col-md-6 mb-3">
+                                    <div class="row align-items-center">
+                                        <label class="col-4 text-end form-label">Articulo</label>
+                                        <div class="col-8">
+                                            <ng-select type="text"  name="producto" placeholder="Buscar producto">
+                                            </ng-select>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <div class="col-md-6 mb-3">
+                                    <div class="row align-items-center">
+                                        <label class="col-4 text-end form-label">Cantidad</label>
+                                        <div class="col-8">
+                                            <input type="text" class="form-control" name="zona" placeholder=" ">
+                                        </div>
+                                    </div>
+                                </div>
+    
+                            
+    
+                                <div class="col-md-12 mb-3">
+                                    <div class="row">
+                                        <div class="col-2 text-end">
+                                             <label class="form-label">Justificación</label>
+                                        </div>
+                                       <div class="col-10"> 
+                                        <textarea class="form-control" name="producto" placeholder="Escribe aquí" rows="3"></textarea>
+                                       </div>
+                                    </div>
+                                </div>
                                 
 
 
