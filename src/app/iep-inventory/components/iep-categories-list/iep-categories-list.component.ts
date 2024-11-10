@@ -11,24 +11,22 @@ import Swal from 'sweetalert2';
 import { UsersMockIdService } from '../../../common-services/users-mock-id.service';
 import { ProductService } from '../../services/product.service';
 import * as XLSX from 'xlsx';
+import { NgSelectModule } from '@ng-select/ng-select';
+
 declare var bootstrap: any; // Añadir esta declaración al principio
 @Component({
   selector: 'app-iep-categories-list',
   templateUrl: './iep-categories-list.component.html',
   styleUrls: ['./iep-categories-list.component.css'],
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule, NgSelectModule],
   standalone: true
 })
 export class IepCategoriesListComponent implements OnInit {
-
-  selectedStatus = {
-    active: false,
-    inactive: false
-  };
-
-  get selectedStatusCount(): number {
-    return Object.values(this.selectedStatus).filter(value => value).length;
-  }
+  selectedStatuses: string[] = [];
+  statusOptions = [
+    { id: 'active', name: 'Activo' },
+    { id: 'inactive', name: 'Inactivo' }
+  ];
 
   private usersMockService: UsersMockIdService;
   private categoryService: CategoriaService;
@@ -42,71 +40,53 @@ export class IepCategoriesListComponent implements OnInit {
   categoryToCreate: string = '';
   private productService: ProductService;
   errorMessage: string = '';
-
-
   idUser: number = 0;
-  constructor(categoryService: CategoriaService,
+  loading: boolean = true;
+
+  constructor(
+    categoryService: CategoriaService,
     usersMockService: UsersMockIdService,
-    productService: ProductService) {
+    productService: ProductService
+  ) {
     this.usersMockService = usersMockService;
     this.categoryService = categoryService;
-    this.productService = productService
+    this.productService = productService;
   }
 
   exportToPdf(): void {
     const doc = new jsPDF();
-
     const pageTitle = 'Listado de Categorias';
     doc.setFontSize(18);
     doc.text(pageTitle, 15, 10);
-
+    doc.setFontSize(12);
+    
     const dataToExport = this.categories.map((category) => [
       category.category,
-      category.discontinued ? 'Inactivo' : 'Activo'
+      category.discontinued ? 'Inactivo' : 'Activo' 
     ]);
 
     (doc as any).autoTable({
       head: [['Categoría', 'Estado']],
       body: dataToExport,
-      startY: 30,
+      startY: 20,
       theme: 'grid',
       margin: { top: 30, bottom: 20 },
     });
-
-    doc.save(`${this.getFormattedDate()}_Lista_Categorías.pdf`);
-  }
-
-  exportToExcel(): void {
-    const encabezado = [
-      ['Listado de Categorías'],
-      [],
-      ['Categoría', 'Estado'] 
-    ];
-
-    // Datos a exportar
-    const excelData = this.categories.map((category) => {
-      return [
-        category.category,
-        category.discontinued ? 'Inactivo' : 'Activo',
-      ];
-    });
-
-    const worksheetData = [...encabezado, ...excelData];
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-    worksheet['!cols'] = [
-      { wch: 20 },
-      { wch: 15 }
-    ];
-
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Categorías');
-
-    const formattedDate = this.getFormattedDate();
-    XLSX.writeFile(workbook, `${formattedDate}_Lista_Categorías.xlsx`);
+    doc.save(`${this.getFormattedDate()}_Listado_De_Categorías.pdf`);
 }
 
-  
+exportToExcel(): void {
+  // Transformamos los datos antes de crear el Excel
+  const dataToExport = this.categories.map(category => ({
+      Categoría: category.category,
+      Estado: category.discontinued ? 'Inactivo' : 'Activo'
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Categorías');
+  XLSX.writeFile(workbook, `${this.getFormattedDate()}_Listado_De_Categorías.xlsx`);
+}
 
   getFormattedDate(): string {
     const today = new Date();
@@ -131,116 +111,146 @@ export class IepCategoriesListComponent implements OnInit {
   }
 
   filterData(event?: any): void {
-    const searchTerm = event?.target?.value?.toLowerCase().trim() ||
+    const searchTerm = event?.target?.value?.toLowerCase().trim() || 
       (document.getElementById('searchTerm') as HTMLInputElement)?.value?.toLowerCase().trim() || '';
-
+  
     this.filteredData = this.categories.filter(cat => {
       const matchesSearch = cat.category.toLowerCase().includes(searchTerm);
-      const matchesStatus =
-        (!this.selectedStatus.active && !this.selectedStatus.inactive) || // Si no hay filtros de estado seleccionados
-        (this.selectedStatus.active && !cat.discontinued) || // Si está seleccionado "Activo"
-        (this.selectedStatus.inactive && cat.discontinued); // Si está seleccionado "Inactivo"
-
+  
+      // Filtrado por estados seleccionados en ngSelect
+      const matchesStatus = this.selectedStatuses.length === 0 || 
+        this.selectedStatuses.includes(cat.discontinued ? 'Inactivo' : 'Activo');
+  
       return matchesSearch && matchesStatus;
     });
-
+  
     this.refreshDataTable();
   }
+  
 
   cleanFilters(): void {
-    // Limpia los valores de los inputs en el DOM
+    // Limpia los valores de los inputs de texto en el DOM
     const textInputs = document.querySelectorAll('input.form-control');
     textInputs.forEach(input => (input as HTMLInputElement).value = '');
-
-    // Resetear los filtros de estado
-    this.selectedStatus.active = false;
-    this.selectedStatus.inactive = false;
-
+  
+    // Reinicia el combo de estados
+    this.selectedStatuses = [];
+  
+    // Restablece la lista filtrada a todas las categorías
     this.filteredData = [...this.categories];
     this.refreshDataTable();
   }
+  
 
 
+ 
   initializeDataTable() {
-    // Destruir la tabla si ya existe
     if (this.table) {
       this.table.destroy();
     }
 
     this.table = $('#categoryTable').DataTable({
-      dom:
-        '<"mb-3"t>' +
-        '<"d-flex justify-content-between"lp>',
-      data: this.categories, // Usar directamente el array de categorías
+       //Atributos de la tabla
+       paging: true,
+       searching: true,
+       ordering: true,
+       lengthChange: true,
+       order: [0, 'asc'],
+       lengthMenu: [5, 10, 25, 50],
+       pageLength: 5,
+       data: this.categories,
       columns: [
-        {
-          data: 'category',
-          title: 'Categoría'
-        },
         {
           data: 'discontinued',
           title: 'Estado',
-          visible: true,
-          render: (data: any, type: any, row: any) => {
-            return data ? 'Inactivo' : 'Activo';
-          }
-        },
+          className: 'text-center', // solo esta clase para alinear el texto a la izquierda
+                  render: (data: any) => {
+                    let colorClass;
+                    let text;
+                        
+                    if (data) {
+                      colorClass = '#dc3545'; // Rojo para "Inactivo"
+                      text = 'Inactivo';
+                    } else {
+                      colorClass = '#198754'; // Verde para "Activo"
+                      text = 'Activo';
+                    }
+                        
+                    return `<span class="badge border rounded-pill" style="background-color: ${colorClass};">${text}</span>`;
+                  }
+        
+             },
+                {
+                  data: 'category',
+                  title: 'Categoría',
+                  className: 'align-middle'
+                }
+          ,
         {
           data: null,
           title: 'Acciones',
-          orderable: false,
-          render: (data: any, type: any, row: any) => {
+          className: 'align-middle text-center', // Alinea el título al centro          orderable: false,
+          render: (data: any) => {
             return `
-              <div class="dropdown">
-                <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
-                   style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
-                  &#8942;
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li><a class="dropdown-item edit-btn" href="#" 
-                  data-id="${row.id}" data-bs-toggle="modal" data-bs-target="#categoriaModal">Editar</a></li>
-                  <li class="dropdown-divider"></li>
-                  <li><a class="dropdown-item delete-btn" href="#" data-id="${row.id}">Eliminar</a></li>
-                </ul>
+              <div class="text-center">
+                <div class="btn-group">
+                  <div class="dropdown">
+                    <button type="button" class="btn border border-2 bi-three-dots-vertical" data-bs-toggle="dropdown"></button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item edit-btn" href="#" data-id="${data.id}" 
+                         data-bs-toggle="modal" data-bs-target="#categoriaModal">Editar</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item delete-btn" href="#" data-id="${data.id}">Eliminar</a></li>
+                    </ul>
+                  </div>
+                </div>
               </div>`;
-          },
-
+          }
         }
       ],
-      pageLength: 5,
-      lengthChange: true,
-      lengthMenu: [5, 10, 25, 50],
-      searching: false,
+      dom:
+        '<"mb-3"t>' +                           //Tabla
+        '<"d-flex justify-content-between"lp>', //Paginacion
       language: {
-        emptyTable: "No hay datos disponibles en la tabla",
-        zeroRecords: "No se encontraron coincidencias",
-        info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-        infoEmpty: "Mostrando 0 a 0 de 0 entradas",
-        infoFiltered: "(filtrado de _MAX_ entradas totales)",
+        lengthMenu: `<select class="form-select">
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                    </select>`,
+        zeroRecords: "No se encontraron categorías",
+        loadingRecords: "Cargando...",
+        processing: "Procesando...",
+        emptyTable: "No se encontraron categorías",
+        info: "Mostrando _START_ a _END_ de _TOTAL_ categorías",
+        infoEmpty: "Mostrando 0 a 0 de 0 categorías",
+        infoFiltered: "(filtrado de _MAX_ categorías totales)",
         search: 'Buscar:',
-        lengthMenu: '_MENU_',
       }
     });
 
     this.setupTableListeners();
   }
 
-  showConfirmDeleteModal() {
-    Swal.fire({
-      title: '¿Estás seguro de querer eliminar la categoría?',
-      text: 'Esta acción no se puede deshacer',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.searchForProductsWithCategory();
 
-      }
-    });
+  showConfirmDeleteModal() {
+    // Obtener el modal de Bootstrap
+    const modalElement = document.getElementById('confirmDeleteModal');
+    const confirmButton = document.getElementById('confirmDeleteButton');
+  
+    if (modalElement && confirmButton) {
+      // Crear una instancia del modal de Bootstrap
+      const modal = new bootstrap.Modal(modalElement);
+  
+      // Mostrar el modal
+      modal.show();
+  
+      // Lógica de confirmación para eliminar la categoría
+      confirmButton.onclick = () => {
+        this.deleteCategory(); // Llamar a la función de eliminación
+        modal.hide(); // Cerrar el modal después de eliminar
+      };
+    }
   }
 
   showSuccessDeleteAlert() {
@@ -463,20 +473,20 @@ export class IepCategoriesListComponent implements OnInit {
   }
 
 
-
-
-  loadCategories() {
+  loadCategories() {  
+    this.loading = true;
     this.categoryService.getCategorias().subscribe({
       next: (categories) => {
         this.categories = categories;
-        console.log('Categorías cargadas:', categories);
         this.filteredData = [...categories];
         setTimeout(() => {
           this.refreshDataTable();
+          this.loading = false;
         }, 0);
       },
       error: (error) => {
         console.error('Error al cargar categorías:', error);
+        this.loading = false;
       },
     });
   }

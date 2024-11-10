@@ -1,67 +1,98 @@
 <section class="py-5">
   <div class="container p-3 border border-2 rounded shadow-lg">
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+    <div class="row">
       <!-- Sección para filtro global -->
-      <div class="d-flex flex-grow-1 me-2">
+      <div class="col-md-8">
         <!-- Campo de búsqueda con tamaño normal -->
-        <input type="text" class="form-control me-2" placeholder="Buscar..." [(ngModel)]="globalFilter"
-          (input)="applyFilters()" style="flex: 2" />
+        <div class="row">
+          <div class="col-4">
+          <input type="text" class="form-control" placeholder="Buscar" [(ngModel)]="globalFilter"
+                (input)="applyFilters()" />
 
-        <!-- Filtro de estado -->
-        <div class="dropdown me-2" style="flex: 1">
-          <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="dropdownEstado"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            Estado @if (selectedStateCount > 0) { ({{ selectedStateCount }}) }
-          </button>
-          <ul class="dropdown-menu w-100" aria-labelledby="dropdownEstado">
-            <li>
-              <label class="dropdown-item">
-                <input type="checkbox" class="form-check-input me-2" [(ngModel)]="selectedStates.ACTIVE"
-                  (change)="searchSuppliers()" />
-                Activo
-              </label>
-            </li>
-            <li>
-              <label class="dropdown-item">
-                <input type="checkbox" class="form-check-input me-2" [(ngModel)]="selectedStates.INACTIVE"
-                  (change)="searchSuppliers()" />
-                Inactivo
-              </label>
-            </li>
-          </ul>
+          </div>
+
+                
+            <!-- Filtro de estado -->
+            <div class="col-4"> <!-- Ajuste de ancho y margen -->
+              <ng-select
+                  [items]="stateOptions"
+                  [(ngModel)]="selectedStatesList"
+                  bindLabel="label"
+                  bindValue="value"
+                  [multiple]="true"
+                  placeholder="Seleccionar Estado"
+                  (change)="applyFilters()"
+                  class="w-100"
+              >
+                  <ng-template ng-multi-label-tmp let-items="items">
+                      Seleccionar Estado
+                      <span *ngIf="items.length > 0">({{ items.length }})</span>
+                  </ng-template>
+  
+                  <!-- Template para las opciones del dropdown -->
+                  <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                      <input type="checkbox" [checked]="item$.selected" />
+                      {{ item.label }}
+                  </ng-template>
+              </ng-select>
+          </div>
+
+             
+            <!-- Dropdown de Proveedor -->
+            <div class="col-4"> <!-- Ajuste de ancho -->
+              <ng-select
+                  [items]="providerTypeOptions"
+                  [(ngModel)]="selectedProviderTypesList"
+                  bindLabel="label"
+                  bindValue="value"
+                  [multiple]="true"
+                  placeholder="Tipo proveedor"
+                  (change)="applyFilters()"
+                  class="w-100"
+              >
+                  <ng-template ng-multi-label-tmp let-items="items">
+                      Seleccionar Proveedor
+                      <span *ngIf="items.length > 0">({{ items.length }})</span>
+                  </ng-template>
+  
+                  <!-- Template para las opciones del dropdown -->
+                  <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                      <input type="checkbox" [checked]="item$.selected" />
+                      {{ item.label }}
+                  </ng-template>
+              </ng-select>
+          </div>
+
+
         </div>
+          
+    </div>
+    <div class="col-4">
 
-        <!-- Dropdown de Proveedor con el doble de ancho -->
-        <div class="dropdown me-2" style="flex: 1">
-          <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
-            id="dropdownProveedor" data-bs-toggle="dropdown" aria-expanded="false">
-            Tipo proveedor @if (selectedTypeCount > 0) { ({{ selectedTypeCount }}) }
+      <div class="row">
+        <div class="col-6"></div> <!-- Espacio vacío para centrar los botones -->
+      
+        <div class="col-6 d-flex justify-content-end"> <!-- Usar d-flex para alinear los botones a la derecha -->
+          <!-- Botón para limpiar filtros -->
+          <button class="btn btn-secondary me-1 filterbutton" (click)="cleanFilters()"> <!-- Espacio a la derecha reducido -->
+            <i class="bi bi-trash"></i>
           </button>
-          <ul class="dropdown-menu w-100" aria-labelledby="dropdownProveedor">
-            <li>
-              <label class="dropdown-item">
-                <input type="checkbox" class="form-check-input me-2" [(ngModel)]="selectedTypes.OUTSOURCED_SERVICE"
-                  (change)="searchSuppliers()" />
-                Servicio externo
-              </label>
-            </li>
-            <li>
-              <label class="dropdown-item">
-                <input type="checkbox" class="form-check-input me-2" [(ngModel)]="selectedTypes.INVENTORY_SUPPLIER"
-                  (change)="searchSuppliers()" />
-                Proveedor de Inventario
-              </label>
-            </li>
-            <li>
-              <label class="dropdown-item">
-                <input type="checkbox" class="form-check-input me-2" [(ngModel)]="selectedTypes.OTHER"
-                  (change)="searchSuppliers()" />
-                Otro
-              </label>
-            </li>
-          </ul>
+      
+          <!-- Botón de exportación a Excel -->
+          <button class="btn btn-success me-1 filterbutton" (click)="exportToExcel()"> <!-- Espacio a la derecha reducido -->
+            <i class="fa-solid bi-file-earmark-excel"></i>
+          </button>
+      
+          <!-- Botón de exportación a PDF -->
+          <button class="btn btn-danger filterbutton" (click)="exportToPdf()">
+            <i class="fas bi-file-earmark-pdf"></i>
+          </button>
         </div>
       </div>
+
+      </div>
+
+    </div>
 
       <!-- Botón para mostrar/ocultar filtros 
       <button class="btn btn-primary me-2" (click)="toggleFilters()">
@@ -69,22 +100,9 @@
       </button>
       -->
 
-      <!-- Botón para limpiar filtros -->
-      <button class="btn btn-secondary me-2" (click)="cleanFilters()">
-        <i class="bi bi-trash"></i>
-      </button>
-
-      <!-- Botones de exportación a Excel y PDF -->
-      <button class="btn btn-success me-2" (click)="exportToExcel()">
-        <i class="fa-solid bi-file-earmark-excel"></i>
-      </button>
-      <button class="btn btn-danger" (click)="exportToPdf()">
-        <i class="fas bi-file-earmark-pdf"></i>
-      </button>
-    </div>
+    
 
     <!-- Sección de filtros por columnas -->
-    <div class="container" *ngIf="showFilters">
       <!-- Fila 1 con 4 inputs -->
       <!-- Fila 1 con 4 inputs alineados en una sola fila 
       <div class="row">
@@ -148,7 +166,6 @@
       </div>
         -->
 
-    </div>
 
     <!-- Sección de Tabla -->
 
@@ -156,7 +173,7 @@
       <div class="col table-responsive">
         <table 
         class="table table-striped border border-4 rounded table-hover" id="suppliersTable">
-          <thead>
+        <thead class="table-light border border-4">
             <tr>
               <th>Razon social</th>
               <th>Tipo proveedor</th>
@@ -207,11 +224,11 @@
           ¿Está seguro que desea dar de baja al proveedor seleccionado?
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            Cancelar
-          </button>
           <button type="button" class="btn btn-danger" (click)="confirmDelete()" data-bs-dismiss="modal">
             Eliminar
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancelar
           </button>
         </div>
       </div>

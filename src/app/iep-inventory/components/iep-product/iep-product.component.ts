@@ -3,7 +3,7 @@ import { ProductService } from '../../services/product.service';
 import { Observable } from 'rxjs';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ProductCategory } from '../../models/product-category';
 import { Supplier } from '../../models/suppliers';
 import { SuppliersService } from '../../services/suppliers.service';
@@ -11,11 +11,13 @@ import Swal from 'sweetalert2';
 import { CreateProductDtoClass } from '../../models/create-product-dto-class';
 import { CategoriaService } from '../../services/categoria.service';
 import { CreateCategoryDto } from '../../models/create-category-dto';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { routes } from '../../../app.routes';
 
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [FormsModule,CommonModule,RouterModule],
+  imports: [FormsModule,CommonModule,RouterModule,NgSelectModule],
   templateUrl: './iep-product.component.html',
   styleUrl: './iep-product.component.css'
 })
@@ -39,12 +41,30 @@ export class IepProductComponent {
   newCategory: string = ''; 
   categoryOfModal: number | undefined;
 
+
   constructor(productService: ProductService,
     providersService: SuppliersService,
-    private categoryService:CategoriaService) {
+    private categoryService:CategoriaService,
+    private router : Router ) {
     this.productService = productService;
     this.providerService = providersService;
     this.success = false;
+  }
+
+  logear(){
+    console.log(this.dto.reusable)
+
+  }
+
+  logearrr(){
+    console.log("pasoo este es el valor "+this.dto.minAmountWarning)
+
+  }
+
+  goTo(path: string){
+
+      this.router.navigate([path])
+
   }
 
   ngOnInit() {
@@ -98,7 +118,6 @@ export class IepProductComponent {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
-     
       if (this.dto.supplier_id == null || this.dto.supplier_id === 0) {
         this.dto.supplier_id = undefined;
       }
@@ -112,10 +131,15 @@ export class IepProductComponent {
         this.dto.reusable = false;
       }
       this.abrirModal = true;
+      console.log("enviadoo"+JSON.stringify(this.dto))
+      this.dto.state_id = 1;
       this.createProduct$ = this.productService.createProduct(this.dto, 1);
       console.log(this.createProduct$);
+      
+
       this.createProduct$.subscribe({
         next: response => {
+          console.log("aca ta la respuesta"+JSON.stringify(response))
           this.successMessage = response.message;
           this.showSuccessAlert();
           console.log("PASO: ", response);
@@ -138,7 +162,6 @@ export class IepProductComponent {
           console.error(error);
           this.success = false;
           this.showErrorAlert();
-          form.reset();
         },
         complete: () => {
           console.log('Petición completada');

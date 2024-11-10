@@ -1,58 +1,55 @@
 <section class="py-5">
   <div class="container p-3 border border-2 rounded shadow-lg">
-
-    <!-- Fila de búsqueda, selectores de mes y año con botones a la derecha -->
+    <!-- Fila de búsqueda, selectores de período y botones a la derecha -->
     <div class="row mb-3">
-      <div class="col-md-12 d-flex align-items-center justify-content-between">
+      <div class="col-md-12">
         <div class="row w-100 align-items-center">
           
-          
-          
-          
-          <!-- Campo de búsqueda -->
-          <div class="col-md-4 d-flex align-items-center">
-            <!-- Add the back button -->
+          <!-- Campo de búsqueda a la izquierda -->
+          <div class="col-md-3 d-flex align-items-center">
             <button class="btn btn-secondary me-2" (click)="volverInventario()">
               <i class="bi bi-arrow-left"></i>
             </button>
             <input type="text" id="searchTerm" [(ngModel)]="searchTerm" placeholder="Buscar" class="form-control" readonly>
           </div>
 
-
-          <!-- Dropdown de Periodo -->
-          <div class="col-md-2 d-flex align-items-center">
-            <div class="dropdown w-100">
-              <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownPeriodSelect"
-                data-bs-toggle="dropdown" aria-expanded="false">
-                Periodo
-              </button>
-              <ul class="dropdown-menu w-100" aria-labelledby="dropdownPeriodSelect">
-                <li *ngFor="let performance of uniquePeriods">
-                  <label class="dropdown-item">
-                    <input type="checkbox" class="form-check-input me-2"
-                      [checked]="selectedPeriod.includes(performance.year + '-' + (performance.month.toString().padStart(2, '0')))"
-                      (change)="togglePeriod(performance.year + '-' + (performance.month.toString().padStart(2, '0')))">
-                    {{ performance.year }}-{{ performance.month.toString().padStart(2, '0') }}
-                  </label>
-                </li>
-              </ul>
+          <!-- Selector de Período en el centro -->
+          <div class="col-md-4 d-flex align-items-center">
+            <!-- <label class="form-label me-2 mb-0">Período</label> -->
+            <div class="ms-2" style="flex-grow: 1; max-width: 300px;">
+              <ng-select
+                [items]="periodOptions"
+                [multiple]="true" 
+                [closeOnSelect]="false"
+                bindLabel="label"
+                bindValue="id"
+                [(ngModel)]="selectedPeriod"
+                (change)="onPeriodChange($event)"
+                placeholder="Seleccionar Período"
+                [clearable]="true">
+                <ng-template ng-multi-label-tmp let-items="items">
+                  Seleccionar Período
+                  <span *ngIf="items.length > 0">({{ items.length }})</span>
+                </ng-template>
+                <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                  <input type="checkbox" [checked]="item$.selected"/> {{item.label}}
+                </ng-template>
+              </ng-select>
             </div>
           </div>
-          
-          <div class="col"></div>
 
-          <!-- Botones de filtro, limpiar y exportación -->
-          <div class="col-md-4 d-flex justify-content-end align-items-center">
-            <button class="btn btn-primary me-2" (click)="toggleFilters()">
-              <i class="bi bi-funnel-fill"></i>
+          <!-- Botones a la derecha -->
+          <div class="col-md-5 d-flex justify-content-end align-items-center">
+            <button class="btn btn-primary me-2 filterbutton" (click)="openFilterModal()">
+              <i class="bi bi-funnel-fill"></i> 
             </button>
-            <button class="btn btn-secondary me-2" (click)="resetFilters()">
+            <button class="btn btn-secondary me-2 filterbutton" (click)="resetFilters()">
               <i class="bi bi-trash"></i>
             </button>
-            <button class="btn btn-success me-2" (click)="exportToExcel()">
+            <button class="btn btn-success me-2 filterbutton" (click)="exportToExcel()">
               <i class="fa-solid bi-file-earmark-excel"></i>
             </button>
-            <button class="btn btn-danger me-2" (click)="exportToPdf()">
+            <button class="btn btn-danger me-2 filterbutton" (click)="exportToPdf()">
               <i class="fas bi-file-earmark-pdf"></i>
             </button>
           </div>
@@ -60,64 +57,58 @@
       </div>
     </div>
 
-    <!-- Fila de selectores adicionales (Tipo de Desempeño y Observaciones) -->
-    <div class="row mb-3" *ngIf="showFilters">
-      <div class="col-md-12 d-flex align-items-center">
-        
-        <!-- Dropdown de Tipo de Desempeño -->
-        <div class="col-md-4 d-flex align-items-center me-3">
-          <div class="dropdown w-100">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownPerformanceType"
-              data-bs-toggle="dropdown" aria-expanded="false">
-              Desempeño
-              <span *ngIf="selectedPerformanceType.length > 0"> ({{ selectedPerformanceType.length }})</span>
-            </button>
-            <ul class="dropdown-menu w-100" aria-labelledby="dropdownPerformanceType">
-              <li *ngFor="let type of performanceTypes">
-                <label class="dropdown-item">
-                  <input type="checkbox" class="form-check-input me-2"
-                    [checked]="selectedPerformanceType.includes(type)" (change)="togglePerformanceType(type)">
-                  {{ type }}
-                </label>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Selector de Cantidad de Observaciones -->
-        <div class="col-md-4 d-flex align-items-center">
-          <input type="number" id="observationCount" [(ngModel)]="selectedObservationCount" (input)="filterData()"
-            class="form-control" placeholder="Observaciones">
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de Información -->
-    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <!-- Modal de Filtros Avanzados -->
+    <div class="modal fade" id="filterModal" tabindex="-1" data-bs-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Información sobre la Página</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title">Filtros Avanzados</h5>
+            <button type="button" class="btn-close" (click)="closeFilterModal()"></button>
           </div>
           <div class="modal-body">
-            <p>En esta página, puedes gestionar el desempeño de empleados del sistema. A continuación, se detallan las secciones y funcionalidades disponibles:</p>
-            <ul>
-              <li><strong>Buscar:</strong> Encuentra empleados por nombre o desempeño utilizando el campo de búsqueda.</li>
-              <li><strong>Filtros de Año y Mes:</strong> Selecciona un año y mes específicos para filtrar el rendimiento de los empleados.</li>
-              <li><strong>Tabla de Desempeño:</strong> Visualiza una lista detallada de empleados con información sobre su desempeño.</li>
-              <li><strong>Registrar Observaciones:</strong> Haz clic en el botón "Registrar observación" para añadir comentarios sobre el rendimiento de un empleado.</li>
-            </ul>
-            <p class="text-danger mt-3"><strong>Nota:</strong> No es posible añadir un desempeño para una fecha en la que ya se haya registrado o que se encuentre fuera del rango permitido.</p>
+            <!-- Tipo de Desempeño -->
+            <div class="mb-3">
+              <label class="form-label">Tipo de Desempeño</label>
+              <div class="ms-2" style="flex-grow: 1; max-width: 300px;">
+                <ng-select
+                  [items]="performanceTypeOptions"
+                  [multiple]="true"
+                  bindLabel="label"
+                  bindValue="id"
+                  [(ngModel)]="selectedPerformanceType"
+                  (change)="onPerformanceTypeChange($event)"
+                  [closeOnSelect]="true"
+                  placeholder="Seleccionar Desempeño"
+                  [clearable]="true">
+                  <ng-template ng-multi-label-tmp let-items="items">
+                    Seleccionar Desempeño
+                    <span *ngIf="items.length > 0">({{ items.length }})</span>
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                    <input type="checkbox" [checked]="item$.selected"/> {{item.label}}
+                  </ng-template>
+                </ng-select>
+              </div>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="mb-3">
+              <label class="form-label">Cantidad de Observaciones</label>
+              <input 
+                type="number" 
+                [(ngModel)]="selectedObservationCount"
+                (input)="filterData()"
+                class="form-control" 
+                placeholder="Número de observaciones">
+            </div>
           </div>
         </div>
       </div>
     </div>
-
     <!-- Move the table section here -->
     <table 
     class="table table-striped border border-4 rounded table-hover">
-      <thead>
+      <thead class="table-light border border-4">
         <tr>
           <th>Período</th>
           <th>Empleado</th>
@@ -188,10 +179,16 @@
             </div>
             <div *ngIf="selectedEmployeeDetails.length === 0" class="text-center p-3">
               No hay llamados de atención para mostrar en este período.
-            </div>
-            <div class="d-flex justify-content-between mt-3">
-              <button class="btn btn-secondary" (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
-              <button class="btn btn-secondary" (click)="nextPage()" [disabled]="currentPage >= totalPages">Siguiente</button>
+            </div>                      <!-- Contenedor de la paginación debajo de la tabla -->
+                        <!-- Contenedor de la paginación debajo de la tabla -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <!-- Información de la página actual alineada a la izquierda -->
+              <span>Página {{ currentPage }} de {{ totalPages }}</span>
+              <!-- Botones de paginación alineados a la derecha -->
+              <div>
+                <button class="btn btn-secondary me-2" (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
+                <button class="btn btn-secondary" (click)="nextPage()" [disabled]="currentPage >= totalPages">Siguiente</button>
+              </div>
             </div>
           </div>
         </div>

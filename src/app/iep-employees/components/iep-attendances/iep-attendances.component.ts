@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { EmpListadoAsistencias } from '../../Models/emp-listado-asistencias';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
@@ -11,6 +11,7 @@ import { IepAttendancesNgselectComponent } from "../iep-attendances-ngselect/iep
 
 declare var $: any;
 declare var DataTable: any;
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-iep-attendances',
@@ -20,17 +21,23 @@ declare var DataTable: any;
   styleUrl: './iep-attendances.component.css'
 })
 export class IepAttendancesComponent implements OnInit{
+  
 
   Asistencias: EmpListadoAsistencias[] = [];
   filteredAsistencias: EmpListadoAsistencias[] = [];
   private table: any;
   router = inject(Router);
+  
   empleadoId: number = 0;
   empleadoName: string = "";
-  estadosFiltrados: any[] = [];
-
   startDate!: string;
   endDate!: string;
+  estadosFiltrados: any[] = [];
+
+  id: number = 0;
+  nuevoEstado: string = "";
+  justificationPutText: string = "";
+  justificationGetText: string = "";
 
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
@@ -44,10 +51,6 @@ export class IepAttendancesComponent implements OnInit{
     this.loadAsistencias();
     this.initializeDates();
     this.setInitialDates();
-  }
-
-  ver(){
-    console.log(this.estadosFiltrados);
   }
 
   initializeDates(): void {
@@ -129,7 +132,7 @@ export class IepAttendancesComponent implements OnInit{
       columns: [
         { data: 'date', title: 'Fecha' },
         {
-          data: 'state', title: 'Estado', className: "allgn-middle",
+          data: 'state', title: 'Estado', className: "text-center",
           render: (data: any) => {
             let color;
             let name;
@@ -174,7 +177,8 @@ export class IepAttendancesComponent implements OnInit{
                     <div class="dropdown">
                       <button type="button" class="btn border border-2 bi-three-dots-vertical btn-cambiar-estado" data-bs-toggle="dropdown"></button>
                         <ul class="dropdown-menu">
-                          <li><button class="dropdown-item btn-cambiar-estado" data-id="${row.id}" data-nuevoestado="JUSTIFICADO">Justificar</button></li>
+                          <li><button class="dropdown-item btn-cambiar-estado" data-id="${row.id}" data-nuevoestado="JUSTIFICADO"
+                          data-bs-toggle="modal" data-bs-target="#modalPutJustificacion">Justificar</button></li>
                         </ul>
                     </div>
                   </div>
@@ -186,7 +190,8 @@ export class IepAttendancesComponent implements OnInit{
                     <div class="dropdown">
                       <button type="button" class="btn border border-2 bi-three-dots-vertical" data-bs-toggle="dropdown"></button>
                         <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" onclick="viewComplaint(${data.id})">Ver más</a></li>
+                          <li><button class="dropdown-item btn-ver"  data-justificacion="${row.justification}"
+                          data-bs-toggle="modal" data-bs-target="#modalGetJustificacion"> Ver más</button></li>
                         </ul>
                     </div>
                   </div>
@@ -207,33 +212,36 @@ export class IepAttendancesComponent implements OnInit{
       ],
     });
 
-    $('#empleadosTable').off('click', '.btn-cambiar-estado').on('click', '.btn-cambiar-estado', (event: any) => {
-      const button = $(event.currentTarget);
-      const id = button.data('id');
-      const nuevoEstado = button.data('nuevoestado');
+     $('#empleadosTable').off('click', '.btn-cambiar-estado').on('click', '.btn-cambiar-estado', (event: 
+      { preventDefault: () => void; currentTarget: any; }) => {
+        const button = $(event.currentTarget);
+        const id = button.data('id');
+        const nuevoEstado = button.data('nuevoestado');
 
-      // Deshabilitar el botón para evitar múltiples clics
-      button.prop('disabled', true);
+        // Deshabilitar el botón para evitar múltiples clics
+        button.prop('disabled', true);
 
-      if (id && nuevoEstado) {
-        this.empleadoService.putAttendances(id, nuevoEstado).subscribe({
-          next: (response) => {
-            console.log('Asistencia actualizada:', response);
-            this.loadAsistencias();
-          },
-          error: (error) => {
-            console.error('Error al actualizar asistencia:', error);
-          },
-          complete: () => {
-            // Habilitar el botón nuevamente si es necesario
-            button.prop('disabled', false);
-          }
-        });
-      } else {
-        // Habilitar el botón nuevamente si no hay id o nuevoEstado
+        this.id = id;
+        this.nuevoEstado = nuevoEstado;
+
         button.prop('disabled', false);
-      }
-    });
+     });
+
+     $('#empleadosTable').off('click', '.btn-ver').on('click', '.btn-ver', (event: 
+      { preventDefault: () => void; currentTarget: any; }) => {
+        const button = $(event.currentTarget);
+        const justificacion = button.data('justificacion');
+
+        // Deshabilitar el botón para evitar múltiples clics
+        button.prop('disabled', true);
+
+        this.justificationGetText = justificacion;
+
+        button.prop('disabled', false);
+     });
+
+    // $('#empleadosTable').on('click', '.btn-modal', (event: any) => {
+    // });
   }
 
   onStartDateChange(): void {
@@ -322,6 +330,20 @@ export class IepAttendancesComponent implements OnInit{
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  confirmarJustificacion(){
+    if(this.justificationPutText){
+      this.empleadoService.putAttendances(this.id, this.nuevoEstado, this.justificationPutText).subscribe({
+        next: (response) => {
+          console.log('Asistencia actualizada:', response);
+          this.loadAsistencias();
+        },
+        error: (error) => {
+          console.error('Error al actualizar asistencia:', error);
+        }
+      });
+    } else { console.log("falta")}
   }
 
   exportToExcel(): void {
@@ -433,8 +455,8 @@ export class IepAttendancesComponent implements OnInit{
     return `${day}/${month}/${year}`;
   }
 
-    // Volver al menu de empleados
-    volverInventario(): void {
-      this.router.navigate(["home/employee-list"]);
-    }
+  // Volver al menu de empleados
+  volverInventario(): void {
+    this.router.navigate(["home/employee-list"]);
+  }
 }

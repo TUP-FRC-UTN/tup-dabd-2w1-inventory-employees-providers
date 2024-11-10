@@ -13,6 +13,23 @@
     z-index: 15;                 /* Establece el nivel de superposición del botón sobre otros elementos; un valor más alto asegura que esté sobre otros contenidos */
   }
 
+  .text-bg-yellow{
+    background-color: #ffc107;
+  }
+  .text-bg-green{
+    background-color: #198754;
+  }
+  .text-bg-red{
+    background-color: #dc3545;
+  }
+
+
+
   .text-bg-indigo{
     background-color: #6610f2;
+  }
+
+  .btn.filterbutton:hover{
+    background-color: #333333 !important;
+    transform: translateY(-2px);
   }

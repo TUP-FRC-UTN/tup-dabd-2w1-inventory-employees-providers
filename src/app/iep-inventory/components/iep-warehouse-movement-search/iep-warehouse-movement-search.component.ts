@@ -14,13 +14,14 @@ import { WarehouseTypePipe } from '../../pipes/warehouse-type.pipe';
 import { fromEvent, distinctUntilChanged, debounceTime } from 'rxjs';
 import { WarehouseMovementService } from '../../services/warehouse-movement.service';
 import { WarehouseMovementByProduct } from '../../models/WarehouseMovementByProduct';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 // Definir un tipo para las columnas de filtro
 type FilterColumn = 'general' | 'applicant' | 'detailProducts' | 'movement_type';
 @Component({
   selector: 'app-iep-warehouse-movement-search',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgSelectModule],
   templateUrl: './iep-warehouse-movement-search.component.html',
   styleUrls: ['./iep-warehouse-movement-search.component.css']
 })
@@ -28,6 +29,13 @@ export class IepWarehouseMovementSearchComponent implements AfterViewInit, After
   
   movements: WarehouseMovementByProduct[] = [];
   filteredMovements: WarehouseMovementByProduct[] = [];
+  products: DtoProducto[] = [];
+
+  movementTypes = [
+    { label: 'Devolución', value: 'RETURN' },
+    { label: 'Préstamo', value: 'LOAN' },
+    { label: 'Uso', value: 'TO_MAINTENANCE' }
+  ];
 
 applyFilter($event: Event) {
 }
@@ -163,45 +171,84 @@ onEndDateChange(value: string): void {
         return type;
     }
   }
+
+  getFormattedDate(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes desde 0
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${day}-${month}-${year}`;
+  }
+
+  private getProductNameById(productId: number): string {
+    const product = this.products.find((p) => p.id === productId);
+    return product ? product.name : 'Desconocido';
+  }
   
 
   exportToPdf(): void {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('Lista de Movimientos', 10, 10);
+  
     // Ajustar los datos exportados para que coincidan con la tabla
     const dataToExport = this.movements.map((movement) => [
-      new Date(movement.dateTime).toLocaleString('es-ES'),
+      new Date(movement.dateTime).toLocaleDateString('es-ES'),  // Fecha
+      new Date(movement.dateTime).toLocaleTimeString('es-ES'),  // Hora
       movement.applicant,
       movement.product_name,
       this.translateMovementType(movement.movement_type),
-      movement.responsible
     ]);
+  
     // Configuración de la tabla en el PDF
     (doc as any).autoTable({
-      head: [['Fecha y Hora', 'Solicitante', 'Productos', 'Tipo', 'Responsable']],
+      head: [['Fecha', 'Hora', 'Solicitante', 'Producto', 'Tipo']],
       body: dataToExport,
       startY: 30,
       theme: 'grid',
       margin: { top: 30, bottom: 20 },
     });
-    
-    doc.save(`Lista_Movimientos_${Date.now}.pdf`);
+  
+    const formattedDate = this.getFormattedDate();
+    doc.save(`${formattedDate}_Lista_Movimientos.pdf`);
   }
+  
 
   exportToExcel(): void {
-    const dataToExport = this.movements.map((movement) => ({
-      'Fecha y Hora': new Date(movement.dateTime).toLocaleString('es-ES'),
-      'Solicitante': movement.applicant,
-      'Productos': movement.product_name,
-      'Tipo': this.translateMovementType(movement.movement_type),
-      'Responsable': movement.responsible
-    }));
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+    // Encabezado de la tabla
+    const encabezado = [
+      ['Listado de Movimientos'], // Título principal
+      [], // Espacio en blanco
+      ['Fecha', 'Hora', 'Solicitante', 'Producto', 'Tipo', 'Responsable'] // Encabezado de las columnas
+    ];
+  
+    // Mapeo de los datos
+    const dataToExport = this.movements.map((movement) => ([
+      new Date(movement.dateTime).toLocaleDateString('es-ES'), // Solo la fecha
+      new Date(movement.dateTime).toLocaleTimeString('es-ES'), // Solo la hora
+      movement.applicant,
+      movement.product_name,
+      this.translateMovementType(movement.movement_type),
+      movement.responsible
+    ]));
+  
+    // Crear la hoja de trabajo con encabezado y los datos
+    const worksheet = XLSX.utils.aoa_to_sheet([...encabezado, ...dataToExport]);
+    
+    // Crear el libro de trabajo y añadir la hoja de trabajo
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Movimientos');
-    XLSX.writeFile(workbook, `Lista_Movimientos_${Date.now}.xlsx`);
+  
+    // Obtener la fecha actual formateada
+    const formattedDate = this.getFormattedDate();
+    
+    // Generar el archivo Excel
+    XLSX.writeFile(workbook, `${formattedDate}_Lista_Movimientos.xlsx`);
   }
+  
+  
   
 
 
@@ -228,12 +275,6 @@ onEndDateChange(value: string): void {
             title: 'Hora',
             render: (data: string) => data ? data.substring(11) : ''
           },
-          { data: 'applicant', title: 'Solicitante' },
-          {
-            data: 'product_name',
-            title: 'Producto',
-            
-          },
           {
             data: 'movement_type',
             title: 'Tipo',
@@ -253,7 +294,12 @@ onEndDateChange(value: string): void {
               }
             },
           },
-          
+          { data: 'applicant', title: 'Solicitante' },
+          {
+            data: 'product_name',
+            title: 'Producto',
+            
+          },
          // { data: 'responsible', title: 'Responsable' }
         ],
         order: [[0, 'desc']],

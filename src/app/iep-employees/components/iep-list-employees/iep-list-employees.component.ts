@@ -14,6 +14,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 declare var $: any;
 declare var DataTable: any;
@@ -30,78 +31,62 @@ interface EmployeeFilters {
 @Component({
   selector: 'app-iep-list-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgSelectModule],
   templateUrl: './iep-list-employees.component.html',
   styleUrls: ['./iep-list-employees.component.css'],
 })
 export class IepListEmployeesComponent implements OnInit, OnDestroy {
+
+  stateOptions =[
+    { id: 'Activo', label: 'Activo' },
+    { id: 'Inactivo', label: 'Inactivo' },
+    { id: 'Licencia', label: 'Licencia' }
+  ];
+
+  onStateChange(selectedItems: any[]): void {
+    this.selectedState = selectedItems ? selectedItems.map(item => item.id) : [];
+    this.applyFilters();
+  }
+
   applyFilters(): void {
-    if (this.table) {
-      this.table.clear();
+    if (!this.table) return;
 
-      const filteredData = this.Empleados.filter((empleado) => {
-        // Filtro por apellido y nombre
-        const nameMatch =
-          !this.filters.apellidoNombre ||
-          empleado.fullName
-            .toLowerCase()
-            .includes(this.filters.apellidoNombre.toLowerCase());
+    this.table.clear();
 
-        // Filtro por documento
-        const documentMatch =
-          !this.filters.documento ||
-          empleado.document
-            .toString()
-            .toLowerCase()
-            .includes(this.filters.documento.toLowerCase());
+    const filteredData = this.Empleados.filter(empleado => {
+      // Filtro por apellido y nombre
+      const nameMatch = !this.filters.apellidoNombre ||
+        empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre.toLowerCase());
 
-        // Filtro por rango de salario
-        const salaryMatch =
-          empleado.salary >= this.filters.salarioMin &&
-          empleado.salary <= this.filters.salarioMax;
+      // Filtro por documento
+      const documentMatch = !this.filters.documento ||
+        empleado.document.toString().toLowerCase().includes(this.filters.documento.toLowerCase());
 
-        // Filtro de búsqueda general (searchFilter)
-        const searchTerms = this.searchFilter
-          ? this.searchFilter.toLowerCase().split(' ')
-          : [];
-        const searchMatch =
-          !this.searchFilter ||
-          searchTerms.every(
-            (term) =>
-              empleado.fullName.toLowerCase().includes(term) ||
-              empleado.document.toString().toLowerCase().includes(term) ||
-              empleado.salary.toString().includes(term)
-          );
+      // Filtro por rango de salario
+      const salaryMatch = empleado.salary >= this.filters.salarioMin &&
+        empleado.salary <= this.filters.salarioMax;
 
-        // Filtro por posición (modificado para múltiples selecciones)
-        const positionMatch =
-          this.selectedPositions.length === 0 ||
-          this.selectedPositions.includes(empleado.position);
+      // Filtro de búsqueda general (searchFilter)
+      const searchTerms = this.searchFilter ? this.searchFilter.toLowerCase().split(' ') : [];
+      const searchMatch = !this.searchFilter || searchTerms.every(term =>
+        empleado.fullName.toLowerCase().includes(term) ||
+        empleado.document.toString().toLowerCase().includes(term) ||
+        empleado.salary.toString().includes(term)
+      );
 
-        // Filtrar por estado
-        const stateMatch =
-          this.selectedState.length === 0 ||
-          this.selectedState.includes(
-            empleado.active
-              ? empleado.license
-                ? 'Licencia'
-                : 'Activo'
-              : 'Inactivo'
-          );
+      // Filtro por posición
+    const positionMatch = this.selectedPositions.length === 0 ||
+    this.selectedPositions.includes(empleado.position);
 
-        // Aplicar todos los filtros en conjunto
-        return (
-          nameMatch &&
-          documentMatch &&
-          salaryMatch &&
-          searchMatch &&
-          positionMatch &&
-          stateMatch
-        );
-      });
+  // Filtrar por estado
+  const stateMatch = this.selectedState.length === 0 ||
+    this.selectedState.includes(empleado.active ? empleado.license ? 'Licencia' : 'Activo' : 'Inactivo');
 
-      this.table.rows.add(filteredData).draw();
-    }
+  // Aplicar todos los filtros en conjunto
+  return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch && stateMatch;
+});
+
+this.table.rows.add(filteredData).draw();
   }
 
   private filters: EmployeeFilters = {
@@ -148,8 +133,10 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
     if (type === 'min') {
       this.filters.salarioMin = value;
+      this.applyFilters();
     } else if (type === 'max') {
       this.filters.salarioMax = value || Number.MAX_VALUE;
+      this.applyFilters();
     }
 
     //Validar que el salario minimo no sea mayor al salario maximo, en caso de serlo, mostrar mensaje de error
@@ -387,17 +374,7 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
   selectedPositions: string[] = []; // Array para almacenar las posiciones seleccionadas
 
-  onPositionFilterChange(event: Event, position: string): void {
-    const checkbox = event.target as HTMLInputElement;
-
-    if (checkbox.checked) {
-      this.selectedPositions.push(position);
-    } else {
-      this.selectedPositions = this.selectedPositions.filter(
-        (p) => p !== position
-      );
-    }
-
+  onPositionFilterChange(): void {
     this.applyFilters();
   }
 
@@ -519,6 +496,8 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
     }
   }
 
+  /// necesito que borres la linea de la tabla 
+
   private initializeInformacionTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
       ...commonConfig,
@@ -540,10 +519,10 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
             // Si el empleado está activo, valida la clave 'license' y si es true, retorna "Licencia"
             if (data) {
               return row.license
-                ? '<span class="badge" style="background-color: #ffc107;">Licencia</span>'
-                : '<span class="badge" style="background-color: #0d6efd;">Activo</span>';
+                ? '<span class="badge border rounded-pill text-bg-yellow">Licencia</span>'
+                : '<span class="badge border rounded-pill text-bg-green">Activo</span>';
             }
-            return '<span class="badge" style="background-color: #dc3545;">Inactivo</span>';
+            return '<span class="badge border rounded-pill text-bg-red">Inactivo</span>';
           },
         },
         {
@@ -683,54 +662,49 @@ export class IepListEmployeesComponent implements OnInit, OnDestroy {
   //swal para confirmar eliminacion
 
 
-   confirmDelete(): void {
+  confirmDelete(): void {
     if (this.empleadoIdToDelete !== null) {
-      // Aseguramos que el ID no sea null
-      Swal.fire({
-        title: '¿Está seguro?',
-        text: '¡Esta acción no se puede deshacer!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545', // Color rojo de Bootstrap
-        cancelButtonColor: '#6c757d', // Color gris de Bootstrap
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar',
-      }).then((result) => {
-        if (result.isConfirmed && this.empleadoIdToDelete !== null) {
-          // Re-verificar antes de llamar al servicio
-          this.empleadoService
-            .changeEmployeeStatus(this.empleadoIdToDelete)
-            .subscribe({
-              next: () => {
-                this.loadEmpleados(); // Recargar la lista de empleados
-                this.empleadoIdToDelete = null; // Limpiar el ID después de eliminar
-                Swal.fire(
-                  '¡Eliminado!',
-                  'El empleado ha sido eliminado con éxito.',
-                  'success'
-                );
-              },
-              error: (error) => {
-                console.error('Error al eliminar el empleado:', error);
-                Swal.fire(
-                  '¡Error!',
-                  'Hubo un problema al eliminar al empleado.',
-                  'error'
-                );
-                this.empleadoIdToDelete = null;
-              },
-            });
-        }
-      });
+      // Procedemos directamente a la eliminación sin preguntar confirmación
+      this.empleadoService
+        .changeEmployeeStatus(this.empleadoIdToDelete)
+        .subscribe({
+          next: () => {
+            this.loadEmpleados(); // Recargar la lista de empleados
+            this.empleadoIdToDelete = null; // Limpiar el ID después de eliminar
+            // Mostrar el mensaje de éxito
+            Swal.fire({
+              title: '¡Eliminado!',
+              text: 'El empleado ha sido eliminado correctamente.',
+              icon: 'success',
+              confirmButtonText: 'Aceptar'  // Solo un botón de "Aceptar" en caso de eliminación exitosa
+            }
+            );
+          },
+          error: (error) => {
+            console.error('Error al eliminar el empleado:', error);
+            // Mostrar el mensaje de error
+            Swal.fire(
+              {
+                title: 'Error',
+                text: 'Ocurrió un error al eliminar el empleado.',
+                icon: 'error',
+                confirmButtonText: 'Aceptar' , // Solo un botón de "Aceptar" en caso de error
+                confirmButtonColor: '#3085d6'
+              }
+            );
+            this.empleadoIdToDelete = null;
+          },
+        });
     } else {
-      // Opcional: mensaje si empleadoIdToDelete es null al intentar confirmar
+      // Si no hay un empleado seleccionado para eliminar
       Swal.fire(
         'ID no válido',
         'No se ha seleccionado un empleado para eliminar.',
         'warning'
       );
     }
-  } 
+  }
+  
 
   editarEmpleado(id: any): void {
     this.router.navigate(['/empleados/modificar', id]);

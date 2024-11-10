@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StockAumento } from '../models/stock-aumento';
 import { Supplier } from '../models/suppliers';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +29,13 @@ export class StockAumentoService {
       stockData,
       { responseType: 'text' }
     );
+  }
+
+  private productNameSource = new BehaviorSubject<string>(''); // Nombre inicial vacío
+  productName$ = this.productNameSource.asObservable();
+
+  setProductName(name: string) {
+    this.productNameSource.next(name); // Actualiza el nombre del producto
   }
 
   getModifications(){

@@ -15,15 +15,20 @@ import 'datatables.net'; // Importación de DataTables
 import 'datatables.net-dt'; // Estilos para DataTables
 import { BrowserModule } from '@angular/platform-browser';
 import { IepAttentionCallComponent } from '../iep-attention-call/iep-attention-call.component';
+import { NgSelectModule } from '@ng-select/ng-select';
+declare var bootstrap: any; // Añadir esta declaración al principio
 
 @Component({
   selector: 'app-iep-performancelist',
   standalone: true,
-  imports: [CommonModule, FormsModule, IepAttentionCallComponent],
+  imports: [CommonModule, FormsModule, IepAttentionCallComponent, NgSelectModule],
   templateUrl: './iep-performancelist.component.html',
   styleUrl: './iep-performancelist.component.css'
 })
 export class IepPerformancelistComponent implements OnInit {
+  // Modificar la estructura de las opciones de período
+  periodOptions: { id: string; label: string }[] = [];
+  showFilterModal = false;
   selectedPeriod: string[] = []; // Cambiar a un arreglo para permitir múltiples selecciones
   paginatedDetails: WakeUpCallDetail[] = [];
   currentPage: number = 1;
@@ -54,6 +59,11 @@ export class IepPerformancelistComponent implements OnInit {
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
+  performanceTypeOptions = [
+    { id: 'Bueno', label: 'Bueno' },
+    { id: 'Regular', label: 'Regular' },
+    { id: 'Malo', label: 'Malo' }
+  ];
   
   showInfoModal = false; // Nueva variable para el modal de información
 
@@ -78,11 +88,30 @@ export class IepPerformancelistComponent implements OnInit {
 
 
   ngOnInit(): void {
+
+    this.initializePeriodOptions();
     const empleadoId = this.route.snapshot.paramMap.get('id');
     if (empleadoId) {
       this.setEmployeeById(Number(empleadoId)); // Carga los datos del empleado específico
     }
 
+     // Primero cargamos los datos
+     this.loadData();
+    
+     // Esperamos a que los datos estén disponibles antes de inicializar DataTable
+     this.employeeService.getCombinedData().subscribe({
+       next: (data) => {
+         this.performances = data;
+         this.initializePeriodOptions();
+         // Inicializamos DataTable después de tener los datos
+         setTimeout(() => {
+           this.initializeDataTable();
+         }, 0);
+       },
+       error: (error) => {
+         console.error('Error loading data:', error);
+       }
+     });
     // Cargar datos y refrescar el servicio de empleados
     this.loadData();
     this.employeeService.refreshData();
@@ -114,6 +143,62 @@ export class IepPerformancelistComponent implements OnInit {
       this.updateCheckboxes();
     }, 100);
 }
+
+private initializePeriodOptions(): void {
+  // Obtener períodos únicos de los datos
+  const uniquePeriods = new Set<string>();
+  
+  this.performances.forEach(performance => {
+    const monthFormatted = performance.month.toString().padStart(2, '0');
+    const period = `${performance.year}-${monthFormatted}`;
+    uniquePeriods.add(period);
+  });
+
+  // Convertir a array de opciones
+  this.periodOptions = Array.from(uniquePeriods).map(period => ({
+    id: period,
+    label: period
+  })).sort((a, b) => b.id.localeCompare(a.id)); // Ordenar de más reciente a más antiguo
+}
+
+// Modificar el método para abrir el modal
+openFilterModal() {
+  const modalElement = document.getElementById('filterModal');
+  if (modalElement) {
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+  }
+}
+
+// Modificar el método para cerrar el modal
+closeFilterModal() {
+  const modalElement = document.getElementById('filterModal');
+  if (modalElement) {
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+      modal.hide();
+    }
+  }
+}
+
+// Modificar el método para aplicar filtros
+applyFilters() {
+  this.filterData();
+  this.closeFilterModal();
+}
+
+// Actualizar el método de cambio de período
+onPeriodChange(selected: any): void {
+  if (Array.isArray(selected)) {
+    this.selectedPeriod = selected.map(item => item.id || item);
+  } else {
+    this.selectedPeriod = [];
+  }
+  this.filterData();
+}
+
+// Actualizar los métodos de filtrado
+
 
 
    // Actualizar toggleYear y toggleMonth para ser togglePeriod
@@ -191,30 +276,7 @@ openNewCallModal(employeeId: number) {
       this.dataTable.destroy();
     }
   }
-
-  // Método auxiliar para recargar datos
-  loadData(): void {
-    this.employeeService.getCombinedData().subscribe({
-      next: (data) => {
-        this.performances = data;
-        this.setAvailableYears();
-        
-        if (this.dataTable) {
-          this.dataTable.clear();
-          this.dataTable.rows.add(this.performances);
-          this.dataTable.draw();
-        } else {
-          setTimeout(() => {
-            this.initializeDataTable();
-          }, 0);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading data:', error);
-      }
-    });
-  }
-
+  
   closeNewCallModal() {
     this.closeModal(); // Cierra el modal y al mismo tiempo se actualizan los datos
   }
@@ -258,72 +320,90 @@ openNewCallModal(employeeId: number) {
   }
 
 
-  initializeDataTable() {
+  initializeDataTable(): void {
     if (this.dataTable) {
       this.dataTable.destroy();
     }
-  
-    const table = $('.data-table');
-    if (table.length > 0) {
-      const uniquePeriods = new Set();
-      
-      this.dataTable = table.DataTable({
-        data: this.performances.filter(performance => {
-          const period = `${performance.year}-${performance.month.toString().padStart(2, '0')}`;
-          if (!uniquePeriods.has(period)) {
-            uniquePeriods.add(period);
-            return true;
-          }
-          return false;
-        }),
-        columns: [
-          { 
-            data: null,
-            render: (data: any) => {
-              const month = data.month.toString().padStart(2, '0');
-              return `${data.year}-${month}`;
-            },
-            title: 'Periodo'
-          },
-          { data: 'fullName' },
-          { data: 'totalObservations', className: 'text-center' },
-          { 
-            data: 'performanceType',
-            render: (data: string) => {
-              return `<span class="tag ${data.toLowerCase()}">${data}</span>`;
-            }
-          },
-          {
-            data: 'totalObservations',
-            render: (data: number, type: string, row: any) => {
-              return `<button class="btn btn-sm btn-primary view-details" data-bs-target="#viewDetail" data-bs-toggle="modal" data-id="${row.id}" data-year="${row.year}" data-month="${row.month}">Ver más</button>`;
-            }
-          }
-        ],
-        language: {
-          lengthMenu: "_MENU_",
-          zeroRecords: "No se encontraron registros",
-          info: "", 
-          infoEmpty: "",
-          infoFiltered: "",
-          search: ""
+
+    const tableElement = document.querySelector('.table');
+    if (!tableElement) return;
+
+    this.dataTable = $(tableElement).DataTable({
+      data: this.performances,
+      columns: [
+        { 
+          data: null,
+          render: (data: any) => `${data.year}-${data.month.toString().padStart(2, '0')}`
         },
-        pageLength: 5,
-        order: [[0, 'desc']],
-        dom: 'rt<"d-flex justify-content-between mt-3"l<"pagination-container"p>>',
-        lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]]
-      });
-  
-      $('.data-table tbody').on('click', '.view-details', (event) => {
-        const button = $(event.currentTarget);
-        const employeeId = button.data('id');
-        const year = button.data('year');
-        const month = button.data('month');
-        this.viewDetails(employeeId, year, month);
-      });
-    }
+        { data: 'fullName' },
+        { data: 'totalObservations' },
+        { 
+          data: 'performanceType',
+          render: (data: string) => `<span class="tag ${data.toLowerCase()}">${data}</span>`
+        },
+        {
+          data: null,
+          render: (data: any) => `
+            <div class="text-center">
+                  <div class="btn-group">
+                    <div class="dropdown">
+                      <button type="button" class="btn border border-2 bi-three-dots-vertical btn-cambiar-estado" data-bs-toggle="dropdown"></button>
+                        <ul class="dropdown-menu">
+                          <li>
+                            <button class="dropdown-item btn-sm btn-primary view-details" data-bs-target="#viewDetail" 
+                            data-bs-toggle="modal" data-id="${data.id}" data-year="${data.year}" data-month="${data.month}">
+                            Ver más
+                            </button>
+                          </li>
+                        </ul>
+                    </div>
+                  </div>
+              </div>`
+        }
+      ],
+      language: {
+        lengthMenu: "_MENU_",
+        zeroRecords: "No se encontraron desempeños",
+        info: "", 
+        infoEmpty: "",
+        infoFiltered: "",
+        search: ""
+      },
+      pageLength: 5,
+      // paginado de 5 10 15 20
+      lengthMenu: [5, 10, 25, 50],
+      order: [[0, 'desc']],
+      dom: 'rt<"d-flex justify-content-between mt-3"l<"pagination-container"p>>'
+    });
+
+    // Agregar eventos después de la inicialización
+    $('.table tbody').on('click', '.view-details', (event) => {
+      const button = $(event.currentTarget);
+      this.viewDetails(
+        button.data('id'),
+        button.data('year'),
+        button.data('month')
+      );
+    });
   }
-  
+
+  loadData(): void {
+    this.employeeService.getCombinedData().subscribe({
+      next: (data) => {
+        this.performances = data;
+        
+        // Si ya existe una instancia de DataTable
+        if (this.dataTable) {
+          this.dataTable.clear();
+          this.dataTable.rows.add(this.performances);
+          this.dataTable.draw();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading data:', error);
+      }
+    });
+  }
 
   get uniquePeriods(): { year: number, month: number }[] {
     const uniqueSet = new Set();
@@ -350,6 +430,7 @@ openNewCallModal(employeeId: number) {
     this.selectedMonths = [];
     this.selectedPerformanceType = [];
     this.selectedObservationCount = null;
+    this.selectedPeriod = [];
 
     // Limpiar el campo de observaciones
     const observationInput = document.getElementById('observationCount') as HTMLInputElement;
@@ -388,32 +469,46 @@ openNewCallModal(employeeId: number) {
 }
 
 
-  filterData(): void {
-    if (!this.dataTable) return;
+filterData(): void {
+  if (!this.dataTable) return;
 
+  // Limpiar filtros anteriores
+  $.fn.dataTable.ext.search.pop();
+
+  // Agregar nuevo filtro personalizado
+  $.fn.dataTable.ext.search.push((settings: any, data: string[], dataIndex: number) => {
+    const rowData = this.dataTable.row(dataIndex).data();
+    
+    // Filtro por período
+    const periodMatch = this.selectedPeriod.length === 0 || 
+      this.selectedPeriod.includes(data[0]);
+
+    // Filtro por tipo de desempeño
+    const performanceType = rowData.performanceType;
+    const performanceMatch = this.selectedPerformanceType.length === 0 || 
+      this.selectedPerformanceType.includes(performanceType);
+
+    // Filtro por cantidad de observaciones
+    const observationCount = parseInt(rowData.totalObservations);
+    const observationMatch = !this.selectedObservationCount || 
+      observationCount === this.selectedObservationCount;
+
+    return periodMatch && performanceMatch && observationMatch;
+  });
+
+  // Aplicar búsqueda global si existe
+  if (this.searchTerm) {
     this.dataTable.search(this.searchTerm);
-
-    while ($.fn.dataTable.ext.search.length > 0) {
-      $.fn.dataTable.ext.search.pop();
-    }
-
-    $.fn.dataTable.ext.search.push((settings: any, data: any[]) => {
-      const period = data[0]; // Supone que el período está en la primera columna
-
-      // Filtra por cualquier período que esté seleccionado
-      const periodMatch = this.selectedPeriod.length === 0 || this.selectedPeriod.includes(period);
-
-      // Aplica otros filtros si es necesario
-      const performanceTypeMatch = this.selectedPerformanceType.length === 0 ||
-        this.selectedPerformanceType.includes(data[3]);
-      const observationCountMatch = this.selectedObservationCount === null ||
-        parseInt(data[2], 10) === this.selectedObservationCount;
-
-      return periodMatch && performanceTypeMatch && observationCountMatch;
-    });
-
-    this.dataTable.draw(); // Redibuja la tabla
   }
+
+  // Redibujar la tabla con los filtros aplicados
+  this.dataTable.draw();
+}
+
+onPerformanceTypeChange(selected: any[]): void {
+  this.selectedPerformanceType = selected.map(item => item.id || item);
+  this.filterData();
+}
     
 
   getMonthName(month: number): string {
@@ -565,7 +660,7 @@ openNewCallModal(employeeId: number) {
 }
 
   
-exportToExcel(): void {
+ exportToExcel(): void {
   const encabezado = [
     ['Listado de Desempeño'],
     [], // Fila vacía para separación

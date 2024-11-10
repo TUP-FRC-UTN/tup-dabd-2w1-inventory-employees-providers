@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, AfterViewInit, } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, AfterViewInit, NgModule } from '@angular/core';
 import { debounceTime, min, Observable, Subscription } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { FormsModule } from '@angular/forms';
@@ -22,8 +22,8 @@ import { EstadoService } from '../../services/estado.service';
 import { Row } from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import { NgSelectModule } from '@ng-select/ng-select';
-
-
+declare var bootstrap: any; // Añadir esta declaración al principio
+// Interfaces existentes actualizadas
 interface Filters {
   categoriasSeleccionadas: number[];
   reutilizableSeleccionado: number[];
@@ -32,6 +32,18 @@ interface Filters {
   endDate: string;
   cantMinima: number;
   cantMaxima: number;
+}
+
+
+// Nuevas interfaces para ng-select
+interface CategoryOption {
+  value: number;
+  name: string;
+}
+
+interface ReusableOption {
+  value: number;
+  name: string;
 }
 
 @Component({
@@ -58,6 +70,15 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   botonDeshabilitado: boolean = false;
 
+  categoryOptions: CategoryOption[] = [];
+  selectedCategories: CategoryOption[] = [];
+  
+  reusableOptions: ReusableOption[] = [
+    { value: 1, name: 'Sí' },
+    { value: 2, name: 'No' }
+  ];
+  selectedReusables: ReusableOption[] = [];
+
   validarCantidades(): void {
     if (this.cantMinima !== null && this.cantMaxima !== null) {
       this.validoMin = this.cantMinima <= this.cantMaxima;
@@ -71,6 +92,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       this.validoMin = true;
       this.validoMax = true;
     }
+    this.aplicarFiltrosCompletos();
   }
 
   aplicarFiltrosCompletos(): void {
@@ -233,7 +255,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   reutilizableSeleccionado: number[] = [];
 
   // Añade este método para manejar los cambios en los checkboxes
-  onCategoriaChange(event: any, categoryId: number): void {
+/*   onCategoriaChange(event: any, categoryId: number): void {
     if (event.target.checked) {
       this.filters.categoriasSeleccionadas.push(categoryId);
     } else {
@@ -250,7 +272,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         .filter(id => id !== reusable);
     }
   }
-
+ */
 
 
   filtrarPorUltimos30Dias(): void {
@@ -271,6 +293,11 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       const productDate = new Date(lastDate);
       return productDate >= hace30Dias;
     });
+  }
+
+
+  goTo(path : string){
+    this.router.navigate([path])
   }
 
   //Filtra los productos cuya fecha es mayor a startDate
@@ -458,19 +485,42 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   ngOnInit(): void {
-    const hoy = new Date();
-    const hace30Dias = new Date();
-    this.endDate = hoy.toISOString().split('T')[0];
-    // Inicializar la fecha de inicio con la fecha actual menos 30 dias
-    hace30Dias.setDate(hoy.getDate() - 30);
-    this.startDate = hace30Dias.toISOString().split('T')[0];
-    console.log('startDate', this.startDate);
-    console.log('endDate', this.endDate);
-    console.log('hoy', hoy);
-    this.initializeDataTable();
-    this.cargarDatos();
-    console.log(this.categories);
-    this.cargarProductos();
+     // Mantener la inicialización de fechas existente
+     const hoy = new Date();
+     const hace30Dias = new Date();
+     this.endDate = hoy.toISOString().split('T')[0];
+     hace30Dias.setDate(hoy.getDate() - 30);
+     this.startDate = hace30Dias.toISOString().split('T')[0];
+     
+     // Inicializar opciones para ng-select
+     this.initializeNgSelectOptions();
+     
+     // Mantener las inicializaciones existentes
+     this.initializeDataTable();
+     this.cargarDatos();
+     this.cargarProductos();
+    //ng select 
+
+  }
+
+  private initializeNgSelectOptions(): void {
+    // Transformar categorías al formato requerido por ng-select cuando estén disponibles
+    this.categoriaService.getCategorias().subscribe(categories => {
+      this.categoryOptions = categories.map(c => ({
+        value: c.id,
+        name: c.category
+      }));
+    });
+  }
+
+  onCategoryChange(): void {
+    this.filters.categoriasSeleccionadas = this.selectedCategories.map(cat => cat.value);
+    this.aplicarFiltrosCombinados();
+  }
+
+  onReusableChange(): void {
+    this.filters.reutilizableSeleccionado = this.selectedReusables.map(r => r.value);
+    this.aplicarFiltrosCombinados();
   }
 
   ngAfterViewInit(): void { }
@@ -480,7 +530,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.productos$ = this.productoService.getAllProducts();
     this.productos$.subscribe({
       next: (productos) => {
-        console.log(productos);
+        console.log("productos"+JSON.stringify(productos));
         this.productosALL = productos;
         this.filtrarPorUltimos30Dias(); // Aplica el filtro automáticamente
         this.updateDataTable(); // Actualiza la tabla con el filtro aplicado
@@ -564,6 +614,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Modifica el método cleanFilters() para limpiar también las categorías seleccionadas
   cleanFilters(): void {
+    this.cantMaxima = null;
+    this.cantMinima = null;
     this.globalFilter = '';
     this.startDate = '';
     this.endDate = '';
@@ -611,22 +663,39 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
       columns: [
         {
-          data: 'detailProducts',
-          title: 'Último ingreso', // Título más corto
-          render: (data: any) => {
-            let lastDate;
-            for (let i = 0; i < data.length; i++) {
-              if (data[i].lastUpdatedDatetime) {
-                lastDate = data[i].lastUpdatedDatetime;
-                if (data[i].lastUpdatedDatetime > lastDate) {
-                  lastDate = data[i].lastUpdatedDatetime;
-                }
-              }
-            }
-            return lastDate ? this.formatDate(lastDate) : '';
+          data: null,
+          title: 'Estado',
+          render: (row: any) => {
+            const quantity = row.data?.detailProducts?.length || 0; // Accedemos a detailProducts de forma segura
+            return quantity !== 0 ? "Inactivo":"Activo" ;
           },
-        },
-        { data: 'name', title: 'Nombre' }, // Mantiene el título corto
+
+        }
+        ,
+        {
+          data: 'reusable',
+          title: 'Reutilizable',
+          className: "text-center",
+          render: (data: boolean) => {
+            let color;
+            let name;
+
+            switch (data) {
+              case true: color = "text-bg-primary"; name = "Si"; break;
+              case false: color = "text-bg-warning"; name = "No"; break;
+            }
+
+            return  `
+            <div class=text-center">
+              <div class="badge border rounded-pill ${color}">${name}</div>
+            </div > `;
+          },
+        }
+        ,
+        { 
+          data: 'name', title: 'Articulo'
+         }
+         , // Mantiene el título corto
         {
           data: 'category',
           title: 'Categoría',
@@ -635,13 +704,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           },
         },
         {
-          data: 'reusable',
-          title: 'Reutilizable',
-          render: (data: boolean) => (data ? 'SI' : 'NO'),
-        },
-        {
           data: null,
-          title: 'Cantidad',
+          title: 'Stock',
           render: (row: any) => {
             const quantity = row.detailProducts.length;
 
@@ -679,10 +743,10 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
                       <li><button class="dropdown-item btn botonAumentoStock" data-bs-target="#aumentoStock" 
                         data-bs-toggle="modal"  data-id="${row.id}">Agregar stock</button>
                       </li>
-                          <li class="dropdown-divider"></li>
+                       <!--    <li class="dropdown-divider"></li>
                       <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" 
                         (click)="giveLogicalLow(${row.id})">Eliminar</button>
-                      </li>
+                      </li> -->
                     </ul>
                 </div>
               </div>
@@ -1032,19 +1096,84 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.modalVisible = false;
   }
 
-  handleModalBackdropClick(event: MouseEvent) {
-    if (event.target === event.currentTarget) {
-      if (this.showAumentoStockModal) {
-        this.cerrarModalAumentoStock();
-      }
-      if (this.modalVisible) {
-        this.cerrarModal();
-      }
-    }
-  }
 
   irAgregarDetalles(id: number) {
     this.stockAumentoService.setId(id);
     this.abrirModalAumentoStock(id);
+  }
+
+  // Nombre del producto para el título del modal
+  nombreProducto: string = ''; // Puedes cargar esto dinámicamente
+  selectedProveedor: any;
+
+  // Opciones para el proveedor en el ng-select
+  proveedorOptions = [
+    { id: 1, nombre: 'Proveedor A' },
+    { id: 2, nombre: 'Proveedor B' },
+    { id: 3, nombre: 'Proveedor C' }
+  ];
+
+
+
+  // Método para abrir el modal
+  openAumentoStockModal(nombreProducto: string) {
+    this.nombreProducto = nombreProducto;
+    this.showAumentoStockModal = true;
+  }
+
+  // Método para cerrar el modal y limpiar el fondo negro
+  closeAumentoStockModal() {
+    const modalElement = document.getElementById('aumentoStock'); // Cambia 'aumentoStock' por el ID de tu modal
+  if (modalElement) {
+    // Obtener instancia del modal de Bootstrap
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+      modal.hide(); // Oculta el modal usando Bootstrap
+    }
+    
+    // Limpieza completa del modal
+    setTimeout(() => {
+      // Remover clases del body relacionadas con el modal
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('padding-right');
+      document.body.style.removeProperty('overflow');
+
+      // Remover los elementos backdrops
+      const backdrops = document.querySelectorAll('.modal-backdrop');
+      backdrops.forEach(backdrop => backdrop.remove());
+
+      // Limpiar los atributos y estilos del modal para ocultarlo
+      modalElement.classList.remove('show');
+      modalElement.style.display = 'none';
+      modalElement.setAttribute('aria-hidden', 'true');
+      modalElement.removeAttribute('aria-modal');
+      modalElement.removeAttribute('role');
+
+      // Remover cualquier estilo inline que pueda haber quedado
+      const allModals = document.querySelectorAll('.modal');
+      allModals.forEach(modal => {
+        (modal as HTMLElement).style.display = 'none';
+      });
+    }, 100); // Esperar un momento para asegurarse de que Bootstrap haya terminado de ocultar el modal
+  }
+  }
+
+  // Método para manejar el clic en el fondo del modal
+  handleModalBackdropClick(event: MouseEvent) {
+    if (event.target === event.currentTarget) {
+      this.closeAumentoStockModal();
+    }
+  }
+
+  // Método para mostrar el mensaje de éxito con SweetAlert
+  onStockIncreaseSuccess() {
+    Swal.fire({
+      icon: 'success',
+      title: 'Éxito',
+      text: 'Aumento de stock registrado con éxito.',
+      confirmButtonColor: '#28a745' // Verde para el botón
+    }).then(() => {
+      this.closeAumentoStockModal(); // Cierra el modal después de mostrar el mensaje
+    });
   }
 }
