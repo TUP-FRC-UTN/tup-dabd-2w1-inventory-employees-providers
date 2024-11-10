@@ -5,7 +5,7 @@ import { CreateProductDtoClass } from '../models/create-product-dto-class';
 import { DtoProducto } from '../models/dto-producto';
 import { ProductCategory } from '../models/product-category';
 import { Producto } from '../models/producto';
-import { ProductXDetailDto } from '../models/product-xdetail-dto';
+import { ProductXDetailDto, ProductXDetailDto2 } from '../models/product-xdetail-dto';
 import { createProductDTO } from '../models/create-product-dto';
 import { UsersMockIdService } from '../../common-services/users-mock-id.service';
 @Injectable({
@@ -83,6 +83,10 @@ export class ProductService {
     return this.http.get<any[]>(this.PRODUCT_URL + '/getAll');
   }
 
+  getProducts2(): Observable<ProductXDetailDto2[]> {
+    return this.http.get<ProductXDetailDto2[]>(this.PRODUCT_URL + '/getAll');
+  }
+
   // ENZO
   getProductos(): Observable<Producto[]> {
     return this.http.get<any[]>(this.AMOUNT_MODIFICATION_URL_GETALL).pipe(
@@ -94,6 +98,9 @@ export class ProductService {
       )
     );
   }
+
+// HAACER ESTA 
+  getNotDiscontinuedProduct(){}
 
   // ENZO
   private convertirFecha(fechaStr: string): Date {
