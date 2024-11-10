@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { debounceTime, min, Observable, Subscription } from 'rxjs';
 import { ProductService } from '../../services/product.service';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { StockAumentoService } from '../../services/stock-aumento.service';
@@ -63,6 +63,7 @@ interface ReusableOption {
     CommonModule,
     IepStockIncreaseComponent,
     NgSelectModule,
+    ReactiveFormsModule
   ],
   templateUrl: './iep-inventory.component.html',
   styleUrl: './iep-inventory.component.css',
@@ -79,6 +80,20 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     cantMinima: 0,
     cantMaxima: 0,
   };
+
+  estadoFilter = new FormControl();
+  reutilizableFilter = new FormControl();
+  
+  estadosCombo = [
+    { value: 'activo', label: 'Activo' },
+    { value: 'inactivo', label: 'Inactivo' },
+    { value: 'descontinuado', label: 'Descontinuado' },
+  ];
+
+  reutilizablesCombo = [
+    { value: true, label: 'Sí' },
+    { value: false, label: 'No' },
+  ];
 
   botonDeshabilitado: boolean = false;
 
@@ -413,66 +428,50 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   //Método para filtrar productos con estado Activo e Inactivo
   stateFilter(event: Event) {}
 
-  // Método para aplicar el filtro global.
-  applyFilter(): void {
-    const globalFilterLower = this.globalFilter.toLowerCase();
-    this.productosFiltered = this.productosALL.filter((producto) => {
-      return (
-        producto.name.toLowerCase().includes(globalFilterLower.toLowerCase()) ||
-        producto.category.categoryName
-          .toLowerCase()
-          .includes(globalFilterLower.toLowerCase()) ||
-        (producto.reusable ? 'SI' : 'NO')
-          .toLowerCase()
-          .includes(globalFilterLower.toLowerCase()) ||
-        producto.detailProducts.length.toString().includes(globalFilterLower)
-      );
-    });
+ // Método para aplicar el filtro global y filtros adicionales
+applyFilter(): void {
+  const globalFilterLower = this.filters.nombre.toLowerCase();
 
-    //Seccion para filtrar por fecha startDate
-    this.productosFiltered = this.productosFiltered.filter((producto) => {
-      let lastDate = '';
-      for (const detail of producto.detailProducts) {
-        if (
-          detail.lastUpdatedDatetime &&
-          (!lastDate || detail.lastUpdatedDatetime > lastDate)
-        ) {
-          lastDate = detail.lastUpdatedDatetime;
-        }
-      }
-      if (!lastDate) {
-        return false;
-      }
+  this.productosFiltered = this.productosALL.filter((producto) => {
+    // Filtro global: buscar en nombre del producto (Artículo) y nombre de la categoría
+    const matchesGlobalFilter =
+      producto.name.toLowerCase().includes(globalFilterLower) ||
+      producto.category.categoryName.toLowerCase().includes(globalFilterLower);
 
-      const productDate = new Date(lastDate);
-      return this.startDate ? productDate >= new Date(this.startDate) : true;
-    });
+    /* Filtrar por categorías seleccionadas
+    const matchesCategorias = this.filters.categoriasSeleccionadas.length === 0 ||
+      this.filters.categoriasSeleccionadas.includes(producto.category.id);
+      */
 
-    //Seccion para filtrar por fecha endDate
-    this.productosFiltered = this.productosFiltered.filter((producto) => {
-      let lastDate = '';
-      for (const detail of producto.detailProducts) {
-        if (
-          detail.lastUpdatedDatetime &&
-          (!lastDate || detail.lastUpdatedDatetime > lastDate)
-        ) {
-          lastDate = detail.lastUpdatedDatetime;
-        }
-      }
-      if (!lastDate) {
-        return false;
-      }
+    // Filtrar por estados seleccionados (permitiendo múltiples valores)
+    const selectedEstados = this.estadoFilter.value || [];
+    const productoEstado = producto.discontinued
+      ? 'descontinuado'
+      : producto.stock > 0
+      ? 'activo'
+      : 'inactivo';
+    const matchesEstado = selectedEstados.length === 0 || selectedEstados.includes(productoEstado);
 
-      const productDate = new Date(lastDate);
-      return this.endDate ? productDate <= new Date(this.endDate) : true;
-    });
+    // Filtrar por reutilizable (permitiendo múltiples valores)
+    const selectedReutilizables = this.reutilizableFilter.value || [];
+    const matchesReutilizable = selectedReutilizables.length === 0 || selectedReutilizables.includes(producto.reusable);
 
-    this.updateDataTable();
+    // Filtrado por cantidad mínima y máxima
+    const matchesCantidad =
+    (this.filters.cantMinima ? producto.stock >= this.filters.cantMinima : true) &&
+    (this.filters.cantMaxima ? producto.stock <= this.filters.cantMaxima : true);
 
-    console.log('Filtro global:', this.globalFilter);
-    console.log('startDate:', this.startDate);
-    console.log('endDate:', this.endDate);
-  }
+    console.log('cantidad minima: ' + this.filters.cantMinima);
+    console.log('cantidad maxima: ' + this.filters.cantMaxima);
+    console.log('cantidad: ' + producto.quantity);
+
+    return matchesGlobalFilter && matchesReutilizable && matchesEstado && matchesCantidad;
+  });
+
+  this.updateDataTable();
+
+}
+
 
   filtersVisible = false; // Controla la visibilidad de los filtros
 
@@ -490,6 +489,11 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   private stockAumentoService = inject(StockAumentoService);
   private router = inject(Router);
   modalVisible: boolean = false;
+
+  constructor() {
+    this.estadoFilter.valueChanges.subscribe(() => this.applyFilter());
+    this.reutilizableFilter.valueChanges.subscribe(() => this.applyFilter());
+  }
 
   categorias$: Observable<ProductCategory[]> = new Observable<
     ProductCategory[]
@@ -686,6 +690,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.globalFilter = '';
     this.startDate = '';
     this.endDate = '';
+    this.estadoFilter.setValue([]);
+    this.reutilizableFilter.setValue([]);
     this.filters = {
       categoriasSeleccionadas: [],
       reutilizableSeleccionado: [],
@@ -704,7 +710,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     const textInputs = document.querySelectorAll('input.form-control');
     textInputs.forEach((input) => ((input as HTMLInputElement).value = ''));
 
-    this.aplicarFiltrosCombinados();
+    this.productosFiltered = this.productosALL;
+    this.updateDataTable();
   }
 
   getCountByategoryAndState(categoryId: number, state: string): number {
@@ -735,7 +742,9 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
             //const badgeClass = isActive ? 'bg-success' : 'bg-danger';
             //const status = isActive ? 'Activo' : 'Inactivo';
             const status = discontinued ? 'Descontinuado' : isActive ? 'Activo' : 'Inactivo';
-            return `<span class="badge ${badgeClass}">${status}</span>`;
+            return `<div class="text-center">
+                    <span class="badge ${badgeClass}">${status}</span>
+                    </div>`;
           },
         },
         {
@@ -754,7 +763,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         },
         {
           data: 'name',
-          title: 'Articulo',
+          title: 'Artículo',
         },
         {
           data: 'category',
@@ -766,6 +775,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         {
           data: 'stock',
           title: 'Stock',
+          className: 'text-end',
           render: (data: number, type: any, row: any) => {
             const stock = data;
             const warning = row.minQuantityWarning;
@@ -834,7 +844,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       createdRow: function (row: any, data: any) {
         if (data.stock <= data.minQuantityWarning) {
-          $(row).addClass('table-warning');
+          $(row);
         }
       },
       initComplete: () => {
@@ -983,29 +993,27 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('Lista de Productos', 10, 10);
-
+  
     // Reordenamos los datos según el orden de columnas en la tabla HTML
     const dataToExport = this.productosFiltered.map((producto) => [
-      producto.detailProducts
-        ? this.getLastIngreso(producto.detailProducts)
-        : '', // Último ingreso
-      producto.name, // Nombre
+      producto.discontinued ? 'Descontinuado' : producto.stock > 0 ? 'Activo' : 'Inactivo', // Estado
+      producto.reusable ? 'Sí' : 'No', // Reutilizable
+      producto.name, // Artículo
       producto.category ? producto.category.categoryName : '', // Categoría
-      producto.reusable ? 'SI' : 'NO', // Reutilizable
-      producto.detailProducts ? producto.detailProducts.length : 0, // Cantidad
+      producto.stock, // Stock
       producto.minQuantityWarning || '', // Min. Alerta
     ]);
-
+  
     // Orden de encabezados de columnas según la tabla HTML
     (doc as any).autoTable({
       head: [
         [
-          'Último ingreso',
-          'Nombre',
-          'Categoría',
-          'Reutilizable',
-          'Cantidad',
-          'Min. Alerta',
+          'Estado',       // Estado
+          'Reutilizable', // Reutilizable
+          'Artículo',     // Artículo
+          'Categoría',    // Categoría
+          'Stock',        // Stock
+          'Min. Alerta',  // Min. Alerta
         ],
       ],
       body: dataToExport,
@@ -1013,11 +1021,12 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       theme: 'grid',
       margin: { top: 30, bottom: 20 },
     });
-
+  
     // Guardar archivo PDF
     const formattedDate = this.getFormattedDate();
     doc.save(`${formattedDate}_Lista_Productos.pdf`);
   }
+  
 
   // Método auxiliar para obtener la última fecha de ingreso
   getLastIngreso(detailProducts: any[]): string {
@@ -1037,30 +1046,28 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       ['Listado de Productos'],
       [],
       [
-        'Último Ingreso',
-        'Nombre',
-        'Categoría',
-        'Reutilizable',
-        'Cantidad',
-        'Min. Alerta',
+        'Estado',        
+        'Reutilizable', 
+        'Artículo',     
+        'Categoría',     
+        'Stock',        
+        'Min. Alerta',   
       ],
     ];
-
+  
     // Reordenamos los datos según el orden de columnas en la tabla HTML
     const excelData = this.productosFiltered.map((producto) => [
-      producto.detailProducts
-        ? this.getLastIngreso(producto.detailProducts)
-        : '',
-      producto.name,
-      producto.category ? producto.category.categoryName : '',
-      producto.reusable ? 'SI' : 'NO',
-      producto.detailProducts ? producto.detailProducts.length : 0,
-      producto.minQuantityWarning || '',
+      producto.discontinued ? 'Descontinuado' : producto.stock > 0 ? 'Activo' : 'Inactivo', 
+      producto.reusable ? 'Sí' : 'No', 
+      producto.name, 
+      producto.category ? producto.category.categoryName : '', 
+      producto.stock, 
+      producto.minQuantityWarning || '', 
     ]);
-
+  
     const worksheetData = [...encabezado, ...excelData];
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
+  
     worksheet['!cols'] = [
       { wch: 20 },
       { wch: 30 },
@@ -1069,11 +1076,11 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       { wch: 10 },
       { wch: 15 },
     ];
-
+  
     // Crear el libro de trabajo y agregar la hoja
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Productos');
-
+  
     // Guardar el archivo con la fecha
     const formattedDate = this.getFormattedDate();
     XLSX.writeFile(workbook, `${formattedDate}_Lista_Productos.xlsx`);
