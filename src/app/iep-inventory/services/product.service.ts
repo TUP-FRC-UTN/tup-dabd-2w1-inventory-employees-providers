@@ -75,6 +75,10 @@ export class ProductService {
     });
   }
 
+  getProductById(id: number): Observable<CreateProductDtoClass> {
+    return this.http.get<CreateProductDtoClass>(`${this.PRODUCT_URL}/${id}`);
+  }
+
   getAllProducts(): Observable<ProductXDetailDto[]> {
     return this.http.get<any[]>(this.PRODUCT_URL + '/getAll');
   }

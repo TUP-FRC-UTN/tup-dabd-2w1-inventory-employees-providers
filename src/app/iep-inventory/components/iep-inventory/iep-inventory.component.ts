@@ -738,15 +738,15 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
                 <div class="dropdown">
                   <button type="button" class="btn border border-2 bi-three-dots-vertical btn-cambiar-estado" data-bs-toggle="dropdown"></button>
                     <ul class="dropdown-menu">
-                      <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}">Ver más</button></li>
+                      <li><button class="dropdown-item btn botonDetalleConsultar" data-id="${row.id}" disabled>Ver ítems</button></li>
                           <li class="dropdown-divider"></li>
                       <li><button class="dropdown-item btn botonAumentoStock" data-bs-target="#aumentoStock" 
-                        data-bs-toggle="modal"  data-id="${row.id}">Agregar stock</button>
+                        data-bs-toggle="modal"  data-id="${row.id}" disabled>Agregar stock</button>
                       </li>
-                       <!--    <li class="dropdown-divider"></li>
+                      <li><button class="dropdown-item btn botonDetalleEditar" data-id="${row.id}">Editar</button>
                       <li><button class="dropdown-item btn delete-btn" data-id="${row.id}" 
                         (click)="giveLogicalLow(${row.id})">Eliminar</button>
-                      </li> -->
+                      </li>
                     </ul>
                 </div>
               </div>
@@ -802,6 +802,11 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     $('#productsList').on('click', '.botonDetalleCrear', (event) => {
       const id = $(event.currentTarget).data('id');
       this.irAgregarDetalles(id);
+    });
+
+    $('#productsList').on('click', '.botonDetalleEditar', (event) => {
+      const id = $(event.currentTarget).data('id');
+      this.router.navigate(['/home/product-update/'+id]);
     });
 
     $('#productsList').on('click', '.delete-btn', (event) => {
