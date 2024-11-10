@@ -1,19 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
-import { Provincia } from '../../Models/emp-provincia';
+import { Ciudad, Provincia } from '../../Models/emp-provincia';
 import { Charge } from '../../Models/emp-post-employee-dto';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { EmpPostEmployeeService } from '../../services/emp-post-employee.service';
 import {  EmpPutEmployeesResponse } from '../../Models/emp-put-employees-response';
 import { EmpPutEmployeeRequest } from '../../Models/emp-put-employees-request';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-iep-put-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink, NgSelectModule],
   templateUrl: './iep-put-employees.component.html',
   styleUrls: ['./iep-put-employees.component.css']
 })
@@ -29,7 +30,8 @@ export class IepPutEmployeesComponent implements OnInit {
   // Variables para dirección
   provincias: Provincia[] = [];
   provinciaSelect?: Provincia;
-  localidadSelect: string = '';
+  ciudad: Ciudad[] = [];
+  localidadSelect?: Ciudad;
   calle: string = '';
   numeroCalle: number = 0;
   piso?: number;
@@ -58,7 +60,6 @@ export class IepPutEmployeesComponent implements OnInit {
   horaSalida: string = '';
   private employeeId: number = 0;
   invalidDate: Boolean = false;
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -129,7 +130,6 @@ export class IepPutEmployeesComponent implements OnInit {
       }
     });
   }
-
   loadProvincias(): void {
     this.postEmployeeService.getProvinces().subscribe({
       next: (data) => this.provincias = data,
@@ -140,21 +140,18 @@ export class IepPutEmployeesComponent implements OnInit {
     // Esta función se llama cuando cambia la provincia seleccionada
     // La lógica ya está implementada en el template con el ngModel
   }
-
   loadSuppliers(): void {
     this.postEmployeeService.getProviders().subscribe({
       next: (data) => this.suppliers = data,
       error: (error) => console.error('Error al cargar proveedores:', error)
     });
   }
-
   loadCargos(): void {
     this.postEmployeeService.getCharges().subscribe({
       next: (data) => this.cargos = data,
       error: (error) => console.error('Error al cargar cargos:', error)
     });
   }
-
   onSubmit(form: any): void {
     if (form.valid) {
       const employeeData = this.createEmployeeData();
@@ -171,8 +168,6 @@ export class IepPutEmployeesComponent implements OnInit {
       console.log('telephoneValue:', employeeData.telephoneValue);
       console.log('emailValue:', employeeData.emailValue);
 
-      
-      console.log('Datos a enviar:', employeeData);
       this.postEmployeeService.updateEmployee(employeeData).subscribe({
         next: () => this.showAlert('success', 'Empleado actualizado exitosamente'),
         error: (error) => {
@@ -182,53 +177,51 @@ export class IepPutEmployeesComponent implements OnInit {
       });
     }
   }
-
   private createEmployeeData(): EmpPutEmployeeRequest {
+    
     const formatDate = (dateString: string): string => {
       if (!dateString) return '';
       const date = new Date(dateString);
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     };
-  
     const formatTime = (timeString: string): string => {
       if (!timeString) return '';
       return timeString;
     };
-  
     const addressDto = {
       street: this.calle || '',
       numberStreet: this.numeroCalle || 0,
       apartment: this.dpto || '',
       floor: this.piso || 0,
-      postalCode: this.codigoPostal || '',
+      postalCode: this.codigoPostal  || '',
       city: this.provinciaSelect?.nombre || '',
-      locality: this.localidadSelect || ''
+      locality: this.localidadSelect?.nombre || ''
     };
-  
+    
     return {
       id: this.employeeId,
-      name: this.nombre || '',             // @NotNull
-      surname: this.apellido || '',        // @NotNull
-      documentValue: this.dni || '',       // @NotNull
-      cuil: this.cuil || '',              // @NotNull
-      charge: this.cargoSelected?.id || 0, // @NotNull
+      name: this.nombre || '',            
+      surname: this.apellido || '',     
+      documentValue: this.dni || '',    
+      cuil: this.cuil || '',          
+      charge: this.cargoSelected?.id || 0,
       contractStartTime: formatDate(this.startTimeContract || ''),
       salary: this.salario || 0,
       license: this.license || false,
-      mondayWorkday: this.lunes || false,    // @NotNull
-      tuesdayWorkday: this.martes || false,  // @NotNull
-      wednesdayWorkday: this.miercoles || false, // @NotNull
-      thursdayWorkday: this.jueves || false, // @NotNull
-      fridayWorkday: this.viernes || false,  // @NotNull
-      saturdayWorkday: this.sabado || false, // @NotNull
-      sundayWorkday: this.domingo || false,  // @NotNull
-      startTime: formatTime(this.horaEntrada), // @NotNull, formato HH:mm
-      endTime: formatTime(this.horaSalida),   // @NotNull, formato HH:mm
-      supplierId: this.terciorizedEmployee ? this.selectedSupplier?.id : null,
-      addressDto,                         // @NotNull
-      telephoneValue: this.telefono || '', // @NotNull
-      emailValue: this.mail || '',         // @NotNull
-      userId: 0                            // @NotNull
+      mondayWorkday: this.lunes || false,   
+      tuesdayWorkday: this.martes || false,  
+      wednesdayWorkday: this.miercoles || false, 
+      thursdayWorkday: this.jueves || false, 
+      fridayWorkday: this.viernes || false,  
+      saturdayWorkday: this.sabado || false, 
+      sundayWorkday: this.domingo || false, 
+      startTime: formatTime(this.horaEntrada), 
+      endTime: formatTime(this.horaSalida),   
+      supplierId: this.terciorizedEmployee ? this.selectedSupplier?.id : 0,
+      addressDto ,                         
+      telephoneValue: this.telefono || '', 
+      emailValue: this.mail || '',         
+      userId: 0                       
     };
   }
   private showAlert(type: 'success' | 'error', message: string): void {
@@ -239,11 +232,10 @@ export class IepPutEmployeesComponent implements OnInit {
       confirmButtonText: 'Aceptar'
     }).then(() => {
       if (type === 'success') {
-        this.router.navigate(['/empleados/listado']);
+        this.router.navigate(['/home/employee-list']);
       }
     });
   }
-
   private handleUpdateError(error: any): void {
     const errorMessage = error.status === 404 ? 'Empleado no encontrado' : 
                         error.status === 500 ? 'Error al actualizar empleado' : 
@@ -260,12 +252,10 @@ export class IepPutEmployeesComponent implements OnInit {
       this.invalidDate = false;
     }
   }
-
   changeTerceorized(): void {
     this.terciorizedEmployee = !this.terciorizedEmployee;
   }
-
   cancelar(): void {
-    this.router.navigate(['/empleados/listado']);
+    this.router.navigate(['/home/employee-list']);
   }
 }
