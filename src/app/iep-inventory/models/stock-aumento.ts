@@ -1,5 +1,5 @@
 export interface StockAumento {
-    productId: number;
+  productId: number;
   supplierId: number;
   quantity: number;
   description: string;
