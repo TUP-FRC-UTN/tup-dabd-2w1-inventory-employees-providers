@@ -3,107 +3,124 @@
         <div class="col-md-8 mx-auto ">
             <div class="card shadow">
                 <div class="card-body">
-                    <form class="">
+                    <form [formGroup]="formulario" class="" (ngSubmit)="onSubmit()">
                         <div class="row">
-                            <!-- Campo Tipo de Movimiento con label y botones en toda la primera fila -->
-                            
-                                
-                                <div class="col-6 text-end">
+                            <div class="row align-items-center mb-4">
+    <!-- Label del Tipo de Movimiento -->
+    <div class="col-6 text-end">
+        <label for="tipoMovimiento" class="form-label mb-0">
+            <h5 class="mb-0">Tipo de Movimiento</h5>
+        </label>
+    </div>
+    
+    <!-- Botones de Tipo de Movimiento -->
+    <div class="col-6">
+        <div class="btn-group" role="group" aria-label="Tipo de Movimiento">
+            <input formControlName="selectedType" type="radio" class="btn-check" id="btnRadio1" value="I">
+            <label class="btn btn-outline-success" for="btnRadio1">Ingreso</label>
 
-                                <label for="btn-group" class="col-6 form-label text-end"><h5>Tipo de Movimiento</h5></label>
-
-                                </div>
-                                <div class="col-6 mb-5 ">
-                                    <div class="btn-group" role="group" aria-label="Radio toggle button group">
-                                        <!-- Botón de opción I (verde cuando está seleccionado) -->
-                                        <input type="radio" 
-                                               class="btn-check" 
-                                               name="tipoMovimiento" 
-                                               id="btnRadio1" 
-                                               autocomplete="off" 
-                                               (click)="tipoMovimiento = 'I'">
-                                        <label class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" 
-                                               [ngClass]="{'btn-success': tipoMovimiento === 'I', 'btn-outline-secondary': tipoMovimiento !== 'I'}"
-                                               (click)="cambio('I')"
-                                               style="width: 45px; height: 45px;"
-                                               for="btnRadio1" 
-                                               data-bs-toggle="tooltip" 
-                                               data-bs-placement="top" 
-                                               title="Ingreso">I</label>
-                        
-                                        <!-- Botón de opción E (rojo cuando está seleccionado) -->
-                                        <input type="radio" 
-                                               class="btn-check" 
-                                               name="tipoMovimiento" 
-                                               id="btnRadio2" 
-                                               autocomplete="off" 
-                                               (click)="tipoMovimiento = 'E'">
-                                        <label class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center ms-2" 
-                                               [ngClass]="{'btn-danger': tipoMovimiento === 'E', 'btn-outline-secondary': tipoMovimiento !== 'E'}"
-                                               style="width: 45px; height: 45px;"
-                                               for="btnRadio2"
-                                               (click)="cambio('E')"
-                                               data-bs-toggle="tooltip" 
-                                               data-bs-placement="top" 
-                                               title="Egreso">E</label>
-                                               
-                                    </div>
-                                
-                                
-                            </div>
+            <input formControlName="selectedType" type="radio" class="btn-check" id="btnRadio2" value="E">
+            <label class="btn btn-outline-danger" for="btnRadio2">Egreso</label>
+        </div>
+    </div>
+</div>
                             <!-- todo para la alta  -->
-                            @if(tipoMovimiento==="I"){
+                            @if(formulario.get('selectedType')?.value==="I"){
                             
                             
                            
                             <div class="col-md-6 mb-3">
                                 <div class="row align-items-center">
-                                    <label class="col-4 text-end form-label">Articulo</label>
+                                    <label class="col-4 text-end form-label">Artículo</label>
                                     <div class="col-8">
-                                        <ng-select type="text"  name="producto" placeholder="Buscar producto">
-                                        </ng-select>
+                                        <ng-select
+                                      class="text-start"
+                                      formControlName="selectedArticule"
+                                      id="productos"
+                                                               
+                                      [items]="productos"    
+                                      [clearable]="false"
+                                      bindLabel= "name"  
+                                      bindValue="id"
+                                      required>
+                                    </ng-select>
+                                    <div *ngIf="formulario.controls['selectedArticule'].invalid && formulario.controls['selectedArticule'].touched" class="text-danger">
+                                        <div *ngIf="formulario.controls['selectedArticule'].errors?.['required']"> Artículo requerido</div>
                                     </div>
-                                   
+                                   </div>
                                 </div>
 
                             </div>
+                            
                             <div class="col-1">
-                                    <button class="form-control">+</button>
+                                    <button class="form-control" (click)="goTo('home/new-product')">+</button>
                             </div>
 
                             <div class="col-md-5 mb-3">
                                 <div class="row align-items-center">
                                     <label class="col-4 text-end form-label">Cantidad</label>
                                     <div class="col-8">
-                                        <input type="text" class="form-control" name="zona" placeholder=" ">
+                                        <input type="text" class="form-control" formControlName="amount">
+                                        <div *ngIf="formulario.controls['amount'].invalid && formulario.controls['amount'].touched" class="text-danger">
+                                            <div *ngIf="formulario.controls['amount'].errors?.['required']"> Cantidad requerida</div>
+                                            <div *ngIf="formulario.controls['amount'].errors?.['min']"> Cantidad minima 1 </div>
+
+
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Campo SA/SCR -->
-                             
-                            <div class="col-md-6 mb-3">                               
-                                    <div class="row align-items-center">
-                                        <label class="col-4 text-end form-label">Precio Unit.</label>
-                                        <div class="col-8">
-                                            <input type="text" class="form-control" name="zona" placeholder=" ">
-                                        </div>
-                                    </div>
-                            </div>
+                  
                                          
-                            <div class="col-1"></div>
+                            
                                <!-- Campo proveedores -->
                               
-                                <div class="col-md-5 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <div class="row align-items-center">
                                         <label class="col-4 text-end form-label">Proveedor</label>
                                         <div class="col-8">
-                                            <ng-select type="text"  name="producto" placeholder="Buscar producto">
-                                            </ng-select>                       
+                                            <ng-select
+                                            class="text-start"
+                                              formControlName="selectedSupplier"
+                                              id="supplier"
+                                              name="supplier"                             
+                                              [items]="suppliers"                                           
+                                              [clearable]="false"
+                                              bindLabel= "name"  
+                                              bindValue="id"
+                                              required>
+                                            </ng-select>   
+                                            <div *ngIf="formulario.controls['selectedSupplier'].invalid && formulario.controls['selectedSupplier'].touched" class="text-danger">
+                                                <div *ngIf="formulario.controls['selectedSupplier'].errors?.['required']"> Proveedor requerido</div>
+                                            </div>                   
                                         </div>
                                     </div>
                                 </div>
                                 
+                              <!-- Campo SA/SCR -->
+                            <div class="col-1">
+                                  <button class="form-control" (click)="goTo('home/create-supplier')">+</button>
+                            </div>
+
+                         <div class="col-md-5 mb-3">     
+
+                             <div class="row align-items-center">
+                                     <label class="col-4 text-end form-label">Precio Unit.</label>
+                                      <div class="col-8">
+                                         <input type="number" class="form-control" formControlName="priceUnit" placeholder=" ">
+                                         
+                                         <div *ngIf="formulario.controls['priceUnit'].invalid && formulario.controls['priceUnit'].touched" class="text-danger">
+                                            <div *ngIf="formulario.controls['priceUnit'].errors?.['required']"> Precio requerido</div>
+                                            <div *ngIf="formulario.controls['priceUnit'].errors?.['min']"> Minimo 1 requerido</div>
+
+                                        </div> 
+
+                                      </div>
+                             </div>
+                        </div>
+
+
 
 
                                 <div class="col-md-12 mb-3">
@@ -112,7 +129,10 @@
                                              <label class="form-label">Justificación</label>
                                         </div>
                                        <div class="col-10"> 
-                                        <textarea class="form-control" name="producto" placeholder="Escribe aquí" rows="3"></textarea>
+                                        <textarea class="form-control" formControlName="justify" placeholder="Escribe aquí" rows="3"></textarea>
+                                        <div *ngIf="formulario.controls['justify'].invalid && formulario.controls['justify'].touched" class="text-danger">
+                                            <div *ngIf="formulario.controls['justify'].errors?.['required']"> Precio requerido</div>
+                                        </div> 
                                        </div>
                                     </div>
                                 </div>
@@ -123,19 +143,39 @@
 
                                 <div class="col-md-6 mb-3">
                                     <div class="row align-items-center">
-                                        <label class="col-4 text-end form-label">Articulo</label>
+                                        <label class="col-4 text-end form-label">Artículo</label>
                                         <div class="col-8">
-                                            <ng-select type="text"  name="producto" placeholder="Buscar producto">
-                                            </ng-select>
+                                            <ng-select
+                                          class="text-start"
+                                          formControlName="selectedArticule"
+                                          id="productos"
+                                                                   
+                                          [items]="productos"    
+                                          [clearable]="false"
+                                          bindLabel= "name"  
+                                          bindValue="id"
+                                          required>
+                                        </ng-select>
+                                        <div *ngIf="formulario.controls['selectedArticule'].invalid && formulario.controls['selectedArticule'].touched" class="text-danger">
+                                            <div *ngIf="formulario.controls['selectedArticule'].errors?.['required']"> Artículo requerido</div>
                                         </div>
+                                        </div>
+                                       
                                     </div>
+    
                                 </div>
 
                                 <div class="col-md-6 mb-3">
                                     <div class="row align-items-center">
                                         <label class="col-4 text-end form-label">Cantidad</label>
                                         <div class="col-8">
-                                            <input type="text" class="form-control" name="zona" placeholder=" ">
+                                            <input type="text" class="form-control" formControlName="amount" placeholder=" ">
+
+
+                                            <div *ngIf="formulario.controls['amount'].invalid && formulario.controls['amount'].touched" class="text-danger">
+                                                <div *ngIf="formulario.controls['amount'].errors?.['required']"> Cantidad requerida</div>
+                                                <div *ngIf="formulario.controls['amount'].errors?.['min']"> Cantidad minima 1 </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -148,7 +188,10 @@
                                              <label class="form-label">Justificación</label>
                                         </div>
                                        <div class="col-10"> 
-                                        <textarea class="form-control" name="producto" placeholder="Escribe aquí" rows="3"></textarea>
+                                        <textarea class="form-control"formControlName="justify" placeholder="Escribe aquí" rows="3"></textarea>
+                                        <div *ngIf="formulario.controls['justify'].invalid && formulario.controls['justify'].touched" class="text-danger">
+                                            <div *ngIf="formulario.controls['justify'].errors?.['required']"> Precio requerido</div>
+                                        </div> 
                                        </div>
                                     </div>
                                 </div>
@@ -160,11 +203,15 @@
 
                         </div>
 
-
-
-                        <div class="text-end mt-3">
-                            <button type="submit" class="btn btn-success">Registrar</button>
+                        <div class="row">
+                            <div class="col-10 text-end mt-3">
+                                <button type="button" (click)="cancelar()" class="btn btn-secondary">Cancelar</button>
+                            </div>
+                            <div class="col-2 text-end mt-3">
+                                <button type="submit" class="btn btn-success">Registrar</button>
+                            </div>
                         </div>
+                      
                     </form>
                 </div>
             </div>

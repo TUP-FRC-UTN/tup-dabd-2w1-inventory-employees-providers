@@ -4,8 +4,8 @@ export interface ProductXDetailDto {
     id: number;
     name: string;
     reusable: boolean;
-    category_id: number;
+    categoryId: number;
     minQuantityWarning: number;
-    detail: Details[];
+    stock:number
     discontinued: boolean;
 }

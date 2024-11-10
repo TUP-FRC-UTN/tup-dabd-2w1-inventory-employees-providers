@@ -91,6 +91,9 @@ export class ProductService {
     );
   }
 
+// HAACER ESTA 
+  getNotDiscontinuedProduct(){}
+
   // ENZO
   private convertirFecha(fechaStr: string): Date {
     const [dia, mes, anio] = fechaStr.split('/').map(Number); // Divide la fecha y convierte a número

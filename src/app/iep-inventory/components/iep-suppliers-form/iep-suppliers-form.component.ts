@@ -67,7 +67,7 @@ export class IepSuppliersFormComponent {
     return control ? control.invalid && (control.touched || control.dirty) : false;
   }
   goBack() {
-    this.router.navigate(['/home/suppliers']);
+    window.history.back();
   }
 
   cuitExists: boolean = false;
