@@ -35,12 +35,17 @@ export class IepChartsInventoryComponent implements OnInit {
 
   dataEstadosProductos: any[] = [];
 
-  chartOptionsProductos = {
-    format: {
-      number: {
-        maximumFractionDigits: 0 // Eliminar decimales
-      }
+  chartOptionsProductosAlta = {
+    colors: ['#008000'],
+    animation: {
+      duration: 1000,
+      easing: 'out',
+      startup: true
     },
+  };
+
+  chartOptionsProductosBaja = {
+    colors: ['#FF0000'],
     animation: {
       duration: 1000,
       easing: 'out',
@@ -186,11 +191,9 @@ export class IepChartsInventoryComponent implements OnInit {
         if (producto === modificacion.product && modificacion.modificationType === 'Disminución') {totalDisminucionProducto += modificacion.amount}
       });
 
-      totalAumentoProducto = totalAumentoProducto / totalProductos * 100;
-      totalDisminucionProducto = totalDisminucionProducto / totalProductos * 100;
 
-      this.dataProductosAlta.push([`${producto} - ${parseFloat(totalAumentoProducto.toFixed(1))}%`,totalAumentoProducto]);
-      this.dataProductosBaja.push([`${producto} - ${parseFloat(totalDisminucionProducto.toFixed(1))}%`,totalDisminucionProducto]);
+      if(totalAumentoProducto !== 0) {this.dataProductosAlta.push([producto,totalAumentoProducto]);}
+      if(totalDisminucionProducto !== 0) {this.dataProductosBaja.push([producto,totalDisminucionProducto]);}
     });
       
 

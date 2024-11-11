@@ -16,60 +16,49 @@ import { WakeUpCallDetail } from '../../Models/listado-desempeño';
   styleUrl: './iep-charts-employees.component.css'
 })
 export class IepChartsEmployeesComponent implements OnInit{
+  // Servicios para hacer GET de los datos
   empleadosService = inject(EmpListadoEmpleadosService);
   llamadosService = inject(ListadoDesempeñoService);
   
+  // Listas para guardar todos los datos
   asistencias: EmpListadoAsistencias[] = [];
   empleados: EmpListadoEmpleados[] = [];
   llamados: WakeUpCallDetail[]= [];
 
+  // Listas para guardar los datos filtrados
+  asistenciasFiltradas: EmpListadoAsistencias[] = [];
+
+  // Variables para guardar los datos de filtros
   empleado: string = "";
   fechaInicio: Date | null = null;
   fechaFin: Date | null = null;
 
-  chartTypeAsistencias: ChartType = ChartType.PieChart;
+  // Variables para definir los tipos de graficos a protectar
+  chartTypeCirculo: ChartType = ChartType.PieChart;
+  chartTypeBarras: ChartType = ChartType.BarChart;
+  
+  // Listas con los datos a proyectar en los graficos
   dataAsistencias: any[] = [];
-  columnNamesAsistencias = ['Estado', 'Porcentaje'];
+  dataLlamados: any[] = [];
+  dataCargos: any[] = [];
+
+  // Configuraciones para los graficos
   chartOptionsAsistencias = {
-    title: 'Total asistencias',
     colors: ['#28a745', '#dc3545', '#ffc107', '#6f42c1']
   };
-
-  chartTypeLlamados: ChartType = ChartType.ColumnChart;
-  dataLlamados: any[] = [];
-  columnNamesLlamados = ['Año', 'Leve','Moderado','Severo'];
+  
   chartOptionsLlamados = {
-    title: 'Llamados de atencion',
     colors: ['#28a745', '#ffc107','#dc3545'],
-    isStacked: true
+    vAxis:{
+      minValue:0
+    },
+    isStacked: true,
   };
-
-  chartTypeCargos: ChartType = ChartType.PieChart;
-  dataCargos: any[] = [];
-  columnNamesCargos = ['Tipo', 'Porcentaje'];
-  chartOptionsCargos = {
-    title: 'Tipos empleados',
-    colors: [
-      '#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF', '#00FFFF',
-      '#FFA500', '#800080', '#008000', '#FFC0CB', '#FFD700', '#A52A2A',
-      '#F08080', '#C0C0C0', '#808080', '#000080', '#800000', '#808000',
-      '#FF4500', '#2E8B57', '#8A2BE2', '#5F9EA0', '#D2691E', '#CD5C5C',
-      '#4B0082', '#FF6347', '#7FFF00', '#FFDAB9', '#B0E0E6', '#98FB98',
-      '#FF69B4', '#F0E68C', '#ADFF2F', '#4682B4', '#D8BFD8', '#DDA0DD',
-      '#F5DEB3', '#FFE4E1', '#FFB6C1', '#20B2AA', '#FF8C00', '#B22222',
-      '#5F9EA0', '#6A5ACD', '#7CFC00', '#FF1493', '#8B4513', '#B8860B',
-      '#A9A9A9', '#00FA9A', '#F0E68C', '#FFD700', '#1E90FF', '#FF7F50',
-      '#DC143C', '#00BFFF', '#4682B4', '#32CD32', '#ADFF2F', '#FF4500'
-    ]
-  };
-
-  width = 800;
-  height = 800;
 
   ngOnInit(): void {
-    this.loadAsistencias();
+    this.getAsistencias();
     this.loadEmpleados();
-    this.loadLlamados();
+    this.getLlamados();
   }
 
   loadEmpleados(): void {
@@ -82,38 +71,39 @@ export class IepChartsEmployeesComponent implements OnInit{
      })
    }
 
-  loadAsistencias(): void {
+  // Metodo para llavar al servicio y conseguir todas las asistencias
+  getAsistencias(): void {
     this.asistencias = [];
     const empSubscription = this.empleadosService.getAttendances().subscribe({
       next: (Asistencias) => {
-        this.asistencias = []
         this.asistencias = Asistencias;
         this.filtrar();
-        this.cargarAsistencias();
       }
     })
   }
 
-  loadLlamados(): void{
+  // Metodo para llavar al servicio y conseguir todos los llamados de atencion
+  getLlamados(): void{
     this.llamados = []
     const empSubscription = this.llamadosService.getWakeUpCallDetails().subscribe({
       next: (Llamados) => {
         this.llamados = [];
         this.llamados = Llamados;
+        console.log(this.llamados)
         this.cargarLlamados();
       }
     })
   }
-   
+  
+  // Metodo para cargar en el grafico los datos de asistencias
   cargarAsistencias(){
     var p = 0;
     var au = 0;
     var t = 0;
     var j = 0;
-    const total = this.asistencias.length;
-    console.log("Total:"+total);
+    const total = this.asistenciasFiltradas.length;
 
-    this.asistencias.forEach(a => {
+    this.asistenciasFiltradas.forEach(a => {
       switch(a.state){
         case "PRESENTE": p++; break;
         case "AUSENTE": au++; break;
@@ -126,6 +116,39 @@ export class IepChartsEmployeesComponent implements OnInit{
 
     this.dataAsistencias.push(["Presente", p / total * 100],["Ausente", au / total * 100],
     ["Tarde", t / total * 100],["Justificado", j / total * 100]);
+  }
+
+  // Metodo para cargar en el grafico los datos de llamados de atencion
+  cargarLlamados(){
+    const meses: Set<number> = new Set();
+
+    this.llamados.forEach(llamado => {
+      meses.add(llamado.dateReal[1])
+      console.log("Meses:"+meses);
+    });
+
+    const mesesLlamados: number[] = Array.from(meses);
+    mesesLlamados.sort((a, b) => a - b);
+
+    this.dataLlamados = [];
+    mesesLlamados.forEach(mes => {
+
+      var l = 0;
+      var m = 0;
+      var s = 0;
+
+      this.llamados.forEach(llamado => {
+        if(llamado.dateReal[1] === mes){
+          switch (llamado.wackeUpTypeEnum){
+            case "Leve": l++; break;
+            case "Moderado": m++; break;
+            case "Severo": s++; break;
+          }
+        }
+      });
+
+      this.dataLlamados.push([this.convertirNumeroAMes(mes),l,m,s])
+    });
   }
   
   cargarTiposEmpleados(){
@@ -145,74 +168,73 @@ export class IepChartsEmployeesComponent implements OnInit{
     });
   }
   
-  cargarLlamados(){
-    const tipos: Set<number> = new Set();
+  // Llamar a todos los metodos de filtrado y despues 
+  // ejecutar los metodos para cargar los datos de los graficos
+  filtrar(){
+    this.asistenciasFiltradas = this.filtrarAsistencias();
 
-    this.llamados.forEach(llamado => {
-      tipos.add(llamado.dateReal[0])
-    });
-
-    const añosLlamados: number[] = Array.from(tipos);
-    añosLlamados.sort((a, b) => a - b);
-
-    this.dataLlamados = [];
-    añosLlamados.forEach(año => {
-
-      var l = 0;
-      var m = 0;
-      var s = 0;
-
-      this.llamados.forEach(llamado => {
-        if(llamado.dateReal[0] === año){
-          switch (llamado.wackeUpTypeEnum){
-            case "LEVE": l++; break;
-            case "MODERADO": m++; break;
-            case "SEVERO": s++; break;
-          }
-        }
-      });
-
-      this.dataLlamados.push([año.toString(),l,m,s])
-    });
+    this.cargarAsistencias();
   }
 
-  filtrar(){
+  // Filtra las asistencias en funcion de los valores de los filtros
+  filtrarAsistencias(): EmpListadoAsistencias[] {
     var asistenciasFiltradas: EmpListadoAsistencias[] = this.asistencias;
 
+    // Filtrar por empleado si esta definido
     if (this.empleado){
       asistenciasFiltradas = asistenciasFiltradas.filter(asistencia => {
         return asistencia.employeeName === this.empleado;
       })
     }
     
-    if (this.fechaInicio || this.fechaFin){
+    // Filtrar por fecha si al menos una de las dos esta definida
+    if (this.fechaInicio || this.fechaFin) {
       const inicioDate = this.fechaInicio ? new Date(this.fechaInicio) : null;
-      const finDate = this.fechaFin ? new Date(this.fechaFin) : null; 
+      const finDate = this.fechaFin ? new Date(this.fechaFin) : null;
 
       asistenciasFiltradas = asistenciasFiltradas.filter(asistencia => {
 
-      const asistenciaDateParts = asistencia.date.split('/'); // Si es DD/MM/YYYY
-      const asistenciaDate = new Date(
-        Number(asistenciaDateParts[2]), // Año
-        Number(asistenciaDateParts[1]) - 1, // Mes (0-indexado)
-        Number(asistenciaDateParts[0]) // Día
-      );
+        const asistenciaDateParts = asistencia.date.split('/'); // Si es DD/MM/YYYY
+        const asistenciaDate = new Date(
+          Number(asistenciaDateParts[2]), // Año
+          Number(asistenciaDateParts[1]) - 1, // Mes (0-indexado)
+          Number(asistenciaDateParts[0]) // Día
+        );
 
-      if(inicioDate && finDate) {return inicioDate <= asistenciaDate && asistenciaDate <= finDate}
-      else if (finDate) { return asistenciaDate <= finDate }
-      else if (inicioDate) { return asistenciaDate >= inicioDate; }
+        if(inicioDate && finDate) {return inicioDate <= asistenciaDate && asistenciaDate <= finDate}
+        else if (finDate) { return asistenciaDate <= finDate }
+        else if (inicioDate) { return asistenciaDate >= inicioDate; }
 
-      return true;
+        return true;
       })
     }
 
-    this.asistencias = asistenciasFiltradas;
+    return asistenciasFiltradas;
+  }
+
+  // Filtra los llamados en funcion de los valores de los filtros
+  filtrarLlamados(){
+
   }
 
   limpiarFiltro(){
     this.empleado = "";
     this.fechaInicio = null;
     this.fechaFin = null;
-    this.loadAsistencias();
+    this.getAsistencias();
+    this.getLlamados();
+  }
+
+  convertirNumeroAMes(numero: number): string {
+    const meses: string[] = [
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+
+    if (numero < 1 || numero > 12) {
+      throw new Error("Número de mes no válido. Debe ser un valor entre 1 y 12.");
+    }
+
+    return meses[numero - 1];
   }
 }

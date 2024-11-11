@@ -112,11 +112,11 @@
                 <div class="card-body">
                     <div class=" align-items-center mb-4">
                         <div>
-                            <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">% Aumentos Productos</h5>
+                            <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">Aumentos Productos</h5>
                             <small class="text-secondary d-flex justify-content-center"></small>
-                            </div>
                         </div>
-                        <google-chart [type]="chartTypeCirculo" [data]="dataProductosAlta" [options]="chartOptionsProductos"
+                    </div>
+                    <google-chart [type]="chartTypeColumnas" [data]="dataProductosAlta" [options]="chartOptionsProductosAlta"
                         class="w-100 expanded-chart-content">
                     </google-chart>
                 </div>
@@ -127,11 +127,11 @@
                 <div class="card-body">
                     <div class=" align-items-center mb-4">
                         <div>
-                                <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">% Disminuciones Productos</h5>
-                                <small class="text-secondary d-flex justify-content-center"></small>
-                            </div>
+                            <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">Disminuciones Productos</h5>
+                            <small class="text-secondary d-flex justify-content-center"></small>
                         </div>
-                        <google-chart [type]="chartTypeCirculo" [data]="dataProductosBaja" [options]="chartOptionsProductos"
+                    </div>
+                    <google-chart [type]="chartTypeColumnas" [data]="dataProductosBaja" [options]="chartOptionsProductosBaja"
                         class="w-100 expanded-chart-content">
                     </google-chart>
                 </div>
