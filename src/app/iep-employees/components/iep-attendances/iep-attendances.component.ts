@@ -63,6 +63,29 @@ export class IepAttendancesComponent implements OnInit{
     this.endDate = this.formatDate(today);
   }
 
+
+
+  reSetInitialDates(): void {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    const startDateInput: HTMLInputElement = document.getElementById(
+      'startDate'
+    ) as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById(
+      'endDate'
+    ) as HTMLInputElement;
+
+    startDateInput.value = ""
+    endDateInput.value = ""
+
+    // Establecer los límites de las fechas
+    endDateInput.max = this.formatDateForInput(today);
+    startDateInput.max = endDateInput.value;
+    endDateInput.min = startDateInput.value;
+  }
+
   setInitialDates(): void {
     const today = new Date();
     const thirtyDaysAgo = new Date(today);
@@ -103,11 +126,11 @@ export class IepAttendancesComponent implements OnInit{
   private initializeAsistenciasTable(): void {
 
     if (this.table) {
-      this.table.destroy();
-      $('#empleadosTable').empty();
+     this.table.destroy();
+     // $('#empleadosTable').empty();
     }
 
-    this.table = $('#empleadosTable').DataTable({
+    this.table = $('#empleadosTable').DataTable({ 
       pageLength: 5,
       lengthChange: true,
       searching: false,
@@ -210,6 +233,7 @@ export class IepAttendancesComponent implements OnInit{
           },
         }
       ],
+      
     });
 
      $('#empleadosTable').off('click', '.btn-cambiar-estado').on('click', '.btn-cambiar-estado', (event: 
@@ -321,7 +345,7 @@ export class IepAttendancesComponent implements OnInit{
   
   limpiarFiltro() {
     this.estadosFiltrados = [];
-    this.setInitialDates();
+    this.reSetInitialDates();
     this.loadAsistencias();
   }
 

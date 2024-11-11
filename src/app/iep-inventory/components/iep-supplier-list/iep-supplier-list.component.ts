@@ -378,7 +378,11 @@ export class IepSupplierListComponent implements AfterViewInit {
             data: null,
             title: 'Acciones',
             className: 'text-center',
-            render: (data: any, type: any, row: any) => {
+            render: (data: any, type: any, row: any) => {    
+              let deleteButtonClass = '';
+              if (row.discontinued) {
+                deleteButtonClass = 'disabled'; // Agregar clase "disabled" al botón de eliminar
+              }
               return `
                 <div class="dropdown d-flex justify-content-center">
                   <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
@@ -388,7 +392,8 @@ export class IepSupplierListComponent implements AfterViewInit {
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <li><a class="dropdown-item edit-btn" href="#" data-id="${data.id}">Editar</a></li>
                     <li class="dropdown-divider"></li>
-                    <li><a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${data.id}">Eliminar</a></li>
+
+          <li><a class="dropdown-item delete-btn ${deleteButtonClass}" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${data.id}">Eliminar</a></li>
                   </ul>
               </div>`;
             },

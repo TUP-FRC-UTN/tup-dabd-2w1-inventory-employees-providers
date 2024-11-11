@@ -98,7 +98,7 @@ export const routes: Routes = [
                 {
                     path:"employee-post",
                     component:IEPFormPostEmployeesComponent,
-                    title:"Crear empleado"
+                    title:"Crear Empleado"
                 },
                 {
                     path: 'charges',

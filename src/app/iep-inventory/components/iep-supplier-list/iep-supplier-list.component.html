@@ -46,7 +46,7 @@
                   bindLabel="label"
                   bindValue="value"
                   [multiple]="true"
-                  placeholder="Tipo proveedor"
+                  placeholder="Seleccionar Tipo proveedor"
                   (change)="applyFilters()"
                   class="w-100"
               >
@@ -74,17 +74,17 @@
       
         <div class="col-6 d-flex justify-content-end"> <!-- Usar d-flex para alinear los botones a la derecha -->
           <!-- Botón para limpiar filtros -->
-          <button class="btn btn-secondary me-1 filterbutton" (click)="cleanFilters()"> <!-- Espacio a la derecha reducido -->
+          <button title="Limpiar Filtros" class="btn btn-secondary me-1 filterbutton" (click)="cleanFilters()"> <!-- Espacio a la derecha reducido -->
             <i class="bi bi-trash"></i>
           </button>
       
           <!-- Botón de exportación a Excel -->
-          <button class="btn btn-success me-1 filterbutton" (click)="exportToExcel()"> <!-- Espacio a la derecha reducido -->
+          <button title="Exportar a Excel" class="btn btn-success me-1 filterbutton" (click)="exportToExcel()"> <!-- Espacio a la derecha reducido -->
             <i class="fa-solid bi-file-earmark-excel"></i>
           </button>
       
           <!-- Botón de exportación a PDF -->
-          <button class="btn btn-danger filterbutton" (click)="exportToPdf()">
+          <button title="Exportar a PDF" class="btn btn-danger filterbutton" (click)="exportToPdf()">
             <i class="fas bi-file-earmark-pdf"></i>
           </button>
         </div>

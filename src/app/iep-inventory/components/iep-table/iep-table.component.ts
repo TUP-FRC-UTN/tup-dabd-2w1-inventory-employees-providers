@@ -55,7 +55,9 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
         (producto) =>
           producto.product.toLowerCase().includes(filterValue) ||
           producto.modificationType.toLowerCase().includes(filterValue) ||
-          producto.description.toLowerCase().includes(filterValue)
+          producto.description.toLowerCase().includes(filterValue)||
+          producto.supplier.toLowerCase().includes(filterValue)
+          
       );
     }
 
@@ -396,6 +398,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     const data = this.filteredProductos.map((producto) => [
       producto.date, 
       producto.product, 
+      producto.supplier,
       producto.modificationType, 
       producto.amount, 
       producto.description,

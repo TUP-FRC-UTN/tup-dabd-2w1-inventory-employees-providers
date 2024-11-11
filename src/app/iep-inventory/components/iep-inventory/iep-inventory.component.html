@@ -122,7 +122,7 @@
               [items]="estadosCombo"
               bindLabel="label"
               bindValue="value"
-              placeholder="Estado"
+              placeholder="Seleccionar Estado"
               (change)="applyFilter()">
 
               <ng-template ng-multi-label-tmp let-items="items">
@@ -141,7 +141,7 @@
                 [items]="reutilizablesCombo"
                 bindLabel="label"
                 bindValue="value"
-                placeholder="Reutilizable"
+                placeholder="Seleccionar Reutilizable"
                 (change)="applyFilter()">
                 <ng-template ng-multi-label-tmp let-items="items">
                   Seleccionar Reutilizable
@@ -162,7 +162,7 @@
             >
               <i class="bi bi-funnel-fill"></i>
             </button>
-            <button class="btn btn-secondary ms-2 filterbutton" (click)="cleanFilters()">
+            <button title="Limpiar Filtros" class="btn btn-secondary ms-2 filterbutton" (click)="cleanFilters()">
               <i class="bi bi-trash"></i>
             </button>
             <button
