@@ -129,6 +129,7 @@ onEndDateChange(value: string): void {
   ngOnInit() {
     // Cargar los datos con los filtros ya configurados
     this.warehouseMovementService.getWarehouseMovements().subscribe((movements) => {
+      console.log(movements);
       this.movements = movements;
       this.filteredMovements = this.movements;
       this.initializeDataTable()

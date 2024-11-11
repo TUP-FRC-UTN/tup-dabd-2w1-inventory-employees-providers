@@ -40,6 +40,11 @@ export const routes: Routes = [
                     title: 'Registro de productos'
                 },
                 {
+                    path : 'product-update/:id', // TOMAS
+                    component: IepProductComponent,
+                    title: 'Modificar producto'
+                },
+                {
                     path: 'inventory',     // AGUSTIN
                     component: IepInventoryComponent,
                     title: 'Inventario'

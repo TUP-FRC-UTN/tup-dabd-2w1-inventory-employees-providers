@@ -3,7 +3,7 @@ import { ProductService } from '../../services/product.service';
 import { Observable } from 'rxjs';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ProductCategory } from '../../models/product-category';
 import { Supplier } from '../../models/suppliers';
 import { SuppliersService } from '../../services/suppliers.service';
@@ -40,16 +40,36 @@ export class IepProductComponent {
   errorMessage: string|undefined;
   newCategory: string = ''; 
   categoryOfModal: number | undefined;
-
+  idProductToEdit: number | undefined;
 
   constructor(productService: ProductService,
     providersService: SuppliersService,
     private categoryService:CategoriaService,
-    private router : Router ) {
+    private router: Router,
+    private activatedRoute: ActivatedRoute) {
+
+    this.idProductToEdit = this.activatedRoute.snapshot.params['id'];
+    console.log(this.idProductToEdit);
+
     this.productService = productService;
     this.providerService = providersService;
     this.success = false;
   }
+
+  setProductToEdit(){
+    if(this.idProductToEdit){
+      this.productService.getProductById(this.idProductToEdit).subscribe({
+        next: product => {
+          console.log(product);
+          this.dto = product;
+        },
+        error: error => {
+          console.error(error);
+        }
+      });
+    }
+  }
+
 
   logear(){
     console.log(this.dto.reusable)
