@@ -105,48 +105,52 @@
                 id="filterInput"
                 class="form-control"
                 placeholder="Buscar"
-                [(ngModel)]="globalFilter"
-                name="globalFilter"
+                [(ngModel)]="filters.nombre"
+                name="nombre"
                 (input)="applyFilter()"
               />
             </div>
+            
+            
+            <!-- Filtro de Estado -->
+             <div div style="flex-grow: 1; max-width: 300px" class="me-2 col-md-6">
 
-            <!-- Campo Desde para seleccionar la fecha de inicio -->
-            <div class="me-3" style="min-width: 160px">
-              <input
-                type="date"
-                id="startDate"
-                class="form-control"
-                #startDateInput
-                [(ngModel)]="startDate"
-                name="startDate"
-                (ngModelChange)="applyFilter()"
-              />
+             
+              <ng-select
+              multiple="true"
+              [formControl]="estadoFilter"
+              [items]="estadosCombo"
+              bindLabel="label"
+              bindValue="value"
+              placeholder="Estado"
+              (change)="applyFilter()">
+
+              <ng-template ng-multi-label-tmp let-items="items">
+                Seleccionar Estado
+                <span *ngIf="items.length > 0">({{ items.length }})</span>
+              </ng-template>
+              </ng-select>
+
             </div>
 
-            <!-- Campo Hasta para seleccionar la fecha de fin -->
-            <div class="me-3" style="min-width: 160px">
-              <input
-                type="date"
-                id="endDate"
-                class="form-control"
-                #endDateInput
-                [(ngModel)]="endDate"
-                name="endDate"
-                (ngModelChange)="applyFilter()"
-              />
+              <!-- Filtro de Reutilizable -->
+              <div div style="flex-grow: 1; max-width: 300px" class="me-2 col-md-6">
+                <ng-select
+                multiple="true"
+                [formControl]="reutilizableFilter"
+                [items]="reutilizablesCombo"
+                bindLabel="label"
+                bindValue="value"
+                placeholder="Reutilizable"
+                (change)="applyFilter()">
+                <ng-template ng-multi-label-tmp let-items="items">
+                  Seleccionar Reutilizable
+                  <span *ngIf="items.length > 0">({{ items.length }})</span>
+                </ng-template>
+                </ng-select>
+              </div>
             </div>
-
-            <!-- Dropdown para Categorías -->
-
-            <!-- Botón para mostrar/ocultar filtros -->
-            <!-- <div class="ms-2">
-            </div> -->
-
-            <!-- Botón para limpiar filtros -->
-            <!-- <div class="ms-2">
-            </div> -->
-          </div>
+            
 
           <!-- Botones para mostrar/ocultar y limpiar filtros, exportar datos a PDF y Excel -->
           <div class="d-flex align-items-center ms-2">
@@ -192,7 +196,7 @@
               <th></th>
               <th></th>
               <th></th>
-              <th scope="col" class="text-center">Acción</th>
+              <th></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -201,6 +205,7 @@
 
       <!-- Botones de navegación: Volver y agregar nuevo producto -->
     </form>
+
     <button
       class="floating-btn btn btn-primary"
       (click)="goTo('home/new-product')"
@@ -269,62 +274,52 @@
             </ul>
           </div> -->
 
-          <!-- Cantidad mínima -->
-          <div class="row mb-3">
-            <label for="CantMinima" class="col-sm-3 col-form-label"
-              >Cantidad Mínima</label
-            >
-            <div class="col-sm-9">
-              <input
-                type="number"
-                id="CantMinima"
-                name="CantMinima"
-                class="form-control text-end"
-                pattern="^(0|[1-9]\d*)$"
-                [(ngModel)]="cantMinima"
-                (ngModelChange)="validarCantidades()"
-                #CantMinima="ngModel"
-                min="0"
-                placeholder=""
-              />
-              @if (cantMinima) { @if(cantMinima < 0) {
-              <div class="text-danger small mt-1">
-                La cantidad mínima no puede ser menor a 0
-              </div>
-              } @else if (!validoMin) {
-              <div class="text-danger small mt-1">
-                La cantidad mínima no puede ser mayor a la cantidad máxima
-              </div>
-              } }
-            </div>
-          </div>
+<!-- Cantidad mínima -->
+<div class="row mb-3">
+  <label for="CantMinima" class="col-sm-3 col-form-label">Cantidad Mínima</label>
+  <div class="col-sm-9">
+    <input
+      type="number"
+      id="CantMinima"
+      name="CantMinima"
+      class="form-control text-end"
+      pattern="^(0|[1-9]\d*)$"
+      [(ngModel)]="filters.cantMinima"
+      (ngModelChange)="applyFilter()"
+      min="0"
+      placeholder=""
+    />
+    <div *ngIf="filters.cantMinima < 0" class="text-danger small mt-1">
+      La cantidad mínima no puede ser menor a 0
+    </div>
+    <div *ngIf="filters.cantMinima > filters.cantMaxima && filters.cantMaxima > 0" class="text-danger small mt-1">
+      La cantidad mínima no puede ser mayor a la cantidad máxima
+    </div>
+  </div>
+</div>
 
-          <!-- Cantidad máxima -->
-          <div class="row mb-3">
-            <label for="CantMaxima" class="col-sm-3 col-form-label"
-              >Cantidad Máxima</label
-            >
-            <div class="col-sm-9">
-              <input
-                type="number"
-                id="CantMaxima"
-                name="CantMaxima"
-                class="form-control text-end"
-                pattern="^(0|[1-9]\d*)$"
-                [(ngModel)]="cantMaxima"
-                (ngModelChange)="validarCantidades()"
-                #CantMaxima="ngModel"
-                min="0"
-                placeholder=""
-              />
-              @if (cantMaxima) {
-              @if(cantMaxima < 0) {
-              <div class="text-danger small mt-1">
-                La cantidad máxima no puede ser menor a 0
-              </div>
-              } }
-            </div>
-          </div>
+<!-- Cantidad máxima -->
+<div class="row mb-3">
+  <label for="CantMaxima" class="col-sm-3 col-form-label">Cantidad Máxima</label>
+  <div class="col-sm-9">
+    <input
+      type="number"
+      id="CantMaxima"
+      name="CantMaxima"
+      class="form-control text-end"
+      pattern="^(0|[1-9]\d*)$"
+      [(ngModel)]="filters.cantMaxima"
+      (ngModelChange)="applyFilter()"
+      min="0"
+      placeholder=""
+    />
+    <div *ngIf="filters.cantMaxima < 0" class="text-danger small mt-1">
+      La cantidad máxima no puede ser menor a 0
+    </div>
+  </div>
+</div>
+
+
 
           <!-- Modal Footer -->
           <div class="modal-footer">
@@ -374,3 +369,32 @@
     </div>
   </div>
 </div>
+
+<!-- Modal para Confirmar Eliminación -->
+<div class="modal fade" id="eliminarProductoModal" tabindex="-1" aria-labelledby="eliminarProductoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eliminarProductoModalLabel">
+          Confirmar Eliminación
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          ¿Estás seguro de que deseas eliminar el producto
+          <strong>{{ productoSeleccionado?.name }}</strong>?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" (click)="deleteProduct()" data-bs-dismiss="modal">
+          Eliminar
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

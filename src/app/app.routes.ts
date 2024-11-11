@@ -19,6 +19,7 @@ import { IepCategoriesListComponent } from './iep-inventory/components/iep-categ
 import { IepChartsEmployeesComponent } from './iep-employees/components/iep-charts-employees/iep-charts-employees.component';
 import { IepChartsInventoryComponent } from './iep-inventory/components/iep-charts-inventory/iep-charts-inventory.component';
 import { IepAttendancesComponent } from './iep-employees/components/iep-attendances/iep-attendances.component';
+import { IepNuevoIngresoEgresoComponent } from './iep-inventory/components/iep-nuevo-ingreso-egreso/iep-nuevo-ingreso-egreso.component';
 export const routes: Routes = [
     {
         path: "", redirectTo: "/home", pathMatch: "full" 
@@ -39,6 +40,11 @@ export const routes: Routes = [
                     title: 'Registro de productos'
                 },
                 {
+                    path : 'product-update/:id', // TOMAS
+                    component: IepProductComponent,
+                    title: 'Modificar producto'
+                },
+                {
                     path: 'inventory',     // AGUSTIN
                     component: IepInventoryComponent,
                     title: 'Inventario'
@@ -51,7 +57,7 @@ export const routes: Routes = [
                 {
                     path: 'modification-stock-list',     // ENZO
                     component: IepTableComponent,
-                    title: 'Historial de modificacion de stock'
+                    title: 'Historial de movimientos '
                 },
                 {
                     path: 'employee-list',     // ENZO
@@ -128,6 +134,10 @@ export const routes: Routes = [
                     path: 'employee/performance/:id',
                     component: IepPerformancelistComponent,
                     title: 'Desempeño de empleados'
+                },
+                {
+                    path :'nuevo-ingreso-egreso',
+                    component: IepNuevoIngresoEgresoComponent
                 }
                 
             ]

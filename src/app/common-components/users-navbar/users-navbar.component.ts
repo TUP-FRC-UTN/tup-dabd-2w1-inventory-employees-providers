@@ -39,23 +39,23 @@ export class UsersNavbarComponent {
         childButtons: [
           {
             icon: "bi-inboxes-fill",
-            title: "Listado de productos",
+            title: "Listado de Articulos",
             roles: ["SuperAdmin", "Admin", "Encargado de inventario"],
             route: "home/inventory",
 
           },
           {
             icon: "bi-arrow-down-up",
-            title: "Historial de stock",
+            title: "Movimientos de Stock",
             route: "home/modification-stock-list",
             roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
           },
-          {
-            icon: "bi-arrow-left-right",
-            title: "Movimientos de inventario",
-            route: "home/warehouse-movements",
-            roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
-          },
+          // {
+          //   icon: "bi-arrow-left-right",
+          //   title: "Movimientos de inventario",
+          //   route: "home/warehouse-movements",
+          //   roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
+          // },
           {
             icon: "bi-truck",
             title: "Proveedores",
@@ -72,7 +72,7 @@ export class UsersNavbarComponent {
           },
           {
             icon: "bi-bar-chart-fill",
-            title: "Grafico inventario",
+            title: "Gráficos inventario",
             route: "home/inventory/charts",
 
             roles: ["SuperAdmin", "Admin", "Encargado de inventario"]
@@ -98,7 +98,7 @@ export class UsersNavbarComponent {
           },
           {
             icon: "bi-bar-chart-fill",
-            title: "Grafico asistencias",
+            title: "Gráfico Empleados",
             route: "home/employee/charts",
             roles: ["SuperAdmin", "Admin", "Encargado de empleados"]
           }
