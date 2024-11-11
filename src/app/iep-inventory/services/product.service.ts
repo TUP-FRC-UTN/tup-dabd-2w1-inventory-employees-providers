@@ -8,6 +8,7 @@ import { Producto } from '../models/producto';
 import { ProductXDetailDto, ProductXDetailDto2 } from '../models/product-xdetail-dto';
 import { createProductDTO } from '../models/create-product-dto';
 import { UsersMockIdService } from '../../common-services/users-mock-id.service';
+import { UpdateProductDto } from '../models/update-product-dto';
 @Injectable({
   providedIn: 'root',
 })
@@ -99,8 +100,13 @@ export class ProductService {
     );
   }
 
-// HAACER ESTA 
-  getNotDiscontinuedProduct(){}
+
+  updateProduct(dto: UpdateProductDto): Observable<any> {
+    const url = `${this.PRODUCT_URL}/${dto.id}`;
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const params = new HttpParams().set('idUser', this.userIdService.getMockId());
+    return this.http.put<any>(url, dto, { headers, params });
+  }
 
   // ENZO
   private convertirFecha(fechaStr: string): Date {
