@@ -57,7 +57,7 @@ export const routes: Routes = [
                 {
                     path: 'modification-stock-list',     // ENZO
                     component: IepTableComponent,
-                    title: 'Historial de modificacion de stock'
+                    title: 'Historial de movimientos '
                 },
                 {
                     path: 'employee-list',     // ENZO

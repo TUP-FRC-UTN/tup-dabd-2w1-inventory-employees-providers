@@ -18,6 +18,7 @@ export class IncreaseDecrementService {
   
 
   createMovement( param : movementDto,id:number):Observable<movementDto>{
+    console.group("EL ID ESSSSS:" +id)
       return this.http.post<movementDto>(this.AMOUNT_MODIFICATION_URL+"?idUser="+id,param)
   }
 }

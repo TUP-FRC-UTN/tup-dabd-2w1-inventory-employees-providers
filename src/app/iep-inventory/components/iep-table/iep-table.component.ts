@@ -44,26 +44,24 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate([params]) 
    }
 
-
-  applyAllFilters(): void {
+   applyAllFilters(): void {
     // Comenzar con todos los productos
     let filteredResults = [...this.productos];
 
     // 1. Aplicar filtro global si existe
     if (this.globalFilter && this.globalFilter.trim() !== '') {
       const filterValue = this.globalFilter.toLowerCase();
-      filteredResults = filteredResults.filter(producto =>
-        producto.product.toLowerCase().includes(filterValue) ||
-        producto.modificationType.toLowerCase().includes(filterValue) ||
-        producto.description.toLowerCase().includes(filterValue)
+      filteredResults = filteredResults.filter(
+        (producto) =>
+          producto.product.toLowerCase().includes(filterValue) ||
+          producto.modificationType.toLowerCase().includes(filterValue) ||
+          producto.description.toLowerCase().includes(filterValue)
       );
     }
 
-    
-
     // 2. Aplicar filtro de fechas si existen
     if (this.startDate || this.endDate) {
-      filteredResults = filteredResults.filter(producto => {
+      filteredResults = filteredResults.filter((producto) => {
         const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
         const start = this.startDate ? new Date(this.startDate) : null;
         const end = this.endDate ? new Date(this.endDate) : null;
@@ -74,8 +72,24 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // 3. Aplicar filtro de tipo de movimiento si hay seleccionados
     if (this.selectedMovementTypes.length > 0) {
-      filteredResults = filteredResults.filter(producto =>
-        this.selectedMovementTypes.includes(producto.modificationType.toLowerCase())
+      filteredResults = filteredResults.filter((producto) =>
+        this.selectedMovementTypes.includes(
+          producto.modificationType.toLowerCase()
+        )
+      );
+    }
+
+    // 4. Aplicar filtros de cantidad mínima y máxima si existen
+    if (this.minAmount !== null) {
+      let minAmount = this.minAmount;
+      filteredResults = filteredResults.filter(
+        (producto) => producto.amount >= minAmount
+      );
+    }
+    if (this.maxAmount !== null) {
+      let maxAmount = this.maxAmount;
+      filteredResults = filteredResults.filter(
+        (producto) => producto.amount <= maxAmount
       );
     }
 
@@ -87,8 +101,6 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.table.clear().rows.add(this.filteredProductos).draw();
     }
   }
-
-
 
   minAmount: number | null = null;
   maxAmount: number | null = null;
@@ -256,9 +268,13 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }, // Columna de tipo de movimiento
         { data: 'product', title: 'Articulo' }, // Columna de producto
+        {data: 'supplier',title : 'Proveedor'},
+
         { data: 'amount', title: 'Cantidad' }, // Columna de cantidad
-        { data: 'description', title: 'Justificativo' }, // Columna de justificativo
         { data: 'stockAfterModification', title: 'Stock Resultante' },
+        { data: 'description', title: 'Justificativo' }, 
+        // Columna de justificativo
+
       ],
       pageLength: 5,
       lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas
@@ -477,11 +493,15 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.startDate = undefined;
     this.endDate = undefined;
     this.selectedMovementTypes = [];
-
     // Resetear checkboxes
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach((checkbox: Element) => {
       (checkbox as HTMLInputElement).checked = false;
+    });
+    // Resetear inputs de cantidad
+    const amountInputs = document.querySelectorAll('input[type="number"]');
+    amountInputs.forEach((input: Element) => {
+      (input as HTMLInputElement).value = '';
     });
 
     // Restablecer los productos sin filtrar

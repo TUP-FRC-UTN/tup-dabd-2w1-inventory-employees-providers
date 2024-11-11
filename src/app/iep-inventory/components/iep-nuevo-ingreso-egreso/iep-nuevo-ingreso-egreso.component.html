@@ -3,31 +3,35 @@
         <div class="col-md-8 mx-auto ">
             <div class="card shadow">
                 <div class="card-body">
-                    <form [formGroup]="formulario" class="" (ngSubmit)="onSubmit()">
-                        <div class="row">
-                            <div class="row align-items-center mb-4">
-    <!-- Label del Tipo de Movimiento -->
-    <div class="col-6 text-end">
-        <label for="tipoMovimiento" class="form-label mb-0">
-            <h5 class="mb-0">Tipo de Movimiento</h5>
-        </label>
-    </div>
-    
-    <!-- Botones de Tipo de Movimiento -->
-    <div class="col-6">
-        <div class="btn-group" role="group" aria-label="Tipo de Movimiento">
-            <input formControlName="selectedType" type="radio" class="btn-check" id="btnRadio1" value="I">
-            <label class="btn btn-outline-success" for="btnRadio1">Ingreso</label>
 
-            <input formControlName="selectedType" type="radio" class="btn-check" id="btnRadio2" value="E">
-            <label class="btn btn-outline-danger" for="btnRadio2">Egreso</label>
-        </div>
-    </div>
-</div>
+
+
+                    <div class="row align-items-center mb-4">
+
+                        <!-- Label del Tipo de Movimiento -->
+                        <div class="col-6 text-end">
+                            <label for="tipoMovimiento" class="form-label mb-0">
+                                <h5 class="mb-0">Tipo de Movimiento</h5>
+                            </label>
+                        </div>
+                        
+                        <!-- Botones de Tipo de Movimiento -->
+                        <div class="col-6">
+                            <div class="btn-group" role="group" aria-label="Tipo de Movimiento">
+                                <input   [(ngModel)]="selectedType" type="radio" class="btn-check" id="btnRadio1" value="I">
+                                <label class="btn btn-outline-success" for="btnRadio1">Ingreso</label>
+                    
+                                <input [(ngModel)]="selectedType" type="radio" class="btn-check" id="btnRadio2" value="E">
+                                <label class="btn btn-outline-danger" for="btnRadio2">Egreso</label>
+                            </div>
+                        </div>
+                    </div>
+                   
+
                             <!-- todo para la alta  -->
-                            @if(formulario.get('selectedType')?.value==="I"){
                             
-                            
+                                <form *ngIf="selectedType==='I'" [formGroup]="formulario" class="" (ngSubmit)="onSubmit()">
+                                    <div class="row">
                            
                             <div class="col-md-6 mb-3">
                                 <div class="row align-items-center">
@@ -53,19 +57,17 @@
                             </div>
                             
                             <div class="col-1">
-                                    <button class="form-control" (click)="goTo('home/new-product')">+</button>
+                                    <button class="form-control" type="button" (click)="goTo('home/new-product')">+</button>
                             </div>
 
                             <div class="col-md-5 mb-3">
                                 <div class="row align-items-center">
                                     <label class="col-4 text-end form-label">Cantidad</label>
                                     <div class="col-8">
-                                        <input type="text" class="form-control" formControlName="amount">
+                                        <input type="number" class="form-control" formControlName="amount">
                                         <div *ngIf="formulario.controls['amount'].invalid && formulario.controls['amount'].touched" class="text-danger">
                                             <div *ngIf="formulario.controls['amount'].errors?.['required']"> Cantidad requerida</div>
                                             <div *ngIf="formulario.controls['amount'].errors?.['min']"> Cantidad minima 1 </div>
-
-
                                         </div>
                                     </div>
                                 </div>
@@ -100,7 +102,7 @@
                                 
                               <!-- Campo SA/SCR -->
                             <div class="col-1">
-                                  <button class="form-control" (click)="goTo('home/create-supplier')">+</button>
+                                  <button class="form-control" type="button"  (click)="goTo('/home/create-supplier')">+</button>
                             </div>
 
                          <div class="col-md-5 mb-3">     
@@ -136,10 +138,23 @@
                                        </div>
                                     </div>
                                 </div>
-                    
-                            }
+                             </div>
+
+                             <div class="row">
+                                <div class="col-10 text-end mt-3">
+                                    <button type="button" (click)="cancelar()" class="btn btn-secondary">Cancelar</button>
+                                </div>
+                                <div class="col-2 text-end mt-3">
+                                    <button [disabled]="formulario.invalid" type="submit" class="btn btn-success">Registrar</button>
+                                </div>
+                            </div>
+
+                         </form>
+                        
                             <!-- todo para la baja  -->
-                            @else{
+                         
+                            
+                                <form *ngIf="selectedType==='E'" [formGroup]="formularioEgreso" (ngSubmit)="onSubmit()" class="row">
 
                                 <div class="col-md-6 mb-3">
                                     <div class="row align-items-center">
@@ -156,8 +171,8 @@
                                           bindValue="id"
                                           required>
                                         </ng-select>
-                                        <div *ngIf="formulario.controls['selectedArticule'].invalid && formulario.controls['selectedArticule'].touched" class="text-danger">
-                                            <div *ngIf="formulario.controls['selectedArticule'].errors?.['required']"> Artículo requerido</div>
+                                        <div *ngIf="formularioEgreso.controls['selectedArticule'].invalid && formularioEgreso.controls['selectedArticule'].touched" class="text-danger">
+                                            <div *ngIf="formularioEgreso.controls['selectedArticule'].errors?.['required']"> Artículo requerido</div>
                                         </div>
                                         </div>
                                        
@@ -169,12 +184,17 @@
                                     <div class="row align-items-center">
                                         <label class="col-4 text-end form-label">Cantidad</label>
                                         <div class="col-8">
-                                            <input type="text" class="form-control" formControlName="amount" placeholder=" ">
+                                            <input type="number" class="form-control" formControlName="amount" placeholder=" ">
 
 
-                                            <div *ngIf="formulario.controls['amount'].invalid && formulario.controls['amount'].touched" class="text-danger">
-                                                <div *ngIf="formulario.controls['amount'].errors?.['required']"> Cantidad requerida</div>
-                                                <div *ngIf="formulario.controls['amount'].errors?.['min']"> Cantidad minima 1 </div>
+                                            <div *ngIf="formularioEgreso.controls['amount'].invalid && formularioEgreso.controls['amount'].touched" class="text-danger">
+                                                <div *ngIf="formularioEgreso.controls['amount'].errors?.['required']"> Cantidad requerida</div>
+                                                <div *ngIf="formularioEgreso.controls['amount'].errors?.['min']"> Cantidad minima 1 </div>
+                                                <div *ngIf="formularioEgreso.controls['amount'].errors?.['insuficientStock']"> Stock del producto insuficiento </div>
+                                                <div *ngIf="formularioEgreso.controls['amount'].errors?.['noExistProduct']"> el producto ya no esta disponible </div>
+
+
+
                                             </div>
                                         </div>
                                     </div>
@@ -189,32 +209,54 @@
                                         </div>
                                        <div class="col-10"> 
                                         <textarea class="form-control"formControlName="justify" placeholder="Escribe aquí" rows="3"></textarea>
-                                        <div *ngIf="formulario.controls['justify'].invalid && formulario.controls['justify'].touched" class="text-danger">
-                                            <div *ngIf="formulario.controls['justify'].errors?.['required']"> Precio requerido</div>
+                                        <div *ngIf="formularioEgreso.controls['justify'].invalid && formularioEgreso.controls['justify'].touched" class="text-danger">
+                                            <div *ngIf="formularioEgreso.controls['justify'].errors?.['required']"> Precio requerido</div>
                                         </div> 
                                        </div>
                                     </div>
+                                </div>     
+
+
+                                <div class="row">
+                                    <div class="col-10 text-end mt-3">
+                                        <button type="button" (click)="cancelar()" class="btn btn-secondary">Cancelar</button>
+                                    </div>
+                                    <div class="col-2 text-end mt-3">
+                                        <button  [disabled]="formularioEgreso.invalid" type="submit" class="btn btn-success">Registrar</button>
+                                    </div>
                                 </div>
-                                
-
-
-                            }
                        
-
-                        </div>
-
-                        <div class="row">
-                            <div class="col-10 text-end mt-3">
-                                <button type="button" (click)="cancelar()" class="btn btn-secondary">Cancelar</button>
-                            </div>
-                            <div class="col-2 text-end mt-3">
-                                <button type="submit" class="btn btn-success">Registrar</button>
-                            </div>
-                        </div>
-                      
-                    </form>
+                            </form>
+     
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

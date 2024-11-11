@@ -145,13 +145,14 @@ export class IepProductComponent {
     });
   }
   }
-
   showSuccessAlert() {
     Swal.fire({
       icon: 'success',
       title: 'Registro creado',
       text: this.successMessage,
       confirmButtonText: 'OK'
+    }).then(() => {
+      window.history.back();
     });
   }
 
