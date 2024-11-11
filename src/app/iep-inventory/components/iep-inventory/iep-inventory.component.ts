@@ -81,6 +81,7 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     cantMaxima: 0,
   };
 
+  productoSeleccionado: ProductXDetailDto2 | null = null;
   estadoFilter = new FormControl();
   reutilizableFilter = new FormControl();
   
@@ -781,9 +782,9 @@ applyFilter(): void {
             const warning = row.minQuantityWarning;
 
             if (stock <= warning) {
-              return `<span style="color: #FF0000; font-weight: bold;">${stock}</span>`;
+              return `<span  font-weight: bold;">${stock}</span>`;
             } else if (stock <= warning + 5) {
-              return `<span style="color: #FF8C00; font-weight: bold;">${stock}</span>`;
+              return `<span font-weight: bold;">${stock}</span>`;
             }
             return stock;
           },
@@ -820,7 +821,8 @@ applyFilter(): void {
                       <li><button class="dropdown-item btn botonDetalleEditar" data-id="${row.id}">Editar</button>
                       <li><button class="${deleteButtonClass}" data-id="${row.id}" 
                         ${isDeleteDisabled ? `disabled title="${disabledMessage}"` : ''}
-                        (click)="giveLogicalLow(${row.id})">Eliminar</button>
+                        (click)="giveLogicalLow(${row.id})" data-bs-target="#eliminarProductoModal" 
+                            data-bs-toggle="modal">Eliminar</button>
                       </li>
                     </ul>
                 </div>
@@ -886,7 +888,7 @@ applyFilter(): void {
       event.preventDefault();
       const id = $(event.currentTarget).data('id');
       this.setProductToDelete(id);
-      this.showConfirmDeleteModal();
+      //this.showConfirmDeleteModal();
     });
   }
 
@@ -895,7 +897,7 @@ applyFilter(): void {
     this.selectedProductId = id;
   }
 
-  showConfirmDeleteModal(): void {
+  /*showConfirmDeleteModal(): void {
     Swal.fire({
       title: '¿Estás seguro de eliminar este producto?',
       text: 'Se darán de baja todos sus ítems asociados',
@@ -910,7 +912,7 @@ applyFilter(): void {
         this.deleteProduct();
       }
     });
-  }
+  }*/
 
   showErrorDeleteModal(): void {
     Swal.fire({
