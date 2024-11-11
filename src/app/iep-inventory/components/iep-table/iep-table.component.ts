@@ -489,16 +489,19 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   cleanColumnFilters(): void {
-    this.minAmount=null;
     this.globalFilter = '';
     this.startDate = undefined;
     this.endDate = undefined;
     this.selectedMovementTypes = [];
-    this.maxAmount = null;
     // Resetear checkboxes
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach((checkbox: Element) => {
       (checkbox as HTMLInputElement).checked = false;
+    });
+    // Resetear inputs de cantidad
+    const amountInputs = document.querySelectorAll('input[type="number"]');
+    amountInputs.forEach((input: Element) => {
+      (input as HTMLInputElement).value = '';
     });
 
     // Restablecer los productos sin filtrar
