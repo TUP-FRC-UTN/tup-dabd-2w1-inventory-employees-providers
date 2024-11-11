@@ -137,7 +137,6 @@ export class IepSupplierListComponent implements AfterViewInit {
       const searchTerm = this.globalFilter.toLowerCase();
       filteredData = filteredData.filter((supplier) => {
         return Object.entries(supplier).some(([key, value]) => {
-          if (key === 'supplierType' || key === 'discontinued') return false;
           return value && value.toString().toLowerCase().includes(searchTerm);
         });
       });
