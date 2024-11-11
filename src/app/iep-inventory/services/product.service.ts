@@ -5,7 +5,7 @@ import { CreateProductDtoClass } from '../models/create-product-dto-class';
 import { DtoProducto } from '../models/dto-producto';
 import { ProductCategory } from '../models/product-category';
 import { Producto } from '../models/producto';
-import { ProductXDetailDto } from '../models/product-xdetail-dto';
+import { ProductXDetailDto, ProductXDetailDto2 } from '../models/product-xdetail-dto';
 import { createProductDTO } from '../models/create-product-dto';
 import { UsersMockIdService } from '../../common-services/users-mock-id.service';
 import { UpdateProductDto } from '../models/update-product-dto';
@@ -136,5 +136,9 @@ export class ProductService {
     return this.http.put<any>(url, {}, { headers, params });
   }
 
-  //http://localhost:8081/product/1/logicalLow?idUser=3
+  getProducts2(): Observable<ProductXDetailDto2[]> {
+    return this.http.get<ProductXDetailDto2[]>(this.PRODUCT_URL + '/getAll');
+  }
+
+
 }
