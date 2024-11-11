@@ -231,7 +231,7 @@ export class IepProductComponent {
         this.showSuccessAlert();
         console.log("PASO: ", response);
         form.reset();
-        this.goTo('/home/inventory');
+       
       },
       error: error => {
         console.error(error);
