@@ -276,23 +276,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   filtrarPorUltimos30Dias(): void {
-    const hoy = new Date();
-    const hace30Dias = new Date(hoy.setDate(hoy.getDate() - 30));
-
-    this.productosFiltered = this.productosALL.filter(producto => {
-      let lastDate = '';
-      for (const detail of producto.detailProducts) {
-        if (detail.lastUpdatedDatetime && (!lastDate || detail.lastUpdatedDatetime > lastDate)) {
-          lastDate = detail.lastUpdatedDatetime;
-        }
-      }
-      if (!lastDate) {
-        return false;
-      }
-
-      const productDate = new Date(lastDate);
-      return productDate >= hace30Dias;
-    });
   }
 
 
@@ -530,8 +513,10 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.productos$ = this.productoService.getAllProducts();
     this.productos$.subscribe({
       next: (productos) => {
-        console.log("productos"+JSON.stringify(productos));
+        console.log("productos");
+        console.log(productos);
         this.productosALL = productos;
+        this.productosFiltered = productos;
         this.filtrarPorUltimos30Dias(); // Aplica el filtro automáticamente
         this.updateDataTable(); // Actualiza la tabla con el filtro aplicado
         this.requestInProcess = false;
@@ -663,11 +648,10 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
       columns: [
         {
-          data: null,
+          data: 'discontinued',
           title: 'Estado',
           render: (row: any) => {
-            const quantity = row.data?.detailProducts?.length || 0; // Accedemos a detailProducts de forma segura
-            return quantity !== 0 ? "Inactivo":"Activo" ;
+            return row.discontinued ? 'Inactivo' : 'Activo';
           },
 
         }
@@ -704,23 +688,8 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
           },
         },
         {
-          data: null,
+          data: 'stock',
           title: 'Stock',
-          render: (row: any) => {
-            const quantity = row.detailProducts.length;
-
-            const warning = row.minQuantityWarning;
-
-/*             if (quantity <= warning + 10 && quantity > warning) {
-              return `<span style="color: #FF8C00; font-weight: bold;">${quantity}</span>`;
-            } else {
-              if (9 >= quantity && quantity > 0) {
-                return `<span style="color: #FF0000; font-weight: bold;">${quantity}</span>`;
-              }
-            } */
-
-            return quantity;
-          }
         },
         {
           data: 'minQuantityWarning',
@@ -768,12 +737,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
         info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
         emptyTable: 'No se encontraron registros',
       },
-      createdRow: function (row: any, data: any) {
-        // Verifica si la cantidad es menor o igual al mínimo de alerta
-        if (data.detailProducts.length <= data.minQuantityWarning) {
-          // Aplicar la clase de Bootstrap para warning
-        }
-      },
       initComplete: () => {
         $('#Nombre').on('keyup', (event) => {
           this.nombre = $(event.currentTarget).val() as string;
@@ -784,7 +747,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       },
 
     });
-    // Corregir los event handlers
     $('#productsList').on('click', '.botonAumentoStock', (event) => {
       event.preventDefault();
       event.stopPropagation();
