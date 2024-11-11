@@ -256,9 +256,13 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }, // Columna de tipo de movimiento
         { data: 'product', title: 'Articulo' }, // Columna de producto
+        {data: 'supplier',title : 'Proveedor'},
+
         { data: 'amount', title: 'Cantidad' }, // Columna de cantidad
-        { data: 'description', title: 'Justificativo' }, // Columna de justificativo
         { data: 'stockAfterModification', title: 'Stock Resultante' },
+        { data: 'description', title: 'Justificativo' }, 
+        // Columna de justificativo
+
       ],
       pageLength: 5,
       lengthChange: true, // Permitir que el usuario cambie el número de filas mostradas

@@ -45,8 +45,10 @@ export class IepSuppliersFormComponent {
       text: "El nuevo proveedor se ha registrado correctamente.",
       confirmButtonText: "Aceptar" 
     }).then(() => {
-      this.router.navigate(['/home/suppliers']);
-    });
+
+      window.history.back()
+
+        });
     
 
     if (this.proveedorForm.valid) {

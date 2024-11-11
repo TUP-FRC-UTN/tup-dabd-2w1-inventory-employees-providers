@@ -1,8 +1,9 @@
-export interface movementDto {
-    movementType: string;
-    productId: number ;
-    unitPrice?: number ;
-    date: Date;
-    amount: number;
-    supplierId?: number;
+export class movementDto {
+    type: string|undefined;
+    productId: number|undefined ;
+    unitPrice?: number|undefined ;
+    date: Date|undefined;
+    amount: number|undefined;
+    supplierId?: number|undefined;
+    justification?:string;
 } 
