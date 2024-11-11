@@ -6,11 +6,11 @@
             <div class="col d-flex gap-3">
                 <div class="col">
                     <input id="fechaInicio" type="date" class="form-control border-1 bg-light" [(ngModel)]="fechaInicio" 
-                    (ngModelChange)="ngOnInit()">
+                    (ngModelChange)="filtrar()">
                 </div>
                 <div class="col">
                     <input id="fechaFin" type="date" class="form-control border-1 bg-light" [(ngModel)]="fechaFin"
-                    (ngModelChange)="ngOnInit()">
+                    (ngModelChange)="filtrar()">
                 </div>
             </div>
             <!-- Botones de exportar -->
