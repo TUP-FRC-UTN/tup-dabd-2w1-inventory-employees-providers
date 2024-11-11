@@ -35,9 +35,13 @@
                             <h5 class="card-title text-secondary mb-1 d-flex justify-content-center">Porcentaje asistencias</h5>
                         </div>
                     </div>
-                    <google-chart [type]="chartTypeCirculo" [data]="dataAsistencias" [options]="chartOptionsAsistencias"
-                        class="w-100 expanded-chart-content">
-                    </google-chart>
+                    @if(dataAsistencias.length !== 0){
+                        <google-chart [type]="chartTypeCirculo" [data]="dataAsistencias" [options]="chartOptionsAsistencias"
+                            class="w-100 expanded-chart-content">
+                        </google-chart>
+                    } @else {
+                        <h5 class="card-title text-secondary mb-1 d-flex justify-content-center">No hay datos disponibles</h5>
+                    }
                 </div>
             </div>
         </div>
@@ -49,9 +53,13 @@
                             <h5 class="card-title text-secondary mb-1 d-flex justify-content-center">Llamados de atencion</h5>
                         </div>
                     </div>
-                    <google-chart [type]="chartTypeBarras" [data]="dataLlamados" [options]="chartOptionsLlamados"
-                        class="w-100 expanded-chart-content">
-                    </google-chart>
+                    @if(dataLlamados.length !== 0){
+                        <google-chart [type]="chartTypeBarras" [data]="dataLlamados" [options]="chartOptionsLlamados"
+                            class="w-100 expanded-chart-content">
+                        </google-chart>
+                    } @else {
+                        <h5 class="card-title text-secondary mb-1 d-flex justify-content-center">No hay datos disponibles</h5>
+                    }
                 </div>
             </div>
         </div>

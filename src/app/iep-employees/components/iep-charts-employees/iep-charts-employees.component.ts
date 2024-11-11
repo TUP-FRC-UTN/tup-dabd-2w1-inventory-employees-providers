@@ -109,9 +109,9 @@ export class IepChartsEmployeesComponent implements OnInit{
     var total = 0
 
     if (this.asistenciasFiltradas.length !== 0 && this.primerLlamado){
-      total = this.asistenciasFiltradas.length;
+      total = this.asistencias.length;
   
-      this.asistenciasFiltradas.forEach(a => {
+      this.asistencias.forEach(a => {
         switch(a.state){
           case "PRESENTE": p++; break;
           case "AUSENTE": au++; break;
@@ -121,9 +121,9 @@ export class IepChartsEmployeesComponent implements OnInit{
       });
     } 
     else {
-      total = this.asistencias.length;
+      total = this.asistenciasFiltradas.length;
   
-      this.asistencias.forEach(a => {
+      this.asistenciasFiltradas.forEach(a => {
         switch(a.state){
           case "PRESENTE": p++; break;
           case "AUSENTE": au++; break;
@@ -179,7 +179,7 @@ export class IepChartsEmployeesComponent implements OnInit{
         }
       });
 
-      this.dataLlamados.push([this.convertirNumeroAMes(mes),l,m,s])
+      if(l !== 0 || m !== 0 || s !== 0) { this.dataLlamados.push([this.convertirNumeroAMes(mes),l,m,s]) } 
     });
   }
   
@@ -243,7 +243,6 @@ export class IepChartsEmployeesComponent implements OnInit{
       })
     }
 
-    console.log("Check 3:"+asistenciasFiltradas);
     return asistenciasFiltradas;
   }
 
