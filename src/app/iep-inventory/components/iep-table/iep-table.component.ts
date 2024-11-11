@@ -267,7 +267,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           }
         }, // Columna de tipo de movimiento
-        { data: 'product', title: 'Articulo' }, // Columna de producto
+        { data: 'product', title: 'Artículo' }, // Columna de producto
         {data: 'supplier',title : 'Proveedor'},
 
         { data: 'amount', title: 'Cantidad' }, // Columna de cantidad
@@ -405,7 +405,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     const encabezado = [
       ['Historial de Productos'], 
       [], 
-      ['Fecha', 'Articulo', 'Tipo Movimiento', 'Cantidad', 'Justificativo', 'Stock Resultante'], // Nombres de las columnas
+      ['Fecha', 'Artículo', 'Tipo Movimiento', 'Cantidad', 'Justificativo', 'Stock Resultante'], // Nombres de las columnas
     ];
   
     const worksheetData = [...encabezado, ...data];
