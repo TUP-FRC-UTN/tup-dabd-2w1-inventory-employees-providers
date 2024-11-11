@@ -74,6 +74,7 @@
                     'is-invalid': unit.invalid && unit.touched,
                     'is-valid': unit.valid && unit.touched
                   }"
+                  [disabled]="this.idProductToEdit!==undefined"
                   required
                 />
               </div>
@@ -114,7 +115,7 @@
                 }
               </div>
             </div>
-          </div> 
+          </div> -->
 
           <div class="col-lg-6 mb-3">
             <div class="row text-end">
@@ -129,12 +130,13 @@
                   [clearable]="false"
                   bindLabel="name"
                   bindValue="id"
+                  [disabled]="this.idProductToEdit!==undefined"
                   required
                 >
                 </ng-select>
               </div>
             </div>
-          </div>-->
+          </div>
 
           <div class="col-lg-6 mb-3">
             <div class="row text-end">
@@ -153,6 +155,7 @@
                     'is-invalid': stock.invalid && stock.touched,
                     'is-valid': stock.valid && stock.touched
                   }"
+                  [disabled]="this.idProductToEdit!==undefined"
                 />
               </div>
               <div class="error-container">
@@ -199,6 +202,7 @@
               </div>
             </div>
           </div>
+          <div class="col-6"></div>
 
           <div class="mb-4 form-check col-md-6 ml-2 text-end">
             <input
@@ -266,13 +270,15 @@
           </div>
           <div class="col-auto">
             <button
-              [disabled]="!myForm.valid"
-              type="submit"
-              class="btn btn-success"
-              style="width: 100%"
-            >
-              Registrar
-            </button>
+                type="submit"
+                [disabled]="myForm.invalid || dtoIsEqual()"
+                class="btn {{
+                  idProductToEdit ? 'btn-primary' : 'btn-success'
+                }}"
+                data-bs-dismiss=""
+              >
+                {{ idProductToEdit ? "Guardar" : "Registrar" }}
+              </button>
           </div>
         </div>
       </form>
