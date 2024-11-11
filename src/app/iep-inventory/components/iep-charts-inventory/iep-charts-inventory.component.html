@@ -106,19 +106,19 @@
             </div>
         </div>  
     </div>
-    <div class="row position-relative min-vh-75">
+    <div class="row sticky-section border-0 rounded-4 p-3 shadow mb-4">
         <div class="col-md-6">
             <div class="card border-0 shadow-lg  rounded-4 h-100 w-100">
                 <div class="card-body">
                     <div class=" align-items-center mb-4">
                         <div>
-                            <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">Porcentaje productos</h5>
+                            <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">% Aumentos Productos</h5>
                             <small class="text-secondary d-flex justify-content-center"></small>
                             </div>
                         </div>
-                        <!-- <google-chart [type]="columnChartType" [data]="columnChartData" [options]="columnChartOptions"
+                        <google-chart [type]="chartTypeCirculo" [data]="dataProductosAlta" [options]="chartOptionsProductos"
                         class="w-100 expanded-chart-content">
-                    </google-chart> -->
+                    </google-chart>
                 </div>
             </div>
         </div>
@@ -127,13 +127,13 @@
                 <div class="card-body">
                     <div class=" align-items-center mb-4">
                         <div>
-                                <h5 class="card-title text-secondary mb-1  d-flex justify-content-center"></h5>
+                                <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">% Disminuciones Productos</h5>
                                 <small class="text-secondary d-flex justify-content-center"></small>
                             </div>
                         </div>
-                        <!-- <google-chart [type]="columnChartType" [data]="columnChartData" [options]="columnChartOptions"
+                        <google-chart [type]="chartTypeCirculo" [data]="dataProductosBaja" [options]="chartOptionsProductos"
                         class="w-100 expanded-chart-content">
-                    </google-chart> -->
+                    </google-chart>
                 </div>
             </div>
         </div>

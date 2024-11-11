@@ -19,7 +19,10 @@ export class IepChartsInventoryComponent implements OnInit {
   fechaInicio!: string;
   fechaFin!: string;
 
+  // listacategorias: Set<String> = new Set();
+
   productos: any[] = []
+  productosFiltrados: any[] = [];
   modificaciones: any[] = [];
   modificacionesFiltradas: any[] = [];
 
@@ -27,12 +30,22 @@ export class IepChartsInventoryComponent implements OnInit {
   chartTypeCirculo: ChartType = ChartType.PieChart;
   
   dataHistorial: any[] = [];
-  dataProductos: any[] = [];
+  dataProductosAlta: any[] = [];
+  dataProductosBaja: any[] = [];
+
   dataEstadosProductos: any[] = [];
 
   chartOptionsProductos = {
-    title: 'Productos',
-    colors: ['#28a745'],
+    format: {
+      number: {
+        maximumFractionDigits: 0 // Eliminar decimales
+      }
+    },
+    animation: {
+      duration: 1000,
+      easing: 'out',
+      startup: true
+    },
   };
 
   chartOptionsEstadosProductos = {
@@ -53,7 +66,7 @@ export class IepChartsInventoryComponent implements OnInit {
     this.initializeDates();
     this.setInitialDates();
     this.loadProductos();
-    this.loadHistorial();
+    this.loadMovimientos();
   }
 
   loadProductos(){
@@ -61,71 +74,75 @@ export class IepChartsInventoryComponent implements OnInit {
       next: (Productos) =>{
          this.productos = [];
          this.productos = Productos;
-         this.cargarProductos();
+         console.log(this.productos)
         }
       })
   }
 
-  loadHistorial(){
+  loadMovimientos(){
     const empSubscription = this.stockHistorial.getModifications().subscribe({
       next: (Modificacion) =>{
         this.modificaciones = [];
         this.modificaciones = Modificacion;
         this.modificacionesFiltradas = Modificacion;
         this.filtrar();
-        this.cargarModificaciones();
+        this.cargarMovimientos();
       },
       error: (err) => console.error('Error al cargar asistencias:', err)
     })
   }
 
-  cargarProductos(){
-    this.dataProductos = [];
-    const categorias: Set<String> = new Set();
-    this.productos.forEach(producto => {
-      categorias.add(producto.category.categoryName)
-    });
-    
-    categorias.forEach(categoria => {
-      var total = 0;
+  // cargarCategoriasProductos(){
+  //   this.dataProductos = [];
+  //   const categorias: Set<String> = new Set();
+  //   this.productos.forEach(producto => {
+  //     console.log(producto)
+  //     categorias.add(producto.category.categoryName)
+  //   });
+  //   this.listacategorias = categorias;
+
+  //   // categorias.forEach(categoria => {
+  //   //   var total = 0;
       
-      this.productos.forEach(producto => {
-        if (categoria === producto.category.categoryName){
-          total = total + producto.detailProducts.length;
-        }
-      });
+  //   //   this.productos.forEach(producto => {
+  //   //     if (categoria === producto.category.categoryName){
+  //   //       total = total + producto.detailProducts.length;
+  //   //     }
+  //   //   });
 
-      this.dataProductos.push([categoria, total])
-    });
+  //   //   this.dataProductos.push([categoria, total])
+  //   // });
 
-    this.cargarEstados();
-  }
+  //   // this.cargarEstados();
+  // }
 
-  cargarEstados(){
-    var d = 0;
-    var p = 0;
-    var m = 0;
+  // cargarEstados(){
+  //   var d = 0;
+  //   var p = 0;
+  //   var m = 0;
 
-    this.productos.forEach(producto => {
-      const detalles: any[] = producto.detailProducts; 
-      detalles.forEach(detalle => {
-        switch(detalle.state){
-          case "Disponible": d++; break;
-          case "Prestado": p++; break;
-          case "Mantenimiento": m++; break;
-        }
-      });
-    });
+  //   this.productos.forEach(producto => {
+  //     const detalles: any[] = producto.detailProducts; 
+  //     detalles.forEach(detalle => {
+  //       switch(detalle.state){
+  //         case "Disponible": d++; break;
+  //         case "Prestado": p++; break;
+  //         case "Mantenimiento": m++; break;
+  //       }
+  //     });
+  //   });
 
-    const total = d + p + m;
+  //   const total = d + p + m;
 
-    this.dataEstadosProductos = [];
+  //   this.dataEstadosProductos = [];
 
-    this.dataEstadosProductos.push(["Disponible", d / total * 100],["Prestado", p /total * 100],
-    ["Mantenimiento", m /total * 100])
-  }
+  //   this.dataEstadosProductos.push(["Disponible", d / total * 100],["Prestado", p /total * 100],
+  //   ["Mantenimiento", m /total * 100])
+  // }
 
-  cargarModificaciones(){
+  cargarMovimientos(){
+    this.dataHistorial = [];
+    this.dataProductosAlta = [];
     
     const fechas: Set<Date> = new Set();
     this.modificacionesFiltradas.forEach(modificacion => {
@@ -135,7 +152,6 @@ export class IepChartsInventoryComponent implements OnInit {
       fechas.add(fechaModificacion);
     });
 
-    this.dataHistorial = [];
     fechas.forEach(fecha => {
       var totalAumento = 0;
       var totalDisminucion = 0;
@@ -151,9 +167,32 @@ export class IepChartsInventoryComponent implements OnInit {
           }
         }
       });
-      
       this.dataHistorial.push([fecha,totalAumento,totalDisminucion]);
     });
+
+    const producto: Set<String> = new Set();
+    var totalProductos: number = 0
+    this.modificacionesFiltradas.forEach(modificacion => {
+      producto.add(modificacion.product);
+      totalProductos = totalProductos + modificacion.amount;
+    });
+
+    producto.forEach(producto => {
+      var totalAumentoProducto = 0;
+      var totalDisminucionProducto = 0;
+
+      this.modificacionesFiltradas.forEach(modificacion => {
+        if (producto === modificacion.product && modificacion.modificationType === 'Aumento') {totalAumentoProducto += modificacion.amount}
+        if (producto === modificacion.product && modificacion.modificationType === 'Disminución') {totalDisminucionProducto += modificacion.amount}
+      });
+
+      totalAumentoProducto = totalAumentoProducto / totalProductos * 100;
+      totalDisminucionProducto = totalDisminucionProducto / totalProductos * 100;
+
+      this.dataProductosAlta.push([`${producto} - ${parseFloat(totalAumentoProducto.toFixed(1))}%`,totalAumentoProducto]);
+      this.dataProductosBaja.push([`${producto} - ${parseFloat(totalDisminucionProducto.toFixed(1))}%`,totalDisminucionProducto]);
+    });
+      
 
     //modificacionesFiltradas.forEach(modificacion => {
       //console.log(modificacion.date)
@@ -197,9 +236,6 @@ export class IepChartsInventoryComponent implements OnInit {
     startDateInput.value = thirtyDaysAgo.toISOString().split('T')[0];
     endDateInput.value = today.toISOString().split('T')[0];
 
-    console.log(startDateInput.value);
-    console.log(endDateInput.value);
-
     // Establecer los límites de las fechas
     endDateInput.max = today.toISOString().split('T')[0];
     startDateInput.max = endDateInput.value;
@@ -218,7 +254,7 @@ export class IepChartsInventoryComponent implements OnInit {
     if (startDateInput.value) { endDateInput.min = startDateInput.value; } 
     else { endDateInput.min = ''; }
 
-    this.loadHistorial();
+    this.loadMovimientos();
   }
 
   onEndDateChange(): void {
@@ -233,7 +269,7 @@ export class IepChartsInventoryComponent implements OnInit {
     if (endDateInput.value) { startDateInput.max = endDateInput.value; } 
     else { startDateInput.max = ''; }
 
-    this.loadHistorial();
+    this.loadMovimientos();
   }
 
   filtrar(){
@@ -253,7 +289,6 @@ export class IepChartsInventoryComponent implements OnInit {
 
     this.modificacionesFiltradas = this.modificaciones.filter((modificacion) => {
       const productDate = new Date(this.formatDateyyyyMMdd(modificacion.date));
-      console.log(productDate);
       return (
         (!startDate || productDate >= startDate) &&
         (!endDate || productDate <= endDate)
@@ -269,6 +304,6 @@ export class IepChartsInventoryComponent implements OnInit {
   limpiarFiltro(){
     this.modificacionesFiltradas = [];
     this.setInitialDates();
-    this.loadHistorial();
+    this.loadMovimientos();
   }
 }
