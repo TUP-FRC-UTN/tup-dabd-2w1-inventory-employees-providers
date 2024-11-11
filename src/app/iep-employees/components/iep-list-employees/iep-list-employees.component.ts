@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterModule } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
-import { FormsModule, NgSelectOption } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 
 import { EmpListadoEmpleados } from '../../Models/emp-listado-empleados';
 import { EmpListadoAsistencias } from '../../Models/emp-listado-asistencias';
@@ -11,10 +11,7 @@ import { EmployeePerformance } from '../../Models/listado-desempeño';
 import { EmpListadoEmpleadosService } from '../../services/emp-listado-empleados.service';
 import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import Swal from 'sweetalert2';
-import { NgSelectModule } from '@ng-select/ng-select';
 
 declare var $: any;
 declare var DataTable: any;
@@ -28,73 +25,60 @@ interface EmployeeFilters {
   salarioMax: number;
 }
 
+
 @Component({
   selector: 'app-iep-list-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgSelectModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './iep-list-employees.component.html',
   styleUrls: ['./iep-list-employees.component.css'],
 })
 export class IepListEmployeesComponent implements OnInit, OnDestroy {
 
-  stateOptions =[
-    { id: 'Activo', label: 'Activo' },
-    { id: 'Inactivo', label: 'Inactivo' },
-    { id: 'Licencia', label: 'Licencia' }
-  ];
-
-  onStateChange(selectedItems: any[]): void {
-    this.selectedState = selectedItems ? selectedItems.map(item => item.id) : [];
-    this.applyFilters();
-  }
-
   applyFilters(): void {
-    if (!this.table) return;
+    if (this.table) {
+      this.table.clear();
 
-    this.table.clear();
+      const filteredData = this.Empleados.filter(empleado => {
+        // Filtro por apellido y nombre
+        const nameMatch = !this.filters.apellidoNombre ||
+          empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre.toLowerCase());
 
-    const filteredData = this.Empleados.filter(empleado => {
-      // Filtro por apellido y nombre
-      const nameMatch = !this.filters.apellidoNombre ||
-        empleado.fullName.toLowerCase().includes(this.filters.apellidoNombre.toLowerCase());
+        // Filtro por documento
+        const documentMatch = !this.filters.documento ||
+          empleado.document.toString().toLowerCase().includes(this.filters.documento.toLowerCase());
 
-      // Filtro por documento
-      const documentMatch = !this.filters.documento ||
-        empleado.document.toString().toLowerCase().includes(this.filters.documento.toLowerCase());
+        // Filtro por rango de salario
+        const salaryMatch = empleado.salary >= this.filters.salarioMin &&
+          empleado.salary <= this.filters.salarioMax;
 
-      // Filtro por rango de salario
-      const salaryMatch = empleado.salary >= this.filters.salarioMin &&
-        empleado.salary <= this.filters.salarioMax;
+        // Filtro de búsqueda general (searchFilter)
+        const searchTerms = this.searchFilter ? this.searchFilter.toLowerCase().split(' ') : [];
+        const searchMatch = !this.searchFilter || searchTerms.every(term =>
+          empleado.fullName.toLowerCase().includes(term) ||
+          empleado.document.toString().toLowerCase().includes(term) ||
+          empleado.salary.toString().includes(term)
+        );
 
-      // Filtro de búsqueda general (searchFilter)
-      const searchTerms = this.searchFilter ? this.searchFilter.toLowerCase().split(' ') : [];
-      const searchMatch = !this.searchFilter || searchTerms.every(term =>
-        empleado.fullName.toLowerCase().includes(term) ||
-        empleado.document.toString().toLowerCase().includes(term) ||
-        empleado.salary.toString().includes(term)
-      );
+        // Filtro por posición (modificado para múltiples selecciones)
+        const positionMatch = this.selectedPositions.length === 0 ||
+          this.selectedPositions.includes(empleado.position);
 
-      // Filtro por posición
-    const positionMatch = this.selectedPositions.length === 0 ||
-    this.selectedPositions.includes(empleado.position);
+        // Aplicar todos los filtros en conjunto
+        return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch;
+      });
 
-  // Filtrar por estado
-  const stateMatch = this.selectedState.length === 0 ||
-    this.selectedState.includes(empleado.active ? empleado.license ? 'Licencia' : 'Activo' : 'Inactivo');
-
-  // Aplicar todos los filtros en conjunto
-  return nameMatch && documentMatch && salaryMatch && searchMatch && positionMatch && stateMatch;
-});
-
-this.table.rows.add(filteredData).draw();
+      this.table.rows.add(filteredData).draw();
+    }
   }
+
 
   private filters: EmployeeFilters = {
     apellidoNombre: '',
     position: '', // Cargo del empleado
     documento: '',
     salarioMin: 0,
-    salarioMax: Number.MAX_VALUE,
+    salarioMax: Number.MAX_VALUE
   };
 
   applyColumnFilter(event: Event, field: string): void {
@@ -109,46 +93,17 @@ this.table.rows.add(filteredData).draw();
     this.applyFilters();
   }
 
-  salarioMin: number | null = null;
-  salarioMax: number | null = null;
-  errorMessage: string | null = null;
-
-  validacionSalario(): boolean {
-    if (this.salarioMin === null || this.salarioMax === null) {
-      return false;
-    }
-    if (this.salarioMin > this.salarioMax) {
-      this.errorMessage =
-        'El salario mínimo no puede ser mayor al salario máximo';
-    } else {
-      this.errorMessage = null;
-    }
-    return this.salarioMin <= this.salarioMax;
-  }
-
-  //validacion de salario no negativo, tanto minimo como maximo
-
   applyAmountFilter(type: string, event: Event): void {
     const value = Number((event.target as HTMLInputElement).value) || 0;
 
     if (type === 'min') {
       this.filters.salarioMin = value;
-      this.applyFilters();
     } else if (type === 'max') {
       this.filters.salarioMax = value || Number.MAX_VALUE;
-      this.applyFilters();
-    }
-
-    //Validar que el salario minimo no sea mayor al salario maximo, en caso de serlo, mostrar mensaje de error
-    if (!this.validacionSalario()) {
-      return;
     }
 
     this.applyFilters();
   }
-
-  apellidoNombre: string = '';
-  documento: string = '';
 
   cleanColumnFilters(): void {
     // Limpiar los valores de los filtros
@@ -157,34 +112,21 @@ this.table.rows.add(filteredData).draw();
       position: '', // Cargo del empleado
       documento: '',
       salarioMin: 0,
-      salarioMax: Number.MAX_VALUE,
+      salarioMax: Number.MAX_VALUE
     };
-
-    this.documento = '';
-    this.apellidoNombre = '';
-    this.salarioMin = null;
-    this.salarioMax = null;
-    this.errorMessage = null;
-
-    // Limpia los estados seleccionados
-    this.selectedState = [];
 
     // Limpiar las posiciones seleccionadas
     this.selectedPositions = [];
 
     // Limpiar los inputs
-    const inputs = document.querySelectorAll(
-      '.filtros input'
-    ) as NodeListOf<HTMLInputElement>;
-    inputs.forEach((input) => {
+    const inputs = document.querySelectorAll('.filtros input') as NodeListOf<HTMLInputElement>;
+    inputs.forEach(input => {
       input.value = ''; // Clear input values
       input.dispatchEvent(new Event('input')); // Trigger input event to update the model
     });
 
-    const selects = document.querySelectorAll(
-      '.filtros select'
-    ) as NodeListOf<HTMLSelectElement>;
-    selects.forEach((select) => {
+    const selects = document.querySelectorAll('.filtros select') as NodeListOf<HTMLSelectElement>;
+    selects.forEach(select => {
       select.value = ''; // Clear select values
       select.dispatchEvent(new Event('change')); // Trigger change event to update the model
     });
@@ -195,6 +137,7 @@ this.table.rows.add(filteredData).draw();
 
   filteredEmpleados: EmpListadoEmpleados[] = [];
 
+
   filtersVisible = false; // Indica si los filtros están visibles o no
 
   toggleFilters(): void {
@@ -202,32 +145,35 @@ this.table.rows.add(filteredData).draw();
   }
 
   Empleados: EmpListadoEmpleados[] = [];
+  Asistencias: EmpListadoAsistencias[] = [];
+  filteredAsistencias: EmpListadoAsistencias[] = [];
   employeePerformances: EmployeePerformance[] = [];
   private table: any;
-  ventana: string = 'Informacion';
+  ventana: string = "Informacion";
   router = inject(Router);
   showModal = false;
   modalContent: SafeHtml = '';
   startDate!: string;
   endDate!: string;
-  nombreFiltrado: string = '';
-  estadoFiltrado: string = '';
+  nombreFiltrado: string  = "";
+  estadoFiltrado: string = "";
   private subscriptions: Subscription[] = [];
   private searchFilter: string = '';
   private positionFilter: string = '';
   uniquePositions: string[] = [];
-  selecteduniquePositions: string[] = [];
-  uniqueStates: string[] = [];
+
 
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
+    private employeePerformanceService: ListadoDesempeñoService,
     private sanitizer: DomSanitizer
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadEmpleados();
     this.initializeDates();
-    this.bindEditButtons();
+    this.setInitialDates();
+    //this.bindEditButtons();
   }
 
   getFormattedDate(): string {
@@ -238,16 +184,12 @@ this.table.rows.add(filteredData).draw();
     return `${day}/${month}/${year}`;
   }
 
-  goTo(path: string) {
-    this.router.navigate([path]);
-  }
   exportToPdf(): void {
     const doc = new jsPDF();
 
     if (this.ventana === 'Informacion') {
       // Extrae datos de la tabla de empleados
       const dataToExport = this.Empleados.map((empleado) => [
-        empleado.active ? empleado.license ? 'Licencia' : 'Activo' : 'Inactivo',
         empleado.fullName,
         empleado.document,
         empleado.position,
@@ -257,53 +199,62 @@ this.table.rows.add(filteredData).draw();
       doc.setFontSize(16);
       doc.text('Lista de Empleados', 10, 10);
       (doc as any).autoTable({
-        head: [['Estado','Apellido y Nombre', 'Documento', 'Posición', 'Salario']],
+        head: [['Nombre', 'Documento', 'Posición', 'Salario']],
         body: dataToExport,
-        startY: 30,
-        theme: 'grid',
-        margin: { top: 30, bottom: 20 },
+        startY: 20,
+      });
+    } else if (this.ventana === 'Asistencias') {
+      // Extrae datos de la tabla de asistencias
+      const dataToExport = this.Asistencias.map((asistencia) => [
+        asistencia.employeeName,
+        asistencia.date,
+        asistencia.arrivalTime,
+        asistencia.departureTime,
+        asistencia.state,
+      ]);
+
+      doc.setFontSize(16);
+      doc.text('Lista de Asistencias', 10, 10);
+      (doc as any).autoTable({
+        head: [['Nombre del Empleado', 'Fecha', 'Hora de Llegada', 'Hora de Salida', 'Estado']],
+        body: dataToExport,
+        startY: 20,
       });
     }
 
-    doc.save(`${this.getFormattedDate()}_Lista_Empleados.pdf`);
+    doc.save(`Lista_${this.ventana}_${this.getFormattedDate()}.pdf`);
   }
 
   exportToExcel(): void {
-
-    const encabezado = [
-      ['Listado de Empleados'],
-      [], // Fila en blanco
-      ['Estado', 'Nombre', 'Documento', 'Posición', 'Salario'] 
-    ];
-
-    // Extrae los datos de los empleados en formato de arreglo de arreglos
-    let dataToExport: any[] = [];
+    let dataToExport: any[] = []; // Define un array vacío por defecto
 
     if (this.ventana === 'Informacion') {
-      dataToExport = this.Empleados.map((empleado) => [
-        empleado.active ? (empleado.license ? 'Licencia' : 'Activo') : 'Inactivo',
-        empleado.fullName,
-        empleado.document,
-        empleado.position,
-        empleado.salary
-      ]);
+      // Extrae datos de la tabla de empleados
+      dataToExport = this.Empleados.map((empleado) => ({
+        'Nombre': empleado.fullName,
+        'Documento': empleado.document,
+        'Posición': empleado.position,
+        'Salario': empleado.salary,
+      }));
+    } else if (this.ventana === 'Asistencias') {
+      // Extrae datos de la tabla de asistencias
+      dataToExport = this.Asistencias.map((asistencia) => ({
+        'Nombre del Empleado': asistencia.employeeName,
+        'Fecha': asistencia.date,
+        'Hora de Llegada': asistencia.arrivalTime,
+        'Hora de Salida': asistencia.departureTime,
+        'Estado': asistencia.state,
+      }));
     }
 
-    // Combina encabezado con los datos de exportación
-    const worksheetData = [...encabezado, ...dataToExport];
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-    // Crea el libro de trabajo
+    // Aquí se asegura de que dataToExport nunca sea undefined
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      `Lista de ${this.ventana}`
-    );
+    XLSX.utils.book_append_sheet(workbook, worksheet, `Lista de ${this.ventana}`);
 
-    // Descarga el archivo Excel
-    XLSX.writeFile(workbook, `${this.getFormattedDate()}_Lista_Empleados.xlsx`);
-}
+    XLSX.writeFile(workbook, `Lista_${this.ventana}_${this.getFormattedDate()}.xlsx`);
+  }
+
 
 
   onSearchFilterChange(event: Event): void {
@@ -313,9 +264,7 @@ this.table.rows.add(filteredData).draw();
   }
 
   private updatePositionFilter(): void {
-    const comboFiltroCargo = document.getElementById(
-      'comboFiltroCargo'
-    ) as HTMLSelectElement;
+    const comboFiltroCargo = document.getElementById('comboFiltroCargo') as HTMLSelectElement;
     if (comboFiltroCargo) {
       const currentValue = comboFiltroCargo.value; // Guardar el valor actual
 
@@ -325,7 +274,7 @@ this.table.rows.add(filteredData).draw();
       }
 
       // Agregar las nuevas opciones
-      this.uniquePositions.forEach((position) => {
+      this.uniquePositions.forEach(position => {
         if (position) {
           const option = document.createElement('option');
           option.value = position;
@@ -342,54 +291,42 @@ this.table.rows.add(filteredData).draw();
     }
   }
 
-  private updateStateFilter(): void {
-    const comboFiltroEstado = document.getElementById(
-      'comboFiltroEstado'
-    ) as HTMLSelectElement;
-    if (comboFiltroEstado) {
-      const currentValue = comboFiltroEstado.value; // Guardar el valor actual
-
-      // Limpiar opciones existentes excepto la primera
-      while (comboFiltroEstado.options.length > 1) {
-        comboFiltroEstado.remove(1);
-      }
-
-      // Agregar las nuevas opciones
-      this.uniqueStates.forEach((state) => {
-        if (state) {
-          const option = document.createElement('option');
-          option.value = state;
-          option.text = state;
-          comboFiltroEstado.appendChild(option);
-        }
-      });
-
-      // Restaurar el valor seleccionado si existía
-      if (currentValue && this.uniqueStates.includes(currentValue)) {
-        comboFiltroEstado.value = currentValue;
-        this.estadoFiltrado = currentValue;
-      }
-    }
-  }
-
   selectedPositions: string[] = []; // Array para almacenar las posiciones seleccionadas
 
-  onPositionFilterChange(): void {
-    this.applyFilters();
-  }
-
-  selectedState: string[] = []; // Variable para almacenar el estado seleccionado
-
-  onStateFilterChange(event: Event, position: string): void {
+  onPositionFilterChange(event: Event, position: string): void {
     const checkbox = event.target as HTMLInputElement;
 
     if (checkbox.checked) {
-      this.selectedState.push(position);
+      this.selectedPositions.push(position);
     } else {
-      this.selectedState = this.selectedState.filter((p) => p !== position);
+      this.selectedPositions = this.selectedPositions.filter(p => p !== position);
     }
 
     this.applyFilters();
+  }
+
+  setInitialDates(): void {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    const startDateInput: HTMLInputElement = document.getElementById(
+      'startDate'
+    ) as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById(
+      'endDate'
+    ) as HTMLInputElement;
+
+    startDateInput.value = this.formatDateForInput(thirtyDaysAgo);
+    endDateInput.value = this.formatDateForInput(today);
+
+    // Establecer los límites de las fechas
+    endDateInput.max = this.formatDateForInput(today);
+    startDateInput.max = endDateInput.value;
+    endDateInput.min = startDateInput.value;
+
+    // Trigger the filter
+    this.filterByDate();
   }
 
   formatDateForInput(date: Date): string {
@@ -397,7 +334,7 @@ this.table.rows.add(filteredData).draw();
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
     if (this.table) {
       this.table.destroy();
     }
@@ -405,16 +342,8 @@ this.table.rows.add(filteredData).draw();
 
   initializeDates(): void {
     const today = new Date();
-    const firstDayOfLastMonth = new Date(
-      today.getFullYear(),
-      today.getMonth() - 0,
-      1
-    );
-    const lastDayOfLastMonth = new Date(
-      today.getFullYear(),
-      today.getMonth() + 1,
-      0
-    );
+    const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 0, 1);
+    const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(today.getDate() - 30);
     this.startDate = this.formatDate(thirtyDaysAgo);
@@ -425,20 +354,10 @@ this.table.rows.add(filteredData).draw();
     const empSubscription = this.empleadoService.getEmployees().subscribe({
       next: (empleados) => {
         this.Empleados = empleados;
-        console.log('Empleados:', this.Empleados);
+        console.log('Empleados:',  this.Empleados);
         this.ventana = 'Informacion';
         // Obtener posiciones únicas
-        this.uniquePositions = [
-          ...new Set(empleados.map((emp) => emp.position)),
-        ].sort();
-        //cargar estados unicos, en caso de que sea activo, validar si esta en licencia
-        this.uniqueStates = [
-          ...new Set(
-            empleados.map((emp) =>
-              emp.active ? (emp.license ? 'Licencia' : 'Activo') : 'Inactivo'
-            )
-          ),
-        ].sort();
+        this.uniquePositions = [...new Set(empleados.map(emp => emp.position))].sort();
 
         // Guardar el filtro actual si existe
         const currentFilter = this.positionFilter;
@@ -460,9 +379,26 @@ this.table.rows.add(filteredData).draw();
     this.subscriptions.push(empSubscription);
   }
 
+  loadAsistencias(): void {
+    const asistSubscription = this.empleadoService.getAttendances().subscribe({
+      next: (asistencias) => {
+        this.Asistencias = asistencias;
+        this.filteredAsistencias = asistencias;
+        this.ventana = 'Asistencias';
+        // Limpiar los filtros cuando cambies a Asistencias
+        this.positionFilter = '';
+        this.searchFilter = '';
+        this.initializeDataTable();
+      },
+      error: (err) => console.error('Error al cargar asistencias:', err),
+    });
+    this.subscriptions.push(asistSubscription);
+  }
+
   loadDesempeno(): void {
     const start = new Date(this.startDate);
     const end = new Date(this.endDate);
+
   }
 
   initializeDataTable(): void {
@@ -472,160 +408,127 @@ this.table.rows.add(filteredData).draw();
     }
 
     const commonConfig = {
-      pageLength: 5,
+      pageLength: 10,
       lengthChange: true,
       searching: false,
       language: {
-        search: 'Buscar:',
-        info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
-        lengthMenu: `<select class="form-select">
-            <option value="5">5</option>
+        search: "Buscar:",
+        info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+        lengthMenu:
+          `<select class="form-select">
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
           </select>`,
-        zeroRecords: 'No se encontraron registros',
-        emptyTable: 'No se encontraron empleados',
-      },
+        zeroRecords: "No se encontraron registros",
+        emptyTable: "No hay datos disponibles",
+      }
     };
 
     switch (this.ventana) {
       case 'Informacion':
         this.initializeInformacionTable(commonConfig);
         break;
+      case 'Asistencias':
+        this.initializeAsistenciasTable(commonConfig);
+        break;
+      case 'Desempeño':
+        this.initializeDesempenoTable(commonConfig);
+        break;
     }
   }
-
-  /// necesito que borres la linea de la tabla 
 
   private initializeInformacionTable(commonConfig: any): void {
     this.table = $('#empleadosTable').DataTable({
       ...commonConfig,
       layout: {
         topStart: 'search',
-        topEnd: null,
+        topEnd: null
       },
       dom:
-        '<"mb-3"t>' + //Tabla
+        '<"mb-3"t>' +                           //Tabla
         '<"d-flex justify-content-between"lp>', //Paginacion
-      data: this.Empleados,
-      order: [[0, 'asc']], // Ordenar por fecha de forma descendente
+      data: this.Empleados,      
+      order: [[4, 'asc']], // Ordenar por fecha de forma descendente
       columns: [
         {
-          data: 'active',
-          title: 'Estado',
-          className: 'align-middle text-center',
-          render: (data: boolean, type: any, row: any) => {
-            // Si el empleado está activo, valida la clave 'license' y si es true, retorna "Licencia"
-            if (data) {
-              return row.license
-                ? '<span class="badge border rounded-pill text-bg-yellow">Licencia</span>'
-                : '<span class="badge border rounded-pill text-bg-green">Activo</span>';
-            }
-            return '<span class="badge border rounded-pill text-bg-red">Inactivo</span>';
-          },
-        },
-        {
           data: 'fullName',
-          title: 'Apellido, Nombre',
-          className: 'align-middle',
+          title: 'Apellido y Nombre',
           render: (data: string, type: string, row: any) => {
             if (type === 'display') {
               return `<span class="searchable">${data}</span>`;
             }
             return data.toLowerCase();
-          },
+          }
         },
         {
           data: 'document',
           title: 'Documento',
-          className: 'align-middle',
           render: (data: string, type: string) => {
             if (type === 'display') {
               return `<span class="searchable">${data}</span>`;
             }
             return data;
-          },
+          }
         },
         {
           data: 'position',
           title: 'Posición',
-          className: 'align-middle',
           render: (data: string, type: string) => {
             if (type === 'display') {
               return data;
             }
             return data.toLowerCase();
-          },
+          }
         },
         {
           data: 'salary',
           title: 'Salario',
-          className: 'align-middle',
-          render: (data: number | bigint) => {
-            let formattedAmount = new Intl.NumberFormat('es-AR', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }).format(data);
-            return `<div>$ ${formattedAmount} </div>`;
-          },
+          className: 'text-end searchable',
+          render: (data: number, type: string) => {
+            if (type === 'display') {
+              return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+              }).format(data);
+            }
+            return data;
+          }
+        },
+        {
+          data: 'active',
+          title: 'Estado',
+          className: 'text-center',
+          render: (data: boolean) => {
+            return data ? 'Activo' : 'Inactivo';
+          }
         },
         {
           data: null,
           title: 'Acciones',
-          className: 'text-center',
           render: (data: any) => {
-            const puedeEliminar = data.active; // true si está activo o en licencia
-
             return `
-                <div class="dropdown d-flex justify-content-center">
+              <div class="dropdown text-center">
                 <a class="btn btn-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                   style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; line-height: 1; padding: 0;">
-                  &#8942;
+                  &#8942; <!-- Tres puntos verticales -->
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${
-                    data.id
-                  }" href="#">Ver más</a></li>
-                  <li><button class="dropdown-item consultar-asistencias" data-empleado-id="${
-                    data.id
-                  }">Ver asistencias</button></li>
-                  <li><button class="dropdown-item consultar-desempeño" data-empleado-id="${
-                    data.id
-                  }">Ver desempeño</button></li>
-                  
-                  ${
-                    puedeEliminar
-                      ? `
-                    <li class="dropdown-divider"></li>
-                    <li><button class="dropdown-item eliminar-btn" data-empleado-id="${data.id}">Eliminar</button></li>
-                  `
-                      : ''
-                  }
+                  <li><a class="dropdown-item consultar-btn" data-empleado-id="${data.id}" href="#">Ver más</a></li>
+                  <li><a class="dropdown-item modificar-btn" data-empleado-id="${data.id}" href="#">Actualizar</a></li>
+                  <li><a class="dropdown-item eliminar-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-empleado-id="${data.id}" href="#">Eliminar</a></li>
                 </ul>
               </div>`;
-          },
-        },
-      ],
+          }
+        }
+      ]
     });
+
 
     $('#empleadosTable').on('click', '.consultar-btn', (event: any) => {
       event.preventDefault();
       const empleadoId = $(event.currentTarget).data('empleado-id');
       this.consultarEmpleado(empleadoId);
-    });
-
-    $('#empleadosTable').on('click', '.consultar-asistencias', (event: any) => {
-      event.preventDefault();
-      const empleadoId = $(event.currentTarget).data('empleado-id');
-      console.log(empleadoId);
-      this.router.navigate([`home/employee/attendance/${empleadoId}`]);
-    });
-
-    $('#empleadosTable').on('click', '.consultar-desempeño', (event: any) => {
-      event.preventDefault();
-      const empleadoId = $(event.currentTarget).data('empleado-id');
-      this.router.navigate([`home/employee/performance/${empleadoId}`]); // Redirige al componente de desempeño con el ID del empleado
     });
 
     $('#empleadosTable').on('click', '.modificar-btn', (event: any) => {
@@ -634,123 +537,211 @@ this.table.rows.add(filteredData).draw();
       this.editarEmpleado(id);
     });
 
-      // Manejador de clics para los botones de eliminar
-  $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
-    event.preventDefault();
-    // Obtener el ID del empleado al que se hace clic
-    this.empleadoIdToDelete = $(event.currentTarget).data('empleado-id');
-    // Mostrar el modal
-    $('#deleteModal').modal('show');
-  });
-
-    // Event handler para el botón de eliminar
-/*     $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
+    // Event handler for eliminar (delete) button
+    $('#empleadosTable').on('click', '.eliminar-btn', (event: any) => {
       event.preventDefault();
       this.empleadoIdToDelete = $(event.currentTarget).data('empleado-id');
-      this.confirmDelete(); // Llama a confirmDelete al hacer clic
-    }); */
+    });
 
     // Aplicar filtros iniciales si existen
     if (this.searchFilter || this.positionFilter) {
       this.applyFilters();
     }
   }
-
   // Agrega esta propiedad a la clase
   empleadoIdToDelete: number | null = null;
 
-  //swal para confirmar eliminacion
-
-
+  // Agrega esta nueva función para manejar la confirmación
   confirmDelete(): void {
-    if (this.empleadoIdToDelete !== null) {
-      // Procedemos directamente a la eliminación sin preguntar confirmación
-      this.empleadoService
-        .changeEmployeeStatus(this.empleadoIdToDelete)
-        .subscribe({
-          next: () => {
-            this.loadEmpleados(); // Recargar la lista de empleados
-            this.empleadoIdToDelete = null; // Limpiar el ID después de eliminar
-            // Mostrar el mensaje de éxito
-            Swal.fire({
-              title: '¡Eliminado!',
-              text: 'El empleado ha sido eliminado correctamente.',
-              icon: 'success',
-              confirmButtonText: 'Aceptar'  // Solo un botón de "Aceptar" en caso de eliminación exitosa
-            }
-            );
-          },
-          error: (error) => {
-            console.error('Error al eliminar el empleado:', error);
-            // Mostrar el mensaje de error
-            Swal.fire(
-              {
-                title: 'Error',
-                text: 'Ocurrió un error al eliminar el empleado.',
-                icon: 'error',
-                confirmButtonText: 'Aceptar' , // Solo un botón de "Aceptar" en caso de error
-                confirmButtonColor: '#3085d6'
-              }
-            );
-            this.empleadoIdToDelete = null;
-          },
-        });
-    } else {
-      // Si no hay un empleado seleccionado para eliminar
-      Swal.fire(
-        'ID no válido',
-        'No se ha seleccionado un empleado para eliminar.',
-        'warning'
-      );
+    if (this.empleadoIdToDelete) {
+      this.empleadoService.changeEmployeeStatus(this.empleadoIdToDelete).subscribe({
+        next: () => {
+          this.loadEmpleados();
+          this.empleadoIdToDelete = null;
+        },
+        error: (error) => {
+          console.error('Error al eliminar el empleado:', error);
+          alert('Error al eliminar el empleado');
+          this.empleadoIdToDelete = null;
+        }
+      });
+
     }
   }
-  
+
 
   editarEmpleado(id: any): void {
-    this.router.navigate(['/empleados/modificar', id]);
+    //this.router.navigate(['employee/update/', id]);
+    if (id) {
+      this.router.navigate(['/home/employee/update', id]);
+    }
   }
 
-  bindEditButtons(): void {
-    const self = this; // Guardamos el contexto del componente
-    $('#empleadosTable').on('click', '.edit-button', () => {
-      const id = $(this).data('id'); // Obtenemos el ID del atributo data-id
-      self.editarEmpleado(id); // Llama al método editarEmpleado
+  // bindEditButtons(): void {
+  //   const self = this; // Guardamos el contexto del componente
+  //   $('#empleadosTable').on('click', '.modificar-btn', () => {
+  //     const id = $(this).data('id'); // Obtenemos el ID del atributo data-id
+  //     self.editarEmpleado(id); // Llama al método editarEmpleado
+  //   });
+  // }
+
+  private initializeAsistenciasTable(commonConfig: any): void {
+    this.table = $('#empleadosTable').DataTable({
+      ...commonConfig,
+      dom:
+        '<"mb-3"t>' +                           //Tabla
+        '<"d-flex justify-content-between"lp>', //Paginacion
+      order: [[0, 'desc']], // Ordenar por fecha de forma descendente
+      data: this.filteredAsistencias,
+      columns: [
+        { data: 'date', title: 'Fecha' },
+        { data: 'employeeName', title: 'Apellido y nombre' },
+        {
+          data: 'state', title: 'Estado', className: 'text-center',
+          render: (data: any) => {
+            let color;
+
+            switch (data) {
+              case "PRESENTE": color = "#28a745"; break;
+              case "AUSENTE": color = "#dc3545"; break;
+              case "JUSTIFICADO": color = "#6f42c1"; break;
+              case "TARDE": color = "#ffc107"; break;
+            }
+            return `<button class="btn border rounded-pill w-75" 
+            style="background-color: ${color}; color: white;">${data}</button>`;
+          }
+        },
+        {
+          data: 'arrivalTime', title: 'Hora de entrada',
+          render: (data: any, type: any, row: any, meta: any) => {
+            return row.arrivalTime === null ? "--:--:--" : `${row.arrivalTime}`
+          }
+        },
+        {
+          data: 'departureTime', title: 'Hora de salida',
+          render: (data: any, type: any, row: any, meta: any) => {
+            return row.departureTime === null ? "--:--:--" : `${row.departureTime}`
+          }
+        },
+        {
+          data: null,
+          title: 'Seleccionar',
+          className: 'text-center',
+          render: (data: any, type: any, row: any, meta: any) => {
+            const isHidden = row.state === "PRESENTE" || row.state === "TARDE" ? 'style="display: none;"' : '';
+            const accion = row.state === "AUSENTE" ? "Justificar" : "Injustificar";
+            const nuevoEstado = row.state === "AUSENTE" ? "JUSTIFICADO" : "AUSENTE";
+            const checkbox = `<button class="btn border w-75" 
+            ${isHidden} data-id="${row.id}" data-nuevoestado="${nuevoEstado}">${accion}</button>`;
+
+            const indicator = row.state === "PRESENTE" || row.state === "TARDE" ? '' : checkbox;
+
+            return indicator;
+          },
+        }
+      ],
+    });
+
+    $('#empleadosTable').off('click', 'button').on('click', 'button', (event: any) => {
+      const button = $(event.currentTarget);
+      const id = button.data('id');
+      const nuevoEstado = button.data('nuevoestado');
+
+      // Deshabilitar el botón para evitar múltiples clics
+      button.prop('disabled', true);
+
+      if (id && nuevoEstado) {
+        this.empleadoService.putAttendances(id, nuevoEstado).subscribe({
+          next: (response) => {
+            console.log('Asistencia actualizada:', response);
+            this.loadAsistencias();
+          },
+          error: (error) => {
+            console.error('Error al actualizar asistencia:', error);
+          },
+          complete: () => {
+            // Habilitar el botón nuevamente si es necesario
+            button.prop('disabled', false);
+          }
+        });
+      } else {
+        // Habilitar el botón nuevamente si no hay id o nuevoEstado
+        button.prop('disabled', false);
+      }
+    });
+  }
+
+  private initializeDesempenoTable(commonConfig: any): void {
+    this.table = $('#empleadosTable').DataTable({
+      layout: {
+        topStart: 'search',
+        topEnd: null
+      },
+      ...commonConfig,
+      data: this.employeePerformances,
+      columns: [
+        {
+          data: 'performance',
+          title: 'Fecha Inicio',
+          render: (data: any[]) => {
+            return data.length > 0 ? new Date(data[0].startDate).toLocaleDateString() : 'No hay fechas';
+          }
+        },
+        {
+          data: 'performance',
+          title: 'Fecha Fin',
+          render: (data: any[]) => {
+            return data.length > 0 ? new Date(data[0].endDate).toLocaleDateString() : 'No hay fechas';
+          }
+        },
+        { data: 'employee.fullName', title: 'Nombre' },
+        { data: 'employee.position', title: 'Cargo' },
+        {
+          data: 'performance',
+          title: 'Desempeño',
+          render: (data: any[]) => {
+            return data.length > 0 ? data[0].performanceType : 'No hay datos';
+          }
+        },
+        {
+          data: 'performance',
+          title: 'Observaciones',
+          render: (data: any[]) => {
+            const filteredData = data.filter(item => {
+              const itemDate = new Date(item.startDate);
+              const startDate = new Date(this.startDate);
+              const endDate = new Date(this.endDate);
+              return itemDate >= startDate && itemDate <= endDate;
+            });
+            return filteredData.length > 0 ? filteredData.length : 'No hay observaciones';
+          }
+        }
+      ]
     });
   }
 
   consultarEmpleado(id: number): void {
-    const empByIdSubscription = this.empleadoService
-      .getEmployeeById(id)
-      .subscribe({
-        next: (empleado) => {
-          const fechaContrato = new Date(
-            empleado.contractStartTime[0],
-            empleado.contractStartTime[1] - 1,
-            empleado.contractStartTime[2]
-          ).toLocaleDateString();
+    const empByIdSubscription = this.empleadoService.getEmployeeById(id).subscribe({
+      next: (empleado) => {
+        const fechaContrato = new Date(empleado.contractStartTime[0],
+          empleado.contractStartTime[1] - 1,
+          empleado.contractStartTime[2])
+          .toLocaleDateString();
 
-          const horaInicio = `${empleado.startTime[0]}:${empleado.startTime[1]
-            .toString()
-            .padStart(2, '0')}`;
-          const horaFin = `${empleado.endTime[0]}:${empleado.endTime[1]
-            .toString()
-            .padStart(2, '0')}`;
+        const horaInicio = `${empleado.startTime[0]}:${empleado.startTime[1].toString().padStart(2, '0')}`;
+        const horaFin = `${empleado.endTime[0]}:${empleado.endTime[1].toString().padStart(2, '0')}`;
 
-          const content = `
+        const content = `
           <div class="container">
             <div class="row mb-3">
               <div class="col-md-6">
-                <h6><strong>Información Personal</strong></h6>
-                <p><strong>Nombre completo:</strong> ${empleado.surname}, ${
-            empleado.name
-          }</p>
-                <p><strong>Documento:</strong> ${empleado.documentType} ${
-            empleado.documentValue
-          }</p>
+                <h6>Información Personal</h6>
+                <p><strong>Nombre completo:</strong> ${empleado.surname}, ${empleado.name}</p>
+                <p><strong>Documento:</strong> ${empleado.documentType} ${empleado.documentValue}</p>
                 <p><strong>CUIL:</strong> ${empleado.cuil}</p>
               </div>
               <div class="col-md-6">
-                <h6><strong>Información Laboral</strong></h6>
+                <h6>Información Laboral</h6>
                 <p><strong>Cargo:</strong> ${empleado.charge.charge}</p>
                 <p><strong>Fecha de contrato:</strong> ${fechaContrato}</p>
                 <p><strong>Salario:</strong> $${empleado.salary.toLocaleString()}</p>
@@ -777,29 +768,95 @@ this.table.rows.add(filteredData).draw();
             </div>
             <div class="row">
               <div class="col-12">
-                <h6><strong>Información adicional</strong></h6>
-                <!-- <p><strong>Obra Social:</strong> ${
-                  empleado.healthInsurance ? 'Sí' : 'No'
-                }</p> -->
-                <p><strong>Estado:</strong> ${
-                  empleado.active ? 'Activo' : 'Inactivo'
-                }</p>
-                <p><strong>Licencia:</strong> ${
-                  empleado.license ? 'Sí' : 'No'
-                }</p>
+                <h6>Información adicional</h6>
+                <!-- <p><strong>Obra Social:</strong> ${empleado.healthInsurance ? 'Sí' : 'No'}</p> -->
+                <p><strong>Estado:</strong> ${empleado.active ? 'Activo' : 'Inactivo'}</p>
+                <p><strong>Licencia:</strong> ${empleado.license ? 'Sí' : 'No'}</p>
               </div>
             </div>
           </div>
         `;
 
-          this.modalContent = this.sanitizer.bypassSecurityTrustHtml(content);
-          this.showModal = true;
-        },
-        error: (error) => {
-          console.error('Error al obtener los datos del empleado:', error);
-        },
-      });
+        this.modalContent = this.sanitizer.bypassSecurityTrustHtml(content);
+        this.showModal = true;
+      },
+      error: (error) => {
+        console.error('Error al obtener los datos del empleado:', error);
+      }
+    });
     this.subscriptions.push(empByIdSubscription);
+  }
+
+  onStartDateChange(): void {
+    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
+
+    // Establecer límites de fechas
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0];
+    endDateInput.max = formattedToday;
+
+    if (startDateInput.value) {
+      endDateInput.min = startDateInput.value;
+    } else {
+      endDateInput.min = '';
+    }
+
+    this.filterByDate();
+  }
+
+  onEndDateChange(): void {
+    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
+
+    if (endDateInput.value) {
+      startDateInput.max = endDateInput.value;
+    } else {
+      startDateInput.max = '';
+    }
+
+    this.filterByDate();
+  }
+
+  filterByDate(): void {
+
+    const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
+
+    const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+    const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+
+    if (startDate && endDate && startDate > endDate) {
+      //alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
+      startDateInput.value = '';
+      endDateInput.value = '';
+      return;
+    }
+    this.filteredAsistencias = this.Asistencias.filter((producto) => {
+      const productDate = new Date(this.formatDateyyyyMMdd(producto.date));
+      return (
+        (!startDate || productDate >= startDate) &&
+        (!endDate || productDate <= endDate)
+      );
+    });
+    
+    if (this.nombreFiltrado !== null && this.nombreFiltrado.length >= 3) {
+      this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
+        return asistencia.employeeName.toUpperCase().includes(this.nombreFiltrado.toUpperCase());
+      })
+    }
+
+    if (this.estadoFiltrado !== "") {
+      this.filteredAsistencias = this.filteredAsistencias.filter((asistencia) => {
+        return asistencia.state === this.estadoFiltrado;
+      })
+    }
+
+
+    // Actualizar el DataTable
+    if (this.table) {
+      this.table.clear().rows.add(this.filteredAsistencias).draw(); // Actualiza la tabla con los productos filtrados
+    }
   }
 
   onFilterByDate(): void {
@@ -809,8 +866,9 @@ this.table.rows.add(filteredData).draw();
   }
 
   limpiarFiltro() {
-    this.nombreFiltrado = '';
-    this.estadoFiltrado = '';
+    this.nombreFiltrado = "";
+    this.estadoFiltrado = "";
+    this.setInitialDates();
   }
 
   formatDateyyyyMMdd(dateString: string): string {

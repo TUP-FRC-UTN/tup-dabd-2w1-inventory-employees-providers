@@ -106,9 +106,9 @@ export const routes: Routes = [
                     title: 'Gestión de Cargos'
                 },
                 {
-                  path: 'employee/update/:id',  // TOMAS H
-                  component:IepPutEmployeesComponent,
-                  title: 'Modificar empleado'
+                    path: 'employee/update/:id',
+                    component: IepPutEmployeesComponent,
+                    title: 'Modificar empleado'
                 },
                 {
                     path: 'categories-list', 
