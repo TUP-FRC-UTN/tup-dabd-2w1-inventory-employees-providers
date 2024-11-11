@@ -58,6 +58,18 @@ export class IepProductComponent {
     this.setProductToEdit();
   }
 
+  dtoIsEqual():boolean{
+    if(this.dto.name == this.dtoBeforeUpdate.name && 
+      this.dto.reusable == this.dtoBeforeUpdate.reusable && 
+      this.dto.minAmountWarning == this.dtoBeforeUpdate.minAmountWarning 
+      && this.dto.description == this.dtoBeforeUpdate.description 
+      && this.dto.category_id 
+      == this.dtoBeforeUpdate.category_id){
+        return true;
+    }
+    return false;
+  }
+
   setProductToEdit(){
     if(this.idProductToEdit!=undefined){
       this.productService.getProductById(this.idProductToEdit).subscribe({
@@ -199,17 +211,7 @@ export class IepProductComponent {
 
 
   updateProduct(form: NgForm) {
-    if(this.dto.name == this.dtoBeforeUpdate.name && 
-    this.dto.reusable == this.dtoBeforeUpdate.reusable && 
-    this.dto.minAmountWarning == this.dtoBeforeUpdate.minAmountWarning 
-    && this.dto.description == this.dtoBeforeUpdate.description 
-    && this.dto.category_id 
-    == this.dtoBeforeUpdate.category_id){
-      this.errorMessage = 'No se han realizado cambios en el producto';
-      this.success = false;
-      this.showErrorAlert();
-      return;
-    }
+    
     console.log('d');
     console.log(this.dto);
     const mappedDto: UpdateProductDto = {

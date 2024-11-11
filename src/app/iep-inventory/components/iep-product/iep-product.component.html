@@ -271,7 +271,7 @@
           <div class="col-auto">
             <button
                 type="submit"
-                [disabled]="myForm.invalid"
+                [disabled]="myForm.invalid || dtoIsEqual()"
                 class="btn {{
                   idProductToEdit ? 'btn-primary' : 'btn-success'
                 }}"
