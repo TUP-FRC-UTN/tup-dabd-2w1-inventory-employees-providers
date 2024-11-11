@@ -1,0 +1,49 @@
+<div class="container-fluid">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Lista de Productos</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover" id="productTable">
+            <thead>
+              <tr>
+                <th>Estado</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Stock Actual</th>
+                <th>Stock Mínimo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="loading">
+                <td colspan="5" class="text-center">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngFor="let product of products">
+                <td>
+                  <span [class]="getStatusClass(product.status)">
+                    {{product.status}}
+                  </span>
+                </td>
+                <td>{{product.name}}</td>
+                <td>{{getCategoryName(product.categoryId)}}</td>
+                <td>
+                  <span [class]="product.currentStock <= product.minStock ? 'text-danger' : 'text-success'">
+                    {{product.currentStock}}
+                  </span>
+                </td>
+                <td>{{product.minStock}}</td>
+              </tr>
+              <tr *ngIf="!loading && products.length === 0">
+                <td colspan="5" class="text-center">No hay productos disponibles</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
