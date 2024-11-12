@@ -32,8 +32,9 @@
               </span>
             </div>
   
-            <!-- Campo de minutos -->
-            <div class="mb-4">
+            <div class="row">
+              <!-- Campo de minutos -->
+            <div class="mb-4 col">
               <label for="minutes" class="form-label">Tiempo de tolerancia para llegadas tarde</label>
               <div class="d-flex align-items-center gap-3">
                 <input
@@ -58,7 +59,7 @@
               </div>
             </div>
             <!-- campo days -->
-            <div class="mb-4">
+            <div class="mb-4 col">
               <label for="days" class="form-label">Dias habiles para justificar </label>
               <div class="d-flex align-items-center gap-3">
                 <input
@@ -82,11 +83,12 @@
                 <span *ngIf="getFieldError('days', 'max')">El valor máximo es 30 dias</span>
               </div>
             </div>
+            </div>
             <!-- Valor actual -->
             <div  class="alert alert-light mb-4">
               <p class="mb-0">Configuración actual:
                  <strong>{{savedValue }}  minutos</strong> de tolerancia,
-                 <strong>{{savedValue }}  dias</strong> de tolerancia
+                 <strong>{{savedValue }}  dias</strong> de para justificar llegadas tarde.
                 </p>
             </div>
   
