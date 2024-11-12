@@ -62,6 +62,7 @@ export class IepPillowLaterArrivalConfigComponent {
   }
 
   private saveConfiguration(minutes: number): void {
+  
     // Simula una llamada a un servicio
     // localStorage.setItem('minutesBuffer', minutes.toString());
     // this.savedValue = minutes;
@@ -78,6 +79,9 @@ export class IepPillowLaterArrivalConfigComponent {
     //     // Manejar el error apropiadamente
     //   }
     // });
+
+
+    
   }
 
   resetForm(): void {
