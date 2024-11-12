@@ -20,6 +20,7 @@ export interface ProductXDetailDto2 {
     stock:              number;
     description:        string;
     detailProducts:     null;
+    
 }
 
 export interface Category {

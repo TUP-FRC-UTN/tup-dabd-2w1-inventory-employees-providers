@@ -9,7 +9,7 @@ import {
 import { debounceTime, min, Observable, Subscription } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import { Router } from '@angular/router';
 import { StockAumentoService } from '../../services/stock-aumento.service';
 import * as XLSX from 'xlsx';
@@ -197,32 +197,13 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
       const cantMaximaCumple =
         !this.filters.cantMaxima || amount <= this.filters.cantMaxima;
 
-      // Filtro por fecha
-      let fechaCumple = true;
-      if (this.filters.startDate || this.filters.endDate) {
-        let lastDate = this.getLastUpdateDate(producto.detailProducts);
-        if (!lastDate) {
-          fechaCumple = false;
-        } else {
-          const productDate = new Date(lastDate);
-          if (this.filters.startDate) {
-            fechaCumple =
-              fechaCumple && productDate >= new Date(this.filters.startDate);
-          }
-          if (this.filters.endDate) {
-            fechaCumple =
-              fechaCumple && productDate <= new Date(this.filters.endDate);
-          }
-        }
-      }
 
       return (
         nombreCumple &&
         categoriaCumple &&
         reusableCumple &&
         cantMinimaCumple &&
-        cantMaximaCumple &&
-        fechaCumple
+        cantMaximaCumple
       );
     });
 
@@ -262,22 +243,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
       // Filtro por fecha
       let fechaCumple = true;
-      if (this.filters.startDate || this.filters.endDate) {
-        let lastDate = this.getLastUpdateDate(producto.detailProducts);
-        if (!lastDate) {
-          fechaCumple = false;
-        } else {
-          const productDate = new Date(lastDate);
-          if (this.filters.startDate) {
-            fechaCumple =
-              fechaCumple && productDate >= new Date(this.filters.startDate);
-          }
-          if (this.filters.endDate) {
-            fechaCumple =
-              fechaCumple && productDate <= new Date(this.filters.endDate);
-          }
-        }
-      }
 
       return (
         nombreCumple &&
@@ -291,20 +256,6 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.updateDataTable();
     this.actualizarContadores();
-  }
-
-  // Método auxiliar para obtener la última fecha de actualización
-  private getLastUpdateDate(detailProducts: any[]): string {
-    let lastDate = '';
-    for (const detail of detailProducts) {
-      if (
-        detail.lastUpdatedDatetime &&
-        (!lastDate || detail.lastUpdatedDatetime > lastDate)
-      ) {
-        lastDate = detail.lastUpdatedDatetime;
-      }
-    }
-    return lastDate;
   }
 
   // Actualiza los contadores después de aplicar los filtros
@@ -734,6 +685,15 @@ applyFilter(): void {
       data: this.productosFiltered,
       columns: [
         {
+          data: 'lastEntry',
+          title: 'Último ingreso',
+          render: (data:any) => {
+            const [year, month, day, hour, minute, second, millisecond] = data;
+            const dateString = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+            return dateString;
+          }
+        },
+        {
           data: null,
           title: 'Estado',
           render: (data: any) => {
@@ -836,7 +796,7 @@ applyFilter(): void {
       lengthMenu: [5, 10, 25, 50],
       searching: false,
       ordering: true,
-      order: [[0, 'asc']],
+      order: [[0, 'desc']],
       autoWidth: false,
       language: {
         search: '',
@@ -897,22 +857,6 @@ applyFilter(): void {
     this.selectedProductId = id;
   }
 
-  /*showConfirmDeleteModal(): void {
-    Swal.fire({
-      title: '¿Estás seguro de eliminar este producto?',
-      text: 'Se darán de baja todos sus ítems asociados',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#dc3545', // Color rojo de Bootstrap
-      cancelButtonColor: '#6c757d', // Color gris de Bootstrap
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.deleteProduct();
-      }
-    });
-  }*/
 
   showErrorDeleteModal(): void {
     Swal.fire({
