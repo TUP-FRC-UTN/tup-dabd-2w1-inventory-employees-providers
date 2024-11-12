@@ -377,6 +377,10 @@ closeInfoModal(): void{
           className: 'text-center',
           orderable: false,
           render: (data: any) => {
+            let deleteButtonClass = '';
+            if (!data.active) {
+              deleteButtonClass = 'disabled'; // Agregar clase "disabled" al botón de eliminar
+            }
             return `
                 <div class="dropdown d-flex justify-content-center">
               <div class="dropdown">
@@ -386,8 +390,7 @@ closeInfoModal(): void{
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li><a class="dropdown-item edit-btn" href="#" data-bs-target="#editChargeModal" data-bs-toggle="modal" data-id="${data.id}">Editar</a></li>
-                  <li class="dropdown-divider"></li>
-                  <li><a class="dropdown-item delete-btn" href="#" data-id="${data.id}">Eliminar</a></li>
+                  <li><a class="dropdown-item delete-btn ${deleteButtonClass}" href="#" data-id="${data.id}">Eliminar</a></li>
                 </ul>
               </div>
               </div>`;

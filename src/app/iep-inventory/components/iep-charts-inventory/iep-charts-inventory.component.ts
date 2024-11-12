@@ -33,6 +33,10 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
 
   dataEstadosProductos: any[] = [];
 
+  kpiTotalMovimientos: number = 0;
+  kpiTotalMovimientosAumento: number = 0;
+  kpiTotalMovimietnosDisminucion: number = 0;
+
   chartOptionsProductosAlta = {
     colors: ['#008000'],
     animation: {
@@ -66,10 +70,10 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
   };
 
   ngOnInit(): void {
-    this.initializeDates();
-    this.setInitialDates();
     this.loadProductos();
     this.loadMovimientos();
+    this.initializeDates();
+    this.setInitialDates();
   }
 
   loadProductos(){
@@ -78,8 +82,8 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
          this.productos = [];
          this.productos = Productos;
          console.log(this.productos)
-        }
-      })
+      }
+    })
   }
 
   loadMovimientos(){
@@ -146,6 +150,7 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
   cargarMovimientos(){
     this.dataHistorial = [];
     this.dataProductosAlta = [];
+    this.dataProductosBaja = [];
     
     const fechas: Set<Date> = new Set();
     this.modificacionesFiltradas.forEach(modificacion => {
@@ -295,6 +300,9 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
         (!endDate || productDate <= endDate)
       );
     });
+
+    this.cargarMovimientos();
+    this.cargarKpi();
   }
 
   formatDateyyyyMMdd(dateString: string): string {
@@ -308,4 +316,18 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
     this.loadMovimientos();
   }
 
+  cargarKpi(){
+    this.kpiTotalMovimientos = this.modificacionesFiltradas.length;
+
+    var totalProductosAumento = 0;
+    var totalProductosDisminucion = 0;
+
+    this.modificacionesFiltradas.forEach(modificacion => {
+      if (modificacion.modificationType === 'Aumento') {totalProductosAumento += modificacion.amount}
+      if (modificacion.modificationType === 'Disminución') {totalProductosDisminucion += modificacion.amount}
+    });
+
+    this.kpiTotalMovimientosAumento = totalProductosAumento;
+    this.kpiTotalMovimietnosDisminucion = totalProductosDisminucion;
+  }
 }
