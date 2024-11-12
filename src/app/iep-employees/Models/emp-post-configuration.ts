@@ -1,11 +1,11 @@
 export interface EmpPostConfiguration {
-    time: number;
+    pillowLastArrival: number;
     userId: number;
-    days: number;
+    pillowJustify: number;
 }
 
 export interface EmpPostConfigurationResponse {
-    time: number;
-    
-    days: number;
+    pillowLastArrival: number;
+    pillowJustify: number;
+    userId: number;
  }

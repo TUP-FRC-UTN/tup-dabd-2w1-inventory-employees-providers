@@ -60,9 +60,9 @@ export class IepPillowLaterArrivalConfigComponent {
   onSubmit(): void {
     if (this.configForm.valid) {
       let empPostConfiguration: EmpPostConfiguration ={
-        time: this.configForm.get('minutes')?.value,
+        pillowLastArrival: this.configForm.get('minutes')?.value,
         userId: 1,
-        days: this.configForm.get('days')?.value
+        pillowJustify: this.configForm.get('days')?.value
       }
       this.pillowTimeLateArrivalService.postConfig(empPostConfiguration).subscribe({
         next: () => {
