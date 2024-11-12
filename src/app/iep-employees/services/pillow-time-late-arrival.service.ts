@@ -13,7 +13,7 @@ export class PillowTimeLateArrivalService {
    constructor(private http: HttpClient) {}
  
    configurarTiempo(request:number,idUser : number ): Observable<number> {
-     return this.http.put<number>(this.BASE_URL+"configLateArrival",{request,idUser})
+     return this.http.put<number>(this.BASE_URL+"/configLateArrival",{time : request, userId: idUser})
        .pipe(
          catchError((error: HttpErrorResponse) => {
            return throwError(() => error);
@@ -22,7 +22,7 @@ export class PillowTimeLateArrivalService {
    }
 
    actualConfig(): Observable<number> {
-    return this.http.get<number>(this.BASE_URL+"configLateArrival")
+    return this.http.get<number>(this.BASE_URL+"/configLateArrival")
    }
  
 }
