@@ -278,12 +278,23 @@
       </div>
     </div>
   </div>
-  <button
-    class="floating-btn btn btn-primary"
-    (click)="goTo('home/employee-post')"
-  >
-    <span class="bi-plus-lg"></span>
-  </button>
+
+<button
+  style=" position: fixed; top: calc(100% - 120px);  right: 20px; z-index: 9999;"
+  class="floating-btn btn btn-secondary"
+  (click)="goTo('home/pillow-late-arrival')"
+>
+<i class="fas fa-cogs" style="color: white; font-size: 24px;"></i>
+</button>
+
+<!-- Segundo botón flotante, posicionado debajo del primero -->
+<button
+  style="position: fixed; top: calc(100% - 60px); right: 20px; z-index: 9999;"
+  class="floating-btn btn btn-primary"
+  (click)="goTo('home/employee-post')"
+>
+  <span class="bi-plus-lg"></span>
+</button>
 
   <div
     class="modal fade"

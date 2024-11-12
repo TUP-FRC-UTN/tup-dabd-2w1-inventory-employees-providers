@@ -20,6 +20,7 @@ import { IepChartsEmployeesComponent } from './iep-employees/components/iep-char
 import { IepChartsInventoryComponent } from './iep-inventory/components/iep-charts-inventory/iep-charts-inventory.component';
 import { IepAttendancesComponent } from './iep-employees/components/iep-attendances/iep-attendances.component';
 import { IepNuevoIngresoEgresoComponent } from './iep-inventory/components/iep-nuevo-ingreso-egreso/iep-nuevo-ingreso-egreso.component';
+import { IepPillowLaterArrivalConfigComponent } from './iep-employees/components/iep-pillow-later-arrival-config/iep-pillow-later-arrival-config.component';
 export const routes: Routes = [
     {
         path: "", redirectTo: "/home", pathMatch: "full" 
@@ -57,7 +58,7 @@ export const routes: Routes = [
                 {
                     path: 'modification-stock-list',     // ENZO
                     component: IepTableComponent,
-                    title: 'Historial de movimientos '
+                    title: 'Historial de Movimientos '
                 },
                 {
                     path: 'employee-list',     // ENZO
@@ -137,7 +138,17 @@ export const routes: Routes = [
                 },
                 {
                     path :'nuevo-ingreso-egreso',
-                    component: IepNuevoIngresoEgresoComponent
+                    component: IepNuevoIngresoEgresoComponent,
+                    title: 'Registro de Movimiento'
+
+                },
+                {
+                    path: 'pillow-late-arrival',
+                    component : IepPillowLaterArrivalConfigComponent,
+                    title: 'Configuracion de llegadas tardes'
+
+
+
                 }
                 
             ]

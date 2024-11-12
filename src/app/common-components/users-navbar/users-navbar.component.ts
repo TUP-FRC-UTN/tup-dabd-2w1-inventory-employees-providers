@@ -39,7 +39,7 @@ export class UsersNavbarComponent {
         childButtons: [
           {
             icon: "bi-inboxes-fill",
-            title: "Listado de Articulos",
+            title: "Listado de Artículos",
             roles: ["SuperAdmin", "Admin", "Encargado de inventario"],
             route: "home/inventory",
 
@@ -79,6 +79,7 @@ export class UsersNavbarComponent {
           }
         ]
       },
+      
       {
         icon: "bi-person-vcard",
         title: "Empleados",
@@ -86,7 +87,7 @@ export class UsersNavbarComponent {
         childButtons: [
           {
             icon: "bi-person-lines-fill",
-            title: "Listado de empleados",
+            title: "Listado de Empleados",
             route: "home/employee-list",
             roles: ["SuperAdmin", "Admin", "Encargado de empleados"]
           },
