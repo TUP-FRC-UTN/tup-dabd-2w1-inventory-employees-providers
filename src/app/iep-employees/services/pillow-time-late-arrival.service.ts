@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
+import { EmpPostConfiguration, EmpPostConfigurationResponse } from '../Models/emp-post-configuration';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ export class PillowTimeLateArrivalService {
    constructor(private http: HttpClient) {}
  
    configurarTiempo(request:number,idUser : number ): Observable<number> {
-     return this.http.put<number>(this.BASE_URL+"configLateArrival",{request,idUser})
+     return this.http.put<number>(this.BASE_URL+"/configLateArrival",{time : request, userId: idUser})
        .pipe(
          catchError((error: HttpErrorResponse) => {
            return throwError(() => error);
@@ -22,7 +23,15 @@ export class PillowTimeLateArrivalService {
    }
 
    actualConfig(): Observable<number> {
-    return this.http.get<number>(this.BASE_URL+"configLateArrival")
+    return this.http.get<number>(this.BASE_URL+"/configLateArrival")
    }
  
+   postConfig(request: EmpPostConfiguration): Observable<EmpPostConfigurationResponse> {
+     return this.http.post<EmpPostConfigurationResponse>(this.BASE_URL+"/configLateArrival", request)
+       .pipe(
+         catchError((error: HttpErrorResponse) => {
+           return throwError(() => error);
+         })
+       );
+   }
 }

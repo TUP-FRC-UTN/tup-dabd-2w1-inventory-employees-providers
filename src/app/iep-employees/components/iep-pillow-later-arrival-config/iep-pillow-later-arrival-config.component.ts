@@ -1,10 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, NgModule } from '@angular/core';
 import { FormBuilder, FormGroup, NgModel, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { EmpPostConfiguration } from '../../Models/emp-post-configuration';
+import { PillowTimeLateArrivalService } from '../../services/pillow-time-late-arrival.service';
 @Component({
   selector: 'app-iep-pillow-later-arrival-config',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './iep-pillow-later-arrival-config.component.html',
   styleUrl: './iep-pillow-later-arrival-config.component.css'
 })
@@ -14,8 +17,11 @@ export class IepPillowLaterArrivalConfigComponent {
   savedValue: number | null = 10;
   successMessage: string = '';
 
+  savedDaysValue: number | null = 0;
+
   constructor(
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private pillowTimeLateArrivalService: PillowTimeLateArrivalService
   )
   {
     this.initForm();
@@ -31,7 +37,8 @@ export class IepPillowLaterArrivalConfigComponent {
         Validators.required,
         Validators.min(0),
         Validators.max(60)
-      ]]
+      ]],
+      days: ['', [Validators.required, Validators.min(0), Validators.max(30)]]
     });
 
     // Suscribirse a cambios del formulario para limpiar mensajes
@@ -52,16 +59,29 @@ export class IepPillowLaterArrivalConfigComponent {
 
   onSubmit(): void {
     if (this.configForm.valid) {
-      const minutes = this.configForm.get('minutes')?.value;
-      
-      // Aquí podrías usar un servicio para guardar la configuración
-      this.saveConfiguration(minutes);
+      let empPostConfiguration: EmpPostConfiguration ={
+        pillowLastArrival: this.configForm.get('minutes')?.value,
+        userId: 1,
+        pillowJustify: this.configForm.get('days')?.value
+      }
+      this.pillowTimeLateArrivalService.postConfig(empPostConfiguration).subscribe({
+        next: () => {
+          this.savedValue = this.configForm.get('minutes')?.value;
+          this.savedDaysValue = this.configForm.get('days')?.value;
+          this.successMessage = 'La configuración global ha sido actualizada exitosamente';
+        },
+        error: (error) => {
+          console.error('Error al guardar la configuración:', error);
+          
+        }
+      });
     } else {
       this.markFormGroupTouched(this.configForm);
     }
   }
 
   private saveConfiguration(minutes: number): void {
+  
     // Simula una llamada a un servicio
     // localStorage.setItem('minutesBuffer', minutes.toString());
     // this.savedValue = minutes;
@@ -78,6 +98,9 @@ export class IepPillowLaterArrivalConfigComponent {
     //     // Manejar el error apropiadamente
     //   }
     // });
+
+
+    
   }
 
   resetForm(): void {
