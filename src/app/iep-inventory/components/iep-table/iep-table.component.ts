@@ -25,6 +25,7 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
   private table: any;
   productos: Producto[] = [];
   filteredProductos: Producto[] = [];
+  fechaMaxima: string='';
 
   movementTypeOptions = [
     { label: 'Disminución', value: 'disminución' },
@@ -122,7 +123,10 @@ export class IepTableComponent implements OnInit, AfterViewInit, OnDestroy {
     private productService: ProductService,
     private excelPdfService: GenerateExcelPdfService,
     private router : Router
-  ) { }
+  ) { 
+    const hoy = new Date();
+    this.fechaMaxima = hoy.toISOString().split('T')[0];
+  }
 
 
 

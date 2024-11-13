@@ -33,6 +33,7 @@ export class IepAttendancesComponent implements OnInit{
   startDate!: string;
   endDate!: string;
   estadosFiltrados: any[] = [];
+  fechaMaxima: string='';
 
   id: number = 0;
   nuevoEstado: string = "";
@@ -42,7 +43,10 @@ export class IepAttendancesComponent implements OnInit{
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
     private route: ActivatedRoute
-  ) {}
+  ) {
+    const hoy = new Date();
+    this.fechaMaxima = hoy.toISOString().split('T')[0];
+  }
   
   ngOnInit(): void {
     const name = Number(this.route.snapshot.paramMap.get('id'));  // Esto devuelve un string

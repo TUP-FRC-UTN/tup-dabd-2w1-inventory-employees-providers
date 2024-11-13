@@ -33,6 +33,7 @@
         <input
           type="date"
           id="startDate"
+          [attr.max]="fechaMaxima"
           class="form-control"
           #startDateInput
           [(ngModel)]="startDate"
@@ -46,6 +47,7 @@
         <input
           type="date"
           id="endDate"
+          [attr.max]="fechaMaxima"
           class="form-control"
           #endDateInput
           [(ngModel)]="endDate"
