@@ -68,7 +68,7 @@ interface ReusableOption {
   templateUrl: './iep-inventory.component.html',
   styleUrl: './iep-inventory.component.css',
 })
-export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
+export class IepInventoryComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   // Objeto que mantiene el estado de todos los filtros
   filters: Filters = {
@@ -110,302 +110,25 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   ];
   selectedReusables: ReusableOption[] = [];
 
-  validarCantidades(): void {
-    if (this.cantMinima !== null && this.cantMaxima !== null) {
-      this.validoMin = this.cantMinima <= this.cantMaxima;
-      this.validoMax = this.cantMaxima >= this.cantMinima;
-
-      // Bloquear el botón si alguno de los valores es inválido
-      this.botonDeshabilitado = !(this.validoMin && this.validoMax);
-    } else {
-      // Si alguno de los dos valores es nulo, no mostrar mensajes de error
-      this.validoMin = true;
-      this.validoMax = true;
-    }
-    this.aplicarFiltrosCompletos();
-  }
-
-  aplicarFiltrosCompletos(): void {
-    // Recoger valores de los inputs
-    const nombreInput = document.getElementById('Nombre') as HTMLInputElement;
-    if (nombreInput) {
-      this.filters.nombre = nombreInput.value;
-    }
-
-    const cantMinimaInput = document.getElementById(
-      'CantMinima'
-    ) as HTMLInputElement;
-    if (cantMinimaInput) {
-      this.filters.cantMinima = Number(cantMinimaInput.value) || 0;
-    }
-
-    const cantMaximaInput = document.getElementById(
-      'CantMaxima'
-    ) as HTMLInputElement;
-    if (cantMaximaInput) {
-      this.filters.cantMaxima = Number(cantMaximaInput.value) || 0;
-    }
-
-    // Validar cantidades
-    this.validoMin = true;
-    this.validoMax = true;
-
-    if (this.filters.cantMinima < 0) {
-      this.validoMin = false;
-      this.mensajeValidacionMin = 'El número no puede ser menor a cero';
-      return;
-    }
-
-    if (this.filters.cantMaxima < 0) {
-      this.validoMax = false;
-      this.mensajeValidacionMax = 'No puedes poner un número menor a cero';
-      return;
-    }
-
-    if (
-      this.filters.cantMinima > this.filters.cantMaxima &&
-      this.filters.cantMaxima !== 0
-    ) {
-      this.validoMin = false;
-      this.mensajeValidacionMin =
-        'La cantidad mínima no puede ser mayor a la cantidad máxima';
-      return;
-    }
-
-    // Aplicar todos los filtros
-    this.productosFiltered = this.productosALL.filter((producto) => {
-      // Filtro por nombre
-      const nombreCumple =
-        !this.filters.nombre ||
-        producto.name.toLowerCase().includes(this.filters.nombre.toLowerCase());
-
-      // Filtro por categorías
-      const categoriaCumple =
-        this.filters.categoriasSeleccionadas.length === 0 ||
-        this.filters.categoriasSeleccionadas.includes(
-          producto.category.categoryId
-        );
-
-      // Filtro por reutilizable
-      const reusableCumple =
-        this.filters.reutilizableSeleccionado.length === 0 ||
-        this.filters.reutilizableSeleccionado.includes(
-          producto.reusable ? 1 : 2
-        );
-
-      // Filtro por cantidad
-      const amount = producto.detailProducts.length;
-      const cantMinimaCumple =
-        !this.filters.cantMinima || amount >= this.filters.cantMinima;
-      const cantMaximaCumple =
-        !this.filters.cantMaxima || amount <= this.filters.cantMaxima;
-
-
-      return (
-        nombreCumple &&
-        categoriaCumple &&
-        reusableCumple &&
-        cantMinimaCumple &&
-        cantMaximaCumple
-      );
-    });
-
-    // Actualizar la tabla y los contadores
-    this.updateDataTable();
-    this.actualizarContadores();
-  }
-
-  // Método principal de filtrado que combina todos los filtros
-  aplicarFiltrosCombinados(): void {
-    this.productosFiltered = this.productosALL.filter((producto) => {
-      // Filtro por nombre
-      const nombreCumple =
-        !this.filters.nombre ||
-        producto.name.toLowerCase().includes(this.filters.nombre.toLowerCase());
-
-      // Filtro por categorías
-      const categoriaCumple =
-        this.filters.categoriasSeleccionadas.length === 0 ||
-        this.filters.categoriasSeleccionadas.includes(
-          producto.category.categoryId
-        );
-
-      // Filtro por reutilizable
-      const reusableCumple =
-        this.filters.reutilizableSeleccionado.length === 0 ||
-        this.filters.reutilizableSeleccionado.includes(
-          producto.reusable ? 1 : 2
-        );
-
-      // Filtro por cantidad
-      const amount = producto.detailProducts.length;
-      const cantMinimaCumple =
-        !this.filters.cantMinima || amount >= this.filters.cantMinima;
-      const cantMaximaCumple =
-        !this.filters.cantMaxima || amount <= this.filters.cantMaxima;
-
-      // Filtro por fecha
-      let fechaCumple = true;
-
-      return (
-        nombreCumple &&
-        categoriaCumple &&
-        reusableCumple &&
-        cantMinimaCumple &&
-        cantMaximaCumple &&
-        fechaCumple
-      );
-    });
-
-    this.updateDataTable();
-    this.actualizarContadores();
-  }
-
-  // Actualiza los contadores después de aplicar los filtros
-  private actualizarContadores(): void {
-    this.amountAvailable = this.getCountByategoryAndState(1, 'Disponible');
-    this.amountBorrowed = this.getCountByategoryAndState(1, 'Prestado');
-    this.amountBroken = this.getCountByategoryAndState(1, 'Roto');
-  }
 
   // Añade esto en las propiedades de la clase
   categoriasSeleccionadas: number[] = [];
   reutilizableSeleccionado: number[] = [];
 
-  // Añade este método para manejar los cambios en los checkboxes
-  /*   onCategoriaChange(event: any, categoryId: number): void {
-    if (event.target.checked) {
-      this.filters.categoriasSeleccionadas.push(categoryId);
-    } else {
-      this.filters.categoriasSeleccionadas = this.filters.categoriasSeleccionadas
-        .filter(id => id !== categoryId);
-    }
-  }
-
-  onReutilizableChange(event: any, reusable: number): void {
-    if (event.target.checked) {
-      this.filters.reutilizableSeleccionado.push(reusable);
-    } else {
-      this.filters.reutilizableSeleccionado = this.filters.reutilizableSeleccionado
-        .filter(id => id !== reusable);
-    }
-  }
- */
-
-  filtrarPorUltimos30Dias(): void {
-    const hoy = new Date();
-    const hace30Dias = new Date(hoy.setDate(hoy.getDate() - 30));
-
-    this.productosFiltered = this.productosALL.filter((producto) => {
-      let lastDate = '';
-      for (const detail of producto.detailProducts) {
-        if (
-          detail.lastUpdatedDatetime &&
-          (!lastDate || detail.lastUpdatedDatetime > lastDate)
-        ) {
-          lastDate = detail.lastUpdatedDatetime;
-        }
-      }
-      if (!lastDate) {
-        return false;
-      }
-
-      const productDate = new Date(lastDate);
-      return productDate >= hace30Dias;
-    });
-  }
-
   goTo(path: string) {
     this.router.navigate([path]);
   }
 
-  //Filtra los productos cuya fecha es mayor a startDate
-  onStartDateChange(): void {
-    this.productosFiltered = this.productosALL.filter((producto) => {
-      let lastDate = '';
-      for (const detail of producto.detailProducts) {
-        if (
-          detail.lastUpdatedDatetime &&
-          (!lastDate || detail.lastUpdatedDatetime > lastDate)
-        ) {
-          lastDate = detail.lastUpdatedDatetime;
-        }
-      }
-      if (!lastDate) {
-        return false;
-      }
-
-      const productDate = new Date(lastDate);
-      return this.startDate ? productDate >= new Date(this.startDate) : true;
-    });
-
-    this.updateDataTable();
+  formatDateForInput(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
-
-  //Filtra los productos cuya fecha es menor a startDate
-  onEndDateChange(): void {
-    this.productosFiltered = this.productosALL.filter((producto) => {
-      let lastDate = '';
-      for (const detail of producto.detailProducts) {
-        if (
-          detail.lastUpdatedDatetime &&
-          (!lastDate || detail.lastUpdatedDatetime > lastDate)
-        ) {
-          lastDate = detail.lastUpdatedDatetime;
-        }
-      }
-      if (!lastDate) {
-        return false;
-      }
-
-      const productDate = new Date(lastDate);
-      return this.endDate ? productDate <= new Date(this.endDate) : true;
-    });
-
-    this.updateDataTable();
-  }
-
-
   
   private parseDate(dateStr: string): Date {
     const [day, month, year] = dateStr.split('/');
     return new Date(Number(year), Number(month) - 1, Number(day));
   }
 
-
-  applyDateFilter(): void {
-    this.productosFiltered = this.productosALL.filter((producto) => {
-      const startDate = this.dateStartFilter.value;
-      const endDate = this.dateEndFilter.value;
-      try {
-        const dateProduct = this.parseDate(this.formatFullDate(producto.lastEntry));
-        
-        const start = this.parseDate(this.formatDate(startDate));
-        const end = this.parseDate(this.formatDate(endDate));
-
-        // Establecer las horas de inicio y fin para comparación correcta
-        start.setHours(0, 0, 0, 0);
-        end.setHours(23, 59, 59, 999);
-
-        // Comparar las fechas
-        return dateProduct >= start && dateProduct <= end;
-      } catch (error) {
-        console.error('Error al procesar fecha:', error);
-        return false;
-      }
-    });
-    this.updateDataTable();
-  }
-
-  filtersValues: any = {
-    startDate: '',
-    endDate: '',
-  };
-
   globalFilter: string = '';
-
-  //Método para filtrar productos con estado Activo e Inactivo
-  stateFilter(event: Event) {}
 
  // Método para aplicar el filtro global y filtros adicionales
 applyFilter(): void {
@@ -584,22 +307,6 @@ applyFilter(): void {
     });
   }
 
-  onCategoryChange(): void {
-    this.filters.categoriasSeleccionadas = this.selectedCategories.map(
-      (cat) => cat.value
-    );
-    this.aplicarFiltrosCombinados();
-  }
-
-  onReusableChange(): void {
-    this.filters.reutilizableSeleccionado = this.selectedReusables.map(
-      (r) => r.value
-    );
-    this.aplicarFiltrosCombinados();
-  }
-
-  ngAfterViewInit(): void {}
-
   cargarProductos() {
     this.requestInProcess = true;
     this.productos2$ = this.productoService.getProducts2();
@@ -651,42 +358,6 @@ applyFilter(): void {
     });
   }
 
-  // Modifica el método aplicarFiltros() para usar las categorías seleccionadas
-  aplicarFiltros(): void {
-    this.productosFiltered = this.productosALL.filter((producto) => {
-      const nombreCumple =
-        this.nombre === '' ||
-        producto.name.toLowerCase().includes(this.nombre.toLowerCase());
-
-      const categoriaCumple =
-        this.categoriasSeleccionadas.length === 0 ||
-        this.categoriasSeleccionadas.includes(producto.category.categoryId);
-
-      const reusableCumple =
-        this.reutilizableSeleccionado.length === 0 ||
-        this.reutilizableSeleccionado.includes(producto.reusable ? 1 : 2);
-
-      const amount = producto.detailProducts.length;
-      const minQuantityWarningCumple =
-        this.cantMinima === null || amount >= this.cantMinima;
-      const maxQuantityWarningCumple =
-        this.cantMaxima === null || amount <= this.cantMaxima;
-
-      return (
-        nombreCumple &&
-        categoriaCumple &&
-        reusableCumple &&
-        minQuantityWarningCumple &&
-        maxQuantityWarningCumple
-      );
-    });
-
-    this.amountAvailable = this.getCountByategoryAndState(1, 'Disponible');
-    this.amountBorrowed = this.getCountByategoryAndState(1, 'Prestado');
-    this.amountBroken = this.getCountByategoryAndState(1, 'Roto');
-    this.updateDataTable();
-  }
-
   // Modifica el método cleanFilters() para limpiar también las categorías seleccionadas
   cleanFilters(): void {
     this.cantMaxima = null;
@@ -705,30 +376,12 @@ applyFilter(): void {
       cantMinima: 0,
       cantMaxima: 0,
     };
-
-    // Limpia los checkboxes
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach((checkbox: any) => (checkbox.checked = false));
-
     // Limpia los campos de texto
     const textInputs = document.querySelectorAll('input.form-control');
     textInputs.forEach((input) => ((input as HTMLInputElement).value = ''));
 
     this.productosFiltered = this.productosALL;
     this.updateDataTable();
-  }
-
-  getCountByategoryAndState(categoryId: number, state: string): number {
-    return this.productosFiltered.reduce((count, producto) => {
-      if (producto.category.categoryId === categoryId) {
-        for (let i = 0; i < producto.detailProducts.length; i++) {
-          if (producto.detailProducts[i].state === state) {
-            count++;
-          }
-        }
-      }
-      return count;
-    }, 0);
   }
 
   formatFullDate(inputDate: string): string {
@@ -877,26 +530,6 @@ applyFilter(): void {
       },
     });
 
-    // Event handlers
-    $('#productsList').on('click', '.botonAumentoStock', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const id = $(event.currentTarget).data('id');
-      this.abrirModalAumentoStock(id);
-    });
-
-    $('#productsList').on('click', '.botonDetalleConsultar', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const id = $(event.currentTarget).data('id');
-      this.irDetalles(id);
-    });
-
-    $('#productsList').on('click', '.botonDetalleCrear', (event) => {
-      const id = $(event.currentTarget).data('id');
-      this.irAgregarDetalles(id);
-    });
-
     $('#productsList').on('click', '.botonDetalleEditar', (event) => {
       const id = $(event.currentTarget).data('id');
       this.router.navigate(['/home/product-update/' + id]);
@@ -1031,20 +664,6 @@ applyFilter(): void {
     doc.save(`${formattedDate}_Lista_Productos.pdf`);
   }
   
-
-  // Método auxiliar para obtener la última fecha de ingreso
-  getLastIngreso(detailProducts: any[]): string {
-    let lastDate = '';
-    for (let i = 0; i < detailProducts.length; i++) {
-      if (detailProducts[i].lastUpdatedDatetime) {
-        if (!lastDate || detailProducts[i].lastUpdatedDatetime > lastDate) {
-          lastDate = detailProducts[i].lastUpdatedDatetime;
-        }
-      }
-    }
-    return lastDate ? this.formatDate(lastDate) : '';
-  }
-
   generarExcel(): void {
     const encabezado = [
       ['Listado de Productos'],
@@ -1094,10 +713,6 @@ applyFilter(): void {
     this.router.navigate(['']);
   }
 
-  irDetalles(id: number) {
-    this.detalleProductoService.setId(id);
-    this.router.navigate(['home/inventory-detail']);
-  }
 
   irAgregarProducto() {
     /* this.modalVisible = true; // Muestra el modal */
@@ -1154,23 +769,7 @@ applyFilter(): void {
     this.selectedProductId = null;
   }
 
-  // Agregar método para recargar la tabla después de aumentar el stock
-  recargarDespuesDeAumentoStock() {
-    this.cargarProductos();
-    this.cerrarModalAumentoStock();
-  }
 
-  abrirModalAumentoStock(productId: number) {
-    this.selectedProductId = productId;
-    this.showAumentoStockModal = true;
-    this.modalVisible = false; // Asegurarse que el otro modal esté cerrado
-    this.stockAumentoService.setId(productId);
-  }
-
-  cerrarModalAumentoStock() {
-    this.showAumentoStockModal = false;
-    this.selectedProductId = null;
-  }
 
   abrirModal() {
     this.modalVisible = true;
@@ -1181,81 +780,6 @@ applyFilter(): void {
     this.modalVisible = false;
   }
 
-  irAgregarDetalles(id: number) {
-    this.stockAumentoService.setId(id);
-    this.abrirModalAumentoStock(id);
-  }
 
-  // Nombre del producto para el título del modal
-  nombreProducto: string = ''; // Puedes cargar esto dinámicamente
-  selectedProveedor: any;
 
-  // Opciones para el proveedor en el ng-select
-  proveedorOptions = [
-    { id: 1, nombre: 'Proveedor A' },
-    { id: 2, nombre: 'Proveedor B' },
-    { id: 3, nombre: 'Proveedor C' },
-  ];
-
-  // Método para abrir el modal
-  openAumentoStockModal(nombreProducto: string) {
-    this.nombreProducto = nombreProducto;
-    this.showAumentoStockModal = true;
-  }
-
-  // Método para cerrar el modal y limpiar el fondo negro
-  closeAumentoStockModal() {
-    const modalElement = document.getElementById('aumentoStock'); // Cambia 'aumentoStock' por el ID de tu modal
-    if (modalElement) {
-      // Obtener instancia del modal de Bootstrap
-      const modal = bootstrap.Modal.getInstance(modalElement);
-      if (modal) {
-        modal.hide(); // Oculta el modal usando Bootstrap
-      }
-
-      // Limpieza completa del modal
-      setTimeout(() => {
-        // Remover clases del body relacionadas con el modal
-        document.body.classList.remove('modal-open');
-        document.body.style.removeProperty('padding-right');
-        document.body.style.removeProperty('overflow');
-
-        // Remover los elementos backdrops
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        backdrops.forEach((backdrop) => backdrop.remove());
-
-        // Limpiar los atributos y estilos del modal para ocultarlo
-        modalElement.classList.remove('show');
-        modalElement.style.display = 'none';
-        modalElement.setAttribute('aria-hidden', 'true');
-        modalElement.removeAttribute('aria-modal');
-        modalElement.removeAttribute('role');
-
-        // Remover cualquier estilo inline que pueda haber quedado
-        const allModals = document.querySelectorAll('.modal');
-        allModals.forEach((modal) => {
-          (modal as HTMLElement).style.display = 'none';
-        });
-      }, 100); // Esperar un momento para asegurarse de que Bootstrap haya terminado de ocultar el modal
-    }
-  }
-
-  // Método para manejar el clic en el fondo del modal
-  handleModalBackdropClick(event: MouseEvent) {
-    if (event.target === event.currentTarget) {
-      this.closeAumentoStockModal();
-    }
-  }
-
-  // Método para mostrar el mensaje de éxito con SweetAlert
-  onStockIncreaseSuccess() {
-    Swal.fire({
-      icon: 'success',
-      title: 'Éxito',
-      text: 'Aumento de stock registrado con éxito.',
-      confirmButtonColor: '#28a745', // Verde para el botón
-    }).then(() => {
-      this.closeAumentoStockModal(); // Cierra el modal después de mostrar el mensaje
-    });
-  }
 }

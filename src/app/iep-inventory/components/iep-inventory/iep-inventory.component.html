@@ -245,42 +245,7 @@
           ></button>
         </div>
 
-        <!-- Modal Body -->
         <div class="modal-body">
-          <!-- Filtro por nombre -->
-          <!-- <div class="mb-3">
-            <label for="Nombre" class="form-label">Nombre</label>
-            <input type="text" id="Nombre" name="Nombre" class="form-control" [(ngModel)]="nombre" #Nombre="ngModel"
-              placeholder="" />
-          </div> -->
-
-          <!-- Selector de reutilizables -->
-          <!-- <div class="mb-3">
-            <label for="dropdownReusable" class="form-label">Reutilizables</label>
-            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
-              id="dropdownReusable" data-bs-toggle="dropdown" aria-expanded="false">
-              Seleccionar reutilizables
-              <span
-                *ngIf="filters.reutilizableSeleccionado.length > 0">({{filters.reutilizableSeleccionado.length}})</span>
-            </button>
-            <ul class="dropdown-menu w-100" aria-labelledby="dropdownReusable">
-              <li>
-                <label class="dropdown-item">
-                  <input type="checkbox" class="form-check-input me-2" name="reusable" [value]="1"
-                    (change)="onReutilizableChange($event, 1)">
-                  Sí
-                </label>
-              </li>
-              <li>
-                <label class="dropdown-item">
-                  <input type="checkbox" class="form-check-input me-2" name="reusable" [value]="2"
-                    (change)="onReutilizableChange($event, 2)">
-                  No
-                </label>
-              </li>
-            </ul>
-          </div> -->
-
 <!-- Cantidad mínima -->
 <div class="row mb-3">
   <label for="CantMinima" class="col-sm-3 col-form-label">Cantidad Mínima</label>
@@ -365,38 +330,6 @@
   </div>
 </section>
 
-<!-- Modal para Aumento de Stock -->
-<div
-  class="modal fade"
-  id="aumentoStock"
-  tabindex="-1"
-  data-bs-backdrop="static"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <!-- Título del modal con el nombre del producto dinámico -->
-        <h5 class="modal-title">Agregar productos a STOCK</h5>
-
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <!-- Componente de aumento de stock -->
-        <app-iep-stock-increase
-          *ngIf="showAumentoStockModal"
-          (closeModal)="closeAumentoStockModal()"
-        >
-          <!-- Llama al método de éxito aquí -->
-        </app-iep-stock-increase>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Modal para Confirmar Eliminación -->
 <div class="modal fade" id="eliminarProductoModal" tabindex="-1" aria-labelledby="eliminarProductoModalLabel" aria-hidden="true">
