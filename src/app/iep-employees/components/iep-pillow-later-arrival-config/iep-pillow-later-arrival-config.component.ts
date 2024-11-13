@@ -34,7 +34,9 @@ export class IepPillowLaterArrivalConfigComponent implements OnInit{
     
   }
 
-   goBack(){}
+   goBack(){
+    window.history.back();
+   }
 
 
   private initForm(): void {
