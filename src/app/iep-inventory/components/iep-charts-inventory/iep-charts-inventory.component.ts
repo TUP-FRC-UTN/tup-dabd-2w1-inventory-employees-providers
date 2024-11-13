@@ -1,72 +1,71 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ChartType, GoogleChartsModule } from 'angular-google-charts';
 import { ProductService } from '../../services/product.service';
 import { StockAumentoService } from '../../services/stock-aumento.service';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-iep-charts-inventory',
   standalone: true,
-  imports: [GoogleChartsModule,FormsModule],
+  imports: [GoogleChartsModule,FormsModule,CommonModule,NgSelectModule],
   templateUrl: './iep-charts-inventory.component.html',
   styleUrl: './iep-charts-inventory.component.css'
 })
-export class IepChartsInventoryComponent implements OnInit { private productoService = inject(ProductService);
+export class IepChartsInventoryComponent implements OnInit, OnDestroy { 
+  
+  // Servicios para obtener los datos 
+  private productoService = inject(ProductService);
   private stockHistorial = inject(StockAumentoService);
   
+  // Variables para guardar los distintos valores de fechas 
   fechaInicio!: string;
   fechaFin!: string;
+  fechaActual: string = "";
 
   // listacategorias: Set<String> = new Set();
 
+  // Listas para guardar los datos proveniente de los servicios
   productos: any[] = []
   productosFiltrados: any[] = [];
   modificaciones: any[] = [];
   modificacionesFiltradas: any[] = [];
 
   chartTypeColumnas: ChartType = ChartType.ColumnChart;
-  chartTypeCirculo: ChartType = ChartType.PieChart;
+  chartTypeLinea: ChartType = ChartType.LineChart;
+  chartTypeBarras: ChartType = ChartType.BarChart;
   
   dataHistorial: any[] = [];
   dataProductosAlta: any[] = [];
   dataProductosBaja: any[] = [];
-
+  dataProductosFaltantes: any[] = [];
   dataEstadosProductos: any[] = [];
+
+  optionsProductos: any[] = [];
 
   kpiTotalMovimientos: number = 0;
   kpiTotalMovimientosAumento: number = 0;
   kpiTotalMovimietnosDisminucion: number = 0;
 
+  chartOptionsHistorial = {
+    colors: ['#008000', '#FF0000'],
+    animation: { duration: 1000, easing: 'out', startup: true },
+  };
+
   chartOptionsProductosAlta = {
     colors: ['#008000'],
-    animation: {
-      duration: 1000,
-      easing: 'out',
-      startup: true
-    },
+    animation: { duration: 1000, easing: 'out', startup: true },
   };
 
   chartOptionsProductosBaja = {
     colors: ['#FF0000'],
-    animation: {
-      duration: 1000,
-      easing: 'out',
-      startup: true
-    },
+    animation: { duration: 1000, easing: 'out', startup: true },
   };
 
-  chartOptionsEstadosProductos = {
-    title: 'Estado productos',
-    colors: ['#28a745', '#dc3545', '#ffc107']
-  };
-
-  chartOptionsHistorial = {
-    colors: ['#008000', '#FF0000'],
-    animation: {
-      duration: 1000,
-      easing: 'out',
-      startup: true
-    },
+  chartOptionsProductosFaltantes = {
+    colors: ['#800000'],
+    animation: { duration: 1000, easing: 'out', startup: true },
   };
 
   ngOnInit(): void {
@@ -76,12 +75,55 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
     this.setInitialDates();
   }
 
+  initializeDates(): void {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    this.fechaInicio = this.formatInitialFilterDates(thirtyDaysAgo);
+    this.fechaFin = this.formatInitialFilterDates(today);
+    this.fechaActual = this.formatCurrentDay(today);
+  }
+
+  private formatInitialFilterDates(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private formatCurrentDay(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${day}/${month}/${year}`;
+  }
+  
+  setInitialDates(): void {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    const startDateInput: HTMLInputElement = document.getElementById('fechaInicio') as HTMLInputElement;
+    const endDateInput: HTMLInputElement = document.getElementById('fechaFin') as HTMLInputElement;
+
+    startDateInput.value = thirtyDaysAgo.toISOString().split('T')[0];
+    endDateInput.value = today.toISOString().split('T')[0];
+
+    // Establecer los límites de las fechas
+    endDateInput.max = today.toISOString().split('T')[0];
+    startDateInput.max = endDateInput.value;
+    endDateInput.min = startDateInput.value;
+
+    console.log("StartDate"+startDateInput.value)
+    console.log("EndDate"+endDateInput.value)
+  }
+  
   loadProductos(){
     const empSubscription = this.productoService.getAllProducts().subscribe({
       next: (Productos) =>{
          this.productos = [];
          this.productos = Productos;
-         console.log(this.productos)
+         this.cargarProductosFaltantes();
       }
     })
   }
@@ -94,6 +136,7 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
         this.modificacionesFiltradas = Modificacion;
         this.filtrar();
         this.cargarMovimientos();
+        this.cargarSelectProductos();
       },
       error: (err) => console.error('Error al cargar asistencias:', err)
     })
@@ -152,29 +195,32 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
     this.dataProductosAlta = [];
     this.dataProductosBaja = [];
     
-    const fechas: Set<Date> = new Set();
+    const fechas: Set<string> = new Set();
     this.modificacionesFiltradas.forEach(modificacion => {
-      const parts = modificacion.date.split('/');
-      const fechaModificacion = new Date(+parts[2], +parts[1] - 1, +parts[0]);
-
-      fechas.add(fechaModificacion);
+      fechas.add(modificacion.date);
     });
 
     fechas.forEach(fecha => {
       var totalAumento = 0;
       var totalDisminucion = 0;
+
+      const parts = fecha.split('/');
+      const fechaSet = new Date(+parts[2], +parts[1] - 1, +parts[0]);
+      
       this.modificaciones.forEach(modificacion => {
         const parts = modificacion.date.split('/');
         const fechaModificacion = new Date(+parts[2], +parts[1] - 1, +parts[0]);
   
-        if (fecha.getDate() === fechaModificacion.getDate() && 
-            fecha.getMonth() === fechaModificacion.getMonth()) {
+        if (fechaSet.getDate() === fechaModificacion.getDate() && 
+            fechaSet.getMonth() === fechaModificacion.getMonth() &&
+            fechaSet.getFullYear() === fechaModificacion.getFullYear()) {
             switch (modificacion.modificationType){
               case 'Aumento': totalAumento = totalAumento + modificacion.amount; break;
               case 'Disminución': totalDisminucion = totalDisminucion + modificacion.amount; break;
           }
         }
       });
+      // console.log("Mov"+fecha,totalAumento,totalDisminucion)
       this.dataHistorial.push([fecha,totalAumento,totalDisminucion]);
     });
 
@@ -216,36 +262,21 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
     // });
   }
 
-  initializeDates(): void {
-    const today = new Date();
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(today.getDate() - 30);
-    this.fechaInicio = this.formatInitialDate(thirtyDaysAgo);
-    this.fechaFin = this.formatInitialDate(today);
+  cargarProductosFaltantes(){
+    this.productos.forEach(producto => {
+      const stock = producto.stock;
+      const cantMin = producto.minQuantityWarning;
+      const total = stock - cantMin;
+
+      if (total < 0) {this.dataProductosFaltantes.push([producto.name,(total * -1)])}
+    });
   }
 
-  private formatInitialDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${day}-${month}-${year}`;
-  }
-  
-  setInitialDates(): void {
-    const today = new Date();
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(today.getDate() - 30);
-
-    const startDateInput: HTMLInputElement = document.getElementById('fechaInicio') as HTMLInputElement;
-    const endDateInput: HTMLInputElement = document.getElementById('fechaFin') as HTMLInputElement;
-
-    startDateInput.value = thirtyDaysAgo.toISOString().split('T')[0];
-    endDateInput.value = today.toISOString().split('T')[0];
-
-    // Establecer los límites de las fechas
-    endDateInput.max = today.toISOString().split('T')[0];
-    startDateInput.max = endDateInput.value;
-    endDateInput.min = startDateInput.value;
+  cargarSelectProductos(){
+    this.optionsProductos = [];
+    this.productos.forEach(producto => {
+      this.optionsProductos.push({label: `${producto.name}`, value: `${producto.name}`})
+    });
   }
 
   onStartDateChange(): void {
@@ -279,6 +310,8 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
   }
 
   filtrar(){
+    this.modificacionesFiltradas = [];
+
     const startDateInput: HTMLInputElement = document.getElementById('fechaInicio') as HTMLInputElement;
     const endDateInput: HTMLInputElement = document.getElementById('fechaFin') as HTMLInputElement;
 
@@ -294,6 +327,7 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
     }
 
     this.modificacionesFiltradas = this.modificaciones.filter((modificacion) => {
+      console.log(modificacion)
       const productDate = new Date(this.formatDateyyyyMMdd(modificacion.date));
       return (
         (!startDate || productDate >= startDate) &&
@@ -301,7 +335,14 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
       );
     });
 
-    this.cargarMovimientos();
+     if (this.productosFiltrados.length !== 0) {
+        this.modificacionesFiltradas = this.modificacionesFiltradas.filter( modificacion => {
+          console.log(modificacion)
+          return this.productosFiltrados.includes(modificacion.product)
+        })
+      }
+
+    console.log(this.modificacionesFiltradas);
     this.cargarKpi();
   }
 
@@ -311,7 +352,7 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
   }
 
   limpiarFiltro(){
-    this.modificacionesFiltradas = [];
+    this.productosFiltrados = [];
     this.setInitialDates();
     this.loadMovimientos();
   }
@@ -329,5 +370,13 @@ export class IepChartsInventoryComponent implements OnInit { private productoSer
 
     this.kpiTotalMovimientosAumento = totalProductosAumento;
     this.kpiTotalMovimietnosDisminucion = totalProductosDisminucion;
+  }
+
+  ngOnDestroy(): void {
+    this.dataEstadosProductos = [];
+    this.dataHistorial = [];
+    this.dataProductosAlta = []
+    this.dataProductosBaja = [];
+    this.dataProductosFaltantes = [];
   }
 }

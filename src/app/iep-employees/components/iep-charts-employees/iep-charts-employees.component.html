@@ -6,11 +6,11 @@
             <div class="col d-flex gap-3">
                 <div class="col">
                     <input id="fechaInicio" type="date" class="form-control border-1 bg-light" [(ngModel)]="fechaInicio" 
-                    (ngModelChange)="filtrar()">
+                    (ngModelChange)="onStartDateChange()">
                 </div>
                 <div class="col">
                     <input id="fechaFin" type="date" class="form-control border-1 bg-light" [(ngModel)]="fechaFin"
-                    (ngModelChange)="filtrar()">
+                    (ngModelChange)="onEndDateChange()">
                 </div>
             </div>
             <!-- Botones de exportar -->
@@ -23,11 +23,53 @@
                     title="Limpiar Filtros" (click)=" limpiarFiltro()">
                 </button>
             </div>
+
+            <div class="modal fade" id="filtrosAvanzados" tabindex="-1" aria-labelledby="filtrosAvanzadosLabel" 
+            aria-hidden="true" data-bs-keyboard="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="filtrosAvanzadosLabel">Filtros Avanzados</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class=" row d-flex justify-content-start align-items-center mb-3">
+                            <div class="col-4">
+                                <label for="tipo" class="form-label Text Start">Empleados</label>
+                            </div>
+                            <div class="col">
+                                <ng-select
+                                [items]="optionsEmpleados"
+                                [(ngModel)]="empleadosFiltrados"
+                                bindLabel="label"
+                                bindValue="value"
+                                [multiple]="true"
+                                (change)="loadData()"
+                                class="w-100">
+                                <ng-template ng-multi-label-tmp let-items="items">
+                                    Seleccionar Productos
+                                    <span *ngIf="items.length > 0">({{ items.length }})</span>
+                                </ng-template>
+                
+                                <!-- Template para las opciones del dropdown -->
+                                <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                                    <input type="checkbox" [checked]="item$.selected" />
+                                    {{ item.label }}
+                                </ng-template>
+                            </ng-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row position-relative min-vh-75">
 
-        <div class="col-md-3">
+        <div class="col-md-6">
             <!-- Total Recaudado/Morosos -->
             <div class="row">
                 <div class="col mb-3">
@@ -45,10 +87,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Promedio Mensual -->
-            <div class="row">
                 <div class="col mb-3">
                     <div class="card border-0 shadow-lg mb-3 rounded-4 h-100 w-100"
                         style="background-color: #fcffd8de;">
@@ -65,8 +103,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Mejor Mes -->
+            <!-- Promedio Mensual -->
             <div class="row">
                 <div class="col mb-3">
                     <div class="card border-0 shadow-lg mb-3 rounded-4 h-100 w-100"
@@ -84,8 +121,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col mb-3">
                     <div class="card border-0 shadow-lg mb-3 rounded-4 h-100 w-100"
                         style="background-color: #f7e3fd;">
@@ -103,26 +138,28 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-lg  rounded-4 h-100 w-100">
-                <div class="card-body">
-                    <div class=" align-items-center mb-4">
-                        <div>
-                            <h5 class="card-title text-secondary mb-1 d-flex justify-content-center">Porcentaje asistencias</h5>
+
+            <!-- Mejor Mes -->
+            <div class="row">
+                <div class="card border-0 shadow-lg  rounded-4 h-100 w-100">
+                    <div class="card-body">
+                        <div class=" align-items-center mb-4">
+                            <div>
+                                <h5 class="card-title text-secondary mb-1 d-flex justify-content-center">Porcentaje asistencias</h5>
+                            </div>
                         </div>
+                        @if(dataAsistencias.length !== 0){
+                            <google-chart [type]="chartTypeCirculo" [data]="dataAsistencias" [options]="chartOptionsAsistencias"
+                                class="w-100 expanded-chart-content" [height]="300">
+                            </google-chart>
+                        } @else {
+                            <h5 class="card-title text-secondary mb-1 d-flex justify-content-center">No hay datos disponibles</h5>
+                        }
                     </div>
-                    @if(dataAsistencias.length !== 0){
-                        <google-chart [type]="chartTypeCirculo" [data]="dataAsistencias" [options]="chartOptionsAsistencias"
-                            class="w-100 expanded-chart-content">
-                        </google-chart>
-                    } @else {
-                        <h5 class="card-title text-secondary mb-1 d-flex justify-content-center">No hay datos disponibles</h5>
-                    }
                 </div>
             </div>
         </div>
-        <div class="col-md-5">
+        <div class="col-md-6">
             <div class="card border-0 shadow-lg  rounded-4 h-100 w-100">
                 <div class="card-body">
                     <div class=" align-items-center mb-4">
@@ -140,4 +177,5 @@
                 </div>
             </div>
         </div>
+    </div>
 </div>

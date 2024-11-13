@@ -7,17 +7,17 @@ import { FormsModule } from '@angular/forms';
 import { EmpListadoEmpleados } from '../../Models/emp-listado-empleados';
 import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
 import { WakeUpCallDetail } from '../../Models/listado-desempeño';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-iep-charts-employees',
   standalone: true,
-  imports: [GoogleChartsModule, CommonModule, FormsModule],
+  imports: [GoogleChartsModule, CommonModule, FormsModule, NgSelectModule],
   templateUrl: './iep-charts-employees.component.html',
   styleUrl: './iep-charts-employees.component.css'
 })
 export class IepChartsEmployeesComponent implements OnInit{
 // Boolean para verificar que se carguen los datos en los graficos por primera vez
-primerLlamado = true;
 
 // Servicios para hacer GET de los datos
 empleadosService = inject(EmpListadoEmpleadosService);
@@ -32,10 +32,12 @@ llamados: WakeUpCallDetail[] = [];
 asistenciasFiltradas: EmpListadoAsistencias[] = [];
 llamadosFiltrados: WakeUpCallDetail[] = [];
 
+optionsEmpleados: any[] = [];
+empleadosFiltrados: any[] = [];
+
 // Variables para guardar los datos de filtros
-empleado: string = "";
-fechaInicio: Date | null = null;
-fechaFin: Date | null = null;
+fechaInicio!: string;
+fechaFin!: string;
 
 // Variables para definir los tipos de graficos a protectar
 chartTypeCirculo: ChartType = ChartType.PieChart;
@@ -54,21 +56,58 @@ kpiJustificado: number = 0;
 
 // Configuraciones para los graficos
 chartOptionsAsistencias = {
-  colors: ['#28a745', '#dc3545', '#ffc107', '#6f42c1']
+  colors: ['#28a745', '#dc3545', '#ffc107', '#6f42c1'] ,
+  animation: { duration: 1000, easing: 'out', startup: true },
 };
 
 chartOptionsLlamados = {
   colors: ['#28a745', '#ffc107','#dc3545'],
-  vAxis:{
-    minValue:0
-  },
+  vAxis:{ minValue: 0 },
   isStacked: true,
 };
 
 ngOnInit(): void {
-  this.getAsistencias();
-  this.getLlamados();
+  this.loadData();
+  this.initializeDates();
+  this.setInitialDates();
+}
+
+initializeDates(): void {
+  const today = new Date();
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+  this.fechaInicio = this.formatInitialFilterDates(thirtyDaysAgo);
+  this.fechaFin = this.formatInitialFilterDates(today);
+}
+
+private formatInitialFilterDates(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+setInitialDates(): void {
+  const today = new Date();
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+
+  const startDateInput: HTMLInputElement = document.getElementById('fechaInicio') as HTMLInputElement;
+  const endDateInput: HTMLInputElement = document.getElementById('fechaFin') as HTMLInputElement;
+
+  startDateInput.value = thirtyDaysAgo.toISOString().split('T')[0];
+  endDateInput.value = today.toISOString().split('T')[0];
+
+  // Establecer los límites de las fechas
+  endDateInput.max = today.toISOString().split('T')[0];
+  startDateInput.max = endDateInput.value;
+  endDateInput.min = startDateInput.value;
+}
+
+loadData(){
   this.loadEmpleados();
+  this.loadAsistencias();
+  this.loadLlamados();
 }
 
 loadEmpleados(): void {
@@ -82,26 +121,26 @@ loadEmpleados(): void {
  }
 
 // Metodo para llavar al servicio y conseguir todas las asistencias
-getAsistencias(): void {
+loadAsistencias(): void {
   this.asistencias = [];
   const empSubscription = this.empleadosService.getAttendances().subscribe({
     next: (Asistencias) => {
       this.asistencias = [];
       this.asistencias = Asistencias;
+      this.filtrarAsistencias();
       this.cargarAsistencias();
     }
   })
 }
 
-
-
 // Metodo para llavar al servicio y conseguir todos los llamados de atencion
-getLlamados(): void{
+loadLlamados(): void{
   this.llamados = []
   const empSubscription = this.llamadosService.getWakeUpCallDetails().subscribe({
     next: (Llamados) => {
       this.llamados = [];
       this.llamados = Llamados;
+      this.filtrarLlamados();
       this.cargarLlamados();
     }
   })
@@ -109,42 +148,27 @@ getLlamados(): void{
 
 // Metodo para cargar en el grafico los datos de asistencias
 cargarAsistencias(){
-  var p = 0;
-  var au = 0;
-  var t = 0;
-  var j = 0;
+  var p = 0; var au = 0; 
+  var t = 0; var j = 0;
   var total = 0
+  this.dataAsistencias = [];
 
-  if (this.asistenciasFiltradas.length === 0 && this.primerLlamado){
-   total = this.asistencias.length;
+  total = this.asistenciasFiltradas.length;
 
-   this.asistencias.forEach(a => {
-     switch(a.state){
-       case "PRESENTE": p++; break;
-       case "AUSENTE": au++; break;
-       case "TARDE": t++; break;
-       case "JUSTIFICADO": j++; break;
-     }
-   });
-  } 
-  else {
-   total = this.asistenciasFiltradas.length;
-
-   this.asistenciasFiltradas.forEach(a => {
-     switch(a.state){
-       case "PRESENTE": p++; break;
-       case "AUSENTE": au++; break;
-       case "TARDE": t++; break;
-       case "JUSTIFICADO": j++; break;
-     }
-   });
-  }
+  this.asistenciasFiltradas.forEach(a => {
+    switch(a.state){
+      case "PRESENTE": p++; break;
+      case "AUSENTE": au++; break;
+      case "TARDE": t++; break;
+      case "JUSTIFICADO": j++; break;
+    }
+  });
+  
 
   this.kpiPresente = p;
   this.kpiTarde = t;
   this.kpiAusente = au;
   this.kpiJustificado = j;
-  this.dataAsistencias = [];
 
   this.dataAsistencias.push(["Presente", p / total * 100],["Ausente", au / total * 100],
   ["Tarde", t / total * 100],["Justificado", j / total * 100]);
@@ -153,21 +177,14 @@ cargarAsistencias(){
 // Metodo para cargar en el grafico los datos de llamados de atencion
 cargarLlamados(){
   const meses: Set<number> = new Set();
-  var listaLlamados: WakeUpCallDetail[];
+  const anos: Set<number> = new Set();
 
-  if(this.llamadosFiltrados.length === 0 && this.primerLlamado){
-    listaLlamados = this.llamados;
-    this.llamados.forEach(llamado => {
-      meses.add(llamado.dateReal[1])
-      console.log("Meses:"+meses);
-    });
-  } else {
-    listaLlamados = this.llamadosFiltrados;
-    this.llamadosFiltrados.forEach(llamado => {
-      meses.add(llamado.dateReal[1])
-      console.log("Meses:"+meses);
-    });
-  }
+  this.llamadosFiltrados.forEach(llamado => {
+    meses.add(llamado.dateReal[1])
+    anos.add(llamado.dateReal[0])
+    console.log("Meses: "+meses);
+    console.log("Años: "+anos)
+  });
 
 
   const mesesLlamados: number[] = Array.from(meses);
@@ -180,7 +197,7 @@ cargarLlamados(){
     var m = 0;
     var s = 0;
 
-    listaLlamados.forEach(llamado => {
+    this.llamadosFiltrados.forEach(llamado => {
       if(llamado.dateReal[1] === mes){
         switch (llamado.wackeUpTypeEnum){
           case "Leve": l++; break;
@@ -200,44 +217,48 @@ cargarTiposEmpleados(){
   this.empleados.forEach(empleado => {
     tipos.add(empleado.position);
   });
-
-  const tiposSinDuplicados: string[] = Array.from(tipos);
-  this.dataCargos = [];
-  tiposSinDuplicados.forEach(tipo => {
-    const empleadosConTipo = this.empleados.filter(empleado => empleado.position === tipo);
-
-    this.dataCargos.push([tipo, empleadosConTipo.length / this.empleados.length * 100])
-  });
 }
 
-// Llamar a todos los metodos de filtrado y despues 
-// ejecutar los metodos para cargar los datos de los graficos
-filtrar(){
-  this.primerLlamado = false;
-  this.asistenciasFiltradas = this.filtrarAsistencias();
-  this.llamadosFiltrados = this.filtrarLlamados();
+onStartDateChange(): void {
+  const startDateInput: HTMLInputElement = document.getElementById('fechaInicio') as HTMLInputElement;
+  const endDateInput: HTMLInputElement = document.getElementById('fechaFin') as HTMLInputElement;
 
-  this.cargarAsistencias();
-  this.cargarLlamados();
+  // Establecer límites de fechas
+  const today = new Date();
+  const formattedToday = today.toISOString().split('T')[0];
+  endDateInput.max = formattedToday;
+
+  if (startDateInput.value) { endDateInput.min = startDateInput.value; } 
+  else { endDateInput.min = ''; }
+
+  this.loadData();
+}
+
+onEndDateChange(): void {
+  const startDateInput: HTMLInputElement = document.getElementById('fechaInicio') as HTMLInputElement;
+  const endDateInput: HTMLInputElement = document.getElementById('fechaFin') as HTMLInputElement;
+
+  // Establecer límites de fechas
+  const today = new Date();
+  const formattedToday = today.toISOString().split('T')[0];
+  endDateInput.max = formattedToday;
+
+  if (endDateInput.value) { startDateInput.max = endDateInput.value; } 
+  else { startDateInput.max = ''; }
+
+  this.loadData();
 }
 
 // Filtra las asistencias en funcion de los valores de los filtros
-filtrarAsistencias(): EmpListadoAsistencias[] {
- var asistenciasFiltradas: EmpListadoAsistencias[] = this.asistencias;
- 
- // Filtrar por empleado si esta definido
- if (this.empleado){
-   asistenciasFiltradas = asistenciasFiltradas.filter(asistencia => {
-     return asistencia.employeeName === this.empleado;
-   })
- }
+filtrarAsistencias() {
+  this.asistenciasFiltradas = this.asistencias;
  
  // Filtrar por fecha si al menos una de las dos esta definida
  if (this.fechaInicio || this.fechaFin) {
    const inicioDate = this.fechaInicio ? new Date(this.fechaInicio) : null;
    const finDate = this.fechaFin ? new Date(this.fechaFin) : null;
 
-   asistenciasFiltradas = asistenciasFiltradas.filter(asistencia => {
+   this.asistenciasFiltradas = this.asistenciasFiltradas.filter(asistencia => {
 
      const asistenciaDateParts = asistencia.date.split('/'); // Si es DD/MM/YYYY
      const asistenciaDate = new Date(
@@ -253,8 +274,6 @@ filtrarAsistencias(): EmpListadoAsistencias[] {
      return true;
    })
  }
-
- return asistenciasFiltradas;
 }
 
 
@@ -285,11 +304,16 @@ filtrarLlamados(): WakeUpCallDetail[] {
   return llamadosFiltrados;
 }
 
+formatDateyyyyMMdd(dateString: string): string {
+  const [day, month, year] = dateString.split('/');
+  return `${year}-${month}-${day}`;
+}
+
  limpiarFiltro(){
-   this.empleado = "";
-   this.fechaInicio = null;
-   this.fechaFin = null;
-   this.filtrar();
+   this.asistenciasFiltradas = [];
+   this.llamadosFiltrados = [];
+   this.setInitialDates();
+   this.loadData();
  }
 
  // Devuelve el nombre del mes en base al numero dado en el parametro
