@@ -81,6 +81,9 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     cantMaxima: 0,
   };
 
+  dateStartFilter= new FormControl();
+  dateEndFilter= new FormControl();
+
   productoSeleccionado: ProductXDetailDto2 | null = null;
   estadoFilter = new FormControl();
   reutilizableFilter = new FormControl();
@@ -362,11 +365,35 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.updateDataTable();
   }
 
+
+  
+  private parseDate(dateStr: string): Date {
+    const [day, month, year] = dateStr.split('/');
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }
+
+
   applyDateFilter(): void {
     this.productosFiltered = this.productosALL.filter((producto) => {
-      // Obtener la última fecha de actualización de los detalles del producto
-    });
+      const startDate = this.dateStartFilter.value;
+      const endDate = this.dateEndFilter.value;
+      try {
+        const dateProduct = this.parseDate(this.formatFullDate(producto.lastEntry));
+        
+        const start = this.parseDate(this.formatDate(startDate));
+        const end = this.parseDate(this.formatDate(endDate));
 
+        // Establecer las horas de inicio y fin para comparación correcta
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+
+        // Comparar las fechas
+        return dateProduct >= start && dateProduct <= end;
+      } catch (error) {
+        console.error('Error al procesar fecha:', error);
+        return false;
+      }
+    });
     this.updateDataTable();
   }
 
@@ -383,45 +410,70 @@ export class IepInventoryComponent implements OnInit, OnDestroy, AfterViewInit {
  // Método para aplicar el filtro global y filtros adicionales
 applyFilter(): void {
   const globalFilterLower = this.filters.nombre.toLowerCase();
+  const startDate = this.dateStartFilter.value;
+  const endDate = this.dateEndFilter.value;
 
   this.productosFiltered = this.productosALL.filter((producto) => {
-    // Filtro global: buscar en nombre del producto (Artículo) y nombre de la categoría
+    // Filtro global: buscar en nombre del producto y nombre de la categoría
     const matchesGlobalFilter =
       producto.name.toLowerCase().includes(globalFilterLower) ||
       producto.category.categoryName.toLowerCase().includes(globalFilterLower);
 
-    /* Filtrar por categorías seleccionadas
-    const matchesCategorias = this.filters.categoriasSeleccionadas.length === 0 ||
-      this.filters.categoriasSeleccionadas.includes(producto.category.id);
-      */
-
-    // Filtrar por estados seleccionados (permitiendo múltiples valores)
+    // Filtrar por estados seleccionados
     const selectedEstados = this.estadoFilter.value || [];
     const productoEstado = producto.discontinued
       ? 'descontinuado'
       : producto.stock > 0
       ? 'activo'
       : 'inactivo';
-    const matchesEstado = selectedEstados.length === 0 || selectedEstados.includes(productoEstado);
+    const matchesEstado = 
+      selectedEstados.length === 0 || 
+      selectedEstados.includes(productoEstado);
 
-    // Filtrar por reutilizable (permitiendo múltiples valores)
+    // Filtrar por reutilizable
     const selectedReutilizables = this.reutilizableFilter.value || [];
-    const matchesReutilizable = selectedReutilizables.length === 0 || selectedReutilizables.includes(producto.reusable);
+    const matchesReutilizable = 
+      selectedReutilizables.length === 0 || 
+      selectedReutilizables.includes(producto.reusable);
 
-    // Filtrado por cantidad mínima y máxima
+    // Filtrado por cantidad
     const matchesCantidad =
-    (this.filters.cantMinima ? producto.stock >= this.filters.cantMinima : true) &&
-    (this.filters.cantMaxima ? producto.stock <= this.filters.cantMaxima : true);
+      (this.filters.cantMinima ? producto.stock >= this.filters.cantMinima : true) &&
+      (this.filters.cantMaxima ? producto.stock <= this.filters.cantMaxima : true);
 
-    console.log('cantidad minima: ' + this.filters.cantMinima);
-    console.log('cantidad maxima: ' + this.filters.cantMaxima);
-    console.log('cantidad: ' + producto.quantity);
+    // Filtrado por fechas
+    let matchesFechas = true;
+    if (startDate || endDate) {
+      try {
+        // Convertir la fecha del producto
+        const dateProduct = this.parseDate(this.formatFullDate(producto.lastEntry));
+        
+        // Establecer fechas de inicio y fin
+        const start = startDate ? this.parseDate(this.formatDate(startDate)) : null;
+        const end = endDate ? this.parseDate(this.formatDate(endDate)) : null;
 
-    return matchesGlobalFilter && matchesReutilizable && matchesEstado && matchesCantidad;
+        if (start) start.setHours(0, 0, 0, 0);
+        if (end) end.setHours(23, 59, 59, 999);
+
+        matchesFechas = (!start || dateProduct >= start) && (!end || dateProduct <= end);
+      } catch (error) {
+        console.error('Error al procesar fecha:', error);
+        matchesFechas = false;
+      }
+    }
+
+    // Retornar la combinación de todos los filtros
+    return (
+      matchesGlobalFilter &&
+      matchesReutilizable &&
+      matchesEstado &&
+      matchesCantidad &&
+      matchesFechas
+    );
   });
 
+  // Actualizar la tabla si es necesario
   this.updateDataTable();
-
 }
 
 
@@ -679,6 +731,12 @@ applyFilter(): void {
     }, 0);
   }
 
+  formatFullDate(inputDate: string): string {
+    const [year, month, day, hour, minute, second, millisecond] = inputDate;
+            const dateString = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+            return dateString;
+  }
+
   initializeDataTable(): void {
     this.table = $('#productsList').DataTable({
       dom: '<"mb-3"t>' + '<"d-flex justify-content-between"lp>',
@@ -796,7 +854,7 @@ applyFilter(): void {
       lengthMenu: [5, 10, 25, 50],
       searching: false,
       ordering: true,
-      order: [[0, 'desc']],
+      order: [[0, 'desc'],[1, 'desc']],
       autoWidth: false,
       language: {
         search: '',

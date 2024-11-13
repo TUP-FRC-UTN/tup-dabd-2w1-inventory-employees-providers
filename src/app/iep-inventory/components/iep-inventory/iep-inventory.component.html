@@ -110,12 +110,34 @@
                 (input)="applyFilter()"
               />
             </div>
+
+            <div class="me-3" style="min-width: 200px">
+              <input
+                type="date"
+                id="filterDateStart"
+                class="form-control"
+                placeholder="Desde"
+                name="dateStarts"
+                [formControl]="dateStartFilter"
+                (input)="applyFilter()"
+              />
+            </div>
+
+            <div class="me-3" style="min-width: 200px">
+              <input
+                type="date"
+                id="filterDateEnd"
+                class="form-control"
+                placeholder="Hasta"
+                name="dateEnd"
+                [formControl]="dateEndFilter"
+                (input)="applyFilter()"
+              />
+            </div>
             
             
             <!-- Filtro de Estado -->
-             <div div style="flex-grow: 1; max-width: 300px" class="me-2 col-md-6">
-
-             
+             <div div style="" class="">
               <ng-select
               multiple="true"
               [formControl]="estadoFilter"
@@ -133,22 +155,7 @@
 
             </div>
 
-              <!-- Filtro de Reutilizable -->
-              <div div style="flex-grow: 1; max-width: 300px" class="me-2 col-md-6">
-                <ng-select
-                multiple="true"
-                [formControl]="reutilizableFilter"
-                [items]="reutilizablesCombo"
-                bindLabel="label"
-                bindValue="value"
-                placeholder="Seleccionar Reutilizable"
-                (change)="applyFilter()">
-                <ng-template ng-multi-label-tmp let-items="items">
-                  Seleccionar Reutilizable
-                  <span *ngIf="items.length > 0">({{ items.length }})</span>
-                </ng-template>
-                </ng-select>
-              </div>
+            
             </div>
             
 
@@ -318,6 +325,27 @@
     </div>
   </div>
 </div>
+
+  <!-- Filtro de Reutilizable -->
+
+  <div class="row mb-3">
+  <label for="" class="col-sm-3 col-form-label">Reutilizable</label>
+    <div class="col-sm-9">
+      <ng-select
+    multiple="true"
+    [formControl]="reutilizableFilter"
+    [items]="reutilizablesCombo"
+    bindLabel="label"
+    bindValue="value"
+    placeholder="Seleccionar Reutilizable"
+    (change)="applyFilter()">
+    <ng-template ng-multi-label-tmp let-items="items">
+      Seleccionar Reutilizable
+      <span *ngIf="items.length > 0">({{ items.length }})</span>
+    </ng-template>
+    </ng-select>
+    </div>
+  </div>
 
 
 
