@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, NgModule } from '@angular/core';
-import { FormBuilder, FormGroup, NgModel, Validators } from '@angular/forms';
+import { Component, NgModule, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroup, NgModel, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { EmpPostConfiguration } from '../../Models/emp-post-configuration';
 import { PillowTimeLateArrivalService } from '../../services/pillow-time-late-arrival.service';
+import Swal from 'sweetalert2';
 @Component({
   selector: 'app-iep-pillow-later-arrival-config',
   standalone: true,
@@ -11,13 +12,13 @@ import { PillowTimeLateArrivalService } from '../../services/pillow-time-late-ar
   templateUrl: './iep-pillow-later-arrival-config.component.html',
   styleUrl: './iep-pillow-later-arrival-config.component.css'
 })
-export class IepPillowLaterArrivalConfigComponent {
+export class IepPillowLaterArrivalConfigComponent implements OnInit{
 
   configForm: FormGroup= new FormGroup({});
-  savedValue: number | null = 10;
-  successMessage: string = '';
-
-  savedDaysValue: number | null = 0;
+  configTimeJustify : FormGroup = new FormGroup({});
+  savedMinutesValue : number|null=null
+  savedDaysValue: number | null = null;
+  successMessage: string='';
 
   constructor(
     private fb: FormBuilder,
@@ -28,26 +29,69 @@ export class IepPillowLaterArrivalConfigComponent {
   }
 
   ngOnInit(): void {
+
     this.loadSavedConfig();
+    
   }
+
+   goBack(){}
+
 
   private initForm(): void {
     this.configForm = this.fb.group({
       minutes: ['', [
         Validators.required,
         Validators.min(0),
-        Validators.max(60)
+        Validators.max(60),
       ]],
-      days: ['', [Validators.required, Validators.min(0), Validators.max(30)]]
+      days: ['', [
+        Validators.required,
+         Validators.min(0), 
+         Validators.max(30),
+         ]]
+
+     
     });
+
 
     // Suscribirse a cambios del formulario para limpiar mensajes
     this.configForm.valueChanges.subscribe(() => {
-      this.successMessage = '';
     });
   }
 
   private loadSavedConfig(): void {
+
+    this.pillowTimeLateArrivalService.actualConfig().subscribe({ 
+
+
+      next: (x:EmpPostConfiguration) => {
+ console.log("ENtrooo")
+        this.savedMinutesValue = x.pillowLastArrival
+        this.savedDaysValue = x.pillowJustify
+        console.log(this.savedDaysValue)
+        this.configForm.get('minutes')?.setValue(this.savedMinutesValue);
+        console.log(  this.configForm.get('minutes')?.value)
+        this.configForm.get('days')?.setValue(this.savedDaysValue?.toString());
+        console.log(this.configForm.get('days')?.value)
+      },
+      error: error => {
+        
+        Swal.fire({
+          title: 'Error',
+          text: "Error en el servidor intente nuevamente mas tarde",
+          icon: 'error',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#3085d6'
+        
+        }).then(() => {
+            window.history.back()
+        });
+
+    }
+
+
+  })
+    
     // Aquí podrías obtener la configuración desde un servicio
     // const savedConfig = localStorage.getItem('minutesBuffer');
     // if (savedConfig) {
@@ -63,49 +107,43 @@ export class IepPillowLaterArrivalConfigComponent {
         pillowLastArrival: this.configForm.get('minutes')?.value,
         userId: 1,
         pillowJustify: this.configForm.get('days')?.value
+
       }
       this.pillowTimeLateArrivalService.postConfig(empPostConfiguration).subscribe({
-        next: () => {
-          this.savedValue = this.configForm.get('minutes')?.value;
-          this.savedDaysValue = this.configForm.get('days')?.value;
-          this.successMessage = 'La configuración global ha sido actualizada exitosamente';
+        next: (response) => {
+
+          Swal.fire({
+            title: '¡Guardado!',
+            text: "Configuracion guardada con exito",
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+            showCancelButton: false,
+            confirmButtonColor: '#3085d6'
+          }).then(() => {
+            this.savedDaysValue= this.configForm.get('days')?.value;
+            this.savedMinutesValue=this.configForm.get('minutes')?.value
+
+          });
         },
-        error: (error) => {
-          console.error('Error al guardar la configuración:', error);
+        error: error => {
           
-        }
-      });
-    } else {
-      this.markFormGroupTouched(this.configForm);
-    }
-  }
+          Swal.fire({
+            title: 'Error',
+            text: "Error en el servidor intente nuevamente mas tarde",
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#3085d6'
+          });
 
-  private saveConfiguration(minutes: number): void {
-  
-    // Simula una llamada a un servicio
-    // localStorage.setItem('minutesBuffer', minutes.toString());
-    // this.savedValue = minutes;
-    // this.successMessage = 'La configuración global ha sido actualizada exitosamente';
-    
-    // Ejemplo de uso del servicio (comentado)
-    // this.configService.saveGlobalMinutes(minutes).subscribe({
-    //   next: () => {
-    //     this.savedValue = minutes;
-    //     this.successMessage = 'La configuración global ha sido actualizada exitosamente';
-    //   },
-    //   error: (error) => {
-    //     console.error('Error al guardar la configuración:', error);
-    //     // Manejar el error apropiadamente
-    //   }
-    // });
+          this.savedMinutesValue = this.configForm.get('minutes')?.value;
+          this.savedDaysValue = this.configForm.get('days')?.value;
+      }})
+    }}
 
 
-    
-  }
 
   resetForm(): void {
     this.configForm.reset();
-    this.successMessage = '';
   }
 
   // Helpers para validación
@@ -127,4 +165,11 @@ export class IepPillowLaterArrivalConfigComponent {
       }
     });
   }
+
+
+
+
+
+
+
 }

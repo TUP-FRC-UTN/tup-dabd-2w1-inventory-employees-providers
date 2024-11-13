@@ -28,8 +28,8 @@ export class IepNuevoIngresoEgresoComponent implements OnInit {
   formularioEgreso:FormGroup = new FormGroup({});
   selectedType: string = 'I';
     constructor(
-    private router :Router ,
-     private serviceP : ProductService ,
+      private router :Router ,
+      private serviceP : ProductService ,
       private serviceS :  SuppliersService,
       private serviceMovment : IncreaseDecrementService,
       private serviceUsers : UsersMockIdService
