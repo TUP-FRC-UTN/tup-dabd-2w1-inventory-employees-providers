@@ -324,12 +324,10 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   }
 
 
-  public loadCharges(): void {
+  loadCharges(): void {
     this.serviceCombos.getCharges().subscribe({
-      next: (c) => {
-        this.cargos = c;
-        console.log("cargoss"+c)
-      },
+      next: (data) => this.cargos = data,
+      error: (error) => console.error('Error al cargar cargos:', error)
     });
   }
 
