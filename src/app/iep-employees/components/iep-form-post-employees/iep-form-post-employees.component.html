@@ -492,7 +492,7 @@
                         <div class="row text-end">
                             <label for="start-time-contract" class="col-form-label col-md-3">Inicio</label>
                             <div class="col-md-9">
-                                <input type="date" id="startTimeContract" id="startTimeContract" class="form-control"
+                                <input type="date" id="startTimeContract" [attr.max]="fechaMaxima" id="startTimeContract" class="form-control"
                                     name="startTimeContract" [(ngModel)]="startTimeContract"
                                     #startTimeContractModel="ngModel" required (ngModelChange)="validateDate()"
                                     [ngClass]="{

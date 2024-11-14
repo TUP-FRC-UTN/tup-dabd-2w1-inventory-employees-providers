@@ -69,6 +69,7 @@ interface ReusableOption {
   styleUrl: './iep-inventory.component.css',
 })
 export class IepInventoryComponent implements OnInit, OnDestroy {
+  fechaMaxima: string;
   errorMessage: string = '';
   // Objeto que mantiene el estado de todos los filtros
   filters: Filters = {
@@ -220,6 +221,8 @@ applyFilter(): void {
   constructor() {
     this.estadoFilter.valueChanges.subscribe(() => this.applyFilter());
     this.reutilizableFilter.valueChanges.subscribe(() => this.applyFilter());
+    const hoy = new Date();
+    this.fechaMaxima = hoy.toISOString().split('T')[0];
   }
 
   categorias$: Observable<ProductCategory[]> = new Observable<

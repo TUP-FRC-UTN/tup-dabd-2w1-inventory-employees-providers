@@ -9,6 +9,7 @@
         <input
           type="text"
           id="filterInput"
+          [attr.max]="fechaMaxima"
           class="form-control"
           placeholder="Buscar"
           (input)="applyFilters()"
@@ -21,6 +22,7 @@
         <input
           type="date"
           id="startDate"
+          [attr.max]="fechaMaxima"
           class="form-control"
           #startDateInput
           (change)="onStartDateChange(startDateInput.value)"
