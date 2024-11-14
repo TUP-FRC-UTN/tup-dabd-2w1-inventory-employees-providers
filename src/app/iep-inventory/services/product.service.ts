@@ -81,11 +81,11 @@ export class ProductService {
   }
 
   getAllProducts(): Observable<ProductXDetailDto[]> {
-    return this.http.get<any[]>(this.PRODUCT_URL + '/getAll');
+    return this.http.get<any[]>(this.PRODUCT_URL);
   }
 
   getProducts2(): Observable<ProductXDetailDto2[]> {
-    return this.http.get<ProductXDetailDto2[]>(this.PRODUCT_URL + '/getAll');
+    return this.http.get<ProductXDetailDto2[]>(this.PRODUCT_URL);
   }
 
   // ENZO
@@ -140,5 +140,4 @@ export class ProductService {
     return this.http.put<any>(url, {}, { headers, params });
   }
 
-  //http://localhost:8081/product/1/logicalLow?idUser=3
 }
