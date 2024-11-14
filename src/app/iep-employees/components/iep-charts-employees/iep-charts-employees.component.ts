@@ -60,6 +60,7 @@ chartOptionsAsistencias = {
   animation: { duration: 1000, easing: 'out', startup: true },
 };
 
+columnsLlamados = ['Periodo','Leve','Moderado','Severo']
 chartOptionsLlamados = {
   colors: ['#28a745', '#ffc107','#dc3545'],
   vAxis:{ minValue: 0 },
@@ -115,7 +116,8 @@ loadEmpleados(): void {
    next: (Empleados) =>{
       this.empleados = [];
       this.empleados = Empleados;
-      this.cargarTiposEmpleados();
+      this.cargarSelectEmpleados();
+      //this.cargarTiposEmpleados();
      }
    })
  }
@@ -127,6 +129,7 @@ loadAsistencias(): void {
     next: (Asistencias) => {
       this.asistencias = [];
       this.asistencias = Asistencias;
+      this.asistenciasFiltradas = Asistencias;
       this.filtrarAsistencias();
       this.cargarAsistencias();
     }
@@ -140,6 +143,7 @@ loadLlamados(): void{
     next: (Llamados) => {
       this.llamados = [];
       this.llamados = Llamados;
+      this.llamadosFiltrados = Llamados;
       this.filtrarLlamados();
       this.cargarLlamados();
     }
@@ -164,7 +168,6 @@ cargarAsistencias(){
     }
   });
   
-
   this.kpiPresente = p;
   this.kpiTarde = t;
   this.kpiAusente = au;
@@ -178,6 +181,7 @@ cargarAsistencias(){
 cargarLlamados(){
   const meses: Set<number> = new Set();
   const anos: Set<number> = new Set();
+  this.dataLlamados = [];
 
   this.llamadosFiltrados.forEach(llamado => {
     meses.add(llamado.dateReal[1])
@@ -211,13 +215,20 @@ cargarLlamados(){
   });
 }
 
-cargarTiposEmpleados(){
-  const tipos: Set<string> = new Set();
-
+cargarSelectEmpleados(){
+  this.optionsEmpleados = [];
   this.empleados.forEach(empleado => {
-    tipos.add(empleado.position);
+    this.optionsEmpleados.push({label: `${empleado.fullName}`, value: `${empleado.id}`})
   });
 }
+
+// cargarTiposEmpleados(){
+//   const tipos: Set<string> = new Set();
+
+//   this.empleados.forEach(empleado => {
+//     tipos.add(empleado.position);
+//   });
+// }
 
 onStartDateChange(): void {
   const startDateInput: HTMLInputElement = document.getElementById('fechaInicio') as HTMLInputElement;
@@ -251,57 +262,84 @@ onEndDateChange(): void {
 
 // Filtra las asistencias en funcion de los valores de los filtros
 filtrarAsistencias() {
-  this.asistenciasFiltradas = this.asistencias;
+  this.asistenciasFiltradas = [];
  
+  const startDateInput: HTMLInputElement = document.getElementById('fechaInicio') as HTMLInputElement;
+  const endDateInput: HTMLInputElement = document.getElementById('fechaFin') as HTMLInputElement;
+
  // Filtrar por fecha si al menos una de las dos esta definida
- if (this.fechaInicio || this.fechaFin) {
-   const inicioDate = this.fechaInicio ? new Date(this.fechaInicio) : null;
-   const finDate = this.fechaFin ? new Date(this.fechaFin) : null;
+  const startDate = startDateInput ? new Date(startDateInput.value) : null;
+  const endDate = endDateInput ? new Date(endDateInput.value) : null;
 
-   this.asistenciasFiltradas = this.asistenciasFiltradas.filter(asistencia => {
+  if (startDate && endDate && startDate > endDate) {
+    //alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
 
-     const asistenciaDateParts = asistencia.date.split('/'); // Si es DD/MM/YYYY
-     const asistenciaDate = new Date(
-       Number(asistenciaDateParts[2]), // Año
-       Number(asistenciaDateParts[1]) - 1, // Mes (0-indexado)
-       Number(asistenciaDateParts[0]) // Día
-     );
+    startDateInput.value = '';
+    endDateInput.value = '';
+    return;
+  }
 
-     if(inicioDate && finDate) {return inicioDate <= asistenciaDate && asistenciaDate <= finDate}
-     else if (finDate) { return asistenciaDate <= finDate }
-     else if (inicioDate) { return asistenciaDate >= inicioDate; }
+  this.asistenciasFiltradas = this.asistencias.filter( (asistencia) => {
 
-     return true;
+    const asistenciaDateParts = asistencia.date.split('/'); // Si es DD/MM/YYYY
+    const asistenciaDate = new Date(
+      Number(asistenciaDateParts[2]), // Año
+      Number(asistenciaDateParts[1]) - 1, // Mes (0-indexado)
+      Number(asistenciaDateParts[0]) // Día
+    );
+    return (
+      (!startDate || asistenciaDate >= startDate) &&
+      (!endDate || asistenciaDate <= endDate)
+    );
+  })
+
+ if(this.empleadosFiltrados.length !== 0){
+    console.log(this.empleadosFiltrados.length)  
+    this.asistenciasFiltradas = this.asistenciasFiltradas.filter(asistencia =>{
+      console.log(asistencia)
+      return this.empleadosFiltrados.includes(asistencia.employeeId.toString())
    })
- }
+
+  // this.empleadosFiltrados.forEach(element => {
+  //   console.log(element);
+  // });
+  }
 }
 
 
 // Filtra los llamados en funcion de los valores de los filtros
-filtrarLlamados(): WakeUpCallDetail[] {
-  var llamadosFiltrados: WakeUpCallDetail[] = this.llamados;
+filtrarLlamados() {
+  this.llamadosFiltrados = [];
 
-  if (this.fechaInicio || this.fechaFin) {
-    const inicioDate = this.fechaInicio ? new Date(this.fechaInicio) : null;
-    const finDate = this.fechaFin ? new Date(this.fechaFin) : null;
+  const startDateInput: HTMLInputElement = document.getElementById('fechaInicio') as HTMLInputElement;
+  const endDateInput: HTMLInputElement = document.getElementById('fechaFin') as HTMLInputElement;
 
-    llamadosFiltrados = llamadosFiltrados.filter( llamado => {
-      const llamadoDate = new Date(
-        Number(llamado.dateReal[0]), // Año
-        Number(llamado.dateReal[1]) - 1, // Mes (0-indexado)
-        Number(llamado.dateReal[2]) // Día
+  const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+  const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+
+ // Filtrar por fecha si al menos una de las dos esta definida
+ if (this.fechaInicio || this.fechaFin) {
+  if (startDate && endDate && startDate > endDate) {
+    //alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
+
+    startDateInput.value = '';
+    endDateInput.value = '';
+    return;
+  }
+
+  this.llamadosFiltrados = this.llamados.filter( llamado => {
+    const llamadoDate = new Date(
+      Number(llamado.dateReal[0]), // Año
+      Number(llamado.dateReal[1]) - 1, // Mes (0-indexado)
+      Number(llamado.dateReal[2]) // Día
       );
-
-      if(inicioDate && finDate) {return inicioDate <= llamadoDate && llamadoDate <= finDate}
-      else if (finDate) { return llamadoDate <= finDate }
-      else if (inicioDate) { return llamadoDate >= inicioDate; }
- 
-      return true;
+      return (
+        (!startDate || llamadoDate >= startDate) &&
+        (!endDate || llamadoDate <= endDate)
+      );
         
-     });
-   }
-
-  return llamadosFiltrados;
+    });
+  }
 }
 
 formatDateyyyyMMdd(dateString: string): string {
@@ -310,8 +348,7 @@ formatDateyyyyMMdd(dateString: string): string {
 }
 
  limpiarFiltro(){
-   this.asistenciasFiltradas = [];
-   this.llamadosFiltrados = [];
+   this.empleadosFiltrados = [];
    this.setInitialDates();
    this.loadData();
  }

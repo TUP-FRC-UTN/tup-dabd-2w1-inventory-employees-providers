@@ -342,6 +342,10 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
         })
       }
 
+      this.productosFiltrados.forEach(element => {
+        console.log("Productos filtro"+element)
+      });
+
     console.log(this.modificacionesFiltradas);
     this.cargarKpi();
   }
