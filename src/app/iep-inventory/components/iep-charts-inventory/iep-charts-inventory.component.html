@@ -1,6 +1,6 @@
 <div class="container mb-5">
     <!-- Filtors -->
-    <div class="row sticky-section border-0 rounded-4 p-3 shadow mb-4">
+    <div class="row sticky-section border-0 rounded-4 p-2 shadow mb-2 mt-3">
         <div class="row mt-3">
             <!-- Filtro de fechas -->
             <div class="col d-flex gap-3">
@@ -20,120 +20,197 @@
                     <i class="bi bi-funnel-fill"></i>
                 </button>
                 <button type="button" class="btn btn-secondary bi bi-trash filterbutton"
-                    title="Limpiar Filtros" (click)=" limpiarFiltro()">
+                    title="Limpiar Filtros" (click)="limpiarFiltro()">
                 </button>
             </div>
         </div>
     </div>
     
+    <div class="modal fade" id="filtrosAvanzados" tabindex="-1" aria-labelledby="filtrosAvanzadosLabel" 
+        aria-hidden="true" data-bs-keyboard="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filtrosAvanzadosLabel">Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class=" row d-flex justify-content-start align-items-center mb-3">
+                        <div class="col-4">
+                            <label for="tipo" class="form-label Text Start">Producto</label>
+                        </div>
+                        <div class="col">
+                            <ng-select
+                                [items]="optionsProductos"
+                                [(ngModel)]="productosFiltrados"
+                                bindLabel="label"
+                                bindValue="value"
+                                [multiple]="true"
+                                (change)="loadMovimientos()"
+                                class="w-100">
+                                <ng-template ng-multi-label-tmp let-items="items">
+                                    Seleccionar Productos
+                                    <span *ngIf="items.length > 0">({{ items.length }})</span>
+                                </ng-template>
+                
+                                <!-- Template para las opciones del dropdown -->
+                                <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                                    <input type="checkbox" [checked]="item$.selected" />
+                                    {{ item.label }}
+                                </ng-template>
+                            </ng-select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+  </div>
+
 
     <!-- Grilla del dashboard -->
-    <div class="row position-relative min-vh-75">
-        <!-- Grafico de columnas -->
-        <div class="col-md-9">
-            <div class="card border-0 shadow-lg  rounded-4 h-100 w-100">
-                <div class="card-body">
-                    <div class=" align-items-center mb-4">
-                        <div>
-                            <h5 class="card-title text-secondary mb-1 d-flex justify-content-center">Historial de stock</h5>
+    <div class="sticky-section border-0 rounded-4 p-3 shadow mb-4">
+        <div class="row mb-2">
+            <!-- Grafico de lineas -->
+            <div class="col-md-9">
+                <div class="card border-0 shadow-lg  rounded-4 h-100 w-100">
+                    <div class="card-body">
+                        <div class=" align-items-center mb-4">
+                            <div>
+                                <h5 class="card-title text-secondary mb-1 d-flex justify-content-center">Movimiento de stock</h5>
+                            </div>
                         </div>
+                        @if (dataHistorial.length !== 0) {
+                            <google-chart [type]="chartTypeLinea" [data]="dataHistorial" [options]="chartOptionsHistorial" 
+                             class="w-100 expanded-chart-content">
+                            </google-chart>
+                        } @else {
+                            <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">
+                                No se registraron movimientos con los filtros establecidos</h5>
+                        }
                     </div>
-                    <google-chart [type]="chartTypeColumnas" [data]="dataHistorial" [options]="chartOptionsHistorial"
-                        class="w-100 expanded-chart-content">
-                    </google-chart>
                 </div>
             </div>
+
+            <!-- KPIs para el gráfico de columnas cuando es grande-->
+            <div class="col-md-3">
+                <!-- Total productos aumentados -->
+                <div class="row">
+                    <div class="col mb-3">
+                        <div class="card border-0 shadow-lg mb-3 rounded-4 h-100 w-100"
+                            style="background-color: #b3f5bc;">
+                            <div class="card-body position-relative">
+                                <i class="bi bi-arrow-up-circle position-absolute top-50 end-0 translate-middle-y me-4"
+                                    style="font-size: 2.5rem; color: #198754; opacity: 0.8;"></i>
+                                <div class="pe-5">
+                                    <h6 class="text-secondary mb-2"><b>Total productos aumentados</b></h6>
+                                    <h3 class="mb-0">
+                                        <small class="text-muted">{{kpiTotalMovimientosAumento}}</small>
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total productos disminuidos -->
+                <div class="row">
+                    <div class="col mb-3">
+                        <div class="card border-0 shadow-lg mb-3 rounded-4 h-100 w-100"
+                            style="background-color: #fa9189;">
+                            <div class="card-body position-relative">
+                                <i class="bi bi-arrow-down-circle position-absolute top-50 end-0 translate-middle-y me-4"
+                                    style="font-size: 2.5rem; color: #FF0000; opacity: 0.8;"></i>
+                                <div class="pe-5">
+                                    <h6 class="text-secondary mb-2"><b>Total productos disminuidos</b></h6>
+                                    <h3 class="mb-0">
+                                        <small class="text-muted">{{kpiTotalMovimietnosDisminucion}}</small>
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total movimientos -->
+                <div class="row">
+                    <div class="col mb-3">
+                        <div class="card border-0 shadow-lg mb-3 rounded-4 h-100 w-100"
+                            style="background-color: #d6f6ff;">
+                            <div class="card-body position-relative">
+                                <i class="bi bi-circle position-absolute top-50 end-0 translate-middle-y me-4"
+                                    style="font-size: 2.5rem; color: #1565c0; opacity: 0.8;"></i>
+                                <div class="pe-5">
+                                    <h6 class="text-secondary mb-2"><b>Total movimientos realizados</b></h6>
+                                    <h3 class="mb-0">
+                                        <small class="text-muted">{{kpiTotalMovimientos}}</small>
+                                    </h3>
+                                    <small class="text-muted"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>  
         </div>
-
-        <!-- KPIs para el gráfico de columnas cuando es grande-->
-        <div class="col-md-3">
-            <!-- Total Recaudado/Morosos -->
-            <div class="row">
-                <div class="col mb-3">
-                    <div class="card border-0 shadow-lg mb-3 rounded-4 h-100 w-100"
-                        style="background-color: #d8ffedde;">
-                        <div class="card-body position-relative">
-                            <i class="bi bi-arrow-up-circle position-absolute top-50 end-0 translate-middle-y me-4"
-                                style="font-size: 2.5rem; color: #198754; opacity: 0.8;"></i>
-                            <div class="pe-5">
-                                <h6 class="text-secondary mb-2">Total productos aumentados</h6>
-                                <h3 class="mb-0">
-                                    <small class="text-muted">{{kpiTotalMovimientosAumento}}</small>
-                                </h3>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-lg  rounded-4 h-100 w-100">
+                    <div class="card-body">
+                        <div class=" align-items-center mb-4">
+                            <div>
+                                <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">Aumentos Productos</h5>
+                                <small class="text-secondary d-flex justify-content-center"></small>
                             </div>
                         </div>
+                        @if(dataProductosAlta.length !== 0){
+                            <google-chart [type]="chartTypeColumnas" [data]="dataProductosAlta" [options]="chartOptionsProductosAlta"
+                                class="w-100 expanded-chart-content">
+                            </google-chart>
+                        } @else {
+                            <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">No se agregaron productos en el periodo establecido</h5>
+                        }
                     </div>
                 </div>
             </div>
-
-            <!-- Promedio Mensual -->
-            <div class="row">
-                <div class="col mb-3">
-                    <div class="card border-0 shadow-lg mb-3 rounded-4 h-100 w-100"
-                        style="background-color: #f5e8e8;">
-                        <div class="card-body position-relative">
-                            <i class="bi bi-arrow-down-circle position-absolute top-50 end-0 translate-middle-y me-4"
-                                style="font-size: 2.5rem; color: #FF0000; opacity: 0.8;"></i>
-                            <div class="pe-5">
-                                <h6 class="text-secondary mb-2">Total productos disminuidos</h6>
-                                <h3 class="mb-0">
-                                    <small class="text-muted">{{kpiTotalMovimietnosDisminucion}}</small>
-                                </h3>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-lg  rounded-4 h-100 w-100">
+                    <div class="card-body">
+                        <div class=" align-items-center mb-4">
+                            <div>
+                                <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">Disminuciones Productos</h5>
+                                <small class="text-secondary d-flex justify-content-center"></small>
                             </div>
                         </div>
+                        @if(dataProductosBaja.length !== 0){
+                            <google-chart [type]="chartTypeColumnas" [data]="dataProductosBaja" [options]="chartOptionsProductosBaja"
+                                class="w-100 expanded-chart-content">
+                            </google-chart>
+                        } @else {
+                            <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">No se disminuyeron productos en el periodo establecido</h5>
+                        }
                     </div>
                 </div>
             </div>
-
-            <!-- Mejor Mes -->
-            <div class="row">
-                <div class="col mb-3">
-                    <div class="card border-0 shadow-lg mb-3 rounded-4 h-100 w-100"
-                        style="background-color: #e3f2fd;">
-                        <div class="card-body position-relative">
-                            <i class="bi bi-equal position-absolute top-50 end-0 translate-middle-y me-4"
-                                style="font-size: 2.5rem; color: #1565c0; opacity: 0.8;"></i>
-                            <div class="pe-5">
-                                <h6 class="text-secondary mb-2">Total movimientos realizados</h6>
-                                <h3 class="mb-0">
-                                    <small class="text-muted">{{kpiTotalMovimientos}}</small>
-                                </h3>
-                                <small class="text-muted"></small>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-lg  rounded-4 h-100 w-100">
+                    <div class="card-body">
+                        <div class=" align-items-center mb-4">
+                            <div>
+                                <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">Productos faltantes actuales ({{fechaActual}})</h5>
+                                <small class="text-secondary d-flex justify-content-center"></small>
                             </div>
                         </div>
+                        @if(dataProductosFaltantes.length !== 0){
+                            <google-chart [type]="chartTypeBarras" [data]="dataProductosFaltantes" [options]="chartOptionsProductosFaltantes"
+                                class="w-100 expanded-chart-content">
+                            </google-chart>
+                        } @else {
+                            <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">No hay faltante de productos</h5>
+                        }
                     </div>
-                </div>
-            </div>
-        </div>  
-    </div>
-    <div class="row sticky-section border-0 rounded-4 p-3 shadow mb-4">
-        <div class="col-md-6">
-            <div class="card border-0 shadow-lg  rounded-4 h-100 w-100">
-                <div class="card-body">
-                    <div class=" align-items-center mb-4">
-                        <div>
-                            <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">Aumentos Productos</h5>
-                            <small class="text-secondary d-flex justify-content-center"></small>
-                        </div>
-                    </div>
-                    <google-chart [type]="chartTypeColumnas" [data]="dataProductosAlta" [options]="chartOptionsProductosAlta"
-                        class="w-100 expanded-chart-content">
-                    </google-chart>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card border-0 shadow-lg  rounded-4 h-100 w-100">
-                <div class="card-body">
-                    <div class=" align-items-center mb-4">
-                        <div>
-                            <h5 class="card-title text-secondary mb-1  d-flex justify-content-center">Disminuciones Productos</h5>
-                            <small class="text-secondary d-flex justify-content-center"></small>
-                        </div>
-                    </div>
-                    <google-chart [type]="chartTypeColumnas" [data]="dataProductosBaja" [options]="chartOptionsProductosBaja"
-                        class="w-100 expanded-chart-content">
-                    </google-chart>
                 </div>
             </div>
         </div>
