@@ -8,6 +8,8 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import { NgLabelTemplateDirective, NgSelectModule } from '@ng-select/ng-select';
 import { IepAttendancesNgselectComponent } from "../iep-attendances-ngselect/iep-attendances-ngselect.component";
+import { EmpPostConfigurationResponse } from '../../Models/emp-post-configuration';
+import { PillowTimeLateArrivalService } from '../../services/pillow-time-late-arrival.service';
 
 declare var $: any;
 declare var DataTable: any;
@@ -39,10 +41,16 @@ export class IepAttendancesComponent implements OnInit{
   nuevoEstado: string = "";
   justificationPutText: string = "";
   justificationGetText: string = "";
+  actualConfig:EmpPostConfigurationResponse={
+    pillowLastArrival: 0,
+    pillowJustify: 0,
+    userId: 0
+  };
 
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private pillowTimeLateArrivalService: PillowTimeLateArrivalService
   ) {
     const hoy = new Date();
     this.fechaMaxima = hoy.toISOString().split('T')[0];
@@ -51,7 +59,10 @@ export class IepAttendancesComponent implements OnInit{
   ngOnInit(): void {
     const name = Number(this.route.snapshot.paramMap.get('id'));  // Esto devuelve un string
     if (name) { this.empleadoId = name;}  // Guardamos el string
-
+    this.pillowTimeLateArrivalService.actualConfig().subscribe(data=>{
+      this.actualConfig=data;
+      console.log(data);
+    })
     this.loadAsistencias();
     this.initializeDates();
     this.setInitialDates();
@@ -118,6 +129,7 @@ export class IepAttendancesComponent implements OnInit{
   loadAsistencias(): void {
     const asistSubscription = this.empleadoService.getAttendances().subscribe({
       next: (asistencias) => {
+        console.log('Asistencias cargadas:', asistencias);
         this.Asistencias = asistencias;
         this.filteredAsistencias = asistencias;
         this.filtrar();
@@ -197,7 +209,7 @@ export class IepAttendancesComponent implements OnInit{
   
             // Lógica para los estados AUSENTE y JUSTIFICADO
             let dropdown = '';   
-            if (row.state === "AUSENTE") {
+            if (row.state === "AUSENTE" && this.isValidDateToJustify(row.date)) {
               dropdown = `
                 <div class="text-center">
                   <div class="btn-group">
@@ -271,7 +283,28 @@ export class IepAttendancesComponent implements OnInit{
     // $('#empleadosTable').on('click', '.btn-modal', (event: any) => {
     // });
   }
-
+  isValidDateToJustify(date:any):boolean{
+    const [day, month, year] = date.split('/').map((part: string) => parseInt(part, 10));
+  
+    // Crea la fecha usando el formato correcto
+    const inputDate = new Date(year, month - 1, day); // En JavaScript, los meses van de 0 a 11
+  
+    // Obtiene la fecha actual y la establece a la medianoche para comparar solo la fecha
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Calcula la diferencia en milisegundos entre la fecha actual y la fecha de entrada
+    const diffInMs = today.getTime() - inputDate.getTime();
+    
+    // Convierte la diferencia a días
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    
+    // Devuelve true si la diferencia está dentro del rango permitido y la fecha no es futura
+    const isValid = diffInDays <= this.actualConfig.pillowJustify && diffInDays >= 0;
+  
+    console.log(`Fecha ingresada: ${date}, Días de diferencia: ${diffInDays},rango ${this.actualConfig.pillowJustify}, Válido: ${isValid}`);
+    return isValid;
+  }
   onStartDateChange(): void {
     const startDateInput: HTMLInputElement = document.getElementById('startDate') as HTMLInputElement;
     const endDateInput: HTMLInputElement = document.getElementById('endDate') as HTMLInputElement;
