@@ -23,6 +23,8 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
   fechaInicio!: string;
   fechaFin!: string;
   fechaActual: string = "";
+  cantMin: number = 0;
+  cantMax: number = 0;
 
   // listacategorias: Set<String> = new Set();
 
@@ -346,6 +348,18 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
         console.log("Productos filtro"+element)
       });
 
+      if(this.cantMin){
+        this.modificacionesFiltradas = this.modificacionesFiltradas.filter(modificacion => {
+          return modificacion.amount >= this.cantMin;
+        })
+      }
+
+      if(this.cantMax){
+        this.modificacionesFiltradas = this.modificacionesFiltradas.filter(modificacion => {
+          return modificacion.amount <= this.cantMax;
+        })
+      }
+
     console.log(this.modificacionesFiltradas);
     this.cargarKpi();
   }
@@ -357,6 +371,8 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
 
   limpiarFiltro(){
     this.productosFiltrados = [];
+    this.cantMin = 0;
+    this.cantMax = 0;
     this.setInitialDates();
     this.loadMovimientos();
   }

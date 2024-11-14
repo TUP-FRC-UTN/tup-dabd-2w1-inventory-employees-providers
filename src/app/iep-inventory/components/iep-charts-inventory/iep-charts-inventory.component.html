@@ -31,7 +31,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="filtrosAvanzadosLabel">Producto</h5>
+                    <h5 class="modal-title" id="filtrosAvanzadosLabel">Filtros avanzados</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -59,6 +59,22 @@
                                     {{ item.label }}
                                 </ng-template>
                             </ng-select>
+                        </div>
+                    </div>
+                    <div class="row d-flex justify-content-start align-items-center mb-3">
+                        <div class="col-4">
+                            <label for="tipo" class="form-label Text Start">Cant. Mínima</label>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control" [(ngModel)]="cantMin" (ngModelChange)="loadMovimientos()">
+                        </div>
+                    </div>
+                    <div class="row d-flex justify-content-start align-items-center mb-3">
+                        <div class="col-4">
+                            <label for="tipo" class="form-label Text Start">Cant. Máxima</label>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control" [(ngModel)]="cantMax" (ngModelChange)="loadMovimientos()">
                         </div>
                     </div>
                 </div>
