@@ -33,13 +33,16 @@ export class IepAttentionCallComponent implements OnInit{
   filteredEmployees: EmployeeGetResponseDTO[] = [];
   selectedEmployeeIds: Set<number> = new Set<number>();
   formSubmitted: boolean = false;
-
+  fechaMaxima: string;
+  
   constructor(
     private router: Router,
     private fb: FormBuilder,
     private wakeUpCallService: LlamadoAtencionService,
     private ListDesempeño: ListadoDesempeñoService
   ) {
+    const hoy = new Date();
+    this.fechaMaxima = hoy.toISOString().split('T')[0];
     const today = new Date().toISOString().split('T')[0];
     this.wakeUpCallForm = this.fb.group({
       fecha: [today, [Validators.required, this.fechaMaximaValidator]],
