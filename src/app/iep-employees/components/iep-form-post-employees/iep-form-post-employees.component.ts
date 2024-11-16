@@ -22,10 +22,9 @@ import { NgSelectModule } from '@ng-select/ng-select';
 })
 export class IEPFormPostEmployeesComponent implements OnInit {
   
-  fechaMaxima: string;
+
   constructor(private serviceCombos: EmpPostEmployeeService , private router : Router) {
-    const hoy = new Date();
-    this.fechaMaxima = hoy.toISOString().split('T')[0];
+    
   }
 
   isInfoModalVisible: boolean = false;
@@ -55,7 +54,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
   documentTypeEnum=DocumentTypeEnum
 
-  userId: number=0
+  userId: number=1;
   nombre: string = '';
   apellido: string = '';
   cuil: string = '';

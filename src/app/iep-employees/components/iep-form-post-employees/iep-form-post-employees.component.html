@@ -194,7 +194,7 @@
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="telefono" name="telefono"
                                     [(ngModel)]="telefono" #telefonoModel="ngModel" required
-                                    pattern='^(0?15)?[1-9]\d{8}$' [ngClass]="{
+                                    pattern='^(0?15)?[1-10]\d{9}$' [ngClass]="{
                    'is-invalid': telefonoModel.invalid && telefonoModel.touched, 
                    'is-valid': telefonoModel.valid && telefonoModel.touched
                }">
@@ -492,7 +492,7 @@
                         <div class="row text-end">
                             <label for="start-time-contract" class="col-form-label col-md-3">Inicio</label>
                             <div class="col-md-9">
-                                <input type="date" id="startTimeContract" [attr.max]="fechaMaxima" id="startTimeContract" class="form-control"
+                                <input type="date" id="startTimeContract"  id="startTimeContract" class="form-control"
                                     name="startTimeContract" [(ngModel)]="startTimeContract"
                                     #startTimeContractModel="ngModel" required (ngModelChange)="validateDate()"
                                     [ngClass]="{

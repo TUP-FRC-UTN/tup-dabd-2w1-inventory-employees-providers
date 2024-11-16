@@ -168,7 +168,7 @@ export class IepPutEmployeesComponent implements OnInit {
       console.log('addressDto:', employeeData.addressDto);
       console.log('telephoneValue:', employeeData.telephoneValue);
       console.log('emailValue:', employeeData.emailValue);
-
+      console.log(employeeData);
       this.postEmployeeService.updateEmployee(employeeData).subscribe({
         next: () => this.showAlert('success', 'Empleado actualizado exitosamente'),
         error: (error) => {
@@ -222,7 +222,7 @@ export class IepPutEmployeesComponent implements OnInit {
       addressDto ,                         
       telephoneValue: this.telefono || '', 
       emailValue: this.mail || '',         
-      userId: 0                       
+      userId: Number(this.dni),        
     };
   }
   private showAlert(type: 'success' | 'error', message: string): void {
