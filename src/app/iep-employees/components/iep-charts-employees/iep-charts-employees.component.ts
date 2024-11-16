@@ -8,11 +8,12 @@ import { EmpListadoEmpleados } from '../../Models/emp-listado-empleados';
 import { ListadoDesempeñoService } from '../../services/listado-desempeño.service';
 import { WakeUpCallDetail } from '../../Models/listado-desempeño';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { IepKpiComponent } from "../../../common-components/iep-kpi/iep-kpi.component";
 
 @Component({
   selector: 'app-iep-charts-employees',
   standalone: true,
-  imports: [GoogleChartsModule, CommonModule, FormsModule, NgSelectModule],
+  imports: [GoogleChartsModule, CommonModule, FormsModule, NgSelectModule, IepKpiComponent],
   templateUrl: './iep-charts-employees.component.html',
   styleUrl: './iep-charts-employees.component.css'
 })
@@ -41,7 +42,7 @@ fechaFin!: string;
 
 // Variables para definir los tipos de graficos a protectar
 chartTypeCirculo: ChartType = ChartType.PieChart;
-chartTypeBarras: ChartType = ChartType.ColumnChart;
+chartTypeColumnas: ChartType = ChartType.ColumnChart;
 
 // Listas con los datos a proyectar en los graficos
 dataAsistencias: any[] = [];
@@ -186,32 +187,38 @@ cargarLlamados(){
   this.llamadosFiltrados.forEach(llamado => {
     meses.add(llamado.dateReal[1])
     anos.add(llamado.dateReal[0])
-    console.log("Meses: "+meses);
-    console.log("Años: "+anos)
+    console.log("Meses: "+Array.from(meses));
+    console.log("Años: "+Array.from(anos))
   });
 
 
   const mesesLlamados: number[] = Array.from(meses);
   mesesLlamados.sort((a, b) => a - b);
 
-  this.dataLlamados = [];
-  mesesLlamados.forEach(mes => {
+  const anosLlamados: number[] = Array.from(anos);
+  anosLlamados.sort((a, b) => a - b);
 
-    var l = 0;
-    var m = 0;
-    var s = 0;
-
-    this.llamadosFiltrados.forEach(llamado => {
-      if(llamado.dateReal[1] === mes){
-        switch (llamado.wackeUpTypeEnum){
-          case "Leve": l++; break;
-          case "Moderado": m++; break;
-          case "Severo": s++; break;
+  anosLlamados.forEach(ano => {
+    mesesLlamados.forEach(mes => {
+  
+      var l = 0;
+      var m = 0;
+      var s = 0;
+  
+      this.llamadosFiltrados.forEach(llamado => {
+        if(llamado.dateReal[1] === mes && llamado.dateReal[0] === ano){
+          switch (llamado.wackeUpTypeEnum){
+            case "Leve": l++; break;
+            case "Moderado": m++; break;
+            case "Severo": s++; break;
+          }
         }
+      });
+  
+      if (l !== 0 || m !== 0 || s !== 0){
+        this.dataLlamados.push([this.convertirNumeroAMes(mes) + " - " +ano,l,m,s])
       }
     });
-
-    this.dataLlamados.push([this.convertirNumeroAMes(mes),l,m,s])
   });
 }
 
@@ -294,7 +301,6 @@ filtrarAsistencias() {
   })
 
  if(this.empleadosFiltrados.length !== 0){
-    console.log(this.empleadosFiltrados.length)  
     this.asistenciasFiltradas = this.asistenciasFiltradas.filter(asistencia =>{
       console.log(asistencia)
       return this.empleadosFiltrados.includes(asistencia.employeeId.toString())
@@ -336,9 +342,15 @@ filtrarLlamados() {
       return (
         (!startDate || llamadoDate >= startDate) &&
         (!endDate || llamadoDate <= endDate)
-      );
-        
+      ); 
     });
+
+    if(this.empleadosFiltrados.length !== 0){
+      console.log(this.empleadosFiltrados.length)  
+      this.llamadosFiltrados = this.llamadosFiltrados.filter(llamado =>{
+        return this.empleadosFiltrados.includes(llamado.employeeId.toString())
+     })
+    }
   }
 }
 

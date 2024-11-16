@@ -5,11 +5,15 @@ import { StockAumentoService } from '../../services/stock-aumento.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
-
+import { IepKpiComponent } from "../../../common-components/iep-kpi/iep-kpi.component";
+interface productosFaltantes{
+  producto: string,
+  cantidad: number
+}
 @Component({
   selector: 'app-iep-charts-inventory',
   standalone: true,
-  imports: [GoogleChartsModule,FormsModule,CommonModule,NgSelectModule],
+  imports: [GoogleChartsModule, FormsModule, CommonModule, NgSelectModule, IepKpiComponent],
   templateUrl: './iep-charts-inventory.component.html',
   styleUrl: './iep-charts-inventory.component.css'
 })
@@ -24,6 +28,7 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
   fechaFin!: string;
   fechaActual: string = "";
 
+  boolFaltantes: boolean = false;
   // listacategorias: Set<String> = new Set();
 
   // Listas para guardar los datos proveniente de los servicios
@@ -31,16 +36,16 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
   productosFiltrados: any[] = [];
   modificaciones: any[] = [];
   modificacionesFiltradas: any[] = [];
+  productosFaltantes: productosFaltantes[] = [];
 
   chartTypeColumnas: ChartType = ChartType.ColumnChart;
   chartTypeLinea: ChartType = ChartType.LineChart;
   chartTypeBarras: ChartType = ChartType.BarChart;
   
   dataHistorial: any[] = [];
-  dataProductosAlta: any[] = [];
-  dataProductosBaja: any[] = [];
-  dataProductosFaltantes: any[] = [];
+  dataProductos: any[] = [];
   dataEstadosProductos: any[] = [];
+  dataProductosFaltantes: any[] = [];
 
   optionsProductos: any[] = [];
 
@@ -53,13 +58,9 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
     animation: { duration: 1000, easing: 'out', startup: true },
   };
 
-  chartOptionsProductosAlta = {
-    colors: ['#008000'],
-    animation: { duration: 1000, easing: 'out', startup: true },
-  };
-
-  chartOptionsProductosBaja = {
-    colors: ['#FF0000'],
+  columnsProductos= ['Producto','Aumento','Disminucion']
+  chartOptionsProductos = {
+    colors: ['#008000','#FF0000'],
     animation: { duration: 1000, easing: 'out', startup: true },
   };
 
@@ -124,6 +125,7 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
          this.productos = [];
          this.productos = Productos;
          this.cargarProductosFaltantes();
+         this.cargarSelectProductos();
       }
     })
   }
@@ -136,7 +138,6 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
         this.modificacionesFiltradas = Modificacion;
         this.filtrar();
         this.cargarMovimientos();
-        this.cargarSelectProductos();
       },
       error: (err) => console.error('Error al cargar asistencias:', err)
     })
@@ -192,8 +193,7 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
 
   cargarMovimientos(){
     this.dataHistorial = [];
-    this.dataProductosAlta = [];
-    this.dataProductosBaja = [];
+    this.dataProductos = [];
     
     const fechas: Set<string> = new Set();
     this.modificacionesFiltradas.forEach(modificacion => {
@@ -240,9 +240,7 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
         if (producto === modificacion.product && modificacion.modificationType === 'Disminución') {totalDisminucionProducto += modificacion.amount}
       });
 
-
-      if(totalAumentoProducto !== 0) {this.dataProductosAlta.push([producto,totalAumentoProducto]);}
-      if(totalDisminucionProducto !== 0) {this.dataProductosBaja.push([producto,totalDisminucionProducto]);}
+      this.dataProductos.push([producto,totalAumentoProducto,totalDisminucionProducto]);
     });
       
 
@@ -263,13 +261,28 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
   }
 
   cargarProductosFaltantes(){
+    this.dataProductosFaltantes = [];
     this.productos.forEach(producto => {
+     
       const stock = producto.stock;
       const cantMin = producto.minQuantityWarning;
       const total = stock - cantMin;
 
-      if (total < 0) {this.dataProductosFaltantes.push([producto.name,(total * -1)])}
+      if(total <= 0){
+        var faltante: productosFaltantes = {
+          producto: producto.name,
+          cantidad: (total * -1) + 1
+        }
+  
+        this.productosFaltantes.push(faltante)
+
+        this.dataProductosFaltantes.push([producto.name,faltante.cantidad])
+      }
     });
+
+    this.productosFaltantes = this.productosFaltantes
+    .sort((a, b) => b.cantidad - a.cantidad) // Ordenar de mayor a menor
+    .slice(0, 5); // Tomar solo los primeros 5 elementos
   }
 
   cargarSelectProductos(){
@@ -376,11 +389,16 @@ export class IepChartsInventoryComponent implements OnInit, OnDestroy {
     this.kpiTotalMovimietnosDisminucion = totalProductosDisminucion;
   }
 
+  cambiarVista(){
+    if (this.boolFaltantes) {this.boolFaltantes = false}
+    else this.boolFaltantes = true;
+  }
+
   ngOnDestroy(): void {
     this.dataEstadosProductos = [];
     this.dataHistorial = [];
-    this.dataProductosAlta = []
-    this.dataProductosBaja = [];
-    this.dataProductosFaltantes = [];
+    this.dataProductos = []
+    this.productosFaltantes = [];
   }
+
 }

@@ -9,6 +9,7 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { UsersMockIdService } from '../../../common-services/users-mock-id.service';
 declare var bootstrap: any; // Añadir esta declaración al principio
 
 @Component({
@@ -53,10 +54,12 @@ export class IepChargesComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private cargoService: ChargeService,
+    private mockid:UsersMockIdService
   ) {
     this.cargoForm = this.fb.group({
       charge: ['', Validators.required],
-      description: ['', Validators.required]
+      description: ['', Validators.required],
+      
     });
   }
 

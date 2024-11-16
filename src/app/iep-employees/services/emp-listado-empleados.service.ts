@@ -58,7 +58,7 @@ export class EmpListadoEmpleadosService {
     );
   }
 
-  putAttendances(id: number, state: string, justification: string): Observable<any> {
+  putAttendances(id: number, state: string, justification: string, userid:number): Observable<any> {
     // Inicializa nuevos parámetros en cada ejecución
     let params = new HttpParams()
         .set('id', id.toString())

@@ -11,6 +11,7 @@ import { EmpPostEmployeeService } from '../../services/emp-post-employee.service
 import { NgSelectModule } from '@ng-select/ng-select';
 import { EmpPutEmployeesResponse } from '../../../iep-inventory/models/EmpPutEmployeesResponse';
 import { EmpPutEmployeeRequest } from '../../../iep-inventory/models/EmpPutEmployeeRequest';
+import { UsersMockIdService } from '../../../common-services/users-mock-id.service';
 
 @Component({
   selector: 'app-iep-put-employees',
@@ -21,6 +22,7 @@ import { EmpPutEmployeeRequest } from '../../../iep-inventory/models/EmpPutEmplo
 })
 export class IepPutEmployeesComponent implements OnInit {
   // Variables para datos personales
+  userId: number=0;
   nombre: string = '';
   apellido: string = '';
   dni: string = '';
@@ -66,6 +68,7 @@ export class IepPutEmployeesComponent implements OnInit {
     private router: Router,
     private empleadoService: EmpListadoEmpleadosService,
     private postEmployeeService: EmpPostEmployeeService,
+    private mockid: UsersMockIdService
   ) {}
   ngOnInit(): void {
     this.loadProvincias();
@@ -222,7 +225,7 @@ export class IepPutEmployeesComponent implements OnInit {
       addressDto ,                         
       telephoneValue: this.telefono || '', 
       emailValue: this.mail || '',         
-      userId: Number(this.dni),        
+      userId: this.mockid.getMockId() || 0       
     };
   }
   private showAlert(type: 'success' | 'error', message: string): void {

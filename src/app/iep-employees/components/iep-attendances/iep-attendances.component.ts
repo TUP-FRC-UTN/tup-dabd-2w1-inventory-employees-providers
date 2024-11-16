@@ -10,6 +10,7 @@ import { NgLabelTemplateDirective, NgSelectModule } from '@ng-select/ng-select';
 import { IepAttendancesNgselectComponent } from "../iep-attendances-ngselect/iep-attendances-ngselect.component";
 import { EmpPostConfigurationResponse } from '../../Models/emp-post-configuration';
 import { PillowTimeLateArrivalService } from '../../services/pillow-time-late-arrival.service';
+import { UsersMockIdService } from '../../../common-services/users-mock-id.service';
 
 declare var $: any;
 declare var DataTable: any;
@@ -50,7 +51,8 @@ export class IepAttendancesComponent implements OnInit{
   constructor(
     private empleadoService: EmpListadoEmpleadosService,
     private route: ActivatedRoute,
-    private pillowTimeLateArrivalService: PillowTimeLateArrivalService
+    private pillowTimeLateArrivalService: PillowTimeLateArrivalService,
+    private mockid: UsersMockIdService
   ) {
     const hoy = new Date();
     this.fechaMaxima = hoy.toISOString().split('T')[0];
@@ -395,7 +397,7 @@ export class IepAttendancesComponent implements OnInit{
 
   confirmarJustificacion(){
     if(this.justificationPutText){
-      this.empleadoService.putAttendances(this.id, this.nuevoEstado, this.justificationPutText).subscribe({
+      this.empleadoService.putAttendances(this.id, this.nuevoEstado, this.justificationPutText, this.mockid.getMockId()).subscribe({
         next: (response) => {
           console.log('Asistencia actualizada:', response);
           this.loadAsistencias();

@@ -11,6 +11,7 @@ import { EmpPostEmployeeService } from '../../services/emp-post-employee.service
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { UsersMockIdService } from '../../../common-services/users-mock-id.service';
 
 
 @Component({
@@ -23,7 +24,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 export class IEPFormPostEmployeesComponent implements OnInit {
   
 
-  constructor(private serviceCombos: EmpPostEmployeeService , private router : Router) {
+  constructor(private serviceCombos: EmpPostEmployeeService , private router : Router,private usermock: UsersMockIdService) {
     
   }
 
@@ -92,7 +93,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
   cargoSelected?:Charge
   provinciaSelect? : Provincia =this.provincias.find(provincia => provincia.nombre === 'Cordoba');
-  localidadSelect?:Ciudad ;
+  localidadSelect?:Ciudad;
   
   postDto:PostEmployeeDto = new PostEmployeeDto();
   adressDto:AddressDto =new AddressDto();
@@ -247,7 +248,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
 
             this.postDto.charge=this.cargoSelected?.id
-            this.postDto.userId=this.userId
+            this.postDto.userId=this.usermock.getMockId()
 
             console.log("Antes del Post (formato JSON):", JSON.stringify(this.postDto, null, 2))
             this.createEmployee$ = this.serviceCombos.createProduct(this.postDto);
