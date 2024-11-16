@@ -15,7 +15,7 @@ import { EmpPutEmployeeRequest } from '../../../iep-inventory/models/EmpPutEmplo
 @Component({
   selector: 'app-iep-put-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NgSelectModule],
+  imports: [CommonModule, FormsModule, NgSelectModule],
   templateUrl: './iep-put-employees.component.html',
   styleUrls: ['./iep-put-employees.component.css']
 })

@@ -11,12 +11,13 @@ import { EmpPostEmployeeService } from '../../services/emp-post-employee.service
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { CuitValidatorDirective } from '../../../validators/cuit-validator.directive';
 
 
 @Component({
   selector: 'app-iep-form-post-employees',
   standalone: true,
-  imports: [FormsModule, CommonModule,NgSelectModule],
+  imports: [FormsModule, CommonModule,NgSelectModule,CuitValidatorDirective],
   templateUrl: './iep-form-post-employees.component.html',
   styleUrl: './iep-form-post-employees.component.css',
 })
