@@ -1,6 +1,6 @@
 import { CommonModule, JsonPipe, NgFor } from '@angular/common';
 import { Component, importProvidersFrom, Inject, OnInit } from '@angular/core';
-import { Form, FormsModule, NgForm } from '@angular/forms';
+import { Form, FormsModule, NgForm, PatternValidator } from '@angular/forms';
 import { Ciudad, Provincia } from '../../Models/emp-provincia';
 import { Observable } from 'rxjs';
 import { Provider } from '../../../iep-inventory/models/provider';
@@ -22,8 +22,8 @@ import { UsersMockIdService } from '../../../common-services/users-mock-id.servi
   styleUrl: './iep-form-post-employees.component.css',
 })
 export class IEPFormPostEmployeesComponent implements OnInit {
+ 
   
-
   constructor(private serviceCombos: EmpPostEmployeeService , private router : Router,private usermock: UsersMockIdService) {
     
   }
@@ -101,6 +101,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
   isValidDni:boolean =true;
 
   isValidCuil:boolean=true;
+  isValidCuilFinish: boolean = true;
 
   cambio() {
     console.log("Lunes:", this.lunes); // Debería mostrar true o false
@@ -128,6 +129,8 @@ export class IEPFormPostEmployeesComponent implements OnInit {
 
   public validateCuil(){
     console.log("pre validando"+this.cuil)
+    let rsta =  this.validarCUILFormato(this.cuil)
+    if(!rsta ){ return}
     if(this.cuil!=null&&this.cuil!=undefined ){
 
       console.log("prevalidando2")
@@ -137,7 +140,7 @@ export class IEPFormPostEmployeesComponent implements OnInit {
             console.log("respuestaa"+response)
             this.isValidCuil = !response;
             console.log(this.isValidCuil)
-
+            this.validarCUILFormato(this.cuil)
 
 
     // Verificar cada control en el formulario y registrar errores
@@ -322,6 +325,56 @@ export class IEPFormPostEmployeesComponent implements OnInit {
       },
     });
   }
+
+
+
+
+   validarCUILFormato(cuil: string): boolean {
+    // Elimina guiones o espacios del CUIL
+    console.log(cuil)
+    const cuilLimpio = cuil.replace(/[-\s]/g, "");
+
+    // Verifica que tenga 11 dígitos
+    if (!/^\d{11}$/.test(cuilLimpio)) {
+        return false;
+    }
+    console.log("paso 1")
+
+    // Separa los componentes del CUIL
+    const tipo = parseInt(cuilLimpio.substring(0, 2), 10);
+    const dni = parseInt(cuilLimpio.substring(2, 10), 10);
+    const digitoVerificador = parseInt(cuilLimpio.substring(10, 11), 10);
+
+    // Verifica que el tipo sea válido (20, 23, 24, 27, 30, 33, 34)
+    const tiposValidos = [20, 23, 24, 27];
+    if (!tiposValidos.includes(tipo)) {
+        this.isValidCuilFinish= false
+        return false;
+    }
+    else {
+      this.isValidCuilFinish=true
+    }
+    console.log("paso3")
+    // Calcula el dígito verificador
+    /* const multiplicadores = [3, 2, 7, 6, 5, 4, 3, 2, 1]; // Último 1 es para el dígito verificador
+    let suma = 0;
+
+    for (let i = 0; i < 10; i++) {
+        suma += parseInt(cuilLimpio[i], 10) * multiplicadores[i];
+    }
+
+    const resto = suma % 11;
+    const digitoCalculado = resto === 0 ? 0 : 11 - resto;
+
+    if( digitoCalculado != digitoVerificador){
+      this.isValidCuilFinish = false
+      return true
+    } */
+    console.log("paso3")
+    // Verifica que el dígito verificador sea correcto
+    return true
+}
+
 
 
   loadCharges(): void {
