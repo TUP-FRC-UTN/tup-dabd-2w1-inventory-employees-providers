@@ -59,6 +59,16 @@ export class IepSuppliersFormComponent {
         this.router.navigate(['/suppliers']);
         
       });
+
+      const formAccess = {
+        name: formData.name,
+        cuil: formData.cuit,
+        email: formData.email,
+      }
+
+      this.supplierService.createSupplierAccess(formAccess).subscribe((response) => {
+        console.log(response);
+      })
     }
   }
 
